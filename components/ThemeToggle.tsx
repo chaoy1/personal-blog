@@ -20,15 +20,23 @@ export default function ThemeToggle() {
     setTheme(next)
   }
 
+  const dark = theme === 'dark'
+
   return (
     <button
       type="button"
-      className="theme-toggle"
+      className={`theme-switch${dark ? ' on' : ''}`}
       onClick={toggle}
-      aria-label={theme === 'dark' ? '切換到白天模式' : '切換到黑夜模式'}
-      title={theme === 'dark' ? '切換到白天' : '切換到黑夜'}
+      role="switch"
+      aria-checked={dark}
+      aria-label="切換晝夜模式"
+      title={dark ? '切換到白天' : '切換到黑夜'}
     >
-      {theme === 'dark' ? '☀' : '☾'}
+      <span className="ts-track" aria-hidden="true" />
+      <span className="ts-knob" aria-hidden="true">
+        <span className="ts-sun">☀</span>
+        <span className="ts-moon">☾</span>
+      </span>
     </button>
   )
 }
