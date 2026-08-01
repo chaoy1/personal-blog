@@ -75,6 +75,14 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="ops">
+                <Link
+                  href={post.published ? `/posts/${post.slug}` : '#'}
+                  className="btn btn-ghost btn-sm"
+                  aria-disabled={!post.published}
+                  style={post.published ? undefined : { pointerEvents: 'none', opacity: 0.45 }}
+                >
+                  查看
+                </Link>
                 <Link href={`/admin/editor?id=${post.id}`} className="btn btn-ghost btn-sm">
                   编辑
                 </Link>
