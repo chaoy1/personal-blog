@@ -36,15 +36,20 @@ export default async function PostPage({ params }: Props) {
   if (!post) notFound()
 
   return (
-    <div className="shell">
+    <div className="wrap">
       <nav className="article-nav">
-        <Link href="/">← 返回首页</Link>
+        <Link href="/">← 返回首頁</Link>
         <span>{SITE_NAME}</span>
       </nav>
 
       <article className="article">
         <p className="eyebrow">{formatDate(post.created_at)}</p>
-        <h1>{post.title}</h1>
+        <h1>
+          {post.title}
+          <span className="article-seal" aria-hidden="true">
+            記
+          </span>
+        </h1>
         <div className="article-meta">
           <span>{readingTime(post.content)}</span>
           {post.excerpt ? <span>{post.excerpt}</span> : null}
@@ -55,9 +60,9 @@ export default async function PostPage({ params }: Props) {
         <MarkdownView content={post.content} />
       </article>
 
-      <footer className="site-footer">
-        <Link href="/">← 返回首页</Link>
-        <span>写于 {formatDate(post.created_at)}</span>
+      <footer className="article-footer">
+        <Link href="/">← 返回首頁</Link>
+        <span>寫於 {formatDate(post.created_at)}</span>
       </footer>
     </div>
   )
