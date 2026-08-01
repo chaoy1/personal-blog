@@ -15,10 +15,10 @@ type NavLink = {
 
 const LINKS: NavLink[] = [
   { href: '/', label: '首頁', match: (p) => p === '/' },
-  { href: '/#posts', label: '文章', match: (p) => p.startsWith('/posts') },
-  { href: '/about', label: '關於', match: (p) => p.startsWith('/about') },
+  { href: '/posts', label: '文章', match: (p) => p.startsWith('/posts') },
   { href: '/moments', label: '說說', match: (p) => p.startsWith('/moments') },
   { href: '/album', label: '相冊', match: (p) => p.startsWith('/album') },
+  { href: '/about', label: '關於', match: (p) => p.startsWith('/about') },
 ]
 
 export default function SiteNav() {
@@ -40,17 +40,6 @@ export default function SiteNav() {
     return () => sub.subscription.unsubscribe()
   }, [])
 
-  function goToPosts() {
-    const scroll = () =>
-      document.getElementById('posts')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    if (pathname === '/') {
-      scroll()
-    } else {
-      router.push('/')
-      setTimeout(scroll, 180)
-    }
-  }
-
   async function logout() {
     await supabaseBrowser().auth.signOut()
     router.refresh()
@@ -64,18 +53,6 @@ export default function SiteNav() {
       <div className="nav-links">
         {LINKS.map((link) => {
           const active = link.match ? link.match(pathname) : false
-          if (link.href === '/#posts') {
-            return (
-              <button
-                key={link.href}
-                type="button"
-                className={active ? 'active' : undefined}
-                onClick={goToPosts}
-              >
-                {link.label}
-              </button>
-            )
-          }
           return (
             <Link key={link.href} href={link.href} className={active ? 'active' : undefined}>
               {link.label}

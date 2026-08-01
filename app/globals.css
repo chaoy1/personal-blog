@@ -1772,6 +1772,79 @@ button {
   font-size: 12px;
 }
 
+.moment-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 14px 0 0 52px;
+}
+
+.moment-like {
+  background: none;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-family: var(--font-kai);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 0.25s, border-color 0.25s;
+}
+
+.moment-like:hover {
+  color: var(--seal);
+  border-color: rgba(178, 58, 43, 0.55);
+}
+
+.moment-like.liked {
+  color: var(--seal);
+  border-color: rgba(178, 58, 43, 0.55);
+}
+
+.moment-like:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.moment-stat {
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+.moment-comments {
+  margin: 14px 0 0 52px;
+}
+
+.moment-comment {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px dashed var(--rule);
+}
+
+.moment-comment-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.moment-comment-form input {
+  flex: 1;
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  background: var(--card-bg);
+  padding: 9px 13px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  outline: none;
+}
+
+.moment-comment-form input:focus {
+  border-color: var(--seal);
+}
+
 .moment-content {
   margin: 14px 0 0 52px;
   font-size: 16px;
@@ -1940,8 +2013,55 @@ button {
   padding: 48px 44px 40px;
   border: 1px solid var(--rule-strong);
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.55);
   transition: background-color 0.5s ease, border-color 0.5s ease;
+}
+
+.login-card .field input[type="text"],
+.login-card .field input[type="email"],
+.login-card .field input[type="password"],
+.account-card .field input[type="text"],
+.account-card .field input[type="email"],
+.account-card .field input[type="password"] {
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  background: rgba(255, 253, 246, 0.7);
+  padding: 11px 14px;
+}
+
+.login-card .field input:focus,
+.account-card .field input:focus {
+  border-color: var(--seal);
+}
+
+.posts-head {
+  margin: 44px 8px 0;
+}
+
+.posts-head h1 {
+  margin: 16px 0 10px;
+  font-family: var(--font-kai);
+  font-size: 38px;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+}
+
+.posts-head .lede {
+  margin: 0;
+  text-align: left;
+}
+
+.more-link {
+  margin-top: 34px;
+  text-align: right;
+  font-family: var(--font-kai);
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  color: var(--seal);
+}
+
+.more-link a:hover {
+  color: var(--seal-deep);
 }
 
 .login-card h1 {

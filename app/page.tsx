@@ -13,7 +13,7 @@ export default async function HomePage() {
   let setupHint = false
 
   try {
-    posts = await listPublishedPosts()
+    posts = await listPublishedPosts(6)
   } catch {
     setupHint = true
   }
@@ -95,27 +95,32 @@ export default async function HomePage() {
           還沒有文章。到 <Link href="/admin">後臺</Link> 寫下第一篇吧。
         </div>
       ) : (
-        <section className="list" id="posts">
-          {posts.map((post, i) => (
-            <Link key={post.id} href={`/posts/${post.slug}`} className="item">
-              <span className="no">
-                {i < CN_NO.length ? CN_NO[i] : String(i + 1).padStart(2, '0')}
-              </span>
-              <span className="tag-seal" aria-hidden="true">
-                閱
-              </span>
-              <span className="wm" aria-hidden="true">
-                {i < CN_WM.length ? CN_WM[i] : ''}
-              </span>
-              <h2 className="post-title">{post.title}</h2>
-              {post.excerpt ? <span className="ex">{post.excerpt}</span> : null}
-              <span className="item-foot">
-                <span className="date">{formatDate(post.created_at)}</span>
-                <span className="read">閱讀全文</span>
-              </span>
-            </Link>
-          ))}
-        </section>
+        <>
+          <section className="list" id="posts">
+            {posts.map((post, i) => (
+              <Link key={post.id} href={`/posts/${post.slug}`} className="item">
+                <span className="no">
+                  {i < CN_NO.length ? CN_NO[i] : String(i + 1).padStart(2, '0')}
+                </span>
+                <span className="tag-seal" aria-hidden="true">
+                  閱
+                </span>
+                <span className="wm" aria-hidden="true">
+                  {i < CN_WM.length ? CN_WM[i] : ''}
+                </span>
+                <h2 className="post-title">{post.title}</h2>
+                {post.excerpt ? <span className="ex">{post.excerpt}</span> : null}
+                <span className="item-foot">
+                  <span className="date">{formatDate(post.created_at)}</span>
+                  <span className="read">閱讀全文</span>
+                </span>
+              </Link>
+            ))}
+          </section>
+          <div className="more-link">
+            <Link href="/posts">全部文章 →</Link>
+          </div>
+        </>
       )}
 
       <footer className="home-footer">

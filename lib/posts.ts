@@ -125,13 +125,17 @@ function normalizeInput(
   return { title, slug, excerpt, content, published }
 }
 
-export async function listPublishedPosts(): Promise<Post[]> {
-  if (!isSupabaseConfigured()) return DEMO_POSTS
-  const { data, error } = await supabaseAdmin()
+export async function listPublishedPosts(limit?: number): Promise<Post[]> {
+  if (!isSupabaseConfigured()) {
+    return limit ? DEMO_POSTS.slice(0, limit) : DEMO_POSTS
+  }
+  let query = supabaseAdmin()
     .from('posts')
     .select(FIELDS)
     .eq('published', true)
     .order('created_at', { ascending: false })
+  if (limit) query = query.limit(limit)
+  const { data, error } = await query
   if (error) throw new Error(`读取文章失败：${error.message}`)
   return data ?? []
 }
