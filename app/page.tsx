@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { listPublishedPosts, formatDate, type Post } from '@/lib/posts'
 import { SITE_NAME, SITE_DESC, SITE_VERSE } from '@/lib/site'
+import ScrollFX from '@/components/ScrollFX'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,6 +22,7 @@ export default async function HomePage() {
 
   return (
     <div className="wrap">
+      <ScrollFX />
       <div className="branch" aria-hidden="true">
         <svg viewBox="0 0 300 330" fill="none">
           <path className="stem" d="M292 4 C 246 46, 234 98, 216 156 S 186 244, 152 300" />
@@ -98,6 +100,9 @@ export default async function HomePage() {
             <Link key={post.id} href={`/posts/${post.slug}`} className="item">
               <span className="no">
                 {i < CN_NO.length ? CN_NO[i] : String(i + 1).padStart(2, '0')}
+              </span>
+              <span className="tag-seal" aria-hidden="true">
+                閱
               </span>
               <span className="wm" aria-hidden="true">
                 {i < CN_WM.length ? CN_WM[i] : ''}

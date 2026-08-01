@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { SITE_NAME } from '@/lib/site'
 
 type NavLink = {
@@ -21,8 +21,20 @@ const LINKS: NavLink[] = [
 
 export default function SiteNav() {
   const pathname = usePathname()
+  const router = useRouter()
 
   if (pathname.startsWith('/admin')) return null
+
+  function goToPosts() {
+    const scroll = () =>
+      document.getElementById('posts')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (pathname === '/') {
+      scroll()
+    } else {
+      router.push('/')
+      setTimeout(scroll, 180)
+    }
+  }
 
   return (
     <nav className="site-nav">
@@ -37,6 +49,18 @@ export default function SiteNav() {
               <a key={link.href} href={link.href} target="_blank" rel="noreferrer">
                 {link.label}
               </a>
+            )
+          }
+          if (link.href === '/#posts') {
+            return (
+              <button
+                key={link.href}
+                type="button"
+                className={active ? 'active' : undefined}
+                onClick={goToPosts}
+              >
+                {link.label}
+              </button>
             )
           }
           return (
