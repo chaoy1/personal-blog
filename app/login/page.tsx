@@ -16,6 +16,17 @@ export default function LoginPage() {
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
 
+  function authErrorZh(msg: string): string {
+    const m = msg.toLowerCase()
+    if (m.includes('invalid login credentials')) return '郵箱或密碼錯誤'
+    if (m.includes('email not confirmed')) return '郵箱尚未確認，請先查收確認郵件後再登錄'
+    if (m.includes('already registered')) return '該郵箱已註冊，請直接登錄'
+    if (m.includes('invalid email')) return '郵箱格式不正確'
+    if (m.includes('password should be at least')) return '密碼至少需要 6 位'
+    if (m.includes('rate limit')) return '操作太頻繁，請稍後再試'
+    return msg
+  }
+
   async function submit(e: FormEvent) {
     e.preventDefault()
     setError('')
@@ -26,7 +37,7 @@ export default function LoginPage() {
       if (mode === 'login') {
         const { error } = await sb.auth.signInWithPassword({ email, password })
         if (error) {
-          setError(error.message)
+          setError(authErrorZh(error.message))
           return
         }
         router.push('/')
@@ -38,7 +49,7 @@ export default function LoginPage() {
           options: { data: { nickname } },
         })
         if (error) {
-          setError(error.message)
+          setError(authErrorZh(error.message))
           return
         }
         const uid = data.user?.id

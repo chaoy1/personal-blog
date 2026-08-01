@@ -34,7 +34,9 @@ export default function Comments({ slug }: { slug: string }) {
           )
       )
     sb.from('comments')
-      .select('id, content, parent_id, created_at, user_id, profiles(nickname, avatar_url)')
+      .select(
+        'id, content, parent_id, created_at, user_id, profiles!comments_user_id_fkey(nickname, avatar_url)'
+      )
       .eq('post_slug', slug)
       .order('created_at', { ascending: true })
       .then(({ data, error }) => {
@@ -63,7 +65,9 @@ export default function Comments({ slug }: { slug: string }) {
     setReplyTo(null)
     const { data } = await supabaseBrowser()
       .from('comments')
-      .select('id, content, parent_id, created_at, user_id, profiles(nickname, avatar_url)')
+      .select(
+        'id, content, parent_id, created_at, user_id, profiles!comments_user_id_fkey(nickname, avatar_url)'
+      )
       .eq('post_slug', slug)
       .order('created_at', { ascending: true })
     if (data) setComments(data as unknown as Comment[])

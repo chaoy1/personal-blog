@@ -44,7 +44,7 @@ export default function MomentsPage() {
     const sb = supabaseBrowser()
     const { data, error } = await sb
       .from('moments')
-      .select('*, profiles(nickname, avatar_url)')
+      .select('*, profiles!moments_user_id_fkey(nickname, avatar_url)')
       .order('created_at', { ascending: false })
       .limit(60)
     if (error) {
@@ -64,7 +64,7 @@ export default function MomentsPage() {
 
       const { data: commentsData } = await sb
         .from('moment_comments')
-        .select('*, profiles(nickname, avatar_url)')
+        .select('*, profiles!moment_comments_user_id_fkey(nickname, avatar_url)')
         .in('moment_id', ids)
         .order('created_at', { ascending: true })
       setComments((commentsData ?? []) as unknown as MomentComment[])
@@ -167,7 +167,7 @@ export default function MomentsPage() {
     setCommentText((prev) => ({ ...prev, [momentId]: '' }))
     const { data } = await sb
       .from('moment_comments')
-      .select('*, profiles(nickname, avatar_url)')
+      .select('*, profiles!moment_comments_user_id_fkey(nickname, avatar_url)')
       .in(
         'moment_id',
         moments.map((m) => m.id)
