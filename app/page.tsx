@@ -53,7 +53,7 @@ export default async function HomePage() {
         <svg className="stroke" viewBox="0 0 250 28" aria-hidden="true">
           <path
             d="M4 16 C 42 7, 94 20, 138 12 S 218 7, 246 14"
-            stroke="#2c2a24"
+            className="stroke-main"
             strokeWidth={4}
             fill="none"
             strokeLinecap="round"
@@ -61,7 +61,7 @@ export default async function HomePage() {
           />
           <path
             d="M10 21 C 62 15, 124 23, 186 17 S 236 14, 244 17"
-            stroke="#6f685a"
+            className="stroke-thin"
             strokeWidth={1.6}
             fill="none"
             strokeLinecap="round"
@@ -69,7 +69,7 @@ export default async function HomePage() {
           />
           <path
             d="M124 3 C 156 8, 176 10, 204 7"
-            stroke="#b23a2b"
+            className="stroke-red"
             strokeWidth={3}
             fill="none"
             strokeLinecap="round"

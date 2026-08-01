@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { SITE_NAME } from '@/lib/site'
+import ThemeToggle from '@/components/ThemeToggle'
 
 type NavLink = {
   href: string
@@ -42,6 +43,7 @@ export default function SiteNav() {
         {SITE_NAME}
       </Link>
       <div className="nav-links">
+        <ThemeToggle />
         {LINKS.map((link) => {
           const active = link.match ? link.match(pathname) : false
           if (link.external) {

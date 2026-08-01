@@ -16,6 +16,114 @@
   --font-mono: "Cascadia Mono", "JetBrains Mono", ui-monospace, SFMono-Regular,
     Menlo, Consolas, monospace;
   --maxw: 920px;
+  --c-verse: #8f8878;
+  --c-sigil: #9a937f;
+  --c-eyebrow: #8f8878;
+  --c-title: #2c2a24;
+  --c-ex: #7a7362;
+  --c-date: #9a937f;
+  --c-wm: rgba(44, 42, 36, 0.05);
+  --c-wm-hover: rgba(44, 42, 36, 0.12);
+  --c-branch: #14120d;
+  --card-bg: rgba(255, 253, 246, 0.72);
+  --card-border: rgba(44, 42, 36, 0.24);
+  --card-inner: rgba(44, 42, 36, 0.07);
+  --nav-bg: rgba(242, 237, 222, 0.82);
+  --nav-bg-scrolled: rgba(236, 230, 214, 0.95);
+  --code-inline: rgba(44, 42, 36, 0.08);
+  --grain-img: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.5' fill='%23433e33'/%3E%3C/svg%3E");
+  --grain-blend: multiply;
+  --grain-opacity: 0.5;
+  --vignette: radial-gradient(ellipse at center, transparent 55%, rgba(70, 60, 40, 0.12) 100%);
+  --bg-sky1: #f5f0e1;
+  --bg-sky2: #ece5d0;
+  --bg-halo: #d8d2bf;
+  --bg-moon: #f4edd8;
+  --bg-cloud: #d8d2bf;
+  --bg-far1: #cdc6b2;
+  --bg-far2: #d9d2bd;
+  --bg-mid1: #96917f;
+  --bg-mid2: #b0aa97;
+  --bg-main1: #3f3d37;
+  --bg-main2: #191713;
+  --bg-ridge: #8f8a78;
+  --bg-cun: #0f0e0a;
+  --bg-waterfall: #f4edd8;
+  --bg-mist1: #f7f2e3;
+  --bg-mist2: #f5efdf;
+  --bg-mist3: #efe8d5;
+  --bg-near1: #2a2823;
+  --bg-near2: #14120e;
+  --bg-pine: #0d0b08;
+  --bg-water: #ddd6bf;
+  --bg-blob: #26241e;
+  --bg-swirl: #1d1b16;
+  --bg-ripple: #c9b47f;
+  --bg-boat: #0b0906;
+  --bg-bird: #3f3d37;
+  --bg-reed: #3f3d37;
+  --bg-moss: #6a6250;
+}
+
+:root[data-theme='dark'] {
+  --paper: #241c10;
+  --paper-2: #2e2415;
+  --ink: #ecdfc0;
+  --ink-soft: #b6a67d;
+  --ink-faint: #87774f;
+  --rule: rgba(236, 223, 192, 0.14);
+  --rule-strong: rgba(236, 223, 192, 0.26);
+  --seal: #c64b31;
+  --seal-deep: #d96b4a;
+  --code-bg: #161005;
+  --code-ink: #e9d9ab;
+  --c-verse: #a89a73;
+  --c-sigil: #9a8b63;
+  --c-eyebrow: #a89a73;
+  --c-title: #f0e3c0;
+  --c-ex: #a8976d;
+  --c-date: #8f8058;
+  --c-wm: rgba(236, 223, 192, 0.05);
+  --c-wm-hover: rgba(236, 223, 192, 0.12);
+  --c-branch: #0c0803;
+  --card-bg: rgba(48, 39, 20, 0.72);
+  --card-border: rgba(230, 205, 140, 0.2);
+  --card-inner: rgba(236, 223, 192, 0.08);
+  --nav-bg: rgba(37, 29, 16, 0.82);
+  --nav-bg-scrolled: rgba(30, 23, 12, 0.94);
+  --code-inline: rgba(236, 223, 192, 0.1);
+  --grain-img: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.55' fill='%23f0e3bd'/%3E%3C/svg%3E");
+  --grain-blend: screen;
+  --grain-opacity: 0.08;
+  --vignette: radial-gradient(ellipse at center, transparent 52%, rgba(12, 8, 2, 0.5) 100%);
+  --bg-sky1: #241b0e;
+  --bg-sky2: #302512;
+  --bg-halo: #e8cf8d;
+  --bg-moon: #e8cf8d;
+  --bg-cloud: #3f3120;
+  --bg-far1: #46391f;
+  --bg-far2: #382d19;
+  --bg-mid1: #2f2514;
+  --bg-mid2: #221a0d;
+  --bg-main1: #3a2f1a;
+  --bg-main2: #16100a;
+  --bg-ridge: #4a3c22;
+  --bg-cun: #0f0a04;
+  --bg-waterfall: #e9dcb0;
+  --bg-mist1: #4a3a1e;
+  --bg-mist2: #3f3120;
+  --bg-mist3: #3a2d1a;
+  --bg-near1: #221a0e;
+  --bg-near2: #100b05;
+  --bg-pine: #0c0803;
+  --bg-water: #1a1309;
+  --bg-blob: #0a0704;
+  --bg-swirl: #0f0a04;
+  --bg-ripple: #b39a64;
+  --bg-boat: #0b0804;
+  --bg-bird: #b39a64;
+  --bg-reed: #0c0803;
+  --bg-moss: #6a5a32;
 }
 
 * {
@@ -64,9 +172,9 @@ button {
   inset: 0;
   z-index: 60;
   pointer-events: none;
-  opacity: 0.5;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.5' fill='%23433e33'/%3E%3C/svg%3E");
+  opacity: var(--grain-opacity);
+  mix-blend-mode: var(--grain-blend);
+  background-image: var(--grain-img);
 }
 
 .vignette {
@@ -74,7 +182,7 @@ button {
   inset: 0;
   z-index: 61;
   pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 55%, rgba(70, 60, 40, 0.12) 100%);
+  background: var(--vignette);
   animation: breath 9s ease-in-out infinite alternate;
 }
 
@@ -184,7 +292,7 @@ button {
   justify-content: space-between;
   gap: 20px;
   padding: 14px 34px;
-  background: rgba(242, 237, 222, 0.82);
+  background: var(--nav-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--rule-strong);
@@ -193,7 +301,7 @@ button {
 }
 
 .site-nav.nav-scrolled {
-  background: rgba(236, 230, 214, 0.95);
+  background: var(--nav-bg-scrolled);
   box-shadow: 0 8px 22px -16px rgba(60, 50, 30, 0.35);
 }
 
@@ -255,6 +363,29 @@ button {
   background: var(--seal);
 }
 
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-left: 4px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.25s, border-color 0.25s, transform 0.2s;
+}
+
+.theme-toggle:hover {
+  color: var(--seal);
+  border-color: var(--seal);
+  transform: rotate(14deg);
+}
+
 /* ---------- 布局骨架 ---------- */
 
 .wrap,
@@ -285,7 +416,7 @@ button {
 
 .branch .stem {
   fill: none;
-  stroke: #14120d;
+  stroke: var(--c-branch);
   stroke-width: 3.4;
   stroke-linecap: round;
   stroke-dasharray: 900;
@@ -299,7 +430,7 @@ button {
 }
 
 .branch .leaf {
-  fill: #14120d;
+  fill: var(--c-branch);
   opacity: 0.8;
   transform-origin: center;
   animation: leaf-in 0.9s ease-out both;
@@ -333,7 +464,7 @@ button {
   font-family: var(--font-kai);
   font-size: 12px;
   letter-spacing: 0.55em;
-  color: #8f8878;
+  color: var(--c-verse);
   animation: rise-d 1.8s ease-out both;
 }
 
@@ -350,7 +481,7 @@ button {
   font-family: var(--font-kai);
   font-size: 11px;
   letter-spacing: 0.42em;
-  color: #9a937f;
+  color: var(--c-sigil);
   animation: rise-e 2s ease-out both;
 }
 
@@ -367,7 +498,7 @@ button {
   font-size: 11px;
   letter-spacing: 0.7em;
   text-indent: 0.7em;
-  color: #8f8878;
+  color: var(--c-eyebrow);
   animation: rise-a 0.9s ease-out both;
 }
 
@@ -384,7 +515,7 @@ button {
   font-weight: 400;
   letter-spacing: 0.3em;
   text-indent: 0.3em;
-  color: #2c2a24;
+  color: var(--c-title);
   filter: url(#ink);
 }
 
@@ -458,6 +589,18 @@ button {
   animation: draw-late 2.05s ease-out both;
 }
 
+.stroke-main {
+  stroke: var(--c-title);
+}
+
+.stroke-thin {
+  stroke: var(--c-ex);
+}
+
+.stroke-red {
+  stroke: var(--seal);
+}
+
 @keyframes draw-late {
   0%, 37% { stroke-dashoffset: 700; }
   100% { stroke-dashoffset: 0; }
@@ -485,8 +628,8 @@ button {
   margin-bottom: 28px;
   padding: 36px 40px 32px 108px;
   color: inherit;
-  background: rgba(255, 253, 246, 0.72);
-  border: 1px solid rgba(44, 42, 36, 0.24);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: 2px;
   box-shadow: 0 2px 0 rgba(44, 42, 36, 0.05), 0 12px 26px -20px rgba(60, 50, 30, 0.25);
   opacity: 0;
@@ -505,7 +648,7 @@ button {
   content: "";
   position: absolute;
   inset: 6px;
-  border: 1px solid rgba(44, 42, 36, 0.07);
+  border: 1px solid var(--card-inner);
   pointer-events: none;
 }
 
@@ -528,7 +671,7 @@ button {
   font-family: var(--font-kai);
   font-size: 12px;
   letter-spacing: 0.4em;
-  color: #9a937f;
+  color: var(--c-date);
 }
 
 .item .wm {
@@ -538,14 +681,14 @@ button {
   font-family: var(--font-kai);
   font-size: 100px;
   line-height: 1;
-  color: rgba(44, 42, 36, 0.05);
+  color: var(--c-wm);
   user-select: none;
   pointer-events: none;
   transition: color 0.5s, transform 0.5s;
 }
 
 .item:hover .wm {
-  color: rgba(44, 42, 36, 0.12);
+  color: var(--c-wm-hover);
   transform: scale(1.05);
 }
 
@@ -626,7 +769,7 @@ button {
 .item .ex {
   display: block;
   margin-top: 10px;
-  color: #7a7362;
+  color: var(--c-ex);
   font-size: 14px;
   letter-spacing: 0.12em;
   line-height: 2.1;
@@ -638,7 +781,7 @@ button {
   font-family: var(--font-kai);
   font-size: 11px;
   letter-spacing: 0.34em;
-  color: #9a937f;
+  color: var(--c-date);
 }
 
 .item-foot {
@@ -688,7 +831,7 @@ button {
   font-size: 12px;
   letter-spacing: 0.7em;
   text-indent: 0.7em;
-  color: #9a937f;
+  color: var(--c-sigil);
 }
 
 .footer-line a {
@@ -770,7 +913,7 @@ button {
   font-family: var(--font-kai);
   font-size: 13px;
   letter-spacing: 0.2em;
-  color: #9a937f;
+  color: var(--c-date);
 }
 
 .divider-ornament {
@@ -831,7 +974,7 @@ button {
 .md-body code {
   font-family: var(--font-mono);
   font-size: 0.86em;
-  background: rgba(44, 42, 36, 0.08);
+  background: var(--code-inline);
   padding: 0.15em 0.45em;
   border-radius: 3px;
 }
@@ -906,7 +1049,7 @@ button {
   font-family: var(--font-kai);
   font-size: 12px;
   letter-spacing: 0.25em;
-  color: #9a937f;
+  color: var(--c-date);
   animation: rise-f 2s ease-out both;
 }
 
@@ -1095,7 +1238,7 @@ button {
 .field .hint {
   margin-top: 6px;
   font-size: 13px;
-  color: #9a937f;
+  color: var(--c-date);
 }
 
 .check-row {
@@ -1149,7 +1292,7 @@ button {
   font-family: var(--font-kai);
   font-size: 13px;
   letter-spacing: 0.1em;
-  color: #9a937f;
+  color: var(--c-date);
 }
 
 .admin-item .ops {
@@ -1187,7 +1330,7 @@ button {
   font-family: var(--font-kai);
   font-size: 13px;
   letter-spacing: 0.12em;
-  color: #9a937f;
+  color: var(--c-date);
 }
 
 .login-card .back-link:hover,
@@ -1258,7 +1401,7 @@ button {
   font-family: var(--font-kai);
   font-size: 64px;
   line-height: 1;
-  color: #9a937f;
+  color: var(--c-date);
   margin-bottom: 16px;
 }
 
@@ -1282,7 +1425,7 @@ button {
 .setup-hint code {
   font-family: var(--font-mono);
   font-size: 13px;
-  background: rgba(44, 42, 36, 0.07);
+  background: var(--code-inline);
   padding: 2px 7px;
   border-radius: 3px;
   color: var(--ink);
