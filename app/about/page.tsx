@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   title: '關於',
 }
 
+export const revalidate = 60
+
 export default async function AboutPage() {
   let owner: { nickname: string; bio: string; avatar_url: string } | null = null
   try {

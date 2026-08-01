@@ -4,7 +4,7 @@ import { listPublishedPosts, formatDate, type Post } from '@/lib/posts'
 import { SITE_NAME } from '@/lib/site'
 import ScrollFX from '@/components/ScrollFX'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export const metadata: Metadata = {
   title: '文章',

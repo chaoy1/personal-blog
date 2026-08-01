@@ -17,6 +17,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           {SITE_NAME} · 后台
         </Link>
         <nav>
+          <Link href="/admin">文章</Link>
+          <Link href="/admin/moments">說說</Link>
+          <Link href="/admin/photos">相冊</Link>
+          <Link href="/admin/profile">資料</Link>
           <Link href="/">查看博客</Link>
           <AdminHeader />
         </nav>

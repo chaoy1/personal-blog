@@ -3,10 +3,20 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import MarkdownView from '@/components/MarkdownView'
 import Comments from '@/components/Comments'
-import { getPostBySlug, formatDate, readingTime } from '@/lib/posts'
+import { getPostBySlug, formatDate, readingTime, listPublishedPosts } from '@/lib/posts'
 import { SITE_NAME } from '@/lib/site'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
+
+export async function generateStaticParams() {
+  let posts: { slug: string }[] = []
+  try {
+    posts = await listPublishedPosts()
+  } catch {
+    // 数据库未配置等
+  }
+  return posts.map((p) => ({ slug: p.slug }))
+}
 
 type Props = {
   params: Promise<{ slug: string }>

@@ -3,7 +3,7 @@ import { listPublishedPosts, formatDate, type Post } from '@/lib/posts'
 import { SITE_NAME, SITE_DESC, SITE_VERSE } from '@/lib/site'
 import ScrollFX from '@/components/ScrollFX'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 const CN_NO = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖', '拾']
 const CN_WM = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十']

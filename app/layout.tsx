@@ -90,14 +90,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <stop offset="1" style={{ stopColor: 'var(--bg-near2)' }} />
               </linearGradient>
               <filter id="mist" x="-40%" y="-40%" width="180%" height="180%">
-                <feGaussianBlur stdDeviation="24" />
+                <feGaussianBlur stdDeviation="16" />
               </filter>
               <filter id="mistSoft" x="-40%" y="-40%" width="180%" height="180%">
-                <feGaussianBlur stdDeviation="46" />
+                <feGaussianBlur stdDeviation="30" />
               </filter>
               <filter id="brushSm" x="-10%" y="-10%" width="120%" height="120%">
                 <feTurbulence type="fractalNoise" baseFrequency="0.03 0.05" numOctaves="2" seed="5" result="n" />
-                <feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G" />
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G" />
               </filter>
             </defs>
 

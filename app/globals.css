@@ -739,6 +739,8 @@ button {
     box-shadow 0.35s ease,
     background-color 0.5s ease,
     color 0.5s ease;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 220px;
 }
 
 .item:nth-child(odd) { --tilt: -0.35deg; }
@@ -2034,6 +2036,12 @@ button {
 .login-card .field input:focus,
 .account-card .field input:focus {
   border-color: var(--seal);
+}
+
+.login-card form .btn {
+  width: 100%;
+  justify-content: center;
+  margin-top: 6px;
 }
 
 .posts-head {
