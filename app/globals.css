@@ -2008,6 +2008,8 @@ button {
 }
 
 .login-card {
+  position: relative;
+  z-index: 1;
   max-width: 420px;
   margin: 80px auto 0;
   padding: 48px 44px 40px;
