@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>04 复古报纸</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#ece5d2; color:#201c15; font-family:"SimSun","Songti SC",serif; }
+  .paper { max-width:1060px; margin:0 auto; padding:40px 44px 60px; background:#f6f0e0; box-shadow:0 2px 24px rgba(0,0,0,.18); }
+  .masthead { text-align:center; padding:22px 0 14px; border-bottom:4px double #201c15; }
+  .masthead h1 { font-size:58px; letter-spacing:.12em; font-family:Georgia,"SimSun",serif; }
+  .masthead .tag { font-size:13px; letter-spacing:.5em; color:#5c5340; margin-top:8px; }
+  .dateline { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #201c15; font-size:12px; letter-spacing:.1em; }
+  .columns { column-count:2; column-gap:36px; padding:26px 0 10px; }
+  .col { column-count:2; column-gap:36px; }
+  .lead h2 { font-size:34px; line-height:1.35; font-weight:700; margin-bottom:12px; }
+  .lead .dek { font-size:15px; color:#4a4232; margin-bottom:10px; font-style:italic; }
+  .post { padding:16px 0; border-bottom:1px solid #c9bfa4; break-inside:avoid; }
+  .post h3 { font-size:22px; line-height:1.45; margin-bottom:6px; }
+  .post .cat { font-size:11px; letter-spacing:.3em; color:#8a1f1f; text-transform:uppercase; margin-bottom:6px; }
+  .post p { font-size:14px; line-height:1.9; color:#3d3628; }
+  .post .date { font-size:11px; color:#6f6652; margin-top:8px; }
+  .dropcap::first-letter { font-size:52px; float:left; line-height:.9; padding:4px 8px 0 0; color:#8a1f1f; font-family:Georgia,serif; }
+  .advert { margin-top:22px; border:2px solid #201c15; padding:14px; text-align:center; font-size:13px; letter-spacing:.14em; transform:rotate(-.4deg); }
+  footer { border-top:2px solid #201c15; margin-top:26px; padding-top:12px; display:flex; justify-content:space-between; font-size:11px; color:#6f6652; letter-spacing:.12em; }
+</style>
+</head>
+<body>
+<div class="paper">
+  <header class="masthead">
+    <h1>墨 报</h1>
+    <div class="tag">THE INK DAILY · 每日出版</div>
+  </header>
+  <div class="dateline"><span>2026年8月1日 · 星期六</span><span>第 001 期 · 定价三分</span><span>丙午年 · 六月</span></div>
+  <div class="columns">
+    <div class="lead">
+      <h2>开篇：把文字安放在自己的屋檐下</h2>
+      <div class="dek">—— 写在博客上线之日</div>
+      <p class="dropcap">在别处的屋檐下住了很久之后，终于想给自己盖一间小屋。写作这件事，最怕的是"写了就丢了"；散落在各种平台里的文字，随着时间、账号和平台的变动，慢慢就找不回来了。属于自己的地方，哪怕再小，也是一种从容。</p>
+    </div>
+    <div class="post"><div class="cat">技术</div><h3>从零搭一个免费博客</h3><p>Next.js 与 Supabase 的组合：不买服务器、不申请公网 IP，十分钟让博客上线，还自带管理后台。数据存在 PostgreSQL，改文章不用重新部署。</p><div class="date">2026.07.25</div></div>
+    <div class="post"><div class="cat">随笔</div><h3>写点什么，比写得完美更重要</h3><p>我们总以为写作需要完整的心得、成熟的观点、漂亮的开头。于是每次打开文档，又默默关掉。降低门槛：先写给自己看。</p><div class="date">2026.07.30</div></div>
+    <div class="advert">征订启事 · 本报告知你所有值得记住的片刻</div>
+  </div>
+  <footer><span>编辑：墨痕</span><span>本日共印 3 篇</span><span>© 2026 THE INK DAILY</span></footer>
+</div>
+</body>
+</html>

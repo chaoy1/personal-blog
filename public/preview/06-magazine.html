@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>06 时尚杂志</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#fff; color:#0b0b0b; font-family:"Microsoft YaHei",Arial,sans-serif; }
+  .wrap { max-width:1080px; margin:0 auto; padding:0 36px 70px; }
+  .nav { display:flex; justify-content:space-between; align-items:center; padding:22px 0; border-bottom:1px solid #0b0b0b; font-size:11px; letter-spacing:.28em; text-transform:uppercase; }
+  .nav .brand { font-size:16px; letter-spacing:.18em; font-weight:700; }
+  header { display:grid; grid-template-columns:1fr auto; align-items:end; padding:74px 0 56px; }
+  .headline h1 { font-size:clamp(56px, 8vw, 108px); line-height:.94; font-weight:400; font-family:Georgia,"SimSun",serif; font-style:italic; letter-spacing:-.02em; }
+  .headline .sub { margin-top:18px; font-size:13px; letter-spacing:.3em; color:#888; }
+  .issue { text-align:right; font-family:Georgia,serif; font-size:120px; line-height:.8; color:#c8102e; font-style:italic; }
+  .rule { height:3px; background:#0b0b0b; margin-bottom:10px; }
+  .rule.thin { height:1px; background:#0b0b0b; margin-bottom:34px; }
+  .list { display:flex; flex-direction:column; }
+  .item { display:grid; grid-template-columns:120px 1fr 130px; gap:28px; align-items:start; padding:30px 0; border-bottom:1px solid #d8d8d8; }
+  .item .idx { font-family:Georgia,serif; font-style:italic; font-size:42px; color:#c8102e; line-height:1; }
+  .item:nth-child(even) .idx { color:#0b0b0b; -webkit-text-stroke:1px #c8102e; color:transparent; }
+  .item .cat { font-size:10px; letter-spacing:.34em; color:#c8102e; margin-bottom:8px; }
+  .item h2 { font-size:27px; font-weight:600; line-height:1.35; }
+  .item .ex { margin-top:10px; font-size:14px; color:#666; line-height:1.8; max-width:560px; }
+  .item .date { text-align:right; font-size:11px; letter-spacing:.18em; color:#999; padding-top:8px; }
+  footer { display:flex; justify-content:space-between; padding-top:26px; font-size:10px; letter-spacing:.24em; color:#999; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="nav"><span>VOL.01 — AUG 2026</span><span class="brand">MO HEN</span><span>ESSAYS / NOTES</span></div>
+  <header>
+    <div class="headline">
+      <h1>墨痕</h1>
+      <div class="sub">一个人的纸上纪事 · 本期三篇</div>
+    </div>
+    <div class="issue">01</div>
+  </header>
+  <div class="rule"></div>
+  <div class="rule thin"></div>
+  <section class="list">
+    <div class="item"><div class="idx">01</div><div><div class="cat">FEATURE — 开篇</div><h2>把文字安放在自己的屋檐下</h2><div class="ex">第一篇文字，说说这个博客的来由，以及写作这件事本身。属于自己的地方，哪怕再小，也是一种从容。</div></div><div class="date">2026.07.20</div></div>
+    <div class="item"><div class="idx">02</div><div><div class="cat">TECH — 教程</div><h2>从零搭一个免费博客</h2><div class="ex">不买服务器、不申请公网 IP，十分钟让博客上线，还自带管理后台。</div></div><div class="date">2026.07.25</div></div>
+    <div class="item"><div class="idx">03</div><div><div class="cat">ESSAY — 随笔</div><h2>写点什么，比写得完美更重要</h2><div class="ex">完美是动笔之后慢慢逼近的，不是动笔之前等来的。纸上只有一行字，也好过心里有一万行字。</div></div><div class="date">2026.07.30</div></div>
+  </section>
+  <footer><span>© 2026 MO HEN MAGAZINE</span><span>PRINTED IN THE MIND</span></footer>
+</div>
+</body>
+</html>

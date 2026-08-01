@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>07 奶油治愈</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#fff6ec; color:#5b4a3f; font-family:"幼圆","YouYuan","Microsoft YaHei",sans-serif; min-height:100vh; }
+  .wrap { max-width:920px; margin:0 auto; padding:0 28px 70px; }
+  .bunting { display:flex; justify-content:center; gap:12px; padding:22px 0 6px; font-size:20px; }
+  header { text-align:center; padding:26px 0 40px; }
+  .hello { font-size:14px; color:#d99a8e; letter-spacing:.2em; }
+  h1 { font-size:56px; color:#e8837c; margin:12px 0 10px; }
+  .lede { color:#a08d7e; font-size:15px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:22px; }
+  .card { background:#fff; border:2px dashed #f2c9b8; border-radius:26px; padding:26px; box-shadow:0 8px 24px rgba(232,131,124,.12); transition:transform .2s; }
+  .card:hover { transform:rotate(-1.5deg); }
+  .card .emoji { font-size:34px; }
+  .card .new { display:inline-block; background:#a8d8b9; color:#fff; font-size:11px; border-radius:999px; padding:3px 12px; margin-left:8px; letter-spacing:.1em; }
+  .card h2 { font-size:20px; line-height:1.5; margin:14px 0 8px; color:#6b574b; }
+  .card .ex { font-size:13px; color:#a08d7e; line-height:1.9; }
+  .card .date { margin-top:16px; font-size:12px; color:#d9b8a5; }
+  .sticker { position:relative; }
+  .sticker::after { content:"☁️"; position:absolute; right:-14px; top:-18px; font-size:26px; transform:rotate(12deg); }
+  footer { text-align:center; margin-top:46px; font-size:12px; color:#d9b8a5; letter-spacing:.16em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bunting">🌷🍓🌷🍓🌷</div>
+  <header>
+    <div class="hello">HELLO, WELCOME ✿</div>
+    <h1>墨痕的小屋</h1>
+    <p class="lede">欢迎来玩～ 这里记录生活里的小事，慢慢写，慢慢看。</p>
+  </header>
+  <section class="grid">
+    <div class="card sticker"><div class="emoji">🏡</div><h2>开篇：把文字安放在自己的屋檐下<span class="new">NEW</span></h2><div class="ex">第一篇文字！说说为什么想开这个博客，以后要写点什么。</div><div class="date">2026.07.20</div></div>
+    <div class="card sticker"><div class="emoji">🛠️</div><h2>从零搭一个免费博客</h2><div class="ex">不买服务器也能拥有自己的小天地，十分钟就上线啦～</div><div class="date">2026.07.25</div></div>
+    <div class="card sticker"><div class="emoji">✏️</div><h2>写点什么，比写得完美更重要</h2><div class="ex">别等准备好再开始，先写给自己看，再决定要不要给别人看。</div><div class="date">2026.07.30</div></div>
+  </section>
+  <footer>☁️ 慢慢写，慢慢生活 ☁️</footer>
+</div>
+</body>
+</html>

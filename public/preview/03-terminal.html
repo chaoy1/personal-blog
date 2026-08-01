@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>03 终端暗黑</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0d1117; color:#c9d1d9; font-family:Consolas,"Courier New",monospace; min-height:100vh; }
+  .term { max-width:900px; margin:0 auto; padding:44px 24px; }
+  .win { border:1px solid #30363d; border-radius:10px; overflow:hidden; background:#010409; }
+  .titlebar { display:flex; align-items:center; gap:8px; padding:12px 16px; background:#161b22; border-bottom:1px solid #30363d; }
+  .dot { width:12px; height:12px; border-radius:50%; }
+  .dot.r { background:#ff5f56; } .dot.y { background:#ffbd2e; } .dot.g { background:#27c93f; }
+  .titlebar .fn { margin-left:12px; font-size:12px; color:#8b949e; }
+  .body { padding:26px 26px 30px; line-height:1.9; font-size:15px; }
+  .prompt { color:#3fb950; } .dim { color:#8b949e; } .accent { color:#f0883e; } .cyan { color:#58a6ff; }
+  .greeting { margin-bottom:22px; }
+  .post { border:1px dashed #30363d; border-radius:8px; padding:18px 20px; margin-bottom:14px; background:#0d1117; }
+  .post .p { color:#3fb950; } .post h2 { font-size:16px; font-weight:400; color:#e6edf3; margin-top:4px; }
+  .post .ex { color:#8b949e; font-size:13px; margin-top:6px; }
+  .post .meta { color:#58a6ff; font-size:12px; margin-top:8px; }
+  .stats { display:flex; gap:26px; margin-top:24px; padding-top:16px; border-top:1px solid #30363d; font-size:12px; color:#8b949e; }
+  .cursor { display:inline-block; width:9px; height:16px; background:#3fb950; vertical-align:-2px; animation:blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity:0; } }
+</style>
+</head>
+<body>
+<div class="term">
+  <div class="win">
+    <div class="titlebar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="fn">zsh — 墨痕 · blog</span></div>
+    <div class="body">
+      <div class="greeting"><span class="prompt">$</span> <span class="cyan">cat</span> about.md<br><span class="dim"># 墨痕 —— 一个人的纸上纪事</span><br><span class="prompt">$</span> <span class="cyan">ls</span> posts/ <span class="dim">--sort=date</span></div>
+      <div class="post"><span class="p">[+]</span> <h2>开篇：把文字安放在自己的屋檐下</h2><div class="ex">第一篇文字，说说这个博客的来由。</div><div class="meta">2026-07-20 · 3min · markdown</div></div>
+      <div class="post"><span class="p">[+]</span> <h2>从零搭一个免费博客：Next.js 与 Supabase</h2><div class="ex">不买服务器、不申请公网 IP，十分钟上线。</div><div class="meta">2026-07-25 · 6min · tutorial</div></div>
+      <div class="post"><span class="p">[+]</span> <h2>写点什么，比写得完美更重要</h2><div class="ex">完美是动笔之后慢慢逼近的。</div><div class="meta">2026-07-30 · 2min · essay</div></div>
+      <div class="stats"><span>posts: 3</span><span>uptime: 99.98%</span><span>branch: main</span><span class="accent">*</span></div>
+      <div style="margin-top:14px"><span class="prompt">$</span> <span class="cursor"></span></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

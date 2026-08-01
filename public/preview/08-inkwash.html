@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>08 水墨意境 · 特效版</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --paper:#f5f2e9; --ink:#33322b; --ink-soft:#7d7866;
+    --seal:#a8322a; --line:#b3ac97;
+  }
+  ::selection { background:rgba(168,50,42,.18); color:var(--ink); }
+  html { scrollbar-width:thin; scrollbar-color:rgba(51,50,43,.35) transparent; }
+  body {
+    background:var(--paper); color:var(--ink);
+    font-family:"KaiTi","STKaiti","楷体","SimSun",serif;
+    min-height:100vh; overflow-x:hidden;
+  }
+  /* 宣纸纤维 */
+  body::before {
+    content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.55;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.55'/%3E%3C/svg%3E");
+    mix-blend-mode:multiply;
+  }
+  /* 呼吸暗角 */
+  .vignette {
+    position:fixed; inset:0; z-index:2; pointer-events:none;
+    background:radial-gradient(ellipse at center, transparent 55%, rgba(74,66,48,.12) 100%);
+    animation:breath 9s ease-in-out infinite alternate;
+  }
+  @keyframes breath { from { opacity:.45; } to { opacity:.95; } }
+  /* 远山 */
+  .mountains { position:fixed; bottom:0; left:0; right:0; z-index:0; pointer-events:none; }
+  .mountains svg { display:block; width:100%; height:236px; }
+  .m-far { fill:#e0dbca; animation:drift-x 46s ease-in-out infinite alternate; }
+  .m-near { fill:#eae5d6; animation:drift-x 34s ease-in-out infinite alternate-reverse; }
+  @keyframes drift-x { from { transform:translateX(-10px); } to { transform:translateX(14px); } }
+  /* 流雾 */
+  .mist { position:fixed; z-index:0; border-radius:50%; filter:blur(64px); pointer-events:none; }
+  .mist.m1 { width:480px; height:300px; background:#e8e2d0; top:-70px; right:5%; animation:drift-m1 27s ease-in-out infinite alternate; }
+  .mist.m2 { width:400px; height:270px; background:#efeadd; bottom:130px; left:-90px; animation:drift-m2 33s ease-in-out infinite alternate; }
+  @keyframes drift-m1 { from { transform:translate(0,0) scale(1); } to { transform:translate(46px,20px) scale(1.12); } }
+  @keyframes drift-m2 { from { transform:translate(0,0) scale(1.05); } to { transform:translate(30px,-16px) scale(1); } }
+  /* 墨尘 */
+  .specks { position:fixed; inset:0; z-index:3; pointer-events:none; }
+  .specks i {
+    position:absolute; width:5px; height:5px; border-radius:50%;
+    background:radial-gradient(circle, rgba(51,50,43,.55), transparent 70%);
+    opacity:0; animation:specks 11s ease-in-out infinite;
+  }
+  .specks i:nth-child(1) { left:12%; top:66%; animation-delay:0s; }
+  .specks i:nth-child(2) { left:26%; top:32%; width:3px; height:3px; animation-delay:2.4s; }
+  .specks i:nth-child(3) { left:64%; top:20%; width:4px; height:4px; animation-delay:4.1s; }
+  .specks i:nth-child(4) { left:82%; top:58%; width:3px; height:3px; animation-delay:1.3s; }
+  .specks i:nth-child(5) { left:44%; top:78%; width:6px; height:6px; animation-delay:5.6s; }
+  .specks i:nth-child(6) { left:8%; top:42%; width:4px; height:4px; animation-delay:7.2s; }
+  .specks i:nth-child(7) { left:90%; top:30%; width:5px; height:5px; animation-delay:3.5s; }
+  @keyframes specks {
+    0% { transform:translateY(26px); opacity:0; }
+    22% { opacity:.5; }
+    70% { opacity:.22; }
+    100% { transform:translateY(-84px); opacity:0; }
+  }
+  /* 墨枝（右上角入画） */
+  .branch { position:fixed; top:-6px; right:-4px; z-index:0; width:250px; pointer-events:none; opacity:.8; animation:sway 16s ease-in-out 2s infinite alternate; }
+  .branch .stem { fill:none; stroke:var(--ink); stroke-width:3.4; stroke-linecap:round; stroke-dasharray:900; stroke-dashoffset:0; animation:draw-stem 2.85s cubic-bezier(.4,.1,.2,1) both; }
+  .branch .stem.thin { stroke-width:1.6; animation:draw-stem-thin 3s cubic-bezier(.4,.1,.2,1) both; }
+  .branch .leaf { fill:var(--ink); opacity:.75; transform-origin:center; animation:leaf-in .9s ease-out both; }
+  .branch .leaf.l1 { animation-delay:0s; } .branch .leaf.l2 { animation-delay:0s; } .branch .leaf.l3 { animation-delay:0s; } .branch .leaf.l4 { animation-delay:0s; } .branch .leaf.l5 { animation-delay:0s; }
+  @keyframes draw-stem { 0%, 23% { stroke-dashoffset:900; } 100% { stroke-dashoffset:0; } }
+  @keyframes draw-stem-thin { 0%, 38% { stroke-dashoffset:900; } 100% { stroke-dashoffset:0; } }
+  @keyframes leaf-in { 0%, 55% { opacity:0; transform:scale(.4) rotate(-14deg); } 100% { opacity:.75; transform:scale(1) rotate(0); } }
+  @keyframes sway { from { transform:rotate(-1.1deg); } to { transform:rotate(1.2deg); } }
+  .wrap { position:relative; z-index:1; max-width:860px; margin:0 auto; padding:88px 56px 116px; }
+  .verse {
+    position:absolute; left:-6px; top:64px;
+    writing-mode:vertical-rl; font-size:12px; letter-spacing:.55em; color:#aaa38f;
+    animation:rise-d 1.8s ease-out both;
+  }
+  .verse b { font-weight:400; color:var(--seal); }
+  .sigil {
+    position:absolute; right:-30px; top:190px;
+    writing-mode:vertical-rl; font-size:11px; letter-spacing:.42em; color:#b9b29d;
+    animation:rise-e 2s ease-out both;
+  }
+  header { text-align:center; position:relative; padding-top:22px; }
+  .eyebrow { font-size:11px; letter-spacing:.7em; color:#9f9884; text-indent:.7em; animation:rise-a .9s ease-out both; }
+  h1 { margin-top:32px; line-height:1; animation:rise-b 1.2s ease-out both; }
+  h1 .title {
+    font-size:92px; font-weight:400; letter-spacing:.34em; text-indent:.34em; color:#2c2b23;
+    filter:url(#ink);
+    display:inline-block;
+  }
+  .seal {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:46px; height:46px; margin-left:8px; position:relative;
+    background:var(--seal); color:var(--paper); font-size:20px;
+    transform:rotate(-6deg); vertical-align:10px;
+    animation:stamp-a 1.25s cubic-bezier(.2,.9,.3,1.4) both;
+  }
+  .seal::after { content:""; position:absolute; inset:3px; border:1px solid rgba(245,242,233,.5); }
+  .seal::before {
+    content:""; position:absolute; inset:-12px; border-radius:50%;
+    background:radial-gradient(circle, rgba(168,50,42,.30), transparent 66%);
+    opacity:0; animation:ripple 2.2s ease-out both;
+  }
+  @keyframes stamp-a {
+    0%, 44% { transform:rotate(-6deg) scale(2.4); opacity:0; }
+    58% { transform:rotate(-1deg) scale(.9); opacity:1; }
+    100% { transform:rotate(-6deg) scale(1); opacity:1; }
+  }
+  @keyframes stamp-b {
+    0%, 71% { transform:rotate(-5deg) scale(2.4); opacity:0; }
+    82% { transform:rotate(-1deg) scale(.9); opacity:1; }
+    100% { transform:rotate(-5deg) scale(1); opacity:1; }
+  }
+  @keyframes ripple { 0%, 32% { transform:scale(.3); opacity:.6; } 100% { transform:scale(3.2); opacity:0; } }
+  .stroke { display:block; margin:30px auto 0; width:250px; height:28px; }
+  .stroke path { stroke-dasharray:700; stroke-dashoffset:0; animation:draw-late 2.05s ease-out both; }
+  @keyframes draw-late { 0%, 37% { stroke-dashoffset:700; } 100% { stroke-dashoffset:0; } }
+  .lede { margin:26px auto 0; color:var(--ink-soft); font-size:15px; letter-spacing:.2em; line-height:2.3; max-width:440px; animation:rise-c 1.6s ease-out both; }
+  .list { margin-top:56px; }
+  .item {
+    position:relative; padding:42px 16px 38px 96px;
+    transition:transform .35s ease;
+  }
+  .item:nth-child(1) { animation:rise-item1 1.85s ease-out both; }
+  .item:nth-child(2) { animation:rise-item2 2s ease-out both; }
+  .item:nth-child(3) { animation:rise-item3 2.15s ease-out both; }
+  .item::after { content:""; position:absolute; left:96px; right:16px; bottom:0; height:1px; background:linear-gradient(90deg, rgba(44,43,35,.38) 0 46%, rgba(44,43,35,.12) 72%, transparent); }
+  .item:last-child::after { display:none; }
+  .item:hover { transform:translateX(5px); }
+  .item .no {
+    position:absolute; left:28px; top:44px;
+    writing-mode:vertical-rl; font-size:12px; letter-spacing:.4em; color:var(--line);
+  }
+  .item .wm {
+    position:absolute; right:0; top:16px;
+    font-size:118px; line-height:1; color:rgba(44,43,35,.045);
+    user-select:none; pointer-events:none;
+    transition:color .5s, transform .5s;
+  }
+  .item:hover .wm { color:rgba(44,43,35,.11); transform:scale(1.05); }
+  .item h2 {
+    position:relative; display:inline-block;
+    font-size:25px; font-weight:400; letter-spacing:.1em; line-height:1.65;
+    transition:color .35s;
+  }
+  .item h2::before { content:"·"; color:transparent; margin-right:.4em; transition:color .35s; }
+  .item:hover h2 { color:#7c2b24; }
+  .item:hover h2::before { color:var(--seal); }
+  .item h2::after {
+    content:""; position:absolute; left:0; bottom:-7px; height:2px; width:100%;
+    background:linear-gradient(90deg, var(--seal), transparent);
+    transform:scaleX(0); transform-origin:left;
+    transition:transform .5s cubic-bezier(.22,.61,.36,1);
+  }
+  .item:hover h2::after { transform:scaleX(1); }
+  .item .ex { margin-top:10px; color:#8a8573; font-size:14px; letter-spacing:.12em; line-height:2.1; max-width:560px; }
+  .item .date { margin-top:14px; font-size:11px; color:var(--line); letter-spacing:.34em; }
+  footer { margin-top:70px; text-align:center; animation:rise-f 2.35s ease-out both; }
+  .footer-line { font-size:12px; letter-spacing:.7em; color:#9f9884; text-indent:.7em; }
+  .footer-seal {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:40px; height:40px; margin-top:24px; position:relative;
+    background:var(--seal); color:var(--paper); font-size:17px; transform:rotate(-5deg);
+    animation:stamp-b 2.4s cubic-bezier(.2,.9,.3,1.4) both;
+  }
+  .footer-seal::after { content:""; position:absolute; inset:3px; border:1px solid rgba(245,242,233,.5); }
+  @keyframes rise-a  { 0%, 13% { opacity:0; transform:translateY(22px); } 100% { opacity:1; transform:none; } }
+  @keyframes rise-b  { 0%, 17% { opacity:0; transform:translateY(22px); } 100% { opacity:1; transform:none; } }
+  @keyframes rise-c  { 0%, 44% { opacity:0; transform:translateY(22px); } 100% { opacity:1; transform:none; } }
+  @keyframes rise-d  { 0%, 50% { opacity:0; transform:translateY(22px); } 100% { opacity:1; transform:none; } }
+  @keyframes rise-e  { 0%, 55% { opacity:0; transform:translateY(22px); } 100% { opacity:1; transform:none; } }
+  @keyframes rise-f  { 0%, 62% { opacity:0; transform:translateY(22px); } 100% { opacity:1; transform:none; } }
+  @keyframes rise-item1 { 0%, 51% { opacity:0; transform:translateY(22px); } 100% { opacity:1; transform:none; } }
+  @keyframes rise-item2 { 0%, 55% { opacity:0; transform:translateY(22px); } 100% { opacity:1; transform:none; } }
+  @keyframes rise-item3 { 0%, 58% { opacity:0; transform:translateY(22px); } 100% { opacity:1; transform:none; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation:none !important; transition:none !important; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="ink" x="-15%" y="-15%" width="130%" height="130%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+<div class="vignette"></div>
+<div class="specks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<div class="branch" aria-hidden="true">
+  <svg viewBox="0 0 300 330" fill="none">
+    <path class="stem" d="M292 4 C 246 46, 234 98, 216 156 S 186 244, 152 300"/>
+    <path class="stem thin" d="M262 72 C 244 84, 226 94, 204 106"/>
+    <path class="stem thin" d="M238 128 C 222 140, 204 152, 182 166"/>
+    <path class="stem thin" d="M208 196 C 196 210, 184 224, 168 240"/>
+    <path class="leaf l1" d="M204 106 C 218 82, 238 72, 258 66 C 244 90, 226 100, 204 106 Z"/>
+    <path class="leaf l2" d="M182 166 C 194 144, 212 132, 232 124 C 220 146, 202 158, 182 166 Z"/>
+    <path class="leaf l3" d="M168 240 C 178 220, 194 208, 212 200 C 202 222, 184 234, 168 240 Z"/>
+    <path class="leaf l4" d="M228 92 C 238 72, 254 60, 272 52 C 262 74, 246 86, 228 92 Z"/>
+    <path class="leaf l5" d="M150 300 C 156 282, 168 270, 182 262 C 176 282, 164 294, 150 300 Z"/>
+  </svg>
+</div>
+<div class="mountains" aria-hidden="true">
+  <svg viewBox="0 0 1440 236" preserveAspectRatio="xMidYMax slice">
+    <path class="m-far" d="M0 184 L120 98 L210 152 L330 54 L440 140 L560 86 L690 152 L800 68 L930 144 L1040 92 L1180 162 L1300 112 L1440 172 L1440 236 L0 236 Z"/>
+    <path class="m-near" d="M0 214 L140 152 L260 198 L400 134 L530 202 L660 154 L790 206 L920 152 L1060 208 L1200 170 L1320 212 L1440 184 L1440 236 L0 236 Z"/>
+  </svg>
+</div>
+<div class="mist m1"></div><div class="mist m2"></div>
+<div class="wrap">
+  <div class="verse">言有盡而<b>意</b>無窮</div>
+  <div class="sigil">丙午 · 墨痕集</div>
+  <header>
+    <div class="eyebrow">留白處自有山河</div>
+    <h1><span class="title">墨痕</span><span class="seal">記</span></h1>
+    <svg class="stroke" viewBox="0 0 250 28" aria-hidden="true">
+      <path d="M4 16 C 42 7, 94 20, 138 12 S 218 7, 246 14" stroke="#33322b" stroke-width="4" fill="none" stroke-linecap="round" opacity=".78"/>
+      <path d="M10 21 C 62 15, 124 23, 186 17 S 236 14, 244 17" stroke="#33322b" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".42"/>
+      <path d="M124 3 C 156 8, 176 10, 204 7" stroke="#a8322a" stroke-width="3" fill="none" stroke-linecap="round" opacity=".55"/>
+    </svg>
+    <p class="lede">此間所記，皆生活之片刻。紙上得來終覺淺，落筆方知味之長。</p>
+  </header>
+  <section class="list">
+    <div class="item">
+      <span class="no">壹</span><span class="wm">一</span>
+      <h2>開篇：把文字安放在自己的屋簷下</h2>
+      <div class="ex">第一篇文字，說說這個博客的來由。屬於自己的地方，哪怕再小，也是一種從容。</div>
+      <div class="date">七月 · 廿日</div>
+    </div>
+    <div class="item">
+      <span class="no">貳</span><span class="wm">二</span>
+      <h2>從零搭一個免費博客</h2>
+      <div class="ex">不買服務器，不申請公網 IP，十分鐘讓博客上線，還自帶管理後台。</div>
+      <div class="date">七月 · 廿五日</div>
+    </div>
+    <div class="item">
+      <span class="no">叁</span><span class="wm">三</span>
+      <h2>寫點什麼，比寫得完美更重要</h2>
+      <div class="ex">完美是動筆之後慢慢逼近的，不是動筆之前等來的。紙上只有一行字，也好過心裡有一萬行字。</div>
+      <div class="date">七月 · 晦日</div>
+    </div>
+  </section>
+  <footer>
+    <div class="footer-line">言有盡 · 意無窮</div>
+    <span class="footer-seal">墨</span>
+  </footer>
+</div>
+</body>
+</html>

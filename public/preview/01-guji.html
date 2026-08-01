@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>01 古籍书卷</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#f3ead6;
+    color:#2b2419;
+    font-family:"KaiTi","STKaiti","楷体","SimSun",serif;
+    min-height:100vh;
+  }
+  .page { max-width:1160px; margin:0 auto; padding:44px 56px; position:relative; }
+  .page::before { content:""; position:absolute; inset:18px; border:1px solid rgba(43,36,25,.30); pointer-events:none; }
+  .page::after { content:""; position:absolute; inset:25px; border:1px solid rgba(43,36,25,.13); pointer-events:none; }
+  header { display:flex; justify-content:space-between; align-items:flex-end; padding:20px 12px 22px; border-bottom:2px solid #2b2419; }
+  .masthead h1 { font-size:46px; letter-spacing:.2em; font-weight:400; }
+  .masthead .sub { margin-top:10px; font-size:13px; letter-spacing:.34em; color:#6b5f47; }
+  .colophon { text-align:right; font-size:13px; line-height:2; color:#6b5f47; letter-spacing:.14em; }
+  .posts { display:flex; justify-content:flex-end; gap:46px; padding:38px 20px 16px; }
+  .post { writing-mode:vertical-rl; height:560px; padding:0 10px; }
+  .post + .post { border-left:1px dashed rgba(43,36,25,.28); }
+  .post .t { font-size:27px; letter-spacing:.14em; line-height:1.75; }
+  .post .e { font-size:14px; color:#5f5440; margin-top:16px; letter-spacing:.1em; line-height:1.9; }
+  .post .meta { font-size:11px; color:#8a7c60; letter-spacing:.26em; margin-top:20px; }
+  footer { border-top:2px solid #2b2419; margin-top:6px; padding:14px 12px; display:flex; justify-content:space-between; font-size:12px; color:#6b5f47; letter-spacing:.22em; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="masthead"><h1>墨痕集</h1><div class="sub">紙上紀事 · 第一卷</div></div>
+    <div class="colophon">歲在丙午 · 季夏<br>凡三篇 · 皆手記</div>
+  </header>
+  <section class="posts">
+    <article class="post">
+      <div class="t">開篇：把文字安放在自己的屋簷下</div>
+      <div class="e">第一篇文字，說說這個博客的來由，以及寫作這件事本身。</div>
+      <div class="meta">其一 · 七月廿日</div>
+    </article>
+    <article class="post">
+      <div class="t">從零搭一個免費博客：Next.js 與 Supabase</div>
+      <div class="e">不買服務器，不申請公網 IP，十分鐘讓博客上線。</div>
+      <div class="meta">其二 · 七月廿五日</div>
+    </article>
+    <article class="post">
+      <div class="t">寫點什麼，比寫得完美更重要</div>
+      <div class="e">完美是動筆之後慢慢逼近的，不是動筆之前等來的。</div>
+      <div class="meta">其三 · 七月晦日</div>
+    </article>
+  </section>
+  <footer><span>版心居中 · 豎排右起</span><span>墨痕集 · 第一卷</span></footer>
+</div>
+</body>
+</html>

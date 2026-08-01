@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>02 极简瑞士</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#fafaf8; color:#111; font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Arial,sans-serif; }
+  .wrap { max-width:980px; margin:0 auto; padding:0 40px; }
+  .topbar { display:flex; justify-content:space-between; padding:22px 0; border-bottom:2px solid #111; font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:#333; }
+  .hero { padding:112px 0 64px; border-bottom:1px solid #ddd; }
+  .kicker { font-size:12px; letter-spacing:.34em; color:#999; margin-bottom:26px; }
+  .hero h1 { font-size:96px; font-weight:700; letter-spacing:-.04em; line-height:.95; }
+  .lede { margin-top:28px; font-size:17px; color:#555; max-width:540px; line-height:1.9; }
+  .list .row { display:grid; grid-template-columns:90px 1fr 130px; gap:28px; padding:34px 0; border-bottom:1px solid #ddd; align-items:baseline; }
+  .row .num { font-size:13px; color:#999; font-variant-numeric:tabular-nums; }
+  .row h2 { font-size:24px; font-weight:500; transition:color .2s; }
+  .row .ex { margin-top:8px; font-size:14px; color:#777; line-height:1.8; }
+  .row .date { text-align:right; font-size:13px; color:#999; letter-spacing:.06em; }
+  .row:hover h2 { color:#e6392e; }
+  footer { display:flex; justify-content:space-between; padding:26px 0 60px; font-size:12px; color:#999; letter-spacing:.14em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><span>CHOYCHOU · BLOG</span><span>EST. 2026</span></div>
+  <header class="hero">
+    <div class="kicker">PERSONAL JOURNAL — VOL.01</div>
+    <h1>墨痕</h1>
+    <p class="lede">一个人的纸上纪事。记录那些值得被记住的片刻，不追日更，只求每篇都经得起重读。</p>
+  </header>
+  <section class="list">
+    <div class="row"><span class="num">01</span><div><h2>开篇：把文字安放在自己的屋檐下</h2><div class="ex">第一篇文字，说说这个博客的来由，以及写作这件事本身。</div></div><span class="date">2026.07.20</span></div>
+    <div class="row"><span class="num">02</span><div><h2>从零搭一个免费博客：Next.js 与 Supabase</h2><div class="ex">不买服务器、不申请公网 IP，十分钟让博客上线，还自带管理后台。</div></div><span class="date">2026.07.25</span></div>
+    <div class="row"><span class="num">03</span><div><h2>写点什么，比写得完美更重要</h2><div class="ex">完美是动笔之后慢慢逼近的，不是动笔之前等来的。</div></div><span class="date">2026.07.30</span></div>
+  </section>
+  <footer><span>© 2026 CHOYCHOU</span><span>GRID / TYPE / SPACE</span></footer>
+</div>
+</body>
+</html>

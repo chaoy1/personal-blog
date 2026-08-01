@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>05 赛博霓虹</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0b0a12; color:#e6e6f2; font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif; min-height:100vh; overflow-x:hidden; }
+  body::after { content:""; position:fixed; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 3px); }
+  .wrap { max-width:980px; margin:0 auto; padding:36px 32px; position:relative; }
+  .hud { display:flex; justify-content:space-between; font-family:Consolas,monospace; font-size:11px; color:#00fff7; letter-spacing:.14em; padding:10px 14px; border:1px solid rgba(0,255,247,.4); clip-path:polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px)); }
+  .hud span { color:#ff2ec4; }
+  header { margin:64px 0 48px; }
+  .sys { font-family:Consolas,monospace; font-size:12px; color:#f7ff00; letter-spacing:.3em; }
+  h1 { font-size:88px; font-weight:900; line-height:1; letter-spacing:.02em; color:#fff; text-shadow:0 0 18px rgba(0,255,247,.8), 0 0 44px rgba(255,46,196,.55); }
+  h1 .blink { color:#ff2ec4; }
+  .lede { margin-top:18px; color:#9b9bb8; font-size:15px; letter-spacing:.06em; max-width:540px; line-height:1.9; }
+  .post { position:relative; margin-bottom:18px; padding:22px 26px; background:rgba(255,255,255,.03); border:1px solid rgba(0,255,247,.35); clip-path:polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px)); transition:background .2s; }
+  .post:hover { background:rgba(0,255,247,.07); }
+  .post .tag { position:absolute; right:18px; top:14px; font-family:Consolas,monospace; font-size:10px; color:#f7ff00; letter-spacing:.2em; }
+  .post h2 { font-size:24px; font-weight:800; color:#fff; }
+  .post .ex { margin-top:8px; color:#9b9bb8; font-size:14px; line-height:1.8; }
+  .post .meta { margin-top:12px; font-family:Consolas,monospace; font-size:11px; color:#00fff7; letter-spacing:.12em; }
+  .glitch { position:relative; display:inline-block; }
+  .glitch::before, .glitch::after { content:attr(data-text); position:absolute; left:0; top:0; width:100%; overflow:hidden; }
+  .glitch::before { color:#00fff7; transform:translate(-3px, 2px); opacity:.8; }
+  .glitch::after { color:#ff2ec4; transform:translate(3px, -2px); opacity:.8; }
+  footer { margin-top:36px; display:flex; justify-content:space-between; font-family:Consolas,monospace; font-size:11px; color:#5a5a78; letter-spacing:.16em; border-top:1px solid rgba(0,255,247,.25); padding-top:16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hud">NEON.CITY — <span>NET-2026</span> / NODE: SHANGHAI / UPTIME 99.98%</div>
+  <header>
+    <div class="sys">SYSTEM // PERSONAL_BLOG.EXE</div>
+    <h1 class="glitch" data-text="墨痕">墨痕<span class="blink">_</span></h1>
+    <p class="lede">一个人的纸上纪事。数据流中，仍有人愿意手写。记录那些值得被记住的片刻。</p>
+  </header>
+  <section>
+    <div class="post"><span class="tag">LOG.001</span><h2>开篇：把文字安放在自己的屋檐下</h2><div class="ex">第一篇文字，说说这个博客的来由，以及写作这件事本身。</div><div class="meta">&gt; 2026-07-20 // 3 MIN // 0x00A1</div></div>
+    <div class="post"><span class="tag">LOG.002</span><h2>从零搭一个免费博客：Next.js 与 Supabase</h2><div class="ex">不买服务器、不申请公网 IP，十分钟让博客上线。</div><div class="meta">&gt; 2026-07-25 // 6 MIN // 0x00A2</div></div>
+    <div class="post"><span class="tag">LOG.003</span><h2>写点什么，比写得完美更重要</h2><div class="ex">完美是动笔之后慢慢逼近的，不是动笔之前等来的。</div><div class="meta">&gt; 2026-07-30 // 2 MIN // 0x00A3</div></div>
+  </section>
+  <footer><span>© 2026 MO_HEN_OS</span><span>[ ESC ] TO EXIT</span></footer>
+</div>
+</body>
+</html>

@@ -29,6 +29,9 @@ yarn-error.log*
 # jetbrains ide
 .idea/
 
+# style preview mockups
+/style-preview/
+
 # typescript
 *.tsbuildinfo
 
