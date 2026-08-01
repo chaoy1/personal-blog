@@ -81,70 +81,123 @@ button {
   to { opacity: 0.95; }
 }
 
-.mountains {
+.ink-bg {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  inset: 0;
   z-index: 0;
   pointer-events: none;
 }
 
-.mountains svg {
+.ink-bg svg {
   display: block;
   width: 100%;
-  height: 236px;
+  height: 100%;
 }
 
-.m-far {
-  fill: #e0dbca;
-  animation: drift-x 46s ease-in-out infinite alternate;
-}
+/* ---------- 右上角落叶 ---------- */
 
-.m-near {
-  fill: #eae5d6;
-  animation: drift-x 34s ease-in-out infinite alternate-reverse;
-}
-
-@keyframes drift-x {
-  from { transform: translateX(-10px); }
-  to { transform: translateX(14px); }
-}
-
-.mist {
+.leaves {
   position: fixed;
+  top: 0;
+  right: 0;
+  width: 42%;
+  height: 100vh;
   z-index: 0;
-  border-radius: 50%;
-  filter: blur(64px);
   pointer-events: none;
+  overflow: hidden;
 }
 
-.mist.m1 {
-  width: 480px;
-  height: 300px;
-  background: #e8e2d0;
-  top: -70px;
-  right: 5%;
-  animation: drift-m1 27s ease-in-out infinite alternate;
+.leaf {
+  position: absolute;
+  top: -60px;
+  animation: leaf-fall var(--d, 16s) linear var(--delay, 0s) infinite;
 }
 
-.mist.m2 {
-  width: 400px;
-  height: 270px;
-  background: #efeadd;
-  bottom: 130px;
-  left: -90px;
-  animation: drift-m2 33s ease-in-out infinite alternate;
+.leaf svg {
+  display: block;
+  width: var(--size, 20px);
+  height: auto;
+  transform-origin: center;
+  animation: leaf-sway var(--sway, 5s) ease-in-out infinite alternate;
 }
 
-@keyframes drift-m1 {
-  from { transform: translate(0, 0) scale(1); }
-  to { transform: translate(46px, 20px) scale(1.12); }
+@keyframes leaf-fall {
+  0% { transform: translateY(-10vh) translateX(0) rotate(0deg); }
+  20% { transform: translateY(18vh) translateX(-26px) rotate(70deg); }
+  40% { transform: translateY(42vh) translateX(-8px) rotate(150deg); }
+  60% { transform: translateY(66vh) translateX(-30px) rotate(220deg); }
+  80% { transform: translateY(88vh) translateX(-14px) rotate(290deg); }
+  100% { transform: translateY(116vh) translateX(-24px) rotate(360deg); }
 }
 
-@keyframes drift-m2 {
-  from { transform: translate(0, 0) scale(1.05); }
-  to { transform: translate(30px, -16px) scale(1); }
+@keyframes leaf-sway {
+  from { transform: rotate(-22deg); }
+  to { transform: rotate(26deg); }
+}
+
+/* ---------- 顶部导航 ---------- */
+
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px 34px;
+  background: rgba(245, 242, 233, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--rule-strong);
+  font-family: var(--font-kai);
+}
+
+.nav-brand {
+  font-size: 18px;
+  letter-spacing: 0.3em;
+  color: var(--ink);
+}
+
+.nav-brand::before {
+  content: "■";
+  color: var(--seal);
+  font-size: 10px;
+  margin-right: 10px;
+  vertical-align: 2px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  font-size: 14px;
+  letter-spacing: 0.16em;
+  color: var(--ink-soft);
+}
+
+.nav-links a {
+  position: relative;
+  padding: 2px 0;
+  transition: color 0.25s;
+}
+
+.nav-links a:hover {
+  color: var(--seal);
+}
+
+.nav-links a.active {
+  color: var(--ink);
+}
+
+.nav-links a.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 100%;
+  height: 1px;
+  background: var(--seal);
 }
 
 .specks {
@@ -191,7 +244,7 @@ button {
 }
 
 .wrap {
-  padding: 88px 56px 116px;
+  padding: 56px 56px 116px;
 }
 
 /* ---------- 首页 ---------- */
@@ -399,42 +452,36 @@ button {
 
 .list {
   margin-top: 56px;
+  scroll-margin-top: 90px;
 }
 
 .item {
   position: relative;
   display: block;
-  padding: 42px 16px 38px 96px;
+  margin-bottom: 24px;
+  padding: 34px 34px 30px 104px;
   color: inherit;
-  transition: transform 0.35s ease;
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 1px 2px rgba(51, 50, 43, 0.04);
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
 }
 
 .item:nth-child(1) { animation: rise-item1 1.85s ease-out both; }
 .item:nth-child(2) { animation: rise-item2 2s ease-out both; }
 .item:nth-child(3) { animation: rise-item3 2.15s ease-out both; }
 
-.item::after {
-  content: "";
-  position: absolute;
-  left: 96px;
-  right: 16px;
-  bottom: 0;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(44, 43, 35, 0.38) 0 46%, rgba(44, 43, 35, 0.12) 72%, transparent);
-}
-
-.item:last-child::after {
-  display: none;
-}
-
 .item:hover {
-  transform: translateX(5px);
+  transform: translateY(-3px);
+  border-color: rgba(168, 50, 42, 0.55);
+  box-shadow: 0 16px 32px -18px rgba(51, 50, 43, 0.32);
 }
 
 .item .no {
   position: absolute;
   left: 28px;
-  top: 44px;
+  top: 36px;
   writing-mode: vertical-rl;
   font-family: var(--font-kai);
   font-size: 12px;
@@ -444,10 +491,10 @@ button {
 
 .item .wm {
   position: absolute;
-  right: 0;
-  top: 16px;
+  right: 18px;
+  top: 22px;
   font-family: var(--font-kai);
-  font-size: 118px;
+  font-size: 100px;
   line-height: 1;
   color: rgba(44, 43, 35, 0.045);
   user-select: none;
@@ -516,11 +563,37 @@ button {
 
 .item .date {
   display: block;
-  margin-top: 14px;
   font-family: var(--font-kai);
   font-size: 11px;
   letter-spacing: 0.34em;
   color: var(--ink-faint);
+}
+
+.item-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.read {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-kai);
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  color: var(--seal);
+}
+
+.read::after {
+  content: "→";
+  transition: transform 0.3s;
+}
+
+.item:hover .read::after {
+  transform: translateX(5px);
 }
 
 .home-footer {
@@ -1149,6 +1222,19 @@ button {
 /* ---------- 响应式 ---------- */
 
 @media (max-width: 720px) {
+  .site-nav {
+    padding: 12px 20px;
+  }
+
+  .nav-brand {
+    display: none;
+  }
+
+  .nav-links {
+    gap: 16px;
+    font-size: 13px;
+  }
+
   .wrap {
     padding: 64px 22px 90px;
   }
@@ -1168,20 +1254,16 @@ button {
   }
 
   .item {
-    padding: 34px 8px 30px 56px;
-  }
-
-  .item::after {
-    left: 56px;
+    padding: 26px 18px 24px 54px;
   }
 
   .item .no {
     left: 10px;
-    top: 36px;
+    top: 30px;
   }
 
   .item .wm {
-    font-size: 84px;
+    font-size: 72px;
   }
 
   .article {
