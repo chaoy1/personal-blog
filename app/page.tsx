@@ -120,7 +120,7 @@ export default async function HomePage() {
 
       <footer className="home-footer">
         <div className="footer-line">
-          言有盡 · 意無窮 · <Link href="/admin">後臺</Link>
+          言有盡 · 意無窮 · <Link href="/admin">管理</Link>
         </div>
         <span className="footer-seal" aria-hidden="true">
           墨

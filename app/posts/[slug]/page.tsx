@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import MarkdownView from '@/components/MarkdownView'
+import Comments from '@/components/Comments'
 import { getPostBySlug, formatDate, readingTime } from '@/lib/posts'
 import { SITE_NAME } from '@/lib/site'
 
@@ -58,6 +59,7 @@ export default async function PostPage({ params }: Props) {
           ※ ※ ※
         </div>
         <MarkdownView content={post.content} />
+        <Comments slug={post.slug} />
       </article>
 
       <footer className="article-footer">
