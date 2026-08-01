@@ -17,22 +17,22 @@ export const viewport: Viewport = {
 }
 
 const LEAVES = [
-  { left: '6%', size: 26, d: '17s', delay: '-3s', sway: '6s', color: '#e3b455', shape: 'maple' },
-  { left: '16%', size: 18, d: '20s', delay: '-11s', sway: '5s', color: '#c0842c', shape: 'ginkgo' },
-  { left: '28%', size: 22, d: '16s', delay: '-6s', sway: '7s', color: '#c0442c', shape: 'maple' },
-  { left: '37%', size: 16, d: '21s', delay: '-14s', sway: '5s', color: '#e9c97a', shape: 'ginkgo' },
-  { left: '48%', size: 24, d: '15s', delay: '-1s', sway: '6s', color: '#d19a3e', shape: 'maple' },
-  { left: '56%', size: 17, d: '19s', delay: '-9s', sway: '5s', color: '#b4702e', shape: 'ginkgo' },
-  { left: '64%', size: 21, d: '17s', delay: '-13s', sway: '7s', color: '#e3b455', shape: 'maple' },
-  { left: '72%', size: 15, d: '22s', delay: '-5s', sway: '5s', color: '#c0442c', shape: 'ginkgo' },
-  { left: '80%', size: 25, d: '14s', delay: '-2s', sway: '6s', color: '#e9c97a', shape: 'maple' },
-  { left: '88%', size: 18, d: '18s', delay: '-8s', sway: '5s', color: '#d19a3e', shape: 'ginkgo' },
-  { left: '94%', size: 22, d: '16s', delay: '-12s', sway: '7s', color: '#b4702e', shape: 'maple' },
-  { left: '11%', size: 20, d: '18s', delay: '-7s', sway: '6s', color: '#c0842c', shape: 'ginkgo' },
-  { left: '33%', size: 15, d: '20s', delay: '-15s', sway: '5s', color: '#e3b455', shape: 'ginkgo' },
-  { left: '60%', size: 23, d: '15s', delay: '-4s', sway: '7s', color: '#c0442c', shape: 'maple' },
-  { left: '70%', size: 16, d: '21s', delay: '-10s', sway: '5s', color: '#e9c97a', shape: 'ginkgo' },
-  { left: '92%', size: 19, d: '17s', delay: '-6s', sway: '6s', color: '#d19a3e', shape: 'maple' },
+  { left: '6%', size: 26, d: '17s', delay: '-3s', sway: '6s', color: '#c84b32' },
+  { left: '16%', size: 18, d: '20s', delay: '-11s', sway: '5s', color: '#b63a24' },
+  { left: '28%', size: 22, d: '16s', delay: '-6s', sway: '7s', color: '#d65a3a' },
+  { left: '37%', size: 16, d: '21s', delay: '-14s', sway: '5s', color: '#c85a38' },
+  { left: '48%', size: 24, d: '15s', delay: '-1s', sway: '6s', color: '#bd4430' },
+  { left: '56%', size: 17, d: '19s', delay: '-9s', sway: '5s', color: '#b63a24' },
+  { left: '64%', size: 21, d: '17s', delay: '-13s', sway: '7s', color: '#c84b32' },
+  { left: '72%', size: 15, d: '22s', delay: '-5s', sway: '5s', color: '#d65a3a' },
+  { left: '80%', size: 25, d: '14s', delay: '-2s', sway: '6s', color: '#a83a28' },
+  { left: '88%', size: 18, d: '18s', delay: '-8s', sway: '5s', color: '#c85a38' },
+  { left: '94%', size: 22, d: '16s', delay: '-12s', sway: '7s', color: '#bd4430' },
+  { left: '11%', size: 20, d: '18s', delay: '-7s', sway: '6s', color: '#c84b32' },
+  { left: '33%', size: 15, d: '20s', delay: '-15s', sway: '5s', color: '#d65a3a' },
+  { left: '60%', size: 23, d: '15s', delay: '-4s', sway: '7s', color: '#b63a24' },
+  { left: '70%', size: 16, d: '21s', delay: '-10s', sway: '5s', color: '#a83a28' },
+  { left: '92%', size: 19, d: '17s', delay: '-6s', sway: '6s', color: '#c85a38' },
 ]
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -58,138 +58,135 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
             <defs>
               <linearGradient id="bgSky" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#241b0f" />
-                <stop offset="1" stopColor="#2e2313" />
+                <stop offset="0" stopColor="#241b0e" />
+                <stop offset="1" stopColor="#302512" />
               </linearGradient>
               <radialGradient id="moonHalo">
-                <stop offset="0" stopColor="#e9cc7c" stopOpacity="0.55" />
-                <stop offset="1" stopColor="#e9cc7c" stopOpacity="0" />
+                <stop offset="0" stopColor="#e8cf8d" stopOpacity="0.5" />
+                <stop offset="1" stopColor="#e8cf8d" stopOpacity="0" />
               </radialGradient>
-              <linearGradient id="m1" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#5a4b2b" stopOpacity="0.9" />
-                <stop offset="1" stopColor="#4a3c22" stopOpacity="0.5" />
+              <linearGradient id="mFarG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#46391f" stopOpacity="0.75" />
+                <stop offset="1" stopColor="#382d19" stopOpacity="0.95" />
               </linearGradient>
-              <linearGradient id="m2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#49391f" stopOpacity="0.92" />
-                <stop offset="1" stopColor="#3a2e18" stopOpacity="0.5" />
+              <linearGradient id="mMidG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#2f2514" />
+                <stop offset="1" stopColor="#221a0d" />
               </linearGradient>
-              <linearGradient id="m3" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#382c16" stopOpacity="0.92" />
-                <stop offset="1" stopColor="#2b2110" stopOpacity="0.55" />
+              <linearGradient id="mMainG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#3a2f1a" />
+                <stop offset="1" stopColor="#16100a" />
               </linearGradient>
-              <linearGradient id="m4" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#28200e" stopOpacity="0.92" />
-                <stop offset="1" stopColor="#1e1709" stopOpacity="0.55" />
+              <linearGradient id="mNearG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#221a0e" />
+                <stop offset="1" stopColor="#100b05" />
               </linearGradient>
-              <linearGradient id="m5" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#1c1509" stopOpacity="0.94" />
-                <stop offset="1" stopColor="#130d05" stopOpacity="0.6" />
-              </linearGradient>
-              <filter id="brushA" x="-20%" y="-20%" width="140%" height="140%">
-                <feTurbulence type="fractalNoise" baseFrequency="0.012 0.03" numOctaves="4" seed="7" result="n" />
-                <feDisplacementMap in="SourceGraphic" in2="n" scale="22" xChannelSelector="R" yChannelSelector="G" />
-              </filter>
-              <filter id="brushB" x="-20%" y="-20%" width="140%" height="140%">
-                <feTurbulence type="fractalNoise" baseFrequency="0.02 0.05" numOctaves="3" seed="3" result="n" />
-                <feDisplacementMap in="SourceGraphic" in2="n" scale="13" xChannelSelector="R" yChannelSelector="G" />
-              </filter>
               <filter id="mist" x="-40%" y="-40%" width="180%" height="180%">
-                <feGaussianBlur stdDeviation="26" />
+                <feGaussianBlur stdDeviation="24" />
               </filter>
               <filter id="mistSoft" x="-40%" y="-40%" width="180%" height="180%">
-                <feGaussianBlur stdDeviation="44" />
+                <feGaussianBlur stdDeviation="46" />
+              </filter>
+              <filter id="brushSm" x="-10%" y="-10%" width="120%" height="120%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.03 0.05" numOctaves="2" seed="5" result="n" />
+                <feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G" />
               </filter>
             </defs>
 
             <rect width="1600" height="900" fill="url(#bgSky)" />
-            <ellipse cx="800" cy="620" rx="900" ry="220" fill="#4a3a1e" opacity="0.32" filter="url(#mistSoft)" />
+            <ellipse cx="820" cy="560" rx="920" ry="240" fill="#4a3a1e" opacity="0.3" filter="url(#mistSoft)" />
 
-            <circle cx="1220" cy="168" r="190" fill="url(#moonHalo)" filter="url(#mistSoft)" />
-            <circle cx="1220" cy="168" r="46" fill="#e9cc7c" opacity="0.9" />
+            <circle cx="1210" cy="170" r="180" fill="url(#moonHalo)" filter="url(#mistSoft)" />
+            <circle cx="1210" cy="170" r="44" fill="#e8cf8d" opacity="0.92" />
             <path
-              d="M1148 146 q 58 14 118 4 q 40 -8 84 0"
-              stroke="#4a3b20"
-              strokeWidth="12"
-              opacity="0.7"
+              d="M1138 148 q 56 14 116 4 q 38 -8 80 0"
+              stroke="#3f3120"
+              strokeWidth="11"
+              opacity="0.75"
               fill="none"
               strokeLinecap="round"
               filter="url(#mist)"
             />
 
             <path
-              d="M0 520 C 180 430, 260 380, 420 460 C 560 520, 660 420, 820 470 C 980 520, 1120 420, 1300 490 C 1420 530, 1520 470, 1600 500 L 1600 900 L 0 900 Z"
-              fill="url(#m1)"
-              opacity="0.9"
-              filter="url(#brushB)"
+              d="M0 560 Q 260 470 430 535 T 900 520 T 1400 545 L 1600 540 L 1600 900 L 0 900 Z"
+              fill="url(#mFarG)"
+              opacity="0.7"
+              filter="url(#mist)"
             />
             <path
-              d="M0 590 C 200 500, 340 460, 520 550 C 700 630, 820 480, 1000 540 C 1160 590, 1300 500, 1600 560 L 1600 900 L 0 900 Z"
-              fill="url(#m2)"
-              opacity="0.95"
-              filter="url(#brushB)"
+              d="M0 660 Q 150 530 320 610 T 620 640 L 620 900 L 0 900 Z"
+              fill="url(#mMidG)"
             />
             <path
-              d="M0 660 C 240 560, 420 540, 600 630 C 780 710, 940 560, 1120 620 C 1280 670, 1420 600, 1600 640 L 1600 900 L 0 900 Z"
-              fill="url(#m3)"
-              filter="url(#brushA)"
+              d="M920 680 Q 1070 540 1240 615 T 1600 610 L 1600 900 L 920 900 Z"
+              fill="url(#mMidG)"
             />
             <path
-              d="M0 730 C 260 640, 480 630, 680 700 C 900 780, 1080 640, 1260 690 C 1420 730, 1520 680, 1600 710 L 1600 900 L 0 900 Z"
-              fill="url(#m4)"
-              filter="url(#brushA)"
+              d="M620 900 L 700 660 Q 750 560 830 480 L 970 300 L 1060 470 Q 1100 530 1140 590 L 1200 690 L 1340 900 Z"
+              fill="url(#mMainG)"
+              filter="url(#brushSm)"
             />
-            <path
-              d="M0 800 C 300 730, 560 720, 780 780 C 1000 840, 1180 730, 1360 770 C 1480 795, 1550 760, 1600 780 L 1600 900 L 0 900 Z"
-              fill="url(#m5)"
-              filter="url(#brushA)"
-            />
-
-            <g fill="#6a5a32" opacity="0.5">
-              <circle cx="520" cy="560" r="5" />
-              <circle cx="540" cy="555" r="3.5" />
-              <circle cx="512" cy="570" r="3" />
-              <circle cx="980" cy="560" r="6" />
-              <circle cx="1000" cy="550" r="4" />
-              <circle cx="966" cy="575" r="3" />
-              <circle cx="700" cy="720" r="5" />
-              <circle cx="690" cy="735" r="3.5" />
-              <circle cx="1230" cy="705" r="6" />
-              <circle cx="1250" cy="690" r="4" />
-              <circle cx="1216" cy="715" r="3" />
+            <path d="M900 420 L 970 300 L 1030 400 Q 985 445 900 420 Z" fill="#4a3c22" opacity="0.65" />
+            <g stroke="#0f0a04" strokeWidth="2.2" fill="none" strokeLinecap="round" opacity="0.55">
+              <path d="M1000 430 q 8 44 2 92" />
+              <path d="M1050 490 q 10 50 4 104" />
+              <path d="M1105 565 q 8 40 3 82" />
+              <path d="M760 600 q 10 40 4 84" />
+              <path d="M840 510 q 8 36 3 74" />
+            </g>
+            <g>
+              <path d="M896 460 L 882 660" stroke="#e8d9a8" strokeWidth="5" opacity="0.5" strokeLinecap="round" />
+              <path d="M904 480 L 896 620" stroke="#e8d9a8" strokeWidth="2" opacity="0.35" strokeLinecap="round" />
             </g>
 
-            <ellipse cx="380" cy="620" rx="400" ry="55" fill="#4a3a1e" opacity="0.6" filter="url(#mist)" />
-            <ellipse cx="1180" cy="700" rx="440" ry="60" fill="#3f3120" opacity="0.6" filter="url(#mist)" />
-            <ellipse cx="760" cy="780" rx="540" ry="66" fill="#3a2d1a" opacity="0.55" filter="url(#mistSoft)" />
+            <ellipse cx="520" cy="640" rx="520" ry="66" fill="#3b2e1a" opacity="0.55" filter="url(#mist)" />
+            <ellipse cx="1200" cy="700" rx="540" ry="76" fill="#332818" opacity="0.55" filter="url(#mist)" />
+            <ellipse cx="800" cy="800" rx="920" ry="120" fill="#2c2112" opacity="0.6" filter="url(#mistSoft)" />
+
+            <path
+              d="M0 800 Q 130 730 260 770 Q 350 800 400 840 L 400 900 L 0 900 Z"
+              fill="url(#mNearG)"
+              filter="url(#brushSm)"
+            />
+            <g stroke="#0d0a04" strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.9">
+              <path d="M150 770 C 142 726, 148 688, 158 648" />
+              <path d="M150 720 q -34 -12 -66 -8" />
+              <path d="M154 678 q 38 -14 68 -6" />
+            </g>
+            <g stroke="#0d0a04" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.9">
+              <path d="M84 712 l -20 4 M84 712 l -14 18 M84 712 l 2 24 M84 712 l 16 20 M84 712 l 26 8" />
+              <path d="M222 672 l -20 4 M222 672 l -14 18 M222 672 l 2 24 M222 672 l 16 20 M222 672 l 26 8" />
+              <path d="M158 648 l -18 6 M158 648 l -8 22 M158 648 l 8 22 M158 648 l 22 14" />
+            </g>
+
+            <rect x="0" y="842" width="1600" height="58" fill="#120d06" opacity="0.85" />
+            <g stroke="#c9b47f" strokeWidth="2" opacity="0.28" strokeLinecap="round" fill="none">
+              <path d="M180 860 q 30 0 60 0" />
+              <path d="M420 872 q 34 0 68 0" />
+              <path d="M940 856 q 30 0 60 0" />
+              <path d="M1260 872 q 34 0 68 0" />
+            </g>
+            <g opacity="0.7">
+              <path d="M330 866 q 26 12 56 0 q -28 8 -56 0 Z" fill="#0b0804" />
+              <path d="M358 864 v -22" stroke="#0b0804" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+              <path d="M358 850 l 12 -3" stroke="#0b0804" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+            </g>
 
             <g stroke="#b39a64" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.5">
-              <path d="M1030 300 q 14 -12 30 -2 q 14 -10 30 0" />
-              <path d="M1100 352 q 11 -9 24 -2 q 11 -8 24 0" />
-              <path d="M965 385 q 10 -8 22 -2 q 10 -7 22 0" />
+              <path d="M1040 300 q 13 -11 28 -2 q 13 -9 28 0" />
+              <path d="M1108 348 q 10 -8 22 -2 q 10 -7 22 0" />
+              <path d="M980 382 q 9 -7 20 -2 q 9 -6 20 0" />
             </g>
 
-            <rect x="0" y="830" width="1600" height="70" fill="#171007" opacity="0.5" />
-            <g stroke="#b39a64" strokeWidth="2" opacity="0.22" strokeLinecap="round" fill="none">
-              <path d="M200 852 q 30 0 60 0" />
-              <path d="M420 862 q 34 0 68 0" />
-              <path d="M900 848 q 30 0 60 0" />
-              <path d="M1230 866 q 34 0 68 0" />
-            </g>
-            <g opacity="0.6">
-              <path d="M360 846 q 30 13 62 0 q -30 8 -62 0 Z" fill="#0f0a04" />
-              <path d="M391 844 v -26" stroke="#0f0a04" strokeWidth="4" strokeLinecap="round" fill="none" />
-              <path d="M391 828 l 14 -4" stroke="#0f0a04" strokeWidth="3" strokeLinecap="round" fill="none" />
-            </g>
-
-            <g stroke="#0c0803" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.7">
-              <path d="M-10 330 C 60 290, 130 278, 210 264" />
-              <path d="M60 306 C 88 268, 100 236, 96 198" />
-              <path d="M140 284 C 150 246, 146 216, 132 180" />
-            </g>
-            <g stroke="#0c0803" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.7">
-              <path d="M96 198 l -26 8 M96 198 l -22 20 M96 198 l -2 28 M96 198 l 20 20 M96 198 l 30 6" />
-              <path d="M132 180 l -24 12 M132 180 l -14 26 M132 180 l 6 28 M132 180 l 24 18 M132 180 l 30 2" />
-              <path d="M210 264 l -26 6 M210 264 l -20 20 M210 264 l -2 26 M210 264 l 22 18 M210 264 l 28 4" />
+            <g fill="#6a5a32" opacity="0.45">
+              <circle cx="760" cy="560" r="4" />
+              <circle cx="775" cy="552" r="2.8" />
+              <circle cx="1075" cy="520" r="4.5" />
+              <circle cx="1090" cy="510" r="3" />
+              <circle cx="300" cy="800" r="4" />
+              <circle cx="315" cy="790" r="2.8" />
+              <circle cx="180" cy="820" r="3.5" />
             </g>
           </svg>
         </div>
@@ -210,31 +207,17 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 } as CSSProperties
               }
             >
-              {leaf.shape === 'maple' ? (
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M12 2 L 15 9 L 22 9 L 17 13 L 19 20 L 12 16 L 5 20 L 7 13 L 2 9 L 9 9 Z"
-                    fill="var(--color)"
-                    opacity="0.85"
-                    stroke="var(--color)"
-                    strokeWidth="1"
-                    strokeLinejoin="round"
-                  />
-                  <path d="M12 2 L 12 16 M8 10 L 12 13 M16 10 L 12 13" stroke="#1b1409" strokeOpacity="0.5" strokeWidth="0.8" />
-                </svg>
-              ) : (
-                <svg viewBox="0 0 22 26" fill="none">
-                  <path
-                    d="M11 2 C 17 6, 18 13, 15 18 C 14 20, 12 22, 11 22 C 10 22, 8 20, 7 18 C 4 13, 5 6, 11 2 Z"
-                    fill="var(--color)"
-                    opacity="0.85"
-                    stroke="var(--color)"
-                    strokeWidth="1"
-                    strokeLinejoin="round"
-                  />
-                  <path d="M11 2 L 11 21" stroke="#1b1409" strokeOpacity="0.5" strokeWidth="0.8" />
-                </svg>
-              )}
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 2 L 15 9 L 22 9 L 17 13 L 19 20 L 12 16 L 5 20 L 7 13 L 2 9 L 9 9 Z"
+                  fill="var(--color)"
+                  opacity="0.9"
+                  stroke="var(--color)"
+                  strokeWidth="1"
+                  strokeLinejoin="round"
+                />
+                <path d="M12 2 L 12 16 M8 10 L 12 13 M16 10 L 12 13" stroke="#2b140c" strokeOpacity="0.55" strokeWidth="0.8" />
+              </svg>
             </span>
           ))}
         </div>
