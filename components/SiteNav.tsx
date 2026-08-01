@@ -26,8 +26,6 @@ export default function SiteNav() {
   const router = useRouter()
   const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
 
-  if (pathname.startsWith('/admin')) return null
-
   useEffect(() => {
     const sb = supabaseBrowser()
     sb.auth
@@ -39,6 +37,9 @@ export default function SiteNav() {
     })
     return () => sub.subscription.unsubscribe()
   }, [])
+
+  // 注意：必须在所有 hook 之后才能提前返回
+  if (pathname.startsWith('/admin')) return null
 
   async function logout() {
     await supabaseBrowser().auth.signOut()

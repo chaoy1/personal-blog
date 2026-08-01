@@ -10,6 +10,7 @@ export const metadata: Metadata = {
     template: `%s · ${SITE_NAME}`,
   },
   description: SITE_DESC,
+  icons: { icon: '/icon.svg' },
 }
 
 export const viewport: Viewport = {
