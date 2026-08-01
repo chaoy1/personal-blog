@@ -1,15 +1,15 @@
 :root {
-  --paper: #f5f2e9;
-  --paper-2: #efeadd;
-  --ink: #33322b;
-  --ink-soft: #7d7866;
-  --ink-faint: #b3ac97;
-  --rule: rgba(51, 50, 43, 0.16);
-  --rule-strong: rgba(51, 50, 43, 0.34);
-  --seal: #a8322a;
-  --seal-deep: #7c2b24;
-  --code-bg: #2c2b23;
-  --code-ink: #efe8d8;
+  --paper: #251d10;
+  --paper-2: #2e2415;
+  --ink: #ecdfc0;
+  --ink-soft: #b6a67d;
+  --ink-faint: #87774f;
+  --rule: rgba(236, 223, 192, 0.14);
+  --rule-strong: rgba(236, 223, 192, 0.26);
+  --seal: #c64b31;
+  --seal-deep: #d96b4a;
+  --code-bg: #161005;
+  --code-ink: #e9d9ab;
   --font-cn: "Songti SC", "STSong", "SimSun", "Noto Serif CJK SC",
     "Source Han Serif SC", serif;
   --font-kai: "KaiTi", "STKaiti", "楷体", var(--font-cn);
@@ -24,6 +24,8 @@
 
 html {
   scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(236, 223, 192, 0.3) transparent;
 }
 
 body {
@@ -47,7 +49,7 @@ button {
 }
 
 ::selection {
-  background: rgba(168, 50, 42, 0.18);
+  background: rgba(198, 75, 49, 0.35);
 }
 
 :focus-visible {
@@ -62,9 +64,9 @@ button {
   inset: 0;
   z-index: 60;
   pointer-events: none;
-  opacity: 0.5;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.55'/%3E%3C/svg%3E");
+  opacity: 0.08;
+  mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.55' fill='%23f0e3bd'/%3E%3C/svg%3E");
 }
 
 .vignette {
@@ -72,13 +74,13 @@ button {
   inset: 0;
   z-index: 61;
   pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 55%, rgba(74, 66, 48, 0.12) 100%);
+  background: radial-gradient(ellipse at center, transparent 52%, rgba(12, 8, 2, 0.5) 100%);
   animation: breath 9s ease-in-out infinite alternate;
 }
 
 @keyframes breath {
-  from { opacity: 0.45; }
-  to { opacity: 0.95; }
+  from { opacity: 0.5; }
+  to { opacity: 1; }
 }
 
 .ink-bg {
@@ -94,13 +96,13 @@ button {
   height: 100%;
 }
 
-/* ---------- 右上角落叶 ---------- */
+/* ---------- 金叶飘落 ---------- */
 
 .leaves {
   position: fixed;
   top: 0;
+  left: 0;
   right: 0;
-  width: 42%;
   height: 100vh;
   z-index: 0;
   pointer-events: none;
@@ -109,7 +111,7 @@ button {
 
 .leaf {
   position: absolute;
-  top: -60px;
+  top: -70px;
   animation: leaf-fall var(--d, 16s) linear var(--delay, 0s) infinite;
 }
 
@@ -117,22 +119,58 @@ button {
   display: block;
   width: var(--size, 20px);
   height: auto;
+  opacity: 0.85;
   transform-origin: center;
+  filter: drop-shadow(0 2px 6px rgba(227, 180, 85, 0.35));
   animation: leaf-sway var(--sway, 5s) ease-in-out infinite alternate;
 }
 
 @keyframes leaf-fall {
-  0% { transform: translateY(-10vh) translateX(0) rotate(0deg); }
-  20% { transform: translateY(18vh) translateX(-26px) rotate(70deg); }
-  40% { transform: translateY(42vh) translateX(-8px) rotate(150deg); }
-  60% { transform: translateY(66vh) translateX(-30px) rotate(220deg); }
-  80% { transform: translateY(88vh) translateX(-14px) rotate(290deg); }
-  100% { transform: translateY(116vh) translateX(-24px) rotate(360deg); }
+  0%   { transform: translateY(-8vh) translateX(0) rotate(0deg); }
+  18%  { transform: translateY(14vh) translateX(36px) rotate(45deg); }
+  36%  { transform: translateY(34vh) translateX(-20px) rotate(115deg); }
+  54%  { transform: translateY(56vh) translateX(46px) rotate(175deg); }
+  72%  { transform: translateY(78vh) translateX(-26px) rotate(240deg); }
+  100% { transform: translateY(114vh) translateX(32px) rotate(330deg); }
 }
 
 @keyframes leaf-sway {
-  from { transform: rotate(-22deg); }
-  to { transform: rotate(26deg); }
+  from { transform: rotate(-24deg) scale(1); }
+  to { transform: rotate(28deg) scale(1.04); }
+}
+
+/* ---------- 金色尘埃 ---------- */
+
+.specks {
+  position: fixed;
+  inset: 0;
+  z-index: 62;
+  pointer-events: none;
+}
+
+.specks i {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(233, 201, 122, 0.9), transparent 70%);
+  opacity: 0;
+  animation: specks 12s ease-in-out infinite;
+}
+
+.specks i:nth-child(1) { left: 12%; top: 66%; }
+.specks i:nth-child(2) { left: 26%; top: 32%; width: 3px; height: 3px; animation-delay: 2.4s; }
+.specks i:nth-child(3) { left: 64%; top: 20%; width: 3px; height: 3px; animation-delay: 4.1s; }
+.specks i:nth-child(4) { left: 82%; top: 58%; width: 2.5px; height: 2.5px; animation-delay: 1.3s; }
+.specks i:nth-child(5) { left: 44%; top: 78%; width: 5px; height: 5px; animation-delay: 5.6s; }
+.specks i:nth-child(6) { left: 8%; top: 42%; width: 3px; height: 3px; animation-delay: 7.2s; }
+.specks i:nth-child(7) { left: 90%; top: 30%; width: 4px; height: 4px; animation-delay: 3.5s; }
+
+@keyframes specks {
+  0% { transform: translateY(26px); opacity: 0; }
+  22% { opacity: 0.5; }
+  70% { opacity: 0.2; }
+  100% { transform: translateY(-92px); opacity: 0; }
 }
 
 /* ---------- 顶部导航 ---------- */
@@ -146,11 +184,17 @@ button {
   justify-content: space-between;
   gap: 20px;
   padding: 14px 34px;
-  background: rgba(245, 242, 233, 0.82);
+  background: rgba(37, 29, 16, 0.82);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--rule-strong);
   font-family: var(--font-kai);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.site-nav.nav-scrolled {
+  background: rgba(30, 23, 12, 0.94);
+  box-shadow: 0 8px 22px -14px rgba(0, 0, 0, 0.55);
 }
 
 .nav-brand {
@@ -176,30 +220,7 @@ button {
   color: var(--ink-soft);
 }
 
-.nav-links a {
-  position: relative;
-  padding: 2px 0;
-  transition: color 0.25s;
-}
-
-.nav-links a:hover {
-  color: var(--seal);
-}
-
-.nav-links a.active {
-  color: var(--ink);
-}
-
-.nav-links a.active::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -3px;
-  width: 100%;
-  height: 1px;
-  background: var(--seal);
-}
-
+.nav-links a,
 .nav-links button {
   position: relative;
   background: none;
@@ -213,14 +234,17 @@ button {
   transition: color 0.25s;
 }
 
+.nav-links a:hover,
 .nav-links button:hover {
-  color: var(--seal);
+  color: var(--seal-deep);
 }
 
+.nav-links a.active,
 .nav-links button.active {
   color: var(--ink);
 }
 
+.nav-links a.active::after,
 .nav-links button.active::after {
   content: "";
   position: absolute;
@@ -229,43 +253,6 @@ button {
   width: 100%;
   height: 1px;
   background: var(--seal);
-}
-
-.site-nav.nav-scrolled {
-  background: rgba(245, 242, 233, 0.94);
-  box-shadow: 0 6px 18px -14px rgba(51, 50, 43, 0.35);
-}
-
-.specks {
-  position: fixed;
-  inset: 0;
-  z-index: 62;
-  pointer-events: none;
-}
-
-.specks i {
-  position: absolute;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(51, 50, 43, 0.55), transparent 70%);
-  opacity: 0;
-  animation: specks 11s ease-in-out infinite;
-}
-
-.specks i:nth-child(1) { left: 12%; top: 66%; }
-.specks i:nth-child(2) { left: 26%; top: 32%; width: 3px; height: 3px; animation-delay: 2.4s; }
-.specks i:nth-child(3) { left: 64%; top: 20%; width: 4px; height: 4px; animation-delay: 4.1s; }
-.specks i:nth-child(4) { left: 82%; top: 58%; width: 3px; height: 3px; animation-delay: 1.3s; }
-.specks i:nth-child(5) { left: 44%; top: 78%; width: 6px; height: 6px; animation-delay: 5.6s; }
-.specks i:nth-child(6) { left: 8%; top: 42%; width: 4px; height: 4px; animation-delay: 7.2s; }
-.specks i:nth-child(7) { left: 90%; top: 30%; width: 5px; height: 5px; animation-delay: 3.5s; }
-
-@keyframes specks {
-  0% { transform: translateY(26px); opacity: 0; }
-  22% { opacity: 0.5; }
-  70% { opacity: 0.22; }
-  100% { transform: translateY(-84px); opacity: 0; }
 }
 
 /* ---------- 布局骨架 ---------- */
@@ -292,13 +279,13 @@ button {
   z-index: 0;
   width: 240px;
   pointer-events: none;
-  opacity: 0.8;
+  opacity: 0.85;
   animation: sway 16s ease-in-out 2s infinite alternate;
 }
 
 .branch .stem {
   fill: none;
-  stroke: var(--ink);
+  stroke: #0d0903;
   stroke-width: 3.4;
   stroke-linecap: round;
   stroke-dasharray: 900;
@@ -312,8 +299,8 @@ button {
 }
 
 .branch .leaf {
-  fill: var(--ink);
-  opacity: 0.75;
+  fill: #0d0903;
+  opacity: 0.8;
   transform-origin: center;
   animation: leaf-in 0.9s ease-out both;
 }
@@ -330,7 +317,7 @@ button {
 
 @keyframes leaf-in {
   0%, 55% { opacity: 0; transform: scale(0.4) rotate(-14deg); }
-  100% { opacity: 0.75; transform: scale(1) rotate(0); }
+  100% { opacity: 0.8; transform: scale(1) rotate(0); }
 }
 
 @keyframes sway {
@@ -346,7 +333,7 @@ button {
   font-family: var(--font-kai);
   font-size: 12px;
   letter-spacing: 0.55em;
-  color: #aaa38f;
+  color: #a89a73;
   animation: rise-d 1.8s ease-out both;
 }
 
@@ -363,7 +350,7 @@ button {
   font-family: var(--font-kai);
   font-size: 11px;
   letter-spacing: 0.42em;
-  color: #b9b29d;
+  color: #9a8b63;
   animation: rise-e 2s ease-out both;
 }
 
@@ -371,6 +358,7 @@ button {
   text-align: center;
   position: relative;
   padding-top: 22px;
+  will-change: transform, opacity;
 }
 
 .eyebrow {
@@ -379,7 +367,7 @@ button {
   font-size: 11px;
   letter-spacing: 0.7em;
   text-indent: 0.7em;
-  color: #9f9884;
+  color: #a89a73;
   animation: rise-a 0.9s ease-out both;
 }
 
@@ -396,7 +384,7 @@ button {
   font-weight: 400;
   letter-spacing: 0.3em;
   text-indent: 0.3em;
-  color: #2c2b23;
+  color: #f0e3c0;
   filter: url(#ink);
 }
 
@@ -408,7 +396,7 @@ button {
   align-items: center;
   justify-content: center;
   background: var(--seal);
-  color: var(--paper);
+  color: #221a0d;
   font-family: var(--font-kai);
 }
 
@@ -427,7 +415,7 @@ button {
   content: "";
   position: absolute;
   inset: 3px;
-  border: 1px solid rgba(245, 242, 233, 0.5);
+  border: 1px solid rgba(34, 26, 13, 0.5);
 }
 
 .seal::before {
@@ -435,7 +423,7 @@ button {
   position: absolute;
   inset: -12px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(168, 50, 42, 0.3), transparent 66%);
+  background: radial-gradient(circle, rgba(198, 75, 49, 0.32), transparent 66%);
   opacity: 0;
   animation: ripple 2.2s ease-out both;
 }
@@ -497,10 +485,10 @@ button {
   margin-bottom: 28px;
   padding: 36px 40px 32px 108px;
   color: inherit;
-  background: rgba(255, 252, 244, 0.7);
-  border: 1px solid rgba(51, 50, 43, 0.26);
+  background: rgba(48, 39, 20, 0.72);
+  border: 1px solid rgba(230, 205, 140, 0.2);
   border-radius: 2px;
-  box-shadow: 0 2px 0 rgba(51, 50, 43, 0.05), 0 12px 26px -20px rgba(51, 50, 43, 0.25);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25), 0 14px 30px -20px rgba(0, 0, 0, 0.55);
   opacity: 0;
   transform: translateY(30px) rotate(var(--tilt, 0deg));
   transition:
@@ -517,7 +505,7 @@ button {
   content: "";
   position: absolute;
   inset: 6px;
-  border: 1px solid rgba(51, 50, 43, 0.08);
+  border: 1px solid rgba(236, 223, 192, 0.08);
   pointer-events: none;
 }
 
@@ -528,8 +516,8 @@ button {
 
 .item:hover {
   transform: translateY(-4px) rotate(0deg);
-  border-color: rgba(168, 50, 42, 0.55);
-  box-shadow: 0 20px 44px -22px rgba(51, 50, 43, 0.38);
+  border-color: rgba(198, 75, 49, 0.65);
+  box-shadow: 0 22px 46px -22px rgba(0, 0, 0, 0.6);
 }
 
 .item .no {
@@ -540,7 +528,7 @@ button {
   font-family: var(--font-kai);
   font-size: 12px;
   letter-spacing: 0.4em;
-  color: var(--ink-faint);
+  color: #8f8058;
 }
 
 .item .wm {
@@ -550,10 +538,15 @@ button {
   font-family: var(--font-kai);
   font-size: 100px;
   line-height: 1;
-  color: rgba(44, 43, 35, 0.045);
+  color: rgba(236, 223, 192, 0.05);
   user-select: none;
   pointer-events: none;
   transition: color 0.5s, transform 0.5s;
+}
+
+.item:hover .wm {
+  color: rgba(236, 223, 192, 0.12);
+  transform: scale(1.05);
 }
 
 .tag-seal {
@@ -566,7 +559,7 @@ button {
   width: 32px;
   height: 32px;
   background: var(--seal);
-  color: var(--paper);
+  color: #221a0d;
   font-family: var(--font-kai);
   font-size: 13px;
   transform: rotate(8deg) scale(0.6);
@@ -578,17 +571,12 @@ button {
   content: "";
   position: absolute;
   inset: 2px;
-  border: 1px solid rgba(245, 242, 233, 0.45);
+  border: 1px solid rgba(34, 26, 13, 0.45);
 }
 
 .item:hover .tag-seal {
   opacity: 1;
   transform: rotate(-4deg) scale(1);
-}
-
-.item:hover .wm {
-  color: rgba(44, 43, 35, 0.11);
-  transform: scale(1.05);
 }
 
 .post-title {
@@ -638,7 +626,7 @@ button {
 .item .ex {
   display: block;
   margin-top: 10px;
-  color: #8a8573;
+  color: #a8976d;
   font-size: 14px;
   letter-spacing: 0.12em;
   line-height: 2.1;
@@ -650,7 +638,7 @@ button {
   font-family: var(--font-kai);
   font-size: 11px;
   letter-spacing: 0.34em;
-  color: var(--ink-faint);
+  color: #8f8058;
 }
 
 .item-foot {
@@ -665,13 +653,13 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid rgba(168, 50, 42, 0.5);
+  border: 1px solid rgba(198, 75, 49, 0.55);
   border-radius: 999px;
   padding: 5px 16px;
   font-family: var(--font-kai);
   font-size: 13px;
   letter-spacing: 0.24em;
-  color: var(--seal-deep);
+  color: #e09577;
   transition: background 0.3s, color 0.3s;
 }
 
@@ -686,7 +674,7 @@ button {
 
 .item:hover .read {
   background: var(--seal);
-  color: var(--paper);
+  color: #221a0d;
 }
 
 .home-footer {
@@ -700,15 +688,15 @@ button {
   font-size: 12px;
   letter-spacing: 0.7em;
   text-indent: 0.7em;
-  color: #9f9884;
+  color: #9a8b63;
 }
 
 .footer-line a {
-  color: var(--seal);
+  color: var(--seal-deep);
 }
 
 .footer-line a:hover {
-  color: var(--seal-deep);
+  color: var(--seal);
 }
 
 .footer-seal {
@@ -720,7 +708,7 @@ button {
   animation: stamp-b 2.4s cubic-bezier(0.2, 0.9, 0.3, 1.4) both;
 }
 
-/* ---------- 文章页 ---------- */
+/* ---------- 文章页 / 关于页 ---------- */
 
 .article-nav {
   display: flex;
@@ -736,7 +724,7 @@ button {
 }
 
 .article-nav a:hover {
-  color: var(--seal);
+  color: var(--seal-deep);
 }
 
 .article {
@@ -772,7 +760,7 @@ button {
   content: "";
   position: absolute;
   inset: 2px;
-  border: 1px solid rgba(245, 242, 233, 0.5);
+  border: 1px solid rgba(34, 26, 13, 0.45);
 }
 
 .article-meta {
@@ -782,7 +770,7 @@ button {
   font-family: var(--font-kai);
   font-size: 13px;
   letter-spacing: 0.2em;
-  color: var(--ink-faint);
+  color: #8f8058;
 }
 
 .divider-ornament {
@@ -829,7 +817,7 @@ button {
 .md-body a {
   color: var(--seal-deep);
   text-decoration: underline;
-  text-decoration-color: rgba(168, 50, 42, 0.4);
+  text-decoration-color: rgba(198, 75, 49, 0.5);
   text-underline-offset: 4px;
 }
 
@@ -843,7 +831,7 @@ button {
 .md-body code {
   font-family: var(--font-mono);
   font-size: 0.86em;
-  background: rgba(51, 50, 43, 0.08);
+  background: rgba(236, 223, 192, 0.1);
   padding: 0.15em 0.45em;
   border-radius: 3px;
 }
@@ -918,12 +906,12 @@ button {
   font-family: var(--font-kai);
   font-size: 12px;
   letter-spacing: 0.25em;
-  color: var(--ink-faint);
+  color: #8f8058;
   animation: rise-f 2s ease-out both;
 }
 
 .article-footer a:hover {
-  color: var(--seal);
+  color: var(--seal-deep);
 }
 
 /* ---------- 后台 ---------- */
@@ -968,7 +956,7 @@ button {
 
 .admin-head a:hover,
 .link-btn:hover {
-  color: var(--seal);
+  color: var(--seal-deep);
 }
 
 .link-btn {
@@ -1004,7 +992,7 @@ button {
   align-items: center;
   gap: 8px;
   background: var(--seal);
-  color: var(--paper);
+  color: #221a0d;
   border: 1px solid var(--seal);
   padding: 9px 20px;
   border-radius: 2px;
@@ -1017,7 +1005,7 @@ button {
 
 .btn:hover {
   background: var(--seal-deep);
-  color: var(--paper);
+  color: #221a0d;
 }
 
 .btn:active {
@@ -1036,23 +1024,23 @@ button {
 
 .btn-ghost {
   background: transparent;
-  color: var(--ink);
+  color: var(--ink-soft);
   border-color: var(--rule-strong);
 }
 
 .btn-ghost:hover {
-  background: rgba(51, 50, 43, 0.05);
+  background: rgba(236, 223, 192, 0.07);
   color: var(--ink);
 }
 
 .btn-danger {
   background: transparent;
   color: var(--seal-deep);
-  border-color: rgba(168, 50, 42, 0.45);
+  border-color: rgba(198, 75, 49, 0.5);
 }
 
 .btn-danger:hover {
-  background: rgba(168, 50, 42, 0.08);
+  background: rgba(198, 75, 49, 0.12);
   color: var(--seal-deep);
 }
 
@@ -1107,7 +1095,7 @@ button {
 .field .hint {
   margin-top: 6px;
   font-size: 13px;
-  color: var(--ink-faint);
+  color: #8f8058;
 }
 
 .check-row {
@@ -1150,7 +1138,7 @@ button {
   margin-left: 8px;
   font-size: 12px;
   color: var(--seal-deep);
-  border: 1px solid rgba(168, 50, 42, 0.45);
+  border: 1px solid rgba(198, 75, 49, 0.5);
   border-radius: 2px;
   padding: 1px 7px;
   vertical-align: middle;
@@ -1161,7 +1149,7 @@ button {
   font-family: var(--font-kai);
   font-size: 13px;
   letter-spacing: 0.1em;
-  color: var(--ink-faint);
+  color: #8f8058;
 }
 
 .admin-item .ops {
@@ -1175,7 +1163,7 @@ button {
   padding: 48px 44px 40px;
   border: 1px solid var(--rule-strong);
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(236, 223, 192, 0.035);
 }
 
 .login-card h1 {
@@ -1199,16 +1187,16 @@ button {
   font-family: var(--font-kai);
   font-size: 13px;
   letter-spacing: 0.12em;
-  color: var(--ink-faint);
+  color: #8f8058;
 }
 
 .login-card .back-link:hover,
 .back-link:hover {
-  color: var(--seal);
+  color: var(--seal-deep);
 }
 
 .error-text {
-  color: var(--seal);
+  color: var(--seal-deep);
   font-size: 14px;
   margin: 14px 0 0;
 }
@@ -1243,7 +1231,7 @@ button {
   border-radius: 3px;
   padding: 20px 26px;
   min-height: 340px;
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(236, 223, 192, 0.03);
   overflow-wrap: break-word;
 }
 
@@ -1270,12 +1258,12 @@ button {
   font-family: var(--font-kai);
   font-size: 64px;
   line-height: 1;
-  color: var(--ink-faint);
+  color: #8f8058;
   margin-bottom: 16px;
 }
 
 .empty-state a {
-  color: var(--seal);
+  color: var(--seal-deep);
   text-decoration: underline;
   text-underline-offset: 4px;
 }
@@ -1294,7 +1282,7 @@ button {
 .setup-hint code {
   font-family: var(--font-mono);
   font-size: 13px;
-  background: rgba(51, 50, 43, 0.07);
+  background: rgba(236, 223, 192, 0.1);
   padding: 2px 7px;
   border-radius: 3px;
   color: var(--ink);
