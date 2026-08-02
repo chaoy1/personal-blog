@@ -35,9 +35,9 @@ export default function ThemeToggle() {
       title={dark ? '切换到白天' : '切换到黑夜'}
     >
       <span className="ts-track" aria-hidden="true">
-        <i className="ts-star" style={{ left: '17%', top: '32%', animationDelay: '0s' }} />
-        <i className="ts-star" style={{ left: '35%', top: '62%', animationDelay: '0.7s' }} />
-        <i className="ts-star" style={{ left: '49%', top: '22%', animationDelay: '1.3s' }} />
+        <i className="ts-star" style={{ left: '17%', top: '32%', animationName: 'ts-star-drift-a', animationDuration: '3.4s', animationDelay: '-0.4s' }} />
+        <i className="ts-star" style={{ left: '35%', top: '62%', animationName: 'ts-star-drift-b', animationDuration: '4.6s', animationDelay: '-1.8s' }} />
+        <i className="ts-star" style={{ left: '49%', top: '22%', animationName: 'ts-star-drift-c', animationDuration: '3.9s', animationDelay: '-2.6s' }} />
         <i className="ts-mote" style={{ left: '56%', top: '42%', animationDelay: '0s' }} />
         <i className="ts-mote" style={{ left: '71%', top: '58%', animationDelay: '1.1s' }} />
         <i className="ts-mote" style={{ left: '85%', top: '26%', animationDelay: '2.1s' }} />
