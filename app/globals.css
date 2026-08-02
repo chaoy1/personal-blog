@@ -503,25 +503,12 @@ button {
   background: #d9820b;
   box-shadow: 0 0 5px rgba(217, 130, 11, 0.75);
   opacity: 0;
-  transform: translateY(6px) scale(0.6);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition: opacity 0.5s ease;
+  will-change: transform, opacity;
 }
 
 .theme-switch:not(.on) .ts-mote {
   opacity: 0.8;
-  transform: none;
-  animation: ts-mote 3.4s ease-in-out infinite;
-}
-
-@keyframes ts-mote {
-  0%, 100% {
-    transform: translateY(5px);
-    opacity: 0.35;
-  }
-  50% {
-    transform: translateY(-5px);
-    opacity: 0.95;
-  }
 }
 
 .ts-knob {

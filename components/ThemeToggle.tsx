@@ -25,24 +25,25 @@ export default function ThemeToggle() {
 
   const dark = theme === 'dark'
 
-  // 黑夜星子：JS 随机漫步驱动，替代固定关键帧动画，避免卡顿与规律循环
+  // 白天光尘 / 黑夜星子：JS 随机漫步驱动，替代固定关键帧动画，避免卡顿与规律循环
   useEffect(() => {
-    if (!dark) return
     const track = trackRef.current
     if (!track) return
-    const stars = Array.from(track.querySelectorAll<HTMLElement>('.ts-star'))
-    if (stars.length === 0) return
+    const selector = dark ? '.ts-star' : '.ts-mote'
+    const particles = Array.from(track.querySelectorAll<HTMLElement>(selector))
+    if (particles.length === 0) return
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduced) {
-      stars.forEach((el) => {
-        el.style.opacity = '0.9'
+      particles.forEach((el) => {
+        el.style.opacity = dark ? '0.9' : '0.8'
         el.style.transform = 'none'
       })
       return
     }
 
-    const states = stars.map((el) => {
+    const amp = dark ? { x: 6, y: 7 } : { x: 5, y: 6 }
+    const states = particles.map((el) => {
       const left = parseFloat(el.style.left) || 0
       const top = parseFloat(el.style.top) || 0
       return {
@@ -51,8 +52,8 @@ export default function ThemeToggle() {
         y: top,
         ox: 0,
         oy: 0,
-        tX: (Math.random() * 2 - 1) * 6,
-        tY: (Math.random() * 2 - 1) * 7,
+        tX: (Math.random() * 2 - 1) * amp.x,
+        tY: (Math.random() * 2 - 1) * amp.y,
         phase: Math.random() * Math.PI * 2,
         twPhase: Math.random() * Math.PI * 2,
         nextSwitch: performance.now() + 1200 + Math.random() * 2600,
@@ -67,8 +68,8 @@ export default function ThemeToggle() {
       for (const s of states) {
         // 随机换向：每颗星独立、不定期地挑选新目标点
         if (now >= s.nextSwitch) {
-          s.tX = (Math.random() * 2 - 1) * 6
-          s.tY = (Math.random() * 2 - 1) * 7
+          s.tX = (Math.random() * 2 - 1) * amp.x
+          s.tY = (Math.random() * 2 - 1) * amp.y
           s.nextSwitch = now + 1200 + Math.random() * 2600
         }
         // 朝目标缓动（帧率无关）
@@ -105,9 +106,9 @@ export default function ThemeToggle() {
         <i className="ts-star" style={{ left: '17%', top: '32%' }} />
         <i className="ts-star" style={{ left: '35%', top: '62%' }} />
         <i className="ts-star" style={{ left: '49%', top: '22%' }} />
-        <i className="ts-mote" style={{ left: '56%', top: '42%', animationDelay: '0s' }} />
-        <i className="ts-mote" style={{ left: '71%', top: '58%', animationDelay: '1.1s' }} />
-        <i className="ts-mote" style={{ left: '85%', top: '26%', animationDelay: '2.1s' }} />
+        <i className="ts-mote" style={{ left: '56%', top: '42%' }} />
+        <i className="ts-mote" style={{ left: '71%', top: '58%' }} />
+        <i className="ts-mote" style={{ left: '85%', top: '26%' }} />
       </span>
       <span className="ts-knob" aria-hidden="true">
         <span className="ts-sun">
