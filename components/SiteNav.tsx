@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { SITE_NAME } from '@/lib/site'
 import ThemeToggle from '@/components/ThemeToggle'
+import LangToggle from '@/components/LangToggle'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 
 type NavLink = {
@@ -84,6 +85,7 @@ export default function SiteNav() {
             登录
           </Link>
         )}
+        <LangToggle />
         <ThemeToggle />
       </div>
     </nav>
