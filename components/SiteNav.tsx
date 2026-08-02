@@ -18,6 +18,8 @@ const LINKS: NavLink[] = [
   { href: '/posts', label: '文章', match: (p) => p.startsWith('/posts') },
   { href: '/moments', label: '說說', match: (p) => p.startsWith('/moments') },
   { href: '/album', label: '相冊', match: (p) => p.startsWith('/album') },
+  { href: '/timeline', label: '時間軸', match: (p) => p.startsWith('/timeline') },
+  { href: '/guestbook', label: '留言', match: (p) => p.startsWith('/guestbook') },
   { href: '/about', label: '關於', match: (p) => p.startsWith('/about') },
 ]
 
@@ -60,7 +62,8 @@ export default function SiteNav() {
             </Link>
           )
         })}
-        <ThemeToggle />
+      </div>
+      <div className="nav-side">
         {user ? (
           <>
             <Link
@@ -81,6 +84,7 @@ export default function SiteNav() {
             登錄
           </Link>
         )}
+        <ThemeToggle />
       </div>
     </nav>
   )
