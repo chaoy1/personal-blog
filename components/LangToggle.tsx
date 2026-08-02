@@ -14,29 +14,21 @@ export default function LangToggle() {
     }
   }, [])
 
-  function pick(next: 'zh-Hans' | 'zh-Hant') {
+  function toggle() {
+    const next = lang === 'zh-Hans' ? 'zh-Hant' : 'zh-Hans'
     setLang(next)
     setLanguage(next).catch(() => {})
   }
 
   return (
-    <div className="lang-switch" role="group" aria-label="简体 / 繁体切换">
-      <button
-        type="button"
-        className={lang === 'zh-Hans' ? 'on' : ''}
-        onClick={() => pick('zh-Hans')}
-        title="切换到简体"
-      >
-        简
-      </button>
-      <button
-        type="button"
-        className={lang === 'zh-Hant' ? 'on' : ''}
-        onClick={() => pick('zh-Hant')}
-        title="切换到繁体"
-      >
-        繁
-      </button>
-    </div>
+    <button
+      type="button"
+      className="lang-toggle"
+      onClick={toggle}
+      aria-label={lang === 'zh-Hans' ? '切换到繁体' : '切换到简体'}
+      title={lang === 'zh-Hans' ? '切换到繁体' : '切换到简体'}
+    >
+      {lang === 'zh-Hans' ? '繁' : '简'}
+    </button>
   )
 }

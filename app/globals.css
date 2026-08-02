@@ -394,38 +394,21 @@ button {
 
 /* ---------- 简繁切换 ---------- */
 
-.lang-switch {
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid var(--rule-strong);
-  border-radius: 999px;
-  overflow: hidden;
-  line-height: 1;
-}
-
-.nav-side .lang-switch button {
-  padding: 5px 9px;
+.lang-toggle {
   background: none;
   border: none;
+  padding: 2px 3px;
+  font-family: var(--font-kai);
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  line-height: 1;
   color: var(--ink-faint);
-  font-family: inherit;
-  font-size: 12px;
-  letter-spacing: 0.08em;
   cursor: pointer;
-  transition: color 0.25s, background 0.25s;
+  transition: color 0.25s;
 }
 
-.nav-side .lang-switch button:hover {
+.lang-toggle:hover {
   color: var(--seal);
-}
-
-.nav-side .lang-switch button.on {
-  color: #f4efe4;
-  background: var(--seal);
-}
-
-.nav-side .lang-switch button.on:hover {
-  color: #ffffff;
 }
 
 .theme-switch {

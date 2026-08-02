@@ -38,9 +38,9 @@ export default function ThemeToggle() {
         <i className="ts-star" style={{ left: '17%', top: '32%', animationDelay: '0s' }} />
         <i className="ts-star" style={{ left: '35%', top: '62%', animationDelay: '0.7s' }} />
         <i className="ts-star" style={{ left: '49%', top: '22%', animationDelay: '1.3s' }} />
-        <i className="ts-mote" style={{ left: '13%', top: '58%', animationDelay: '0s' }} />
-        <i className="ts-mote" style={{ left: '31%', top: '24%', animationDelay: '1.1s' }} />
-        <i className="ts-mote" style={{ left: '52%', top: '46%', animationDelay: '2.1s' }} />
+        <i className="ts-mote" style={{ left: '56%', top: '42%', animationDelay: '0s' }} />
+        <i className="ts-mote" style={{ left: '71%', top: '58%', animationDelay: '1.1s' }} />
+        <i className="ts-mote" style={{ left: '85%', top: '26%', animationDelay: '2.1s' }} />
       </span>
       <span className="ts-knob" aria-hidden="true">
         <span className="ts-sun">
