@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     ? body.images.filter((i: unknown): i is string => typeof i === 'string')
     : []
   if (!content && images.length === 0) {
-    return NextResponse.json({ error: '內容不能為空' }, { status: 400 })
+    return NextResponse.json({ error: '内容不能为空' }, { status: 400 })
   }
 
   const { data: owner } = await supabaseAdmin()
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     .maybeSingle()
   if (!owner) {
     return NextResponse.json(
-      { error: '尚未設置博主賬號，請先到「資料」頁創建或標記博主本人' },
+      { error: '尚未设置博主账号，请先到「资料」页创建或标记博主本人' },
       { status: 400 }
     )
   }

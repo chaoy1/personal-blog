@@ -40,7 +40,7 @@ export default function Comments({ slug }: { slug: string }) {
       .eq('post_slug', slug)
       .order('created_at', { ascending: true })
       .then(({ data, error }) => {
-        if (error) setError('讀取評論失敗：' + error.message)
+        if (error) setError('读取评论失败：' + error.message)
         else setComments((data ?? []) as unknown as Comment[])
       })
   }, [slug])
@@ -57,7 +57,7 @@ export default function Comments({ slug }: { slug: string }) {
     })
     setBusy(false)
     if (error) {
-      setError('發布失敗：' + error.message)
+      setError('发布失败：' + error.message)
       return
     }
     setContent('')
@@ -78,7 +78,7 @@ export default function Comments({ slug }: { slug: string }) {
   function avatar(c: Comment, size: 'sm' | 'md') {
     if (c.profiles?.avatar_url) {
       // eslint-disable-next-line @next/next/no-img-element
-      return <img className={`c-avatar ${size}`} src={c.profiles.avatar_url} alt="頭像" />
+      return <img className={`c-avatar ${size}`} src={c.profiles.avatar_url} alt="头像" />
     }
     return <span className={`c-avatar ${size} placeholder`}>影</span>
   }
@@ -86,7 +86,7 @@ export default function Comments({ slug }: { slug: string }) {
   return (
     <section className="comments">
       <div className="comments-title">
-        <span>評論</span>
+        <span>评论</span>
         <span className="comments-count">{comments.length}</span>
       </div>
 
@@ -95,24 +95,24 @@ export default function Comments({ slug }: { slug: string }) {
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="說點什麼…（登錄狀態）"
+            placeholder="说点什么…（登录状态）"
             rows={3}
           />
           <div className="comment-form-foot">
-            <span className="hint">登錄身份：{session.user.email?.split('@')[0]}</span>
+            <span className="hint">登录身份：{session.user.email?.split('@')[0]}</span>
             <button
               className="btn btn-sm"
               type="button"
               disabled={busy || !content.trim()}
               onClick={() => submit(null)}
             >
-              {busy ? '發布中…' : '發布評論'}
+              {busy ? '发布中…' : '发布评论'}
             </button>
           </div>
         </div>
       ) : (
         <p className="comment-login-tip">
-          <Link href="/login">登錄</Link> 後即可發表評論。
+          <Link href="/login">登录</Link> 后即可发表评论。
         </p>
       )}
 
@@ -120,7 +120,7 @@ export default function Comments({ slug }: { slug: string }) {
 
       <div className="comment-list">
         {top.length === 0 ? (
-          <p className="comment-empty">還沒有評論，來坐坐。</p>
+          <p className="comment-empty">还没有评论，来坐坐。</p>
         ) : (
           top.map((c) => (
             <div key={c.id} className="comment">
@@ -137,7 +137,7 @@ export default function Comments({ slug }: { slug: string }) {
                     className="link-btn comment-reply-btn"
                     onClick={() => setReplyTo(replyTo?.id === c.id ? null : c)}
                   >
-                    {replyTo?.id === c.id ? '取消回覆' : '回覆'}
+                    {replyTo?.id === c.id ? '取消回复' : '回复'}
                   </button>
                 ) : null}
 
@@ -146,7 +146,7 @@ export default function Comments({ slug }: { slug: string }) {
                     <textarea
                       value={replyContent}
                       onChange={(e) => setReplyContent(e.target.value)}
-                      placeholder={`回覆 ${c.profiles?.nickname || '旅人'}：`}
+                      placeholder={`回复 ${c.profiles?.nickname || '旅人'}：`}
                       rows={2}
                     />
                     <button
@@ -155,7 +155,7 @@ export default function Comments({ slug }: { slug: string }) {
                       disabled={busy || !replyContent.trim()}
                       onClick={() => submit(c.id)}
                     >
-                      回覆
+                      回复
                     </button>
                   </div>
                 ) : null}

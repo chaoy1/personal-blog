@@ -36,7 +36,7 @@ export default function AdminProfile() {
         setBio(data.bio)
         setAvatarUrl(data.avatar_url)
       })
-      .catch(() => setError('加載失敗'))
+      .catch(() => setError('加载失败'))
   }, [router])
 
   async function uploadAvatar(file: File) {
@@ -51,7 +51,7 @@ export default function AdminProfile() {
       setAvatarUrl(url)
     } else {
       const j = await res.json().catch(() => ({}))
-      setError(j.error || '上傳失敗')
+      setError(j.error || '上传失败')
     }
   }
 
@@ -77,25 +77,25 @@ export default function AdminProfile() {
     }
     if (!res.ok) {
       const j = await res.json().catch(() => ({}))
-      setError(j.error || '保存失敗')
+      setError(j.error || '保存失败')
       return
     }
-    setMessage('已保存。此賬號也可用於網站登錄（說說、評論、上傳）。')
+    setMessage('已保存。此账号也可用于网站登录（说说、评论、上传）。')
   }
 
   return (
     <>
       <div className="admin-toolbar">
-        <h1>博主資料</h1>
+        <h1>博主资料</h1>
       </div>
 
       {!profile ? (
         <div className="field">
           <p className="hint">
-            還沒有博主賬號。創建後它會成為「關於我」頁的主角，也能用它在網站登錄（發說說、評論、上傳）。
+            还没有博主账号。创建后它会成为「关于我」页的主角，也能用它在网站登录（发说说、评论、上传）。
           </p>
           <div className="field">
-            <label htmlFor="a-email">博主郵箱</label>
+            <label htmlFor="a-email">博主邮箱</label>
             <input
               id="a-email"
               type="email"
@@ -105,7 +105,7 @@ export default function AdminProfile() {
             />
           </div>
           <div className="field">
-            <label htmlFor="a-pass">密碼（至少 6 位）</label>
+            <label htmlFor="a-pass">密码（至少 6 位）</label>
             <input
               id="a-pass"
               type="password"
@@ -119,12 +119,12 @@ export default function AdminProfile() {
       <div className="account-avatar">
         {avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={avatarUrl} alt="頭像" />
+          <img src={avatarUrl} alt="头像" />
         ) : (
           <span className="placeholder">影</span>
         )}
         <label className="btn btn-ghost btn-sm">
-          上傳頭像
+          上传头像
           <input
             type="file"
             accept="image/*"
@@ -138,18 +138,18 @@ export default function AdminProfile() {
       </div>
 
       <div className="field">
-        <label htmlFor="a-name">暱稱</label>
+        <label htmlFor="a-name">暱称</label>
         <input
           id="a-name"
           type="text"
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
-          placeholder="怎麼稱呼你？"
+          placeholder="怎么称呼你？"
         />
       </div>
 
       <div className="field">
-        <label htmlFor="a-bio">個人簡介（顯示在「關於我」）</label>
+        <label htmlFor="a-bio">个人简介（显示在「关于我」）</label>
         <textarea
           id="a-bio"
           value={bio}
@@ -163,7 +163,7 @@ export default function AdminProfile() {
 
       <div className="editor-actions">
         <button className="btn" type="button" onClick={save} disabled={busy}>
-          {busy ? '保存中…' : profile ? '保存資料' : '創建博主賬號'}
+          {busy ? '保存中…' : profile ? '保存资料' : '创建博主账号'}
         </button>
       </div>
     </>

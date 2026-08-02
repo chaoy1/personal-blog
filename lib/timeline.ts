@@ -21,7 +21,7 @@ export async function listAllPhotos(limit = 1000): Promise<TimelinePhoto[]> {
     .select('id,url,caption,created_at')
     .order('created_at', { ascending: false })
     .limit(limit)
-  if (error) throw new Error(`讀取相冊失敗：${error.message}`)
+  if (error) throw new Error(`读取相册失败：${error.message}`)
   return data ?? []
 }
 
@@ -32,6 +32,6 @@ export async function listAllMoments(limit = 1000): Promise<TimelineMoment[]> {
     .select('id,content,images,created_at')
     .order('created_at', { ascending: false })
     .limit(limit)
-  if (error) throw new Error(`讀取說說失敗：${error.message}`)
+  if (error) throw new Error(`读取说说失败：${error.message}`)
   return data ?? []
 }

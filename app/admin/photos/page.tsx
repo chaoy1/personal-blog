@@ -25,10 +25,10 @@ export default function AdminPhotos() {
         router.replace('/admin/login')
         return
       }
-      if (!res.ok) throw new Error('加載失敗')
+      if (!res.ok) throw new Error('加载失败')
       setPhotos(await res.json())
     } catch (e) {
-      setError(e instanceof Error ? e.message : '加載失敗')
+      setError(e instanceof Error ? e.message : '加载失败')
     }
   }, [router])
 
@@ -47,7 +47,7 @@ export default function AdminPhotos() {
       const res = await fetch('/api/admin/upload', { method: 'POST', body: form })
       if (!res.ok) {
         const j = await res.json().catch(() => ({}))
-        setError(j.error || '上傳失敗')
+        setError(j.error || '上传失败')
         continue
       }
       const { url } = await res.json()
@@ -63,7 +63,7 @@ export default function AdminPhotos() {
   }
 
   async function remove(id: string) {
-    if (!window.confirm('確定刪除這張照片？')) return
+    if (!window.confirm('确定删除这张照片？')) return
     await fetch(`/api/admin/photos/${id}`, { method: 'DELETE' })
     load()
   }
@@ -71,7 +71,7 @@ export default function AdminPhotos() {
   return (
     <>
       <div className="admin-toolbar">
-        <h1>相冊管理</h1>
+        <h1>相册管理</h1>
       </div>
 
       <div className="album-upload">
@@ -80,10 +80,10 @@ export default function AdminPhotos() {
           className="album-caption"
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
-          placeholder="照片說明（可留空）"
+          placeholder="照片说明（可留空）"
         />
         <label className="btn btn-sm">
-          {busy ? '上傳中…' : '＋ 上傳照片'}
+          {busy ? '上传中…' : '＋ 上传照片'}
           <input
             type="file"
             accept="image/*"
@@ -108,7 +108,7 @@ export default function AdminPhotos() {
               type="button"
               className="album-del"
               onClick={() => remove(p.id)}
-              aria-label="刪除照片"
+              aria-label="删除照片"
             >
               ×
             </button>
@@ -116,7 +116,7 @@ export default function AdminPhotos() {
         ))}
       </div>
       {photos.length === 0 && !error ? (
-        <p className="moments-empty">相冊還空著。</p>
+        <p className="moments-empty">相册还空著。</p>
       ) : null}
     </>
   )

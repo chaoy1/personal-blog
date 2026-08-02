@@ -14,13 +14,13 @@ type NavLink = {
 }
 
 const LINKS: NavLink[] = [
-  { href: '/', label: '首頁', match: (p) => p === '/' },
+  { href: '/', label: '首页', match: (p) => p === '/' },
   { href: '/posts', label: '文章', match: (p) => p.startsWith('/posts') },
-  { href: '/moments', label: '說說', match: (p) => p.startsWith('/moments') },
-  { href: '/album', label: '相冊', match: (p) => p.startsWith('/album') },
-  { href: '/timeline', label: '時間軸', match: (p) => p.startsWith('/timeline') },
+  { href: '/moments', label: '说说', match: (p) => p.startsWith('/moments') },
+  { href: '/album', label: '相册', match: (p) => p.startsWith('/album') },
+  { href: '/timeline', label: '时间轴', match: (p) => p.startsWith('/timeline') },
   { href: '/guestbook', label: '留言', match: (p) => p.startsWith('/guestbook') },
-  { href: '/about', label: '關於', match: (p) => p.startsWith('/about') },
+  { href: '/about', label: '关于', match: (p) => p.startsWith('/about') },
 ]
 
 export default function SiteNav() {
@@ -69,7 +69,7 @@ export default function SiteNav() {
             <Link
               href="/account"
               className="nav-user"
-              title="個人資料"
+              title="个人资料"
               style={pathname.startsWith('/account') ? { color: 'var(--ink)' } : undefined}
             >
               <span className="nav-user-dot" />
@@ -81,7 +81,7 @@ export default function SiteNav() {
           </>
         ) : (
           <Link href="/login" className={pathname.startsWith('/login') ? 'active' : undefined}>
-            登錄
+            登录
           </Link>
         )}
         <ThemeToggle />

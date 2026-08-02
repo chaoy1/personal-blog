@@ -49,7 +49,7 @@ export default async function PostPage({ params }: Props) {
   return (
     <div className="wrap">
       <nav className="article-nav">
-        <Link href="/">← 返回首頁</Link>
+        <Link href="/">← 返回首页</Link>
         <span>{SITE_NAME}</span>
       </nav>
 
@@ -58,7 +58,7 @@ export default async function PostPage({ params }: Props) {
         <h1>
           {post.title}
           <span className="article-seal" aria-hidden="true">
-            記
+            记
           </span>
         </h1>
         <div className="article-meta">
@@ -73,8 +73,8 @@ export default async function PostPage({ params }: Props) {
       </article>
 
       <footer className="article-footer">
-        <Link href="/">← 返回首頁</Link>
-        <span>寫於 {formatDate(post.created_at)}</span>
+        <Link href="/">← 返回首页</Link>
+        <span>写于 {formatDate(post.created_at)}</span>
       </footer>
     </div>
   )

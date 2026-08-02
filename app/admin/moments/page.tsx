@@ -27,10 +27,10 @@ export default function AdminMoments() {
         router.replace('/admin/login')
         return
       }
-      if (!res.ok) throw new Error('加載失敗')
+      if (!res.ok) throw new Error('加载失败')
       setMoments(await res.json())
     } catch (e) {
-      setError(e instanceof Error ? e.message : '加載失敗')
+      setError(e instanceof Error ? e.message : '加载失败')
     }
   }, [router])
 
@@ -51,7 +51,7 @@ export default function AdminMoments() {
         setImages((prev) => [...prev, url])
       } else {
         const j = await res.json().catch(() => ({}))
-        setError(j.error || '上傳失敗')
+        setError(j.error || '上传失败')
       }
     }
     setBusy(false)
@@ -72,7 +72,7 @@ export default function AdminMoments() {
     }
     if (!res.ok) {
       const j = await res.json().catch(() => ({}))
-      setError(j.error || '發布失敗')
+      setError(j.error || '发布失败')
       setBusy(false)
       return
     }
@@ -83,7 +83,7 @@ export default function AdminMoments() {
   }
 
   async function remove(id: string) {
-    if (!window.confirm('確定刪除這條說說？')) return
+    if (!window.confirm('确定删除这条说说？')) return
     await fetch(`/api/admin/moments/${id}`, { method: 'DELETE' })
     load()
   }
@@ -91,26 +91,26 @@ export default function AdminMoments() {
   return (
     <>
       <div className="admin-toolbar">
-        <h1>說說管理</h1>
+        <h1>说说管理</h1>
       </div>
 
       <div className="moments-composer">
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="以博主身份發布說說…"
+          placeholder="以博主身份发布说说…"
         />
         {images.length > 0 ? (
           <div className="moments-images">
             {images.map((u, i) => (
               // eslint-disable-next-line @next/next/no-img-element
-              <img key={i} src={u} alt="配圖" />
+              <img key={i} src={u} alt="配图" />
             ))}
           </div>
         ) : null}
         <div className="moments-actions">
           <label className="btn btn-ghost btn-sm">
-            配圖
+            配图
             <input
               type="file"
               accept="image/*"
@@ -120,7 +120,7 @@ export default function AdminMoments() {
             />
           </label>
           <button className="btn btn-sm" type="button" onClick={publish} disabled={busy}>
-            {busy ? '處理中…' : '發布'}
+            {busy ? '处理中…' : '发布'}
           </button>
         </div>
       </div>
@@ -131,9 +131,9 @@ export default function AdminMoments() {
         {moments.map((m) => (
           <div key={m.id} className="admin-item">
             <div>
-              <h3>{m.content || '（僅圖片）'}</h3>
+              <h3>{m.content || '（仅图片）'}</h3>
               <div className="meta">
-                {formatDate(m.created_at)} · 配圖 {m.images.length} 張
+                {formatDate(m.created_at)} · 配图 {m.images.length} 张
               </div>
             </div>
             <div className="ops">
@@ -142,13 +142,13 @@ export default function AdminMoments() {
                 className="btn btn-danger btn-sm"
                 onClick={() => remove(m.id)}
               >
-                刪除
+                删除
               </button>
             </div>
           </div>
         ))}
         {moments.length === 0 ? (
-          <p className="moments-empty">還沒有說說。</p>
+          <p className="moments-empty">还没有说说。</p>
         ) : null}
       </div>
     </>

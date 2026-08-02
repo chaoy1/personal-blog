@@ -38,16 +38,16 @@ export default async function HomePage() {
       </div>
 
       <div className="verse">
-        言有盡而<b>意</b>無窮
+        言有尽而<b>意</b>无穷
       </div>
       <div className="sigil">丙午 · {SITE_NAME}集</div>
 
       <header className="masthead">
-        <p className="eyebrow">留白處自有山河 · VOL.{volume}</p>
+        <p className="eyebrow">留白处自有山河 · VOL.{volume}</p>
         <h1>
           <span className="title">{SITE_NAME}</span>
           <span className="seal" aria-hidden="true">
-            記
+            记
           </span>
         </h1>
         <svg className="stroke" viewBox="0 0 250 28" aria-hidden="true">
@@ -83,16 +83,16 @@ export default async function HomePage() {
 
       {setupHint ? (
         <div className="setup-hint">
-          <strong>數據庫還沒配置好。</strong>完成下面兩步即可看到文章：
+          <strong>数据库还没配置好。</strong>完成下面两步即可看到文章：
           <br />
-          1. 在 Supabase 控制台 SQL Editor 裏運行 <code>supabase/schema.sql</code> 建表；
+          1. 在 Supabase 控制台 SQL Editor 里运行 <code>supabase/schema.sql</code> 建表；
           <br />
-          2. 把 <code>.env.local</code> 裏的 Supabase 三項配置填好，然後重啟 <code>npm run dev</code>。
+          2. 把 <code>.env.local</code> 里的 Supabase 三项配置填好，然后重启 <code>npm run dev</code>。
         </div>
       ) : posts.length === 0 ? (
         <div className="empty-state">
           <div className="big">空</div>
-          還沒有文章。到 <Link href="/admin">後臺</Link> 寫下第一篇吧。
+          还没有文章。到 <Link href="/admin">后台</Link> 写下第一篇吧。
         </div>
       ) : (
         <>
@@ -103,7 +103,7 @@ export default async function HomePage() {
                   {i < CN_NO.length ? CN_NO[i] : String(i + 1).padStart(2, '0')}
                 </span>
                 <span className="tag-seal" aria-hidden="true">
-                  閱
+                  阅
                 </span>
                 <span className="wm" aria-hidden="true">
                   {i < CN_WM.length ? CN_WM[i] : ''}
@@ -112,7 +112,7 @@ export default async function HomePage() {
                 {post.excerpt ? <span className="ex">{post.excerpt}</span> : null}
                 <span className="item-foot">
                   <span className="date">{formatDate(post.created_at)}</span>
-                  <span className="read">閱讀全文</span>
+                  <span className="read">阅读全文</span>
                 </span>
               </Link>
             ))}
@@ -125,7 +125,7 @@ export default async function HomePage() {
 
       <footer className="home-footer">
         <div className="footer-line">
-          言有盡 · 意無窮 · <Link href="/admin">管理</Link>
+          言有尽 · 意无穷 · <Link href="/admin">管理</Link>
         </div>
         <span className="footer-seal" aria-hidden="true">
           墨

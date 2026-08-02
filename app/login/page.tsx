@@ -18,12 +18,12 @@ export default function LoginPage() {
 
   function authErrorZh(msg: string): string {
     const m = msg.toLowerCase()
-    if (m.includes('invalid login credentials')) return '郵箱或密碼錯誤'
-    if (m.includes('email not confirmed')) return '郵箱尚未確認，請先查收確認郵件後再登錄'
-    if (m.includes('already registered')) return '該郵箱已註冊，請直接登錄'
-    if (m.includes('invalid email')) return '郵箱格式不正確'
-    if (m.includes('password should be at least')) return '密碼至少需要 6 位'
-    if (m.includes('rate limit')) return '操作太頻繁，請稍後再試'
+    if (m.includes('invalid login credentials')) return '邮箱或密码错误'
+    if (m.includes('email not confirmed')) return '邮箱尚未确认，请先查收确认邮件后再登录'
+    if (m.includes('already registered')) return '该邮箱已注册，请直接登录'
+    if (m.includes('invalid email')) return '邮箱格式不正确'
+    if (m.includes('password should be at least')) return '密码至少需要 6 位'
+    if (m.includes('rate limit')) return '操作太频繁，请稍后再试'
     return msg
   }
 
@@ -67,7 +67,7 @@ export default function LoginPage() {
           router.push('/')
           router.refresh()
         } else {
-          setNotice('註冊成功！請到郵箱查收確認郵件後再登錄。')
+          setNotice('注册成功！请到邮箱查收确认邮件后再登录。')
         }
       }
     } finally {
@@ -77,7 +77,7 @@ export default function LoginPage() {
 
   return (
     <div className="login-card">
-      <h1>{mode === 'login' ? '登錄' : '註冊'}</h1>
+      <h1>{mode === 'login' ? '登录' : '注册'}</h1>
       <p className="sub">在 {SITE_NAME} 留下你的名字</p>
 
       <div className="auth-tabs">
@@ -90,7 +90,7 @@ export default function LoginPage() {
             setNotice('')
           }}
         >
-          登錄
+          登录
         </button>
         <button
           type="button"
@@ -101,25 +101,25 @@ export default function LoginPage() {
             setNotice('')
           }}
         >
-          註冊
+          注册
         </button>
       </div>
 
       <form onSubmit={submit} style={{ marginTop: 26 }}>
         {mode === 'register' ? (
           <div className="field">
-            <label htmlFor="nickname">暱稱</label>
+            <label htmlFor="nickname">暱称</label>
             <input
               id="nickname"
               type="text"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              placeholder="怎麼稱呼你？"
+              placeholder="怎么称呼你？"
             />
           </div>
         ) : null}
         <div className="field">
-          <label htmlFor="email">郵箱</label>
+          <label htmlFor="email">邮箱</label>
           <input
             id="email"
             type="email"
@@ -131,7 +131,7 @@ export default function LoginPage() {
           />
         </div>
         <div className="field">
-          <label htmlFor="password">密碼</label>
+          <label htmlFor="password">密码</label>
           <input
             id="password"
             type="password"
@@ -139,19 +139,19 @@ export default function LoginPage() {
             minLength={6}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder={mode === 'register' ? '至少 6 位' : '輸入密碼'}
+            placeholder={mode === 'register' ? '至少 6 位' : '输入密码'}
             autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
           />
         </div>
         {error ? <p className="error-text">{error}</p> : null}
         {notice ? <p className="notice-text">{notice}</p> : null}
         <button className="btn" type="submit" disabled={busy || !email || !password}>
-          {busy ? '處理中…' : mode === 'login' ? '登錄' : '註冊並登錄'}
+          {busy ? '处理中…' : mode === 'login' ? '登录' : '注册并登录'}
         </button>
       </form>
 
       <Link href="/" className="back-link">
-        ← 返回首頁
+        ← 返回首页
       </Link>
     </div>
   )

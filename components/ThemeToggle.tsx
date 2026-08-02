@@ -31,8 +31,8 @@ export default function ThemeToggle() {
       onClick={toggle}
       role="switch"
       aria-checked={dark}
-      aria-label="切換晝夜模式"
-      title={dark ? '切換到白天' : '切換到黑夜'}
+      aria-label="切换昼夜模式"
+      title={dark ? '切换到白天' : '切换到黑夜'}
     >
       <span className="ts-track" aria-hidden="true">
         <i className="ts-star" style={{ left: '17%', top: '32%', animationDelay: '0s' }} />

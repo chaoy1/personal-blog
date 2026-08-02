@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   const file = form.get('file')
 
   if (!BUCKETS.includes(bucket) || !(file instanceof File)) {
-    return NextResponse.json({ error: '參數錯誤' }, { status: 400 })
+    return NextResponse.json({ error: '参数错误' }, { status: 400 })
   }
 
   const ext = file.name.split('.').pop() || 'png'

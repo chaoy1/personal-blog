@@ -28,7 +28,7 @@ export default function AlbumPage() {
       .order('created_at', { ascending: false })
       .limit(100)
     if (error) {
-      setError('讀取相冊失敗：' + error.message)
+      setError('读取相册失败：' + error.message)
       return
     }
     setPhotos(data ?? [])
@@ -39,7 +39,7 @@ export default function AlbumPage() {
     sb.auth
       .getSession()
       .then(({ data }) => setSession((data.session as { user: { id: string } } | null) ?? null))
-    load().catch(() => setError('數據庫尚未初始化，請運行 supabase/schema-v2.sql'))
+    load().catch(() => setError('数据库尚未初始化，请运行 supabase/schema-v2.sql'))
   }, [load])
 
   async function upload(files: FileList | null) {
@@ -52,7 +52,7 @@ export default function AlbumPage() {
         .storage.from('photos')
         .upload(path, file, { upsert: true, cacheControl: '3600' })
       if (error) {
-        setError('上傳失敗：' + error.message)
+        setError('上传失败：' + error.message)
         continue
       }
       try {
@@ -73,7 +73,7 @@ export default function AlbumPage() {
   }
 
   async function remove(id: string) {
-    if (!window.confirm('確定刪除這張照片？')) return
+    if (!window.confirm('确定删除这张照片？')) return
     await supabaseBrowser().from('photos').delete().eq('id', id)
     load()
   }
@@ -81,14 +81,14 @@ export default function AlbumPage() {
   return (
     <div className="wrap">
       <nav className="article-nav">
-        <Link href="/">← 返回首頁</Link>
-        <span>相冊</span>
+        <Link href="/">← 返回首页</Link>
+        <span>相册</span>
       </nav>
 
       <article className="article" style={{ maxWidth: 880 }}>
         <p className="eyebrow">ALBUM</p>
         <h1>
-          相冊
+          相册
           <span className="article-seal" aria-hidden="true">
             影
           </span>
@@ -104,10 +104,10 @@ export default function AlbumPage() {
               className="album-caption"
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-              placeholder="照片說明（可留空）"
+              placeholder="照片说明（可留空）"
             />
             <label className="btn btn-sm">
-              {busy ? '上傳中…' : '＋ 上傳照片'}
+              {busy ? '上传中…' : '＋ 上传照片'}
               <input
                 type="file"
                 accept="image/*"
@@ -120,7 +120,7 @@ export default function AlbumPage() {
           </div>
         ) : (
           <p className="moments-login-tip">
-            <Link href="/login">登錄</Link> 後即可上傳照片。
+            <Link href="/login">登录</Link> 后即可上传照片。
           </p>
         )}
 
@@ -138,7 +138,7 @@ export default function AlbumPage() {
                   type="button"
                   className="album-del"
                   onClick={() => remove(photo.id)}
-                  aria-label="刪除照片"
+                  aria-label="删除照片"
                 >
                   ×
                 </button>
@@ -147,7 +147,7 @@ export default function AlbumPage() {
           ))}
         </div>
         {photos.length === 0 && !error ? (
-          <p className="moments-empty">相冊還空著，上傳第一張照片吧。</p>
+          <p className="moments-empty">相册还空著，上传第一张照片吧。</p>
         ) : null}
       </article>
     </div>

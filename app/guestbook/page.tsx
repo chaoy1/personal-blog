@@ -34,7 +34,7 @@ export default function GuestbookPage() {
       .order('created_at', { ascending: false })
       .range(from, from + PAGE_SIZE - 1)
     if (error) {
-      setError('讀取留言失敗：' + error.message)
+      setError('读取留言失败：' + error.message)
       return
     }
     setMessages((data ?? []) as unknown as GuestbookMessage[])
@@ -53,7 +53,7 @@ export default function GuestbookPage() {
         )
       )
       .catch(() => setSession(null))
-    load(1).catch(() => setError('數據庫尚未初始化，請運行 supabase/schema-v2.sql 與 schema-v5.sql'))
+    load(1).catch(() => setError('数据库尚未初始化，请运行 supabase/schema-v2.sql 与 schema-v5.sql'))
   }, [load])
 
   async function post() {
@@ -66,7 +66,7 @@ export default function GuestbookPage() {
       .insert({ user_id: session.user.id, content: text })
     setBusy(false)
     if (error) {
-      setError('發表失敗：' + error.message)
+      setError('发表失败：' + error.message)
       return
     }
     setContent('')
@@ -75,10 +75,10 @@ export default function GuestbookPage() {
   }
 
   async function remove(id: string) {
-    if (!window.confirm('確定刪除這條留言？')) return
+    if (!window.confirm('确定删除这条留言？')) return
     const { error } = await supabaseBrowser().from('guestbook').delete().eq('id', id)
     if (error) {
-      setError('刪除失敗：' + error.message)
+      setError('删除失败：' + error.message)
       return
     }
     load(page)
@@ -89,7 +89,7 @@ export default function GuestbookPage() {
   return (
     <div className="wrap">
       <nav className="article-nav">
-        <Link href="/">← 返回首頁</Link>
+        <Link href="/">← 返回首页</Link>
         <span>留言</span>
       </nav>
 
@@ -110,7 +110,7 @@ export default function GuestbookPage() {
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="在此留下幾句話…"
+              placeholder="在此留下几句话…"
               maxLength={500}
             />
             <div className="moments-actions">
@@ -121,13 +121,13 @@ export default function GuestbookPage() {
                 onClick={post}
                 disabled={busy || !content.trim()}
               >
-                {busy ? '處理中…' : '留 言'}
+                {busy ? '处理中…' : '留 言'}
               </button>
             </div>
           </div>
         ) : (
           <p className="moments-login-tip">
-            <Link href="/login">登錄</Link> 後即可留言。
+            <Link href="/login">登录</Link> 后即可留言。
           </p>
         )}
 
@@ -138,7 +138,7 @@ export default function GuestbookPage() {
             <div key={m.id} className="comment">
               {m.profiles?.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img className="c-avatar md" src={m.profiles.avatar_url} alt="頭像" />
+                <img className="c-avatar md" src={m.profiles.avatar_url} alt="头像" />
               ) : (
                 <span className="c-avatar md placeholder">客</span>
               )}
@@ -148,7 +148,7 @@ export default function GuestbookPage() {
                   <span className="comment-date">{formatDate(m.created_at)}</span>
                   {session?.user.id === m.user_id ? (
                     <button type="button" className="link-btn guestbook-del" onClick={() => remove(m.id)}>
-                      刪除
+                      删除
                     </button>
                   ) : null}
                 </div>
@@ -157,20 +157,20 @@ export default function GuestbookPage() {
             </div>
           ))}
           {messages.length === 0 && !error ? (
-            <p className="moments-empty">還没有人留言，來寫第一句吧。</p>
+            <p className="moments-empty">还没有人留言，来写第一句吧。</p>
           ) : null}
         </div>
 
         {totalPages > 1 ? (
           <div className="pager">
             <button type="button" disabled={page <= 1} onClick={() => { setPage(page - 1); load(page - 1) }}>
-              ← 上一頁
+              ← 上一页
             </button>
             <span className="pager-info">
-              第 {page} / {totalPages} 頁 · 共 {total} 條
+              第 {page} / {totalPages} 页 · 共 {total} 条
             </span>
             <button type="button" disabled={page >= totalPages} onClick={() => { setPage(page + 1); load(page + 1) }}>
-              下一頁 →
+              下一页 →
             </button>
           </div>
         ) : null}

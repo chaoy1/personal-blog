@@ -53,7 +53,7 @@ export default function AccountPage() {
       .storage.from('avatars')
       .upload(path, file, { upsert: true, cacheControl: '3600' })
     if (error) {
-      setError('頭像上傳失敗：' + error.message)
+      setError('头像上传失败：' + error.message)
       return
     }
     setAvatarUrl(storagePublicUrl('avatars', path))
@@ -69,7 +69,7 @@ export default function AccountPage() {
       .upsert({ id: session.user.id, nickname, bio, role, avatar_url: avatarUrl })
     setBusy(false)
     if (error) {
-      setError('保存失敗：' + error.message)
+      setError('保存失败：' + error.message)
       return
     }
     setMessage('已保存。')
@@ -84,21 +84,21 @@ export default function AccountPage() {
   return (
     <div className="account-wrap">
       <nav className="article-nav">
-        <Link href="/">← 返回首頁</Link>
-        <span>個人資料</span>
+        <Link href="/">← 返回首页</Link>
+        <span>个人资料</span>
       </nav>
 
       <div className="account-card">
-        <h1>個人資料</h1>
+        <h1>个人资料</h1>
         <div className="account-avatar">
           {avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt="頭像" />
+            <img src={avatarUrl} alt="头像" />
           ) : (
             <span>影</span>
           )}
           <label className="btn btn-ghost btn-sm">
-            上傳頭像
+            上传头像
             <input
               type="file"
               accept="image/*"
@@ -112,7 +112,7 @@ export default function AccountPage() {
         </div>
 
         <div className="field">
-          <label htmlFor="nickname">暱稱</label>
+          <label htmlFor="nickname">暱称</label>
           <input
             id="nickname"
             type="text"
@@ -122,12 +122,12 @@ export default function AccountPage() {
         </div>
 
         <div className="field">
-          <label htmlFor="bio">個人簡介（會顯示在「關於我」）</label>
+          <label htmlFor="bio">个人简介（会显示在「关于我」）</label>
           <textarea
             id="bio"
             value={bio}
             onChange={(e) => setBio(e.target.value)}
-            placeholder="幾句話介紹自己…"
+            placeholder="几句话介绍自己…"
             style={{ minHeight: 120 }}
           />
         </div>
@@ -138,7 +138,7 @@ export default function AccountPage() {
             checked={role === 'owner'}
             onChange={(e) => setRole(e.target.checked ? 'owner' : 'user')}
           />
-          我是博主本人（勾選後，「關於我」頁展示我的資料）
+          我是博主本人（勾选后，「关于我」页展示我的资料）
         </label>
 
         {error ? <p className="error-text">{error}</p> : null}
@@ -146,10 +146,10 @@ export default function AccountPage() {
 
         <div className="editor-actions">
           <button className="btn" type="button" onClick={save} disabled={busy}>
-            {busy ? '保存中…' : '保存資料'}
+            {busy ? '保存中…' : '保存资料'}
           </button>
           <button className="btn btn-ghost" type="button" onClick={logout}>
-            退出登錄
+            退出登录
           </button>
         </div>
       </div>

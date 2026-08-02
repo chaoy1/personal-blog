@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     const password = typeof body.password === 'string' ? body.password : ''
     if (!email || password.length < 6) {
       return NextResponse.json(
-        { error: '創建博主賬號需要郵箱和至少 6 位密碼' },
+        { error: '创建博主账号需要邮箱和至少 6 位密码' },
         { status: 400 }
       )
     }
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     })
     if (!res.ok) {
       const j = await res.json().catch(() => ({}))
-      return NextResponse.json({ error: j.msg || '創建賬號失敗' }, { status: 400 })
+      return NextResponse.json({ error: j.msg || '创建账号失败' }, { status: 400 })
     }
     const user = await res.json()
     ownerId = user.id

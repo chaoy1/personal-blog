@@ -48,7 +48,7 @@ export default function MomentsPage() {
       .order('created_at', { ascending: false })
       .limit(60)
     if (error) {
-      setError('讀取說說失敗：' + error.message)
+      setError('读取说说失败：' + error.message)
       return
     }
     const list = (data ?? []) as unknown as Moment[]
@@ -91,7 +91,7 @@ export default function MomentsPage() {
         }
       })
       .catch(() => {})
-    load().catch(() => setError('數據庫尚未初始化，請運行 supabase/schema-v2.sql 與 schema-v3.sql'))
+    load().catch(() => setError('数据库尚未初始化，请运行 supabase/schema-v2.sql 与 schema-v3.sql'))
   }, [load])
 
   async function uploadImages(files: FileList | null) {
@@ -121,7 +121,7 @@ export default function MomentsPage() {
     })
     setBusy(false)
     if (error) {
-      setError('發布失敗：' + error.message)
+      setError('发布失败：' + error.message)
       return
     }
     setContent('')
@@ -130,7 +130,7 @@ export default function MomentsPage() {
   }
 
   async function remove(id: string) {
-    if (!window.confirm('確定刪除這條說說？')) return
+    if (!window.confirm('确定删除这条说说？')) return
     await supabaseBrowser().from('moments').delete().eq('id', id)
     load()
   }
@@ -161,7 +161,7 @@ export default function MomentsPage() {
       content: text,
     })
     if (error) {
-      setError('評論失敗：' + error.message)
+      setError('评论失败：' + error.message)
       return
     }
     setCommentText((prev) => ({ ...prev, [momentId]: '' }))
@@ -179,14 +179,14 @@ export default function MomentsPage() {
   return (
     <div className="wrap">
       <nav className="article-nav">
-        <Link href="/">← 返回首頁</Link>
-        <span>說說</span>
+        <Link href="/">← 返回首页</Link>
+        <span>说说</span>
       </nav>
 
       <article className="article">
         <p className="eyebrow">MOMENTS</p>
         <h1>
-          說說
+          说说
           <span className="article-seal" aria-hidden="true">
             言
           </span>
@@ -200,19 +200,19 @@ export default function MomentsPage() {
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="此刻想說點什麼…"
+              placeholder="此刻想说点什么…"
             />
             {images.length > 0 ? (
               <div className="moments-images">
                 {images.map((u, i) => (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img key={i} src={u} alt="配圖" />
+                  <img key={i} src={u} alt="配图" />
                 ))}
               </div>
             ) : null}
             <div className="moments-actions">
               <label className="btn btn-ghost btn-sm">
-                配圖
+                配图
                 <input
                   type="file"
                   accept="image/*"
@@ -222,17 +222,17 @@ export default function MomentsPage() {
                 />
               </label>
               <button className="btn btn-sm" type="button" onClick={post} disabled={busy}>
-                {busy ? '處理中…' : '發布'}
+                {busy ? '处理中…' : '发布'}
               </button>
             </div>
           </div>
         ) : (
           <p className="moments-login-tip">
             {session ? (
-              '說說由博主發布，歡迎點讚和評論。'
+              '说说由博主发布，欢迎点赞和评论。'
             ) : (
               <>
-                <Link href="/login">登錄</Link> 後可以點讚和評論。
+                <Link href="/login">登录</Link> 后可以点赞和评论。
               </>
             )}
           </p>
@@ -253,7 +253,7 @@ export default function MomentsPage() {
                 <div className="moment-head">
                   {m.profiles?.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img className="moment-avatar" src={m.profiles.avatar_url} alt="頭像" />
+                    <img className="moment-avatar" src={m.profiles.avatar_url} alt="头像" />
                   ) : (
                     <span className="moment-avatar placeholder">影</span>
                   )}
@@ -263,7 +263,7 @@ export default function MomentsPage() {
                   </div>
                   {session?.user.id === m.user_id && isOwner ? (
                     <button type="button" className="link-btn moment-del" onClick={() => remove(m.id)}>
-                      刪除
+                      删除
                     </button>
                   ) : null}
                 </div>
@@ -272,7 +272,7 @@ export default function MomentsPage() {
                   <div className="moment-images">
                     {m.images.map((u, i) => (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img key={i} src={u} alt="說說配圖" />
+                      <img key={i} src={u} alt="说说配图" />
                     ))}
                   </div>
                 ) : null}
@@ -284,9 +284,9 @@ export default function MomentsPage() {
                     onClick={() => toggleLike(m.id)}
                     disabled={!session}
                   >
-                    {liked ? '♥ 已讚' : '♡ 點讚'} · {likeCount}
+                    {liked ? '♥ 已赞' : '♡ 点赞'} · {likeCount}
                   </button>
-                  <span className="moment-stat">評論 {mComments.length}</span>
+                  <span className="moment-stat">评论 {mComments.length}</span>
                 </div>
 
                 <div className="moment-comments">
@@ -294,7 +294,7 @@ export default function MomentsPage() {
                     <div key={c.id} className="moment-comment">
                       {c.profiles?.avatar_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img className="c-avatar sm" src={c.profiles.avatar_url} alt="頭像" />
+                        <img className="c-avatar sm" src={c.profiles.avatar_url} alt="头像" />
                       ) : (
                         <span className="c-avatar sm placeholder">影</span>
                       )}
@@ -315,7 +315,7 @@ export default function MomentsPage() {
                         onChange={(e) =>
                           setCommentText((prev) => ({ ...prev, [m.id]: e.target.value }))
                         }
-                        placeholder="評論一下…"
+                        placeholder="评论一下…"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') sendComment(m.id)
                         }}
@@ -326,7 +326,7 @@ export default function MomentsPage() {
                         onClick={() => sendComment(m.id)}
                         disabled={busy || !(commentText[m.id] ?? '').trim()}
                       >
-                        發送
+                        发送
                       </button>
                     </div>
                   ) : null}
@@ -335,7 +335,7 @@ export default function MomentsPage() {
             )
           })}
           {moments.length === 0 && !error ? (
-            <p className="moments-empty">還沒有說說。</p>
+            <p className="moments-empty">还没有说说。</p>
           ) : null}
         </div>
       </article>

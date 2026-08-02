@@ -7,7 +7,7 @@ import ScrollFX from '@/components/ScrollFX'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: '時間軸',
+  title: '时间轴',
 }
 
 const PAGE_SIZE = 20
@@ -55,7 +55,7 @@ export default async function TimelinePage({
     ...photos.map((ph) => ({
       key: `photo-${ph.id}`,
       type: 'photo' as const,
-      title: ph.caption || '一張照片',
+      title: ph.caption || '一张照片',
       excerpt: '',
       image: ph.url,
       href: '/album',
@@ -64,7 +64,7 @@ export default async function TimelinePage({
     ...moments.map((m) => ({
       key: `moment-${m.id}`,
       type: 'moment' as const,
-      title: '說說',
+      title: '说说',
       excerpt: m.content,
       image: m.images[0],
       href: '/moments',
@@ -80,25 +80,25 @@ export default async function TimelinePage({
     <div className="wrap">
       <ScrollFX />
       <nav className="article-nav">
-        <Link href="/">← 返回首頁</Link>
-        <span>時間軸</span>
+        <Link href="/">← 返回首页</Link>
+        <span>时间轴</span>
       </nav>
 
       <header className="posts-head">
         <p className="eyebrow">TIMELINE</p>
         <h1>
-          時間軸
+          时间轴
           <span className="article-seal" aria-hidden="true">
-            歲
+            岁
           </span>
         </h1>
-        <p className="lede">凡 {entries.length} 事，按時而錄。</p>
+        <p className="lede">凡 {entries.length} 事，按时而录。</p>
       </header>
 
       {entries.length === 0 ? (
         <div className="empty-state">
           <div className="big">空</div>
-          還沒有任何記錄。
+          还没有任何记录。
         </div>
       ) : (
         <>
@@ -126,7 +126,7 @@ export default async function TimelinePage({
                       )}
                       {e.excerpt ? <p className="tl-excerpt">{e.excerpt}</p> : null}
                       <Link className="tl-more" href={e.href}>
-                        {e.type === 'post' ? '閱讀全文 →' : '查看全部 →'}
+                        {e.type === 'post' ? '阅读全文 →' : '查看全部 →'}
                       </Link>
                     </div>
                   </div>
@@ -137,17 +137,17 @@ export default async function TimelinePage({
 
           <div className="pager">
             {safePage > 1 ? (
-              <Link href={`/timeline?page=${safePage - 1}`}>← 上一頁</Link>
+              <Link href={`/timeline?page=${safePage - 1}`}>← 上一页</Link>
             ) : (
-              <span className="pager-disabled">← 上一頁</span>
+              <span className="pager-disabled">← 上一页</span>
             )}
             <span className="pager-info">
-              第 {safePage} / {totalPages} 頁 · 共 {entries.length} 條
+              第 {safePage} / {totalPages} 页 · 共 {entries.length} 条
             </span>
             {safePage < totalPages ? (
-              <Link href={`/timeline?page=${safePage + 1}`}>下一頁 →</Link>
+              <Link href={`/timeline?page=${safePage + 1}`}>下一页 →</Link>
             ) : (
-              <span className="pager-disabled">下一頁 →</span>
+              <span className="pager-disabled">下一页 →</span>
             )}
           </div>
         </>

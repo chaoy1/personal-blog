@@ -25,7 +25,7 @@ export default async function PostsPage() {
     <div className="wrap">
       <ScrollFX />
       <nav className="article-nav">
-        <Link href="/">← 返回首頁</Link>
+        <Link href="/">← 返回首页</Link>
         <span>{SITE_NAME} · 文章</span>
       </nav>
 
@@ -37,13 +37,13 @@ export default async function PostsPage() {
             文
           </span>
         </h1>
-        <p className="lede">凡 {posts.length} 篇，皆手記。</p>
+        <p className="lede">凡 {posts.length} 篇，皆手记。</p>
       </header>
 
       {posts.length === 0 ? (
         <div className="empty-state">
           <div className="big">空</div>
-          還沒有文章。
+          还没有文章。
         </div>
       ) : (
         <section className="list">
@@ -53,7 +53,7 @@ export default async function PostsPage() {
                 {i < CN_NO.length ? CN_NO[i] : String(i + 1).padStart(2, '0')}
               </span>
               <span className="tag-seal" aria-hidden="true">
-                閱
+                阅
               </span>
               <span className="wm" aria-hidden="true">
                 {i < CN_WM.length ? CN_WM[i] : ''}
@@ -62,7 +62,7 @@ export default async function PostsPage() {
               {post.excerpt ? <span className="ex">{post.excerpt}</span> : null}
               <span className="item-foot">
                 <span className="date">{formatDate(post.created_at)}</span>
-                <span className="read">閱讀全文</span>
+                <span className="read">阅读全文</span>
               </span>
             </Link>
           ))}
@@ -70,7 +70,7 @@ export default async function PostsPage() {
       )}
 
       <footer className="article-footer">
-        <Link href="/">← 返回首頁</Link>
+        <Link href="/">← 返回首页</Link>
         <span>共 {posts.length} 篇</span>
       </footer>
     </div>
