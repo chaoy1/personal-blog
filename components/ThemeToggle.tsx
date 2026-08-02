@@ -25,7 +25,8 @@ export default function ThemeToggle() {
 
   const dark = theme === 'dark'
 
-  // 白天光尘 / 黑夜星子：JS 随机漫步驱动，替代固定关键帧动画，避免卡顿与规律循环
+  // 白天光尘 / 黑夜星子：Web Animations API 随机轨迹
+  // 动画由浏览器合成器驱动（GPU），没有逐帧 JS 开销；每条轨迹随机生成，天然不规律
   useEffect(() => {
     const track = trackRef.current
     if (!track) return
@@ -33,63 +34,51 @@ export default function ThemeToggle() {
     const particles = Array.from(track.querySelectorAll<HTMLElement>(selector))
     if (particles.length === 0) return
 
+    const clearInline = () => {
+      particles.forEach((el) => {
+        el.style.opacity = ''
+        el.style.transform = ''
+      })
+    }
+
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduced) {
       particles.forEach((el) => {
         el.style.opacity = dark ? '0.9' : '0.8'
         el.style.transform = 'none'
       })
-      return
+      return clearInline
     }
 
     const amp = dark ? { x: 6, y: 7 } : { x: 5, y: 6 }
-    const states = particles.map((el) => {
-      const left = parseFloat(el.style.left) || 0
-      const top = parseFloat(el.style.top) || 0
-      return {
-        el,
-        x: left,
-        y: top,
-        ox: 0,
-        oy: 0,
-        tX: (Math.random() * 2 - 1) * amp.x,
-        tY: (Math.random() * 2 - 1) * amp.y,
-        phase: Math.random() * Math.PI * 2,
-        twPhase: Math.random() * Math.PI * 2,
-        nextSwitch: performance.now() + 1200 + Math.random() * 2600,
+    const animations = particles.map((el) => {
+      const points = 5 + Math.floor(Math.random() * 3)
+      const keyframes: Keyframe[] = []
+      for (let i = 0; i < points; i++) {
+        keyframes.push({
+          offset: i / (points - 1),
+          transform: `translate(${((Math.random() * 2 - 1) * amp.x).toFixed(2)}px, ${(
+            (Math.random() * 2 - 1) * amp.y
+          ).toFixed(2)}px) scale(${(0.7 + Math.random() * 0.35).toFixed(3)})`,
+          opacity: (0.35 + Math.random() * 0.55).toFixed(3),
+        })
       }
+      // 首尾一致，无缝循环
+      keyframes[keyframes.length - 1] = { ...keyframes[0], offset: 1 }
+      keyframes[0] = { ...keyframes[0], offset: 0 }
+      const duration = 2800 + Math.random() * 3600
+      return el.animate(keyframes, {
+        duration,
+        easing: 'ease-in-out',
+        iterations: Infinity,
+        delay: -Math.random() * duration,
+      })
     })
 
-    let raf = 0
-    let last = performance.now()
-    const tick = (now: number) => {
-      const dt = Math.min(0.05, (now - last) / 1000)
-      last = now
-      for (const s of states) {
-        // 随机换向：每颗星独立、不定期地挑选新目标点
-        if (now >= s.nextSwitch) {
-          s.tX = (Math.random() * 2 - 1) * amp.x
-          s.tY = (Math.random() * 2 - 1) * amp.y
-          s.nextSwitch = now + 1200 + Math.random() * 2600
-        }
-        // 朝目标缓动（帧率无关）
-        const k = 1 - Math.exp(-dt * 1.5)
-        s.ox += (s.tX - s.ox) * k
-        s.oy += (s.tY - s.oy) * k
-        // 轻微抖动，让轨迹不单调
-        s.phase += dt * (1.4 + Math.random() * 0.6)
-        s.twPhase += dt * (2.0 + Math.random() * 0.8)
-        const jx = Math.sin(s.phase) * 0.9
-        const jy = Math.cos(s.phase * 1.3) * 0.9
-        const scale = 0.72 + Math.abs(Math.sin(s.twPhase)) * 0.28
-        const opacity = 0.35 + (Math.sin(s.twPhase) * 0.5 + 0.5) * 0.6
-        s.el.style.transform = `translate(${(s.ox + jx).toFixed(2)}px, ${(s.oy + jy).toFixed(2)}px) scale(${scale.toFixed(3)})`
-        s.el.style.opacity = opacity.toFixed(3)
-      }
-      raf = requestAnimationFrame(tick)
+    return () => {
+      animations.forEach((a) => a.cancel())
+      clearInline()
     }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
   }, [dark])
 
   return (
