@@ -3,11 +3,12 @@
 import { useEffect, useRef } from 'react'
 
 /**
- * 白天 · 枫叶飘落
- * 预渲染枫叶精灵，逐帧绘制；缓慢下落 + 左右摆动 + 自转，
- * 少量横向风，整体轻盈不抢戏。遵守 reduced-motion。
+ * 白天 · 枫叶飘落（优化版）
+ * 近/中/远三层纵深：远景轻淡缓慢、近景清晰较快；
+ * 全局微风 + 周期性阵风让叶子斜飘摆动；旋转与轻微翻转增加自然感。
+ * 预渲染精灵、限制像素密度、隐藏页面时暂停，保持流畅。
  */
-const COLORS = ['#b3402f', '#c04a35', '#a5352a', '#8f3b28', '#c2593a']
+const COLORS = ['#b3402f', '#c04a35', '#a5352a', '#8f3b28', '#c2593a', '#b94b34']
 
 type Leaf = {
   x: number
@@ -15,6 +16,7 @@ type Leaf = {
   baseX: number
   size: number
   sprite: number
+  flip: 1 | -1
   fall: number
   swayAmp: number
   swayFreq: number
@@ -23,6 +25,19 @@ type Leaf = {
   phase: number
   opacity: number
 }
+
+type LayerCfg = {
+  scale: [number, number]
+  opacity: [number, number]
+  fall: [number, number]
+  swayAmp: [number, number]
+}
+
+const LAYERS: LayerCfg[] = [
+  { scale: [0.55, 0.75], opacity: [0.35, 0.55], fall: [24, 40], swayAmp: [10, 18] }, // 远
+  { scale: [0.82, 1.05], opacity: [0.55, 0.75], fall: [38, 60], swayAmp: [16, 28] }, // 中
+  { scale: [1.18, 1.5], opacity: [0.78, 0.95], fall: [56, 88], swayAmp: [24, 40] }, // 近
+]
 
 function makeLeafSprite(color: string): HTMLCanvasElement {
   const c = document.createElement('canvas')
@@ -56,8 +71,8 @@ function makeLeafSprite(color: string): HTMLCanvasElement {
   g.fill()
 
   // 叶脉
-  g.strokeStyle = 'rgba(90, 26, 18, 0.5)'
-  g.lineWidth = 1.4
+  g.strokeStyle = 'rgba(90, 26, 18, 0.45)'
+  g.lineWidth = 1.3
   g.lineCap = 'round'
   g.beginPath()
   g.moveTo(0, -42)
@@ -73,7 +88,7 @@ function makeLeafSprite(color: string): HTMLCanvasElement {
   g.stroke()
 
   // 叶柄
-  g.strokeStyle = 'rgba(92, 40, 22, 0.85)'
+  g.strokeStyle = 'rgba(92, 40, 22, 0.8)'
   g.lineWidth = 2.2
   g.beginPath()
   g.moveTo(0, 38)
@@ -95,36 +110,42 @@ export default function MapleLeaves() {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     let W = 0
     let H = 0
-    let dpr = 1
     let raf = 0
     let last = performance.now()
     let leaves: Leaf[] = []
     let sprites: HTMLCanvasElement[] = []
 
+    const rnd = (a: number, b: number) => a + Math.random() * (b - a)
+    const layerOf = (r: number) => (r < 0.4 ? 0 : r < 0.75 ? 1 : 2)
+
     const resize = () => {
       W = window.innerWidth
       H = window.innerHeight
-      dpr = Math.min(window.devicePixelRatio || 1, 1.5)
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
       canvas.width = Math.round(W * dpr)
       canvas.height = Math.round(H * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+
       if (!sprites.length) sprites = COLORS.map(makeLeafSprite)
-      const count = Math.max(16, Math.min(30, Math.round((W * H) / 68000)))
+
+      const count = Math.max(22, Math.min(44, Math.round((W * H) / 56000)))
       leaves = Array.from({ length: count }, () => {
-        const size = 18 + Math.random() * 16
+        const cfg = LAYERS[layerOf(Math.random())]
+        const size = 18 + Math.random() * 18
         return {
           x: Math.random() * W,
-          y: Math.random() * (H + 120) - 80,
+          y: Math.random() * (H + 140) - 100,
           baseX: Math.random() * W,
-          size,
+          size: size * rnd(cfg.scale[0], cfg.scale[1]),
           sprite: Math.floor(Math.random() * sprites.length),
-          fall: 26 + Math.random() * 32,
-          swayAmp: 12 + Math.random() * 20,
-          swayFreq: 0.35 + Math.random() * 0.55,
+          flip: Math.random() < 0.5 ? 1 : -1,
+          fall: rnd(cfg.fall[0], cfg.fall[1]),
+          swayAmp: rnd(cfg.swayAmp[0], cfg.swayAmp[1]),
+          swayFreq: 0.35 + Math.random() * 0.6,
           rot: Math.random() * Math.PI * 2,
-          rotSpd: (0.4 + Math.random() * 0.8) * (Math.random() < 0.5 ? -1 : 1),
+          rotSpd: (0.35 + Math.random() * 0.75) * (Math.random() < 0.5 ? -1 : 1),
           phase: Math.random() * Math.PI * 2,
-          opacity: 0.5 + Math.random() * 0.38,
+          opacity: rnd(cfg.opacity[0], cfg.opacity[1]),
         }
       })
     }
@@ -136,37 +157,55 @@ export default function MapleLeaves() {
       last = now
       const t = now / 1000
       ctx.clearRect(0, 0, W, H)
-      const wind = Math.sin(t * 0.13) * 14
+
+      // 微风 + 周期性阵风
+      const gust = Math.pow(Math.max(0, Math.sin(t * 0.5)), 6) * 30
+      const wind = Math.sin(t * 0.12) * 10 + gust
 
       for (const L of leaves) {
         L.y += L.fall * dt
-        L.baseX += wind * dt * 0.7
-        if (L.baseX < -80) L.baseX = W + 80
-        if (L.baseX > W + 80) L.baseX = -80
-        if (L.y > H + 90) {
-          L.y = -80 - Math.random() * 60
+        L.baseX += wind * dt * 0.8
+        if (L.baseX < -100) L.baseX = W + 100
+        if (L.baseX > W + 100) L.baseX = -100
+        if (L.y > H + 110) {
+          const cfg = LAYERS[layerOf(Math.random())]
+          L.y = -90 - Math.random() * 80
           L.baseX = Math.random() * W
-          L.size = 18 + Math.random() * 16
+          L.size = (18 + Math.random() * 18) * rnd(cfg.scale[0], cfg.scale[1])
+          L.fall = rnd(cfg.fall[0], cfg.fall[1])
+          L.swayAmp = rnd(cfg.swayAmp[0], cfg.swayAmp[1])
+          L.opacity = rnd(cfg.opacity[0], cfg.opacity[1])
           L.sprite = Math.floor(Math.random() * sprites.length)
+          L.flip = Math.random() < 0.5 ? 1 : -1
         }
         L.rot += L.rotSpd * dt
         const x = L.baseX + Math.sin(t * L.swayFreq + L.phase) * L.swayAmp
-        const tilt = Math.sin(t * L.swayFreq * 0.8 + L.phase) * 0.45
+
         ctx.save()
         ctx.globalAlpha = L.opacity
         ctx.translate(x, L.y)
         ctx.rotate(L.rot)
-        ctx.scale(L.size / 88, L.size / 106)
+        ctx.scale(L.flip * (L.size / 88), L.size / 106)
         ctx.drawImage(sprites[L.sprite], -44, -56)
         ctx.restore()
-        void tilt
       }
-      if (!reduced) raf = requestAnimationFrame(frame)
+
+      if (!reduced && !document.hidden) raf = requestAnimationFrame(frame)
     }
     if (!reduced) raf = requestAnimationFrame(frame)
 
+    const onVis = () => {
+      cancelAnimationFrame(raf)
+      if (!reduced && !document.hidden) {
+        last = performance.now()
+        raf = requestAnimationFrame(frame)
+      }
+    }
+    document.addEventListener('visibilitychange', onVis)
+
     return () => {
       window.removeEventListener('resize', resize)
+      document.removeEventListener('visibilitychange', onVis)
       cancelAnimationFrame(raf)
     }
   }, [])
