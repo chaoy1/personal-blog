@@ -94,10 +94,10 @@
   --c-wm: rgba(236, 223, 192, 0.05);
   --c-wm-hover: rgba(236, 223, 192, 0.12);
   --c-branch: #0c0803;
-  --card-bg: rgba(48, 39, 20, 0.9);
-  --card-border: rgba(230, 205, 140, 0.2);
+  --card-bg: rgba(84, 68, 40, 0.93);
+  --card-border: rgba(230, 205, 140, 0.26);
   --card-inner: rgba(236, 223, 192, 0.08);
-  --card-paper: none;
+  --card-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.16' fill='%23e9d6a5'/%3E%3C/svg%3E");
   --nav-bg: rgba(37, 29, 16, 0.82);
   --nav-bg-scrolled: rgba(30, 23, 12, 0.94);
   --ts-track: #1f1810;
