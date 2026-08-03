@@ -8,7 +8,8 @@ type Rect = { x: number; y: number; w: number; h: number }
 /**
  * 只修复首页「似水流年」标题的选中高亮：
  * 大字号 + 大字距会让浏览器把选中拆成一块块，这里在标题被选中时
- * 绘制一整条连续色块覆盖整个标题，其余页面的选中保持原生样式。
+ * 绘制一整条连续色块覆盖文字实际占用的范围（含字间空隙、不含两端空白），
+ * 其余页面的选中保持原生样式。
  */
 export default function TitleSelectionFix() {
   const [rect, setRect] = useState<Rect | null>(null)
@@ -41,9 +42,30 @@ export default function TitleSelectionFix() {
           setRect(null)
           return
         }
-        const r = title.getBoundingClientRect()
+        // 只覆盖文字实际占用的范围（含字间空隙，不含两端缩进空白）
+        const span = document.createRange()
+        span.selectNodeContents(title)
+        const rs = Array.from(span.getClientRects()).filter((rr) => rr.width > 0)
+        if (rs.length === 0) {
+          visibleRef.current = false
+          setRect(null)
+          return
+        }
+        let minX = Infinity
+        let minY = Infinity
+        let maxX = -Infinity
+        let maxY = -Infinity
+        for (const rr of rs) {
+          minX = Math.min(minX, rr.left)
+          minY = Math.min(minY, rr.top)
+          maxX = Math.max(maxX, rr.right)
+          maxY = Math.max(maxY, rr.bottom)
+        }
+        // 去掉末尾的一个字距，避免右端多出一段空白
+        const ls = parseFloat(getComputedStyle(title).letterSpacing) || 0
+        const r = { x: minX, y: minY, w: Math.max(0, maxX - minX - ls), h: maxY - minY }
         visibleRef.current = true
-        setRect({ x: r.left, y: r.top, w: r.width, h: r.height })
+        setRect(r)
       }, 30)
     }
     const clear = () => {
