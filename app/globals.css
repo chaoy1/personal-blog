@@ -175,18 +175,6 @@ button {
   background: rgba(178, 58, 43, 0.18);
 }
 
-.title::selection {
-  background: transparent;
-}
-
-.title-selection-fix {
-  position: fixed;
-  z-index: 45;
-  background: rgba(178, 58, 43, 0.18);
-  border-radius: 1px;
-  pointer-events: none;
-}
-
 :focus-visible {
   outline: 2px solid var(--seal);
   outline-offset: 3px;
