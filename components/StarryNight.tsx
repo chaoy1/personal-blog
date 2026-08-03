@@ -42,7 +42,7 @@ export default function StarryNight() {
       r: rnd(0.4, 1.4),
       ph: rnd(0, 7),
       sp: rnd(0.35, 1.7),
-      base: rnd(0.3, 0.75),
+      base: rnd(0.42, 0.85),
     }))
     const brights = Array.from({ length: 7 }, () => ({
       x: Math.random(),
@@ -80,7 +80,7 @@ export default function StarryNight() {
         const by = b.y * H
         const a = 0.55 + 0.45 * Math.sin(t * b.sp + b.ph)
         const glow = ctx.createRadialGradient(bx, by, 0, bx, by, b.r * 9)
-        glow.addColorStop(0, `rgba(244,238,222,${(0.35 * a).toFixed(3)})`)
+        glow.addColorStop(0, `rgba(244,238,222,${(0.45 * a).toFixed(3)})`)
         glow.addColorStop(1, 'rgba(244,238,222,0)')
         ctx.fillStyle = glow
         ctx.beginPath()
