@@ -28,7 +28,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=d?'dark':'light';var l=localStorage.getItem('lang');document.documentElement.dataset.lang=(l==='zh-Hant'||l==='zh-Hans')?l:'zh-Hans';var b=localStorage.getItem('bg');document.documentElement.dataset.bg=(b==='qianli'||b==='lantern'||b==='ink')?b:'qianli';}catch(e){document.documentElement.dataset.theme='light';document.documentElement.dataset.lang='zh-Hans';document.documentElement.dataset.bg='qianli';}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=d?'dark':'light';var l=localStorage.getItem('lang');document.documentElement.dataset.lang=(l==='zh-Hant'||l==='zh-Hans')?l:'zh-Hans';var b=localStorage.getItem('bg');document.documentElement.dataset.bg=(b==='qianli'||b==='qingming'||b==='fuchun'||b==='zaochun'||b==='xishan')?b:'qianli';}catch(e){document.documentElement.dataset.theme='light';document.documentElement.dataset.lang='zh-Hans';document.documentElement.dataset.bg='qianli';}})();`,
           }}
         />
       </head>

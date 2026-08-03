@@ -7,8 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-
-export type BgName = 'qianli' | 'lantern' | 'ink'
+import { isBgName, type BgName } from './paintings'
 
 type BgCtx = {
   bg: BgName
@@ -21,11 +20,15 @@ export function BackgroundProvider({ children }: { children: ReactNode }) {
   const [bg, setBgState] = useState<BgName>('qianli')
 
   useEffect(() => {
-    const saved = localStorage.getItem('bg')
-    if (saved === 'qianli' || saved === 'lantern' || saved === 'ink') {
-      setBgState(saved)
+    let saved: BgName = 'qianli'
+    try {
+      const raw = localStorage.getItem('bg')
+      if (isBgName(raw)) saved = raw
+    } catch {
+      // ignore
     }
-    document.documentElement.dataset.bg = saved === 'qianli' || saved === 'lantern' || saved === 'ink' ? saved : 'qianli'
+    setBgState(saved)
+    document.documentElement.dataset.bg = saved
   }, [])
 
   function setBg(name: BgName) {

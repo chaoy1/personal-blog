@@ -67,7 +67,7 @@ export default function LanternAmbient() {
 
       for (const s of stars) {
         const a = 0.2 + 0.6 * Math.abs(Math.sin(t * s.sp + s.ph))
-        ctx.fillStyle = `rgba(238,242,252,${a.toFixed(3)})`
+        ctx.fillStyle = `rgba(244,238,222,${a.toFixed(3)})`
         ctx.beginPath()
         ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2)
         ctx.fill()
@@ -76,15 +76,15 @@ export default function LanternAmbient() {
       const mx = W * 0.72
       const my = H * 0.16
       const halo = ctx.createRadialGradient(mx, my, 0, mx, my, H * 0.26)
-      halo.addColorStop(0, 'rgba(240,234,214,.26)')
-      halo.addColorStop(1, 'rgba(240,234,214,0)')
+      halo.addColorStop(0, 'rgba(239,224,184,.22)')
+      halo.addColorStop(1, 'rgba(239,224,184,0)')
       ctx.fillStyle = halo
       ctx.fillRect(mx - H * 0.26, my - H * 0.26, H * 0.52, H * 0.52)
-      ctx.fillStyle = '#f2ecd9'
+      ctx.fillStyle = '#efe0b8'
       ctx.beginPath()
       ctx.arc(mx, my, H * 0.042, 0, Math.PI * 2)
       ctx.fill()
-      ctx.fillStyle = 'rgba(196,190,170,.3)'
+      ctx.fillStyle = 'rgba(180,164,126,.3)'
       ctx.beginPath()
       ctx.arc(mx - H * 0.01, my - H * 0.007, H * 0.01, 0, Math.PI * 2)
       ctx.fill()
@@ -105,8 +105,8 @@ export default function LanternAmbient() {
             const mxx = meteor.x + meteor.vx * mp
             const myy = meteor.y + meteor.vy * mp
             const mg = ctx.createLinearGradient(mxx, myy, mxx - meteor.vx * 0.15, myy - meteor.vy * 0.15)
-            mg.addColorStop(0, `rgba(240,240,250,${(0.85 * (1 - mp)).toFixed(3)})`)
-            mg.addColorStop(1, 'rgba(240,240,250,0)')
+            mg.addColorStop(0, `rgba(244,236,214,${(0.85 * (1 - mp)).toFixed(3)})`)
+            mg.addColorStop(1, 'rgba(244,236,214,0)')
             ctx.strokeStyle = mg
             ctx.lineWidth = 1.8
             ctx.lineCap = 'round'
@@ -121,8 +121,8 @@ export default function LanternAmbient() {
       for (const w of wisps) {
         const wx = (((w.x * W + t * w.sp * 10) % (W + 600)) + W + 600) % (W + 600) - 300
         const g = ctx.createRadialGradient(wx, w.y * H, 0, wx, w.y * H, w.r * W)
-        g.addColorStop(0, `rgba(200,210,235,${w.a})`)
-        g.addColorStop(1, 'rgba(200,210,235,0)')
+        g.addColorStop(0, `rgba(208,194,152,${w.a})`)
+        g.addColorStop(1, 'rgba(208,194,152,0)')
         ctx.fillStyle = g
         ctx.beginPath()
         ctx.ellipse(wx, w.y * H, w.r * W, w.r * W * 0.2, 0, 0, Math.PI * 2)
