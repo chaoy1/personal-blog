@@ -138,7 +138,7 @@ export default function AdminProfile() {
       </div>
 
       <div className="field">
-        <label htmlFor="a-name">暱称</label>
+        <label htmlFor="a-name">昵称</label>
         <input
           id="a-name"
           type="text"

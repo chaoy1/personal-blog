@@ -112,7 +112,7 @@ export default function AccountPage() {
         </div>
 
         <div className="field">
-          <label htmlFor="nickname">暱称</label>
+          <label htmlFor="nickname">昵称</label>
           <input
             id="nickname"
             type="text"

@@ -4,17 +4,9 @@ import { useEffect, useRef } from 'react'
 
 /**
  * 水墨交互画布：
- * 1. 鼠标移动留下「飞白」笔触拖尾（速度越快笔触越细，如毛笔提按）
- * 2. 点击页面时墨迹如滴墨入水般晕染绽开
+ * 点击页面时墨迹如滴墨入水般晕染绽开
  * 仅在指针为鼠标/触控笔时启用；尊重 prefers-reduced-motion；随昼夜主题换色。
  */
-
-type TrailPoint = {
-  x: number
-  y: number
-  t: number
-  width: number
-}
 
 type Bloom = {
   x: number
@@ -25,7 +17,6 @@ type Bloom = {
   satellites: { dx: number; dy: number; r: number }[]
 }
 
-const TRAIL_LIFE = 620 // 拖尾存活毫秒
 const BLOOM_LIFE = 1100 // 墨晕存活毫秒
 const BLOOM_VERTICES = 14
 
@@ -54,9 +45,7 @@ export default function InkCanvas() {
     let running = false
     let dpr = Math.min(window.devicePixelRatio || 1, 2)
 
-    const trail: TrailPoint[] = []
     const blooms: Bloom[] = []
-    let last: { x: number; y: number; t: number; width: number } | null = null
 
     // ---- 主题墨色 ----
     let ink: [number, number, number] = [44, 42, 36]
@@ -82,32 +71,6 @@ export default function InkCanvas() {
     }
     resize()
     window.addEventListener('resize', resize)
-
-    // ---- 笔触拖尾 ----
-    const onMove = (e: PointerEvent) => {
-      if (e.pointerType === 'touch') return
-      const now = performance.now()
-      const x = e.clientX
-      const y = e.clientY
-
-      if (last) {
-        const dx = x - last.x
-        const dy = y - last.y
-        const dist = Math.hypot(dx, dy)
-        const dt = Math.max(now - last.t, 1)
-        const speed = dist / dt // px/ms
-        // 毛笔提按：慢则按（粗），快则提（细），并做平滑
-        const target = Math.max(2.2, Math.min(15, 15 - speed * 9))
-        const width = last.width + (target - last.width) * 0.35
-        if (dist > 2.5) {
-          trail.push({ x, y, t: now, width })
-          last = { x, y, t: now, width }
-          start()
-        }
-      } else {
-        last = { x, y, t: now, width: 9 }
-      }
-    }
 
     // ---- 点击墨晕 ----
     const onDown = (e: PointerEvent) => {
@@ -137,7 +100,6 @@ export default function InkCanvas() {
       const now = performance.now()
 
       // 清理过期
-      while (trail.length > 0 && now - trail[0].t > TRAIL_LIFE) trail.shift()
       for (let i = blooms.length - 1; i >= 0; i--) {
         if (now - blooms[i].t0 > BLOOM_LIFE) blooms.splice(i, 1)
       }
@@ -145,25 +107,6 @@ export default function InkCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       ctx.save()
       ctx.scale(dpr, dpr)
-
-      // 拖尾：逐段绘制（密集采样 + 圆头折线即平滑），透明度与宽度随年龄衰减
-      if (trail.length > 1) {
-        ctx.lineCap = 'round'
-        ctx.lineJoin = 'round'
-        for (let i = 1; i < trail.length; i++) {
-          const p0 = trail[i - 1]
-          const p1 = trail[i]
-          const age = (now - p1.t) / TRAIL_LIFE
-          const alpha = Math.max(0, 0.16 * (1 - age))
-          if (alpha <= 0.004) continue
-          ctx.strokeStyle = `rgba(${ink[0]},${ink[1]},${ink[2]},${alpha.toFixed(3)})`
-          ctx.lineWidth = Math.max(0.6, p1.width * (1 - age * 0.55))
-          ctx.beginPath()
-          ctx.moveTo(p0.x, p0.y)
-          ctx.lineTo(p1.x, p1.y)
-          ctx.stroke()
-        }
-      }
 
       // 墨晕：多层不规则多边形叠加，模拟墨在宣纸上的洇开
       for (const b of blooms) {
@@ -219,7 +162,7 @@ export default function InkCanvas() {
 
       ctx.restore()
 
-      if (trail.length > 0 || blooms.length > 0) {
+      if (blooms.length > 0) {
         raf = requestAnimationFrame(frame)
       } else {
         running = false
@@ -234,11 +177,9 @@ export default function InkCanvas() {
       }
     }
 
-    window.addEventListener('pointermove', onMove, { passive: true })
     window.addEventListener('pointerdown', onDown, { passive: true })
 
     return () => {
-      window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerdown', onDown)
       window.removeEventListener('resize', resize)
       themeObserver.disconnect()

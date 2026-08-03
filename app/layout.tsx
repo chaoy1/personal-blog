@@ -7,6 +7,7 @@ import InkScape from '@/components/InkScape'
 import InkScapeFX from '@/components/InkScapeFX'
 import InkCanvas from '@/components/InkCanvas'
 import ScrollTop from '@/components/ScrollTop'
+import Lightbox from '@/components/Lightbox'
 
 export const metadata: Metadata = {
   title: {
@@ -105,6 +106,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ScrollTop />
         <SiteNav />
         {children}
+        <Lightbox />
       </body>
     </html>
   )

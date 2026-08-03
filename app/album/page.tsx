@@ -4,49 +4,143 @@ import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabaseBrowser, storagePublicUrl } from '@/lib/supabase-browser'
 import { formatDate } from '@/lib/blog'
-import ScrollFX from '@/components/ScrollFX'
+
+type Album = {
+  id: string
+  user_id: string
+  title: string
+  description: string
+  cover_url: string
+  created_at: string
+}
 
 type Photo = {
   id: string
   user_id: string
   url: string
   caption: string
+  album_id: string | null
   created_at: string
 }
 
+type View = { mode: 'list' } | { mode: 'album'; album: Album } | { mode: 'all' }
+
 export default function AlbumPage() {
+  const [albums, setAlbums] = useState<Album[]>([])
   const [photos, setPhotos] = useState<Photo[]>([])
+  const [view, setView] = useState<View>({ mode: 'list' })
   const [session, setSession] = useState<{ user: { id: string } } | null>(null)
   const [caption, setCaption] = useState('')
+  const [uploadAlbum, setUploadAlbum] = useState('all')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [lightbox, setLightbox] = useState<number | null>(null)
+
+  // 新建 / 编辑相册
+  const [showNew, setShowNew] = useState(false)
+  const [newTitle, setNewTitle] = useState('')
+  const [newDesc, setNewDesc] = useState('')
+  const [editing, setEditing] = useState(false)
+  const [editTitle, setEditTitle] = useState('')
+  const [editDesc, setEditDesc] = useState('')
 
   const load = useCallback(async () => {
     const sb = supabaseBrowser()
-    const { data, error } = await sb
+    const { data: albumData, error: albumErr } = await sb
+      .from('albums')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if (albumErr) {
+      setError('读取相册失败：' + albumErr.message)
+      return
+    }
+    const { data: photoData, error: photoErr } = await sb
       .from('photos')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(100)
-    if (error) {
-      setError('读取相册失败：' + error.message)
+      .limit(1000)
+    if (photoErr) {
+      setError('读取照片失败：' + photoErr.message)
       return
     }
-    setPhotos(data ?? [])
+    setAlbums((albumData ?? []) as unknown as Album[])
+    setPhotos((photoData ?? []) as unknown as Photo[])
   }, [])
 
   useEffect(() => {
     const sb = supabaseBrowser()
     sb.auth
       .getSession()
-      .then(({ data }) => setSession((data.session as { user: { id: string } } | null) ?? null))
-    load().catch(() => setError('数据库尚未初始化，请运行 supabase/schema-v2.sql'))
+      .then(({ data }) =>
+        setSession((data.session as { user: { id: string } } | null) ?? null)
+      )
+      .catch(() => setSession(null))
+    load().catch(() => setError('数据库尚未初始化，请运行 supabase/schema-v2.sql 与 schema-v6.sql'))
   }, [load])
+
+  const photosOf = (albumId: string) => photos.filter((p) => p.album_id === albumId)
+  const orphanPhotos = photos.filter((p) => !p.album_id)
+  const coverOf = (album: Album) =>
+    album.cover_url || photosOf(album.id)[0]?.url || ''
+
+  async function createAlbum() {
+    if (!session || !newTitle.trim()) return
+    setBusy(true)
+    setError('')
+    const { data, error } = await supabaseBrowser()
+      .from('albums')
+      .insert({ user_id: session.user.id, title: newTitle.trim(), description: newDesc.trim() })
+      .select('*')
+      .single()
+    setBusy(false)
+    if (error) {
+      setError('创建相册失败：' + error.message)
+      return
+    }
+    setNewTitle('')
+    setNewDesc('')
+    setShowNew(false)
+    const album = data as unknown as Album
+    setAlbums((prev) => [album, ...prev])
+    setView({ mode: 'album', album })
+  }
+
+  async function saveAlbumEdit() {
+    if (view.mode !== 'album' || !editTitle.trim()) return
+    setBusy(true)
+    const { data, error } = await supabaseBrowser()
+      .from('albums')
+      .update({ title: editTitle.trim(), description: editDesc.trim() })
+      .eq('id', view.album.id)
+      .select('*')
+      .single()
+    setBusy(false)
+    if (error) {
+      setError('保存失败：' + error.message)
+      return
+    }
+    setAlbums((prev) => prev.map((a) => (a.id === view.album.id ? (data as unknown as Album) : a)))
+    setView({ mode: 'album', album: data as unknown as Album })
+    setEditing(false)
+  }
+
+  async function deleteAlbum(album: Album) {
+    if (!window.confirm(`确定删除相册「${album.title}」？相册里的照片不会被删除，只是移出该相册。`)) {
+      return
+    }
+    const { error } = await supabaseBrowser().from('albums').delete().eq('id', album.id)
+    if (error) {
+      setError('删除相册失败：' + error.message)
+      return
+    }
+    setAlbums((prev) => prev.filter((a) => a.id !== album.id))
+    setView({ mode: 'list' })
+  }
 
   async function upload(files: FileList | null) {
     if (!files || !session) return
     setBusy(true)
+    setError('')
+    const targetAlbum = uploadAlbum === 'all' ? null : uploadAlbum
     for (const file of Array.from(files)) {
       const ext = file.name.split('.').pop() || 'jpg'
       const path = `${session.user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
@@ -58,13 +152,12 @@ export default function AlbumPage() {
         continue
       }
       try {
-        await supabaseBrowser()
-          .from('photos')
-          .insert({
-            user_id: session.user.id,
-            url: storagePublicUrl('photos', path),
-            caption: caption.trim(),
-          })
+        await supabaseBrowser().from('photos').insert({
+          user_id: session.user.id,
+          url: storagePublicUrl('photos', path),
+          caption: caption.trim(),
+          album_id: targetAlbum,
+        })
       } catch {
         // ignore
       }
@@ -74,42 +167,88 @@ export default function AlbumPage() {
     load()
   }
 
-  async function remove(id: string) {
+  async function removePhoto(id: string) {
     if (!window.confirm('确定删除这张照片？')) return
     await supabaseBrowser().from('photos').delete().eq('id', id)
-    setLightbox(null)
     load()
   }
 
-  // 灯箱：键盘导航与滚动锁定
-  useEffect(() => {
-    if (lightbox === null) return
-    document.body.style.overflow = 'hidden'
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setLightbox(null)
-      if (e.key === 'ArrowLeft') {
-        setLightbox((cur) => (cur === null ? cur : (cur - 1 + photos.length) % photos.length))
-      }
-      if (e.key === 'ArrowRight') {
-        setLightbox((cur) => (cur === null ? cur : (cur + 1) % photos.length))
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => {
-      document.body.style.overflow = ''
-      window.removeEventListener('keydown', onKey)
-    }
-  }, [lightbox, photos.length])
+  const isOwnerOf = (userId: string) => session?.user.id === userId
+
+  const uploadBar = (
+    <div className="album-upload">
+      <input
+        type="text"
+        className="album-caption"
+        value={caption}
+        onChange={(e) => setCaption(e.target.value)}
+        placeholder="照片说明（可留空）"
+      />
+      <select
+        className="album-pick"
+        value={uploadAlbum}
+        onChange={(e) => setUploadAlbum(e.target.value)}
+        aria-label="存入相册"
+      >
+        <option value="all">全部照片</option>
+        {albums.map((a) => (
+          <option key={a.id} value={a.id}>
+            {a.title}
+          </option>
+        ))}
+      </select>
+      <label className="btn btn-sm">
+        {busy ? '上传中…' : '＋ 上传照片'}
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          hidden
+          disabled={busy}
+          onChange={(e) => upload(e.target.files)}
+        />
+      </label>
+    </div>
+  )
+
+  const photoGrid = (list: Photo[]) => (
+    <div className="album-grid">
+      {list.map((photo) => (
+        <figure key={photo.id} className="album-item">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={photo.url} alt={photo.caption || '照片'} loading="lazy" />
+          {photo.caption ? <figcaption>{photo.caption}</figcaption> : null}
+          <span className="album-date">{formatDate(photo.created_at)}</span>
+          {isOwnerOf(photo.user_id) ? (
+            <button
+              type="button"
+              className="album-del"
+              onClick={() => removePhoto(photo.id)}
+              aria-label="删除照片"
+            >
+              ×
+            </button>
+          ) : null}
+        </figure>
+      ))}
+    </div>
+  )
+
+  const currentAlbum = view.mode === 'album' ? view.album : null
+  const currentPhotos = currentAlbum
+    ? photosOf(currentAlbum.id)
+    : view.mode === 'all'
+      ? orphanPhotos
+      : []
 
   return (
     <div className="wrap">
-      <ScrollFX />
       <nav className="article-nav">
         <Link href="/">← 返回首页</Link>
         <span>相册</span>
       </nav>
 
-      <article className="article" style={{ maxWidth: 880 }}>
+      <article className="article" style={{ maxWidth: 940 }}>
         <p className="eyebrow">ALBUM</p>
         <h1>
           相册
@@ -121,120 +260,187 @@ export default function AlbumPage() {
           ※ ※ ※
         </div>
 
-        {session ? (
-          <div className="album-upload">
-            <input
-              type="text"
-              className="album-caption"
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              placeholder="照片说明（可留空）"
-            />
-            <label className="btn btn-sm">
-              {busy ? '上传中…' : '＋ 上传照片'}
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                hidden
-                disabled={busy}
-                onChange={(e) => upload(e.target.files)}
-              />
-            </label>
-          </div>
-        ) : (
-          <p className="moments-login-tip">
-            <Link href="/login">登录</Link> 后即可上传照片。
-          </p>
-        )}
-
+        {session ? uploadBar : <p className="moments-login-tip"><Link href="/login">登录</Link> 后即可上传照片。</p>}
         {error ? <p className="error-text">{error}</p> : null}
 
-        <div className="album-grid">
-          {photos.map((photo, i) => (
-            <figure key={photo.id} className="album-item reveal">
-              <button
-                type="button"
-                className="album-open"
-                onClick={() => setLightbox(i)}
-                aria-label={`查看照片${photo.caption ? `：${photo.caption}` : ''}`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photo.url} alt={photo.caption || '照片'} loading="lazy" />
-              </button>
-              {photo.caption ? <figcaption>{photo.caption}</figcaption> : null}
-              <span className="album-date">{formatDate(photo.created_at)}</span>
-              {session?.user.id === photo.user_id ? (
+        {view.mode === 'list' ? (
+          <>
+            {session ? (
+              <div className="album-toolbar">
                 <button
                   type="button"
-                  className="album-del"
-                  onClick={() => remove(photo.id)}
-                  aria-label="删除照片"
+                  className="btn btn-sm"
+                  onClick={() => setShowNew((v) => !v)}
                 >
-                  ×
+                  {showNew ? '收起' : '＋ 新建相册'}
+                </button>
+              </div>
+            ) : null}
+
+            {showNew ? (
+              <div className="album-edit-form">
+                <input
+                  type="text"
+                  className="album-caption"
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  placeholder="相册标题，如「2026 年夏」"
+                />
+                <textarea
+                  className="album-desc-input"
+                  value={newDesc}
+                  onChange={(e) => setNewDesc(e.target.value)}
+                  placeholder="相册说明（可留空）"
+                />
+                <div className="album-edit-actions">
+                  <button
+                    type="button"
+                    className="btn btn-sm"
+                    onClick={createAlbum}
+                    disabled={busy || !newTitle.trim()}
+                  >
+                    创建
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
+            <div className="albums-grid">
+              {albums.map((album) => {
+                const cover = coverOf(album)
+                const count = photosOf(album.id).length
+                return (
+                  <button
+                    key={album.id}
+                    type="button"
+                    className="album-card"
+                    onClick={() => setView({ mode: 'album', album })}
+                  >
+                    {cover ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img className="album-cover" src={cover} alt={album.title} loading="lazy" />
+                    ) : (
+                      <span className="album-cover placeholder">影</span>
+                    )}
+                    <span className="album-card-title">{album.title}</span>
+                    {album.description ? (
+                      <span className="album-card-desc">{album.description}</span>
+                    ) : null}
+                    <span className="album-card-meta">
+                      {count} 张 · {formatDate(album.created_at)}
+                    </span>
+                    {isOwnerOf(album.user_id) ? (
+                      <span
+                        className="album-del"
+                        role="button"
+                        aria-label="删除相册"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          deleteAlbum(album)
+                        }}
+                      >
+                        ×
+                      </span>
+                    ) : null}
+                  </button>
+                )
+              })}
+              {orphanPhotos.length > 0 ? (
+                <button type="button" className="album-card" onClick={() => setView({ mode: 'all' })}>
+                  {orphanPhotos[0] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img className="album-cover" src={orphanPhotos[0].url} alt="全部照片" loading="lazy" />
+                  ) : (
+                    <span className="album-cover placeholder">影</span>
+                  )}
+                  <span className="album-card-title">全部照片</span>
+                  <span className="album-card-desc">未归入相册的照片</span>
+                  <span className="album-card-meta">{orphanPhotos.length} 张</span>
                 </button>
               ) : null}
-            </figure>
-          ))}
-        </div>
-        {photos.length === 0 && !error ? (
-          <p className="moments-empty">相册还空著，上传第一张照片吧。</p>
-        ) : null}
-
-        {lightbox !== null && photos[lightbox] ? (
-          <div
-            className="lightbox"
-            role="dialog"
-            aria-modal="true"
-            aria-label="照片预览"
-            onClick={() => setLightbox(null)}
-          >
-            <button
-              type="button"
-              className="lightbox-close"
-              aria-label="关闭"
-              onClick={() => setLightbox(null)}
-            >
-              ×
-            </button>
-            {photos.length > 1 ? (
-              <>
-                <button
-                  type="button"
-                  className="lightbox-nav prev"
-                  aria-label="上一张"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setLightbox((lightbox - 1 + photos.length) % photos.length)
-                  }}
-                >
-                  ‹
-                </button>
-                <button
-                  type="button"
-                  className="lightbox-nav next"
-                  aria-label="下一张"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setLightbox((lightbox + 1) % photos.length)
-                  }}
-                >
-                  ›
-                </button>
-              </>
+            </div>
+            {albums.length === 0 && orphanPhotos.length === 0 && !error ? (
+              <p className="moments-empty">相册还空着，先建一本相册吧。</p>
             ) : null}
-            <figure className="lightbox-frame" onClick={(e) => e.stopPropagation()}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photos[lightbox].url} alt={photos[lightbox].caption || '照片'} />
-              <figcaption>
-                {photos[lightbox].caption ? <span>{photos[lightbox].caption}</span> : <span />}
-                <span className="lightbox-count">
-                  {lightbox + 1} / {photos.length}
+          </>
+        ) : (
+          <>
+            <div className="album-head">
+              <button type="button" className="link-btn" onClick={() => setView({ mode: 'list' })}>
+                ← 全部相册
+              </button>
+              <div className="album-head-text">
+                <h2>{currentAlbum ? currentAlbum.title : '全部照片'}</h2>
+                {currentAlbum?.description ? (
+                  <p className="album-head-desc">{currentAlbum.description}</p>
+                ) : null}
+                <span className="album-date">
+                  {currentPhotos.length} 张
+                  {currentAlbum ? ` · ${formatDate(currentAlbum.created_at)}` : ''}
                 </span>
-              </figcaption>
-            </figure>
-          </div>
-        ) : null}
+              </div>
+              {currentAlbum && isOwnerOf(currentAlbum.user_id) ? (
+                <div className="album-head-actions">
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => {
+                      setEditing((v) => !v)
+                      setEditTitle(currentAlbum.title)
+                      setEditDesc(currentAlbum.description)
+                    }}
+                  >
+                    编辑
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => deleteAlbum(currentAlbum)}
+                  >
+                    删除
+                  </button>
+                </div>
+              ) : null}
+            </div>
+
+            {editing && currentAlbum ? (
+              <div className="album-edit-form">
+                <input
+                  type="text"
+                  className="album-caption"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  placeholder="相册标题"
+                />
+                <textarea
+                  className="album-desc-input"
+                  value={editDesc}
+                  onChange={(e) => setEditDesc(e.target.value)}
+                  placeholder="相册说明（可留空）"
+                />
+                <div className="album-edit-actions">
+                  <button
+                    type="button"
+                    className="btn btn-sm"
+                    onClick={saveAlbumEdit}
+                    disabled={busy || !editTitle.trim()}
+                  >
+                    保存
+                  </button>
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditing(false)}>
+                    取消
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
+            {currentPhotos.length > 0 ? (
+              photoGrid(currentPhotos)
+            ) : (
+              <p className="moments-empty">这本相册还没有照片，上传第一张吧。</p>
+            )}
+          </>
+        )}
       </article>
     </div>
   )

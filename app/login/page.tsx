@@ -108,7 +108,7 @@ export default function LoginPage() {
       <form onSubmit={submit} style={{ marginTop: 26 }}>
         {mode === 'register' ? (
           <div className="field">
-            <label htmlFor="nickname">暱称</label>
+            <label htmlFor="nickname">昵称</label>
             <input
               id="nickname"
               type="text"

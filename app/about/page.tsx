@@ -23,8 +23,11 @@ export default async function AboutPage() {
     // 数据库未初始化等
   }
 
-  const avatarUrl = owner?.avatar_url
-    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${owner.avatar_url}`
+  const rawAvatar = owner?.avatar_url
+  const avatar = rawAvatar
+    ? rawAvatar.startsWith('http')
+      ? rawAvatar
+      : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${rawAvatar}`
     : null
 
   return (
@@ -47,38 +50,45 @@ export default async function AboutPage() {
           ※ ※ ※
         </div>
 
-        {owner ? (
-          <div className="about-owner reveal">
-            {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img className="about-avatar" src={avatarUrl} alt="博主头像" />
-            ) : (
-              <span className="about-avatar placeholder">影</span>
-            )}
-            <div>
-              <h2 className="about-name">{owner.nickname || SITE_NAME}</h2>
-              {owner.bio ? <p className="about-bio">{owner.bio}</p> : null}
-            </div>
-          </div>
-        ) : (
-          <div className="md-body">
-            <p>
-              这里是{SITE_NAME}，{SITE_DESC}。{SITE_VERSE}。
-            </p>
-            <p>
-              这个博客用 Next.js 搭建，文章存在 Supabase，部署在 Vercel——不买服务器、不申请公网 IP，几分钟就能上线；更新文章只需在后台写一篇 Markdown，前台立刻生效。
-            </p>
-            <p>
-              如果你对这套搭建方式感兴趣，代码开源在 GitHub 上，欢迎看看。
-            </p>
-          </div>
-        )}
-
-        <div className="md-body">
+        <div className="md-body about-essay">
+          {owner?.bio ? (
+            owner.bio
+              .split(/\n{2,}/)
+              .filter(Boolean)
+              .map((para, i) => <p key={i}>{para}</p>)
+          ) : (
+            <>
+              <p>
+                这里是{SITE_NAME}，{SITE_DESC}。{SITE_VERSE}。
+              </p>
+              <p>
+                这个博客用 Next.js 搭建，文章存在 Supabase，部署在 Vercel——不买服务器、不申请公网
+                IP，几分钟就能上线；更新文章只需在后台写一篇 Markdown，前台立刻生效。
+              </p>
+              <p>
+                如果你对这套搭建方式感兴趣，代码开源在 GitHub 上，欢迎看看。
+              </p>
+            </>
+          )}
           <p>
             这个博客欢迎留言。注册一个账号，就可以在文章下面评论、发说说、传照片。
           </p>
         </div>
+
+        {owner ? (
+          <aside className="about-colophon">
+            {avatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img className="about-avatar" src={avatar} alt="博主头像" />
+            ) : (
+              <span className="about-avatar placeholder">影</span>
+            )}
+            <div className="about-colophon-info">
+              <span className="about-name">{owner.nickname || SITE_NAME}</span>
+              <span className="about-role">博主 · {SITE_NAME}</span>
+            </div>
+          </aside>
+        ) : null}
       </article>
 
       <footer className="article-footer">
