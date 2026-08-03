@@ -3062,23 +3062,6 @@ a.tl-title:hover {
     transform: none;
   }
 
-  .ink-canvas {
-    display: none;
-  }
-}
-
-/* ---------- 墨痕交互画布 ---------- */
-
-.ink-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  pointer-events: none;
-  mix-blend-mode: multiply;
-}
-
-:root[data-theme='dark'] .ink-canvas {
-  mix-blend-mode: screen;
 }
 
 /* ---------- 回到顶部印章 ---------- */
@@ -3126,6 +3109,103 @@ a.tl-title:hover {
 .back-top:hover {
   background: var(--seal-deep);
   transform: rotate(-2deg) scale(1.08);
+}
+
+/* ---------- 模板背景：千里江山 / 灯影 ---------- */
+
+.bg-painting {
+  position: fixed;
+  inset: -3%;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url('/bg/qianli-bridge.jpg');
+  background-size: cover;
+  background-position: 50% 62%;
+}
+
+.bg-painting.night {
+  filter: brightness(0.55) saturate(0.62) contrast(1.04);
+}
+
+.bg-blend {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(242, 237, 222, 0.72) 0%, rgba(242, 237, 222, 0) 14%),
+    linear-gradient(0deg, rgba(242, 237, 222, 0.9) 0%, rgba(242, 237, 222, 0.28) 16%, rgba(242, 237, 222, 0) 30%);
+}
+
+.bg-tint {
+  position: fixed;
+  inset: -3%;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 55% at 72% 18%, rgba(240, 234, 214, 0.1), transparent 60%),
+    linear-gradient(180deg, rgba(13, 19, 48, 0.5), rgba(13, 19, 48, 0.28) 40%, rgba(13, 19, 48, 0.66) 100%);
+  mix-blend-mode: multiply;
+}
+
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: none;
+  display: block;
+}
+
+/* ---------- 背景切换控件 ---------- */
+
+.bg-switch {
+  position: fixed;
+  right: 18px;
+  bottom: 88px;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  font-family: var(--font-kai);
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  background: var(--nav-bg);
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+}
+
+.bg-switch-label {
+  margin-right: 4px;
+  color: var(--ink-faint);
+}
+
+.bg-switch button {
+  font-family: inherit;
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 0.25s, background 0.25s, border-color 0.25s;
+}
+
+.bg-switch button:hover {
+  color: var(--seal);
+  border-color: var(--seal);
+}
+
+.bg-switch button.on {
+  background: var(--seal);
+  border-color: var(--seal);
+  color: var(--paper);
 }
 
 /* ---------- 主题化滚动条 ---------- */
@@ -3497,6 +3577,18 @@ a.tl-title:hover {
     width: 40px;
     height: 40px;
     font-size: 16px;
+  }
+
+  .bg-switch {
+    right: 12px;
+    bottom: 74px;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .bg-switch button {
+    padding: 3px 8px;
+    font-size: 12px;
   }
 
   .masthead::before {

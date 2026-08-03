@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>特效方案目录 · 似水流年</title>
+<style>
+  :root{
+    --paper:#f2edde; --ink:#2c2a24; --ink-soft:#6f685a; --ink-faint:#98907f;
+    --seal:#b23a2b; --rule:rgba(44,42,36,.18); --card:rgba(255,253,246,.62);
+    --kai:"KaiTi","STKaiti","楷体",serif; --song:"Songti SC","STSong","SimSun",serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--song);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.06' fill='%23433e33'/%3E%3C/svg%3E")}
+  .wrap{max-width:920px;margin:0 auto;padding:70px 36px 90px}
+  .eyebrow{margin:0;font-family:var(--kai);font-size:11px;letter-spacing:.7em;text-indent:.7em;color:var(--ink-faint);text-align:center}
+  h1{margin:26px 0 8px;font-family:var(--kai);font-weight:400;font-size:44px;letter-spacing:.3em;text-indent:.3em;text-align:center}
+  .sub{text-align:center;color:var(--ink-soft);font-family:var(--kai);font-size:14px;letter-spacing:.18em;margin-bottom:56px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:22px}
+  a.card{display:block;padding:30px 32px;background:var(--card);border:1px solid var(--rule);border-radius:2px;
+    color:inherit;text-decoration:none;transition:transform .35s cubic-bezier(.22,.61,.36,1),border-color .3s,box-shadow .3s}
+  a.card:hover{transform:translateY(-4px);border-color:rgba(178,58,43,.6);box-shadow:0 20px 44px -22px rgba(60,50,30,.35)}
+  .name{font-family:var(--kai);font-size:26px;letter-spacing:.12em}
+  .name span{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;margin-left:10px;
+    background:var(--seal);color:var(--paper);font-size:14px;transform:rotate(-6deg);vertical-align:4px}
+  .mood{margin:10px 0 14px;color:var(--ink-soft);font-size:13.5px;line-height:1.9;font-family:var(--kai);letter-spacing:.06em}
+  ul{margin:0;padding-left:1.2em;color:var(--ink-soft);font-size:13px;line-height:2}
+  ul b{color:var(--seal);font-weight:400}
+  .foot{margin-top:52px;text-align:center;font-family:var(--kai);font-size:12px;letter-spacing:.3em;color:var(--ink-faint)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">似水流年 · 特效预览</p>
+  <h1>四境任选</h1>
+  <p class="sub">真迹背景版（推荐）· 点击卡片进入预览，页面右下角可切换三种点击特效</p>
+  <div class="grid">
+    <a class="card" href="f-day-qianli.html">
+      <div class="name">白天 · 江山入画<span>昼</span></div>
+      <p class="mood">《千里江山图》真迹为底，云卷云舒，瑞鹤金尘</p>
+      <ul>
+        <li><b>背景</b>：北宋王希孟真迹（公版），90 秒徐卷平移 + 鼠标视差，上下宣纸晕染融合</li>
+        <li><b>氛围</b>：云雾流动、金尘明灭、瑞鹤掠空</li>
+        <li><b>点击（三选）</b>：墨梅绽放 / 金鱼戏水 / 金晕墨华</li>
+      </ul>
+    </a>
+    <a class="card" href="g-night-lantern.html">
+      <div class="name">黑夜 · 灯影江山<span>夜</span></div>
+      <p class="mood">同卷夜景化：靛青罩染，月下江山，孔明灯缓缓升起</p>
+      <ul>
+        <li><b>背景</b>：同一真迹夜景化（与白天画面统一），星子明灭、满月月海、偶有流星</li>
+        <li><b>氛围</b>：七盏孔明灯带光晕与内焰缓缓升空，云雾缭绕</li>
+        <li><b>点击（三选）</b>：墨梅绽放 / 金鱼戏水（带辉光）/ 金晕墨华</li>
+      </ul>
+    </a>
+  </div>
+  <p class="sub" style="margin-top:44px">早期手绘方案（备选）</p>
+  <div class="grid">
+    <a class="card" href="a-ink-tide.html">
+      <div class="name">A · 墨潮<span>潮</span></div>
+      <p class="mood">活墨成潮，金箔浮光（夜景暖金琥珀）</p>
+      <ul>
+        <li><b>背景</b>：流体墨团聚合分离、生长触须（gooey 墨）</li>
+        <li><b>点击</b>：浓墨溅落，融入墨潮</li>
+      </ul>
+    </a>
+    <a class="card" href="b-blue-scroll.html">
+      <div class="name">B² · 千里江山<span>卷</span></div>
+      <p class="mood">手绘青绿山水长卷，宫阙流金</p>
+      <ul>
+        <li><b>背景</b>：七重山脊视差，亭台、瀑布、苍松、洒金、湖面碎金</li>
+        <li><b>点击</b>：描金涟漪</li>
+      </ul>
+    </a>
+    <a class="card" href="c-wind-bamboo.html">
+      <div class="name">C · 风竹<span>竹</span></div>
+      <p class="mood">墨竹听风，一笔成型</p>
+      <ul>
+        <li><b>背景</b>：生成式墨竹随风俯仰</li>
+        <li><b>点击</b>：书法飞白一笔</li>
+      </ul>
+    </a>
+    <a class="card" href="d-rain-ripple.html">
+      <div class="name">D · 听雨<span>雨</span></div>
+      <p class="mood">留白残荷，雨滴涟漪</p>
+      <ul>
+        <li><b>背景</b>：大面留白，残荷远岸</li>
+        <li><b>点击</b>：投石入塘，涟漪五重</li>
+      </ul>
+    </a>
+    <a class="card" href="e-night-feast.html">
+      <div class="name">E · 夜宴<span>夜</span></div>
+      <p class="mood">星野流萤，月满湖金（纯夜景手绘）</p>
+      <ul>
+        <li><b>背景</b>：靛青夜幕、满月、亭台灯火、流星</li>
+        <li><b>点击</b>：金环荡开，流萤惊散</li>
+      </ul>
+    </a>
+  </div>
+  <p class="foot">选定后我会把整套特效移植进博客（替换现有背景 / 落叶 / 墨痕）</p>
+</div>
+</body>
+</html>
