@@ -25,9 +25,10 @@
   --c-wm: rgba(44, 42, 36, 0.05);
   --c-wm-hover: rgba(44, 42, 36, 0.12);
   --c-branch: #14120d;
-  --card-bg: rgba(255, 253, 246, 0.92);
-  --card-border: rgba(44, 42, 36, 0.24);
+  --card-bg: rgba(248, 240, 216, 0.94);
+  --card-border: rgba(133, 102, 60, 0.3);
   --card-inner: rgba(44, 42, 36, 0.07);
+  --card-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.2' fill='%23907848'/%3E%3C/svg%3E");
   --nav-bg: rgba(242, 237, 222, 0.82);
   --nav-bg-scrolled: rgba(236, 230, 214, 0.95);
   --ts-track: #f3ead2;
@@ -96,6 +97,7 @@
   --card-bg: rgba(48, 39, 20, 0.9);
   --card-border: rgba(230, 205, 140, 0.2);
   --card-inner: rgba(236, 223, 192, 0.08);
+  --card-paper: none;
   --nav-bg: rgba(37, 29, 16, 0.82);
   --nav-bg-scrolled: rgba(30, 23, 12, 0.94);
   --ts-track: #1f1810;
@@ -743,7 +745,9 @@ button {
   margin-bottom: 28px;
   padding: 36px 40px 32px 108px;
   color: inherit;
-  background: var(--card-bg);
+  background-color: var(--card-bg);
+  background-image: var(--card-paper);
+  background-size: 240px 240px;
   border: 1px solid var(--card-border);
   border-radius: 2px;
   backdrop-filter: blur(10px);
@@ -996,7 +1000,9 @@ button {
   max-width: 780px;
   margin: 0 auto;
   padding: 56px 56px 34px;
-  background: var(--card-bg);
+  background-color: var(--card-bg);
+  background-image: var(--card-paper);
+  background-size: 240px 240px;
   border: 1px solid var(--card-border);
   border-radius: 3px;
   backdrop-filter: blur(12px);
