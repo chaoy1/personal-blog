@@ -5,9 +5,9 @@ import { useEffect, useRef, useState } from 'react'
 type Line = { x: number; y: number; w: number; h: number }
 
 /**
- * 微信读书式选中特效：
- * 读取选区各行的矩形区域，用 SVG 绘制「连续高亮 + 毛笔画线」。
- * 高亮跨过字距空隙连成一片，画线带轻微弧度模拟真实笔触。
+ * 连续选中高亮：
+ * 读取选区各行的矩形区域，用 SVG 绘制平整连续的高亮块。
+ * 高亮跨过字距空隙连成一片，解决大字号/大字距下选中被拆成一块块的问题。
  */
 function mergeLines(rects: DOMRect[]): Line[] {
   const arr = rects
@@ -100,42 +100,18 @@ export default function SelectionFX() {
 
   return (
     <svg className="selection-fx" viewBox={`0 0 ${size.w} ${size.h}`} aria-hidden="true">
-      {lines.map((l, i) => {
-        const midY = l.y + l.h * 0.78
-        const wob = Math.min(2.2, l.h * 0.035)
-        const d = `M ${l.x + 3} ${midY} Q ${l.x + l.w / 2} ${midY - wob} ${l.x + l.w - 3} ${midY}`
-        return (
-          <g key={i}>
-            {/* 连续高亮，填平字距空隙 */}
-            <rect
-              x={l.x}
-              y={l.y}
-              width={l.w}
-              height={l.h}
-              rx={3}
-              fill="var(--seal)"
-              fillOpacity={0.13}
-            />
-            {/* 画线：外层淡墨晕 + 内层主笔触 */}
-            <path
-              d={d}
-              fill="none"
-              stroke="var(--seal)"
-              strokeOpacity={0.16}
-              strokeWidth={Math.max(5, l.h * 0.09)}
-              strokeLinecap="round"
-            />
-            <path
-              d={d}
-              fill="none"
-              stroke="var(--seal)"
-              strokeOpacity={0.62}
-              strokeWidth={Math.max(2.4, l.h * 0.045)}
-              strokeLinecap="round"
-            />
-          </g>
-        )
-      })}
+      {lines.map((l, i) => (
+        <rect
+          key={i}
+          x={l.x}
+          y={l.y}
+          width={l.w}
+          height={l.h}
+          rx={2}
+          fill="var(--seal)"
+          fillOpacity={0.2}
+        />
+      ))}
     </svg>
   )
 }
