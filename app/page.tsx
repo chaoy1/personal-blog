@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { CSSProperties } from 'react'
 import { listPublishedPosts, formatDate, type Post } from '@/lib/posts'
 import { SITE_NAME, SITE_DESC, SITE_VERSE } from '@/lib/site'
+import { isSupabaseConfigured } from '@/lib/supabase'
 import ScrollFX from '@/components/ScrollFX'
 
 export const revalidate = 60
@@ -11,14 +12,15 @@ const CN_WM = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '�
 
 export default async function HomePage() {
   let posts: Post[] = []
-  let setupHint = false
+  let dbError = false
 
   try {
     posts = await listPublishedPosts(6)
   } catch {
-    setupHint = true
+    dbError = true
   }
 
+  const notConfigured = !isSupabaseConfigured()
   const volume = String(posts.length).padStart(2, '0')
 
   return (
@@ -88,13 +90,19 @@ export default async function HomePage() {
         </p>
       </header>
 
-      {setupHint ? (
+      {notConfigured ? (
         <div className="setup-hint">
           <strong>数据库还没配置好。</strong>完成下面两步即可看到文章：
           <br />
           1. 在 Supabase 控制台 SQL Editor 里运行 <code>supabase/schema.sql</code> 建表；
           <br />
           2. 把 <code>.env.local</code> 里的 Supabase 三项配置填好，然后重启 <code>npm run dev</code>。
+        </div>
+      ) : dbError ? (
+        <div className="setup-hint">
+          <strong>文章暂时没能加载出来。</strong>
+          <br />
+          数据库连接出了点问题，页面稍后会自动重试，也可以先去别处逛逛。
         </div>
       ) : posts.length === 0 ? (
         <div className="empty-state">

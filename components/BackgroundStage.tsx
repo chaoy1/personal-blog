@@ -1,13 +1,11 @@
 'use client'
 
-import { useEffect, useState, type CSSProperties } from 'react'
-import { useBackground } from './BackgroundProvider'
-import { PAINTINGS } from './paintings'
+import { useEffect, useState } from 'react'
 import QianliAmbient from './QianliAmbient'
-import LanternAmbient from './LanternAmbient'
+import MapleLeaves from './MapleLeaves'
+import StarryNight from './StarryNight'
 
 export default function BackgroundStage() {
-  const { bg } = useBackground()
   const [dark, setDark] = useState(false)
 
   useEffect(() => {
@@ -19,22 +17,16 @@ export default function BackgroundStage() {
     return () => mo.disconnect()
   }, [])
 
-  const painting = PAINTINGS[bg]
-
   return (
     <>
-      <div
-        className={`bg-painting${dark ? ' night' : ''}`}
-        aria-hidden="true"
-        style={
-          {
-            backgroundImage: `url(${painting.src})`,
-            backgroundPosition: painting.pos,
-          } as CSSProperties
-        }
-      />
+      <div className={`bg-painting${dark ? ' night' : ''}`} aria-hidden="true" />
       {dark ? <div className="bg-tint" aria-hidden="true" /> : <div className="bg-blend" aria-hidden="true" />}
-      {dark ? <LanternAmbient /> : <QianliAmbient />}
+      {dark ? <StarryNight /> : (
+        <>
+          <QianliAmbient />
+          <MapleLeaves />
+        </>
+      )}
     </>
   )
 }
