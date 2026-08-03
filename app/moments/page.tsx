@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabaseBrowser, storagePublicUrl } from '@/lib/supabase-browser'
 import { formatDate } from '@/lib/blog'
+import ScrollFX from '@/components/ScrollFX'
 
 type Moment = {
   id: string
@@ -178,6 +179,7 @@ export default function MomentsPage() {
 
   return (
     <div className="wrap">
+      <ScrollFX />
       <nav className="article-nav">
         <Link href="/">← 返回首页</Link>
         <span>说说</span>
@@ -249,7 +251,7 @@ export default function MomentsPage() {
             const mComments = comments.filter((c) => c.moment_id === m.id)
 
             return (
-              <div key={m.id} className="moment">
+              <div key={m.id} className="moment reveal">
                 <div className="moment-head">
                   {m.profiles?.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 import { formatDate } from '@/lib/blog'
+import ScrollFX from '@/components/ScrollFX'
 
 const PAGE_SIZE = 20
 
@@ -88,6 +89,7 @@ export default function GuestbookPage() {
 
   return (
     <div className="wrap">
+      <ScrollFX />
       <nav className="article-nav">
         <Link href="/">← 返回首页</Link>
         <span>留言</span>
@@ -135,7 +137,7 @@ export default function GuestbookPage() {
 
         <div className="comment-list guestbook-list">
           {messages.map((m) => (
-            <div key={m.id} className="comment">
+            <div key={m.id} className="comment reveal">
               {m.profiles?.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img className="c-avatar md" src={m.profiles.avatar_url} alt="头像" />

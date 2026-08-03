@@ -68,6 +68,8 @@
   --bg-bird: #3f3d37;
   --bg-reed: #3f3d37;
   --bg-moss: #6a6250;
+  --glow: rgba(178, 58, 43, 0.08);
+  --splash: rgba(44, 42, 36, 0.07);
 }
 
 :root[data-theme='dark'] {
@@ -134,6 +136,8 @@
   --bg-bird: #b39a64;
   --bg-reed: #0c0803;
   --bg-moss: #6a5a32;
+  --glow: rgba(232, 207, 141, 0.08);
+  --splash: rgba(236, 223, 192, 0.05);
 }
 
 * {
@@ -2653,8 +2657,394 @@ a.tl-title:hover {
     transition: none !important;
   }
 
-  .item {
+  .item,
+  .reveal {
     opacity: 1;
     transform: none;
+  }
+
+  .ink-canvas,
+  .scroll-progress {
+    display: none;
+  }
+}
+
+/* ---------- 墨痕交互画布 ---------- */
+
+.ink-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+:root[data-theme='dark'] .ink-canvas {
+  mix-blend-mode: screen;
+}
+
+/* ---------- 顶部墨条进度 ---------- */
+
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 70;
+  pointer-events: none;
+}
+
+.scroll-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--seal), var(--seal-deep));
+  box-shadow: 0 0 8px rgba(178, 58, 43, 0.35);
+  transform: scaleX(0);
+  transform-origin: left;
+  will-change: transform;
+}
+
+/* ---------- 回到顶部印章 ---------- */
+
+.back-top {
+  position: fixed;
+  right: 26px;
+  bottom: 30px;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: none;
+  background: var(--seal);
+  color: var(--paper);
+  font-family: var(--font-kai);
+  font-size: 19px;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: rotate(-5deg) scale(0.6);
+  box-shadow: 0 8px 20px -10px rgba(143, 43, 31, 0.6);
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.3),
+    background 0.3s ease;
+}
+
+.back-top::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(242, 237, 222, 0.55);
+  pointer-events: none;
+}
+
+.back-top.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: rotate(-5deg) scale(1);
+}
+
+.back-top:hover {
+  background: var(--seal-deep);
+  transform: rotate(-2deg) scale(1.08);
+}
+
+/* ---------- 通用入场浮现 ---------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.75s ease,
+    transform 0.65s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- 首页：墨晕绽开 & 逐字书法标题 ---------- */
+
+.masthead::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  z-index: -1;
+  width: 640px;
+  height: 440px;
+  background: radial-gradient(ellipse at center, var(--splash) 0%, transparent 66%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: splash-in 2.4s ease-out both;
+}
+
+@keyframes splash-in {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.35); }
+  55% { opacity: 0.9; }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.title-char {
+  display: inline-block;
+  animation: char-ink 1.15s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  animation-delay: calc(0.4s + var(--i, 0) * 0.17s);
+  will-change: transform, opacity, filter;
+}
+
+@keyframes char-ink {
+  0% { opacity: 0; transform: translateY(20px) scale(1.14); filter: blur(8px); }
+  55% { opacity: 1; filter: blur(1.5px); }
+  100% { opacity: 1; transform: none; filter: blur(0); }
+}
+
+/* ---------- 背景山水细微动效 ---------- */
+
+.mist-a { animation: mist-drift-a 34s ease-in-out infinite alternate; }
+.mist-b { animation: mist-drift-b 44s ease-in-out infinite alternate; }
+.mist-c { animation: mist-drift-c 56s ease-in-out infinite alternate; }
+
+@keyframes mist-drift-a {
+  from { transform: translateX(-28px); }
+  to { transform: translateX(36px); }
+}
+
+@keyframes mist-drift-b {
+  from { transform: translateX(30px); }
+  to { transform: translateX(-34px); }
+}
+
+@keyframes mist-drift-c {
+  from { transform: translateX(-42px); }
+  to { transform: translateX(46px); }
+}
+
+.waterfall {
+  stroke-dasharray: 16 22;
+  animation: waterfall-flow 1.5s linear infinite;
+}
+
+.waterfall-thin {
+  stroke-dasharray: 8 14;
+  animation-duration: 1.1s;
+}
+
+@keyframes waterfall-flow {
+  from { stroke-dashoffset: 38; }
+  to { stroke-dashoffset: 0; }
+}
+
+.birds {
+  animation: birds-drift 15s ease-in-out infinite alternate;
+}
+
+@keyframes birds-drift {
+  from { transform: translate(0, 0); }
+  to { transform: translate(26px, -10px); }
+}
+
+.moon-halo {
+  animation: moon-breath 8s ease-in-out infinite alternate;
+}
+
+@keyframes moon-breath {
+  from { opacity: 0.72; }
+  to { opacity: 1; }
+}
+
+.boat {
+  animation: boat-bob 6s ease-in-out infinite alternate;
+}
+
+@keyframes boat-bob {
+  from { transform: translateY(0); }
+  to { transform: translateY(-2.5px); }
+}
+
+/* ---------- 卡片墨光（跟随指针） ---------- */
+
+.item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, 50%),
+    var(--glow),
+    transparent 68%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.item:hover::after {
+  opacity: 1;
+}
+
+/* ---------- 相册灯箱 ---------- */
+
+.album-open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: zoom-in;
+  overflow: hidden;
+}
+
+.album-open img {
+  transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.album-item:hover .album-open img {
+  transform: scale(1.05);
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(24, 19, 12, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: zoom-out;
+  animation: lightbox-in 0.28s ease-out both;
+}
+
+@keyframes lightbox-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lightbox-frame {
+  position: relative;
+  margin: 0;
+  max-width: min(1080px, 88vw);
+  background: var(--paper);
+  padding: 16px 16px 12px;
+  border: 1px solid var(--rule-strong);
+  box-shadow: 0 34px 90px -30px rgba(0, 0, 0, 0.65);
+  cursor: default;
+  animation: lightbox-frame-in 0.38s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@keyframes lightbox-frame-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+
+.lightbox-frame::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border: 1px solid var(--rule);
+  pointer-events: none;
+}
+
+.lightbox-frame img {
+  display: block;
+  max-width: calc(88vw - 32px);
+  max-height: 74vh;
+  object-fit: contain;
+}
+
+.lightbox-frame figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding-top: 10px;
+  font-family: var(--font-kai);
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+}
+
+.lightbox-count {
+  color: var(--ink-faint);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  white-space: nowrap;
+}
+
+.lightbox-close,
+.lightbox-nav {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(242, 237, 222, 0.4);
+  background: rgba(24, 19, 12, 0.35);
+  color: #f2edde;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.lightbox-close {
+  top: 22px;
+  right: 26px;
+  width: 42px;
+  height: 42px;
+  font-size: 20px;
+}
+
+.lightbox-close:hover {
+  background: var(--seal);
+  transform: rotate(90deg);
+}
+
+.lightbox-nav {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  font-size: 26px;
+}
+
+.lightbox-nav:hover {
+  background: var(--seal);
+}
+
+.lightbox-nav.prev { left: 22px; }
+.lightbox-nav.next { right: 22px; }
+
+/* ---------- 小屏适配 ---------- */
+
+@media (max-width: 720px) {
+  .back-top {
+    right: 16px;
+    bottom: 18px;
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .masthead::before {
+    width: 94vw;
+    height: 320px;
+  }
+
+  .lightbox-nav {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .lightbox-nav.prev { left: 8px; }
+  .lightbox-nav.next { right: 8px; }
+
+  .lightbox-close {
+    top: 12px;
+    right: 12px;
   }
 }

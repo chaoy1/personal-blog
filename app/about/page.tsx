@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabase'
 import { SITE_NAME, SITE_DESC, SITE_VERSE } from '@/lib/site'
+import ScrollFX from '@/components/ScrollFX'
 
 export const metadata: Metadata = {
   title: '关于',
@@ -28,6 +29,7 @@ export default async function AboutPage() {
 
   return (
     <div className="wrap">
+      <ScrollFX />
       <nav className="article-nav">
         <Link href="/">← 返回首页</Link>
         <span>{SITE_NAME}</span>
@@ -46,7 +48,7 @@ export default async function AboutPage() {
         </div>
 
         {owner ? (
-          <div className="about-owner">
+          <div className="about-owner reveal">
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img className="about-avatar" src={avatarUrl} alt="博主头像" />

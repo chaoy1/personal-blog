@@ -104,7 +104,7 @@ export default async function TimelinePage({
         <>
           <section className="timeline">
             {pageEntries.map((e) => (
-              <article className={`tl-item tl-${e.type}`} key={e.key}>
+              <article className={`tl-item tl-${e.type} reveal`} key={e.key}>
                 <span className="tl-dot" aria-hidden="true" />
                 <div className="tl-date">{formatDate(e.created_at)}</div>
                 <div className="tl-card">

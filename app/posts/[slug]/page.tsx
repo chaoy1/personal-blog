@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import MarkdownView from '@/components/MarkdownView'
 import Comments from '@/components/Comments'
+import ScrollFX from '@/components/ScrollFX'
 import { getPostBySlug, formatDate, readingTime, listPublishedPosts } from '@/lib/posts'
 import { SITE_NAME } from '@/lib/site'
 
@@ -48,6 +49,7 @@ export default async function PostPage({ params }: Props) {
 
   return (
     <div className="wrap">
+      <ScrollFX />
       <nav className="article-nav">
         <Link href="/">← 返回首页</Link>
         <span>{SITE_NAME}</span>

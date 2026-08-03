@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import type { CSSProperties } from 'react'
 import { listPublishedPosts, formatDate, type Post } from '@/lib/posts'
 import { SITE_NAME, SITE_DESC, SITE_VERSE } from '@/lib/site'
 import ScrollFX from '@/components/ScrollFX'
@@ -45,7 +46,13 @@ export default async function HomePage() {
       <header className="masthead">
         <p className="eyebrow">留白处自有山河 · VOL.{volume}</p>
         <h1>
-          <span className="title">{SITE_NAME}</span>
+          <span className="title">
+            {SITE_NAME.split('').map((ch, i) => (
+              <span key={i} className="title-char" style={{ '--i': i } as CSSProperties}>
+                {ch}
+              </span>
+            ))}
+          </span>
           <span className="seal" aria-hidden="true">
             记
           </span>

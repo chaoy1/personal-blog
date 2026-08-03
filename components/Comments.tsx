@@ -123,7 +123,7 @@ export default function Comments({ slug }: { slug: string }) {
           <p className="comment-empty">还没有评论，来坐坐。</p>
         ) : (
           top.map((c) => (
-            <div key={c.id} className="comment">
+            <div key={c.id} className="comment reveal">
               {avatar(c, 'md')}
               <div className="comment-body">
                 <div className="comment-meta">
