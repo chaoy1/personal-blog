@@ -5,9 +5,10 @@ import { useEffect, useRef, useState } from 'react'
 type Line = { x: number; y: number; w: number; h: number }
 
 /**
- * 连续选中高亮：
- * 读取选区各行的矩形区域，用 SVG 绘制平整连续的高亮块。
- * 高亮跨过字距空隙连成一片，解决大字号/大字距下选中被拆成一块块的问题。
+ * 手写感选中高亮：
+ * 读取选区各行的矩形区域，用 SVG 绘制一条随手划过的马克笔笔触——
+ * 圆头、边缘微微起伏、带一点晕染，不像规整矩形。
+ * 笔触跨过字距空隙连成一片，解决大字号/大字距下选中被拆开的问题。
  */
 function mergeLines(rects: DOMRect[]): Line[] {
   const arr = rects
@@ -100,18 +101,55 @@ export default function SelectionFX() {
 
   return (
     <svg className="selection-fx" viewBox={`0 0 ${size.w} ${size.h}`} aria-hidden="true">
-      {lines.map((l, i) => (
-        <rect
-          key={i}
-          x={l.x}
-          y={l.y}
-          width={l.w}
-          height={l.h}
-          rx={2}
-          fill="var(--seal)"
-          fillOpacity={0.2}
-        />
-      ))}
+      {lines.map((l, i) => {
+        const y0 = l.y + l.h * 0.52
+        const wob = Math.min(2.4, l.h * 0.045)
+        const n = Math.max(4, Math.round(l.w / 55))
+        const pts: { x: number; y: number }[] = []
+        for (let s = 0; s <= n; s++) {
+          const t = s / n
+          const x = l.x + 4 + (l.w - 8) * t
+          const y =
+            y0 +
+            Math.sin(t * Math.PI * 2.3 + i * 1.71) * wob +
+            Math.sin(t * Math.PI * 4.7 + i * 0.83) * wob * 0.35
+          pts.push({ x, y })
+        }
+        let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`
+        for (let s = 1; s <= n; s++) {
+          const prev = pts[s - 1]
+          const cur = pts[s]
+          const mx = (prev.x + cur.x) / 2
+          const my = (prev.y + cur.y) / 2
+          d += ` Q ${prev.x.toFixed(1)} ${prev.y.toFixed(1)} ${mx.toFixed(1)} ${my.toFixed(1)}`
+        }
+        d += ` Q ${pts[n - 1].x.toFixed(1)} ${pts[n - 1].y.toFixed(1)} ${pts[n].x.toFixed(1)} ${pts[n].y.toFixed(1)}`
+        const w1 = Math.max(5, l.h * 0.68)
+        return (
+          <g key={i}>
+            {/* 外层淡晕染 */}
+            <path
+              d={d}
+              fill="none"
+              stroke="var(--seal)"
+              strokeOpacity={0.13}
+              strokeWidth={w1 * 1.28}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            {/* 主笔触 */}
+            <path
+              d={d}
+              fill="none"
+              stroke="var(--seal)"
+              strokeOpacity={0.32}
+              strokeWidth={w1}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </g>
+        )
+      })}
     </svg>
   )
 }
