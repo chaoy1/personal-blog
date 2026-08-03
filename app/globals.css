@@ -172,6 +172,11 @@ button {
 }
 
 ::selection {
+  background: transparent;
+}
+
+input::selection,
+textarea::selection {
   background: rgba(178, 58, 43, 0.18);
 }
 
@@ -3212,6 +3217,18 @@ a.tl-title:hover {
 .lightbox-close:hover {
   background: var(--seal);
   border-color: var(--seal);
+}
+
+/* ---------- 微信读书式选中特效 ---------- */
+
+.selection-fx {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 45;
+  pointer-events: none;
+  overflow: hidden;
 }
 
 @keyframes lightbox-fade {
