@@ -1,6 +1,6 @@
-export type BgName = 'qianli' | 'qingming' | 'fuchun' | 'zaochun' | 'xishan'
+export type BgName = 'qianli' | 'xiaoxiang' | 'quehua' | 'fuchun' | 'qingyuan'
 
-export const BG_NAMES: BgName[] = ['qianli', 'qingming', 'fuchun', 'zaochun', 'xishan']
+export const BG_NAMES: BgName[] = ['qianli', 'xiaoxiang', 'quehua', 'fuchun', 'qingyuan']
 
 export type Painting = {
   label: string
@@ -16,29 +16,29 @@ export const PAINTINGS: Record<BgName, Painting> = {
     src: '/bg/qianli-bridge.jpg',
     pos: '50% 62%',
   },
-  qingming: {
-    label: '上河',
-    full: '清明上河图 · 北宋 张择端',
-    src: '/bg/qingming.jpg',
-    pos: '50% 50%',
+  xiaoxiang: {
+    label: '潇湘',
+    full: '潇湘奇观图 · 南宋 米友仁',
+    src: '/bg/xiaoxiang.jpg',
+    pos: '50% 55%',
+  },
+  quehua: {
+    label: '鹊华',
+    full: '鹊华秋色图 · 元 赵孟頫',
+    src: '/bg/quehua.jpg',
+    pos: '50% 42%',
   },
   fuchun: {
     label: '富春',
     full: '富春山居图 · 元 黄公望',
     src: '/bg/fuchun.jpg',
-    pos: '50% 52%',
+    pos: '50% 45%',
   },
-  zaochun: {
-    label: '早春',
-    full: '早春图 · 北宋 郭熙',
-    src: '/bg/zaochun.jpg',
-    pos: '50% 42%',
-  },
-  xishan: {
-    label: '行旅',
-    full: '溪山行旅图 · 北宋 范宽',
-    src: '/bg/xishan.jpg',
-    pos: '50% 38%',
+  qingyuan: {
+    label: '清远',
+    full: '溪山清远图 · 南宋 夏圭',
+    src: '/bg/qingyuan.jpg',
+    pos: '50% 50%',
   },
 }
 
