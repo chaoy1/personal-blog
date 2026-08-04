@@ -4,8 +4,10 @@ import { listPublishedPosts, formatDate, type Post } from '@/lib/posts'
 import { SITE_NAME, SITE_DESC, SITE_VERSE } from '@/lib/site'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { listAllMoments, listAllPhotos, countMoments, countPhotos, type TimelineMoment, type TimelinePhoto } from '@/lib/timeline'
+import { listLatestGuestbook, countGuestbook, type GuestbookMessage } from '@/lib/guestbook'
 import ScrollFX from '@/components/ScrollFX'
 import ScrollUnfold from '@/components/ScrollUnfold'
+import ScrollHint from '@/components/ScrollHint'
 
 export const revalidate = 60
 
@@ -17,8 +19,10 @@ export default async function HomePage() {
   let dbError = false
   let moments: TimelineMoment[] = []
   let photos: TimelinePhoto[] = []
+  let guestbook: GuestbookMessage[] = []
   let momentCount = 0
   let photoCount = 0
+  let guestbookCount = 0
 
   try {
     posts = await listPublishedPosts(6)
@@ -37,6 +41,12 @@ export default async function HomePage() {
   } catch {
     // 相册区块可缺省
   }
+  try {
+    guestbook = await listLatestGuestbook(3)
+    guestbookCount = await countGuestbook()
+  } catch {
+    // 留言区块可缺省
+  }
 
   const notConfigured = !isSupabaseConfigured()
   const volume = String(posts.length).padStart(2, '0')
@@ -45,19 +55,6 @@ export default async function HomePage() {
     <div className="wrap">
       <ScrollFX />
       <ScrollUnfold />
-      <div className="branch" aria-hidden="true">
-        <svg viewBox="0 0 300 330" fill="none">
-          <path className="stem" d="M292 4 C 246 46, 234 98, 216 156 S 186 244, 152 300" />
-          <path className="stem thin" d="M262 72 C 244 84, 226 94, 204 106" />
-          <path className="stem thin" d="M238 128 C 222 140, 204 152, 182 166" />
-          <path className="stem thin" d="M208 196 C 196 210, 184 224, 168 240" />
-          <path className="leaf" d="M204 106 C 218 82, 238 72, 258 66 C 244 90, 226 100, 204 106 Z" />
-          <path className="leaf" d="M182 166 C 194 144, 212 132, 232 124 C 220 146, 202 158, 182 166 Z" />
-          <path className="leaf" d="M168 240 C 178 220, 194 208, 212 200 C 202 222, 184 234, 168 240 Z" />
-          <path className="leaf" d="M228 92 C 238 72, 254 60, 272 52 C 262 74, 246 86, 228 92 Z" />
-          <path className="leaf" d="M150 300 C 156 282, 168 270, 182 262 C 176 282, 164 294, 150 300 Z" />
-        </svg>
-      </div>
 
       <div className="verse">
         言有尽而<b>意</b>无穷
@@ -111,24 +108,30 @@ export default async function HomePage() {
         </header>
 
         <div className="hero-stats">
-          <span className="hs-item">
+          <div className="hs-box">
             <b>{posts.length}</b>
-            <i>篇章</i>
-          </span>
-          <span className="hs-item">
+            <span>篇章</span>
+            <i aria-hidden="true">卷</i>
+          </div>
+          <div className="hs-box">
             <b>{momentCount}</b>
-            <i>闲语</i>
-          </span>
-          <span className="hs-item">
+            <span>闲语</span>
+            <i aria-hidden="true">语</i>
+          </div>
+          <div className="hs-box">
             <b>{photoCount}</b>
-            <i>光影</i>
-          </span>
+            <span>光影</span>
+            <i aria-hidden="true">影</i>
+          </div>
         </div>
 
-        <div className="scroll-hint">
-          <span>向下滑动 · 展开画卷</span>
-          <i aria-hidden="true" />
+        <div className="hero-actions">
+          <Link href="/timeline">时间轴</Link>
+          <Link href="/guestbook">留言板</Link>
+          <Link href="/about">关于</Link>
         </div>
+
+        <ScrollHint />
       </div>
 
       {notConfigured ? (
@@ -217,6 +220,26 @@ export default async function HomePage() {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={p.url} alt={p.caption || '照片'} loading="lazy" />
                     {p.caption ? <span className="hp-cap">{p.caption}</span> : null}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {guestbook.length > 0 ? (
+            <section className="home-section reveal" id="guestbook">
+              <h2 className="section-title">
+                <span>留声{guestbookCount > 0 ? ` · ${guestbookCount}` : ''}</span>
+                <Link href="/guestbook">更多 →</Link>
+              </h2>
+              <div className="home-guest">
+                {guestbook.map((g) => (
+                  <Link key={g.id} href="/guestbook" className="hg-card">
+                    <span className="hg-head">
+                      <b>{g.nickname || '旅人'}</b>
+                      <time>{formatDate(g.created_at)}</time>
+                    </span>
+                    <span className="hg-text">{g.content}</span>
                   </Link>
                 ))}
               </div>

@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import MarkdownView from '@/components/MarkdownView'
 import Comments from '@/components/Comments'
 import ScrollFX from '@/components/ScrollFX'
+import ReadingProgress from '@/components/ReadingProgress'
 import { getPostBySlug, formatDate, readingTime, listPublishedPosts, type Post } from '@/lib/posts'
 import { SITE_NAME } from '@/lib/site'
 
@@ -56,6 +57,7 @@ export default async function PostPage({ params }: Props) {
   return (
     <div className="wrap">
       <ScrollFX />
+      <ReadingProgress />
       <nav className="article-nav">
         <Link href="/">← 返回首页</Link>
         <span>{SITE_NAME}</span>
