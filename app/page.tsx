@@ -3,7 +3,9 @@ import type { CSSProperties } from 'react'
 import { listPublishedPosts, formatDate, type Post } from '@/lib/posts'
 import { SITE_NAME, SITE_DESC, SITE_VERSE } from '@/lib/site'
 import { isSupabaseConfigured } from '@/lib/supabase'
+import { listAllMoments, listAllPhotos, countMoments, countPhotos, type TimelineMoment, type TimelinePhoto } from '@/lib/timeline'
 import ScrollFX from '@/components/ScrollFX'
+import ScrollUnfold from '@/components/ScrollUnfold'
 
 export const revalidate = 60
 
@@ -13,11 +15,27 @@ const CN_WM = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '�
 export default async function HomePage() {
   let posts: Post[] = []
   let dbError = false
+  let moments: TimelineMoment[] = []
+  let photos: TimelinePhoto[] = []
+  let momentCount = 0
+  let photoCount = 0
 
   try {
     posts = await listPublishedPosts(6)
   } catch {
     dbError = true
+  }
+  try {
+    moments = await listAllMoments(3)
+    momentCount = await countMoments()
+  } catch {
+    // 说说区块可缺省
+  }
+  try {
+    photos = await listAllPhotos(8)
+    photoCount = await countPhotos()
+  } catch {
+    // 相册区块可缺省
   }
 
   const notConfigured = !isSupabaseConfigured()
@@ -26,6 +44,7 @@ export default async function HomePage() {
   return (
     <div className="wrap">
       <ScrollFX />
+      <ScrollUnfold />
       <div className="branch" aria-hidden="true">
         <svg viewBox="0 0 300 330" fill="none">
           <path className="stem" d="M292 4 C 246 46, 234 98, 216 156 S 186 244, 152 300" />
@@ -45,50 +64,72 @@ export default async function HomePage() {
       </div>
       <div className="sigil">丙午 · {SITE_NAME}集</div>
 
-      <header className="masthead">
-        <p className="eyebrow">留白处自有山河 · VOL.{volume}</p>
-        <h1>
-          <span className="title">
-            {SITE_NAME.split('').map((ch, i) => (
-              <span key={i} className="title-char" style={{ '--i': i } as CSSProperties}>
-                {ch}
-              </span>
-            ))}
+      <div className="home-hero">
+        <header className="masthead">
+          <p className="eyebrow">留白处自有山河 · VOL.{volume}</p>
+          <h1>
+            <span className="title">
+              {SITE_NAME.split('').map((ch, i) => (
+                <span key={i} className="title-char" style={{ '--i': i } as CSSProperties}>
+                  {ch}
+                </span>
+              ))}
+            </span>
+            <span className="seal" aria-hidden="true">
+              记
+            </span>
+          </h1>
+          <svg className="stroke" viewBox="0 0 250 28" aria-hidden="true">
+            <path
+              d="M4 16 C 42 7, 94 20, 138 12 S 218 7, 246 14"
+              className="stroke-main"
+              strokeWidth={4}
+              fill="none"
+              strokeLinecap="round"
+              opacity="0.78"
+            />
+            <path
+              d="M10 21 C 62 15, 124 23, 186 17 S 236 14, 244 17"
+              className="stroke-thin"
+              strokeWidth={1.6}
+              fill="none"
+              strokeLinecap="round"
+              opacity="0.42"
+            />
+            <path
+              d="M124 3 C 156 8, 176 10, 204 7"
+              className="stroke-red"
+              strokeWidth={3}
+              fill="none"
+              strokeLinecap="round"
+              opacity="0.55"
+            />
+          </svg>
+          <p className="lede">
+            {SITE_DESC}。{SITE_VERSE}。
+          </p>
+        </header>
+
+        <div className="hero-stats">
+          <span className="hs-item">
+            <b>{posts.length}</b>
+            <i>篇章</i>
           </span>
-          <span className="seal" aria-hidden="true">
-            记
+          <span className="hs-item">
+            <b>{momentCount}</b>
+            <i>闲语</i>
           </span>
-        </h1>
-        <svg className="stroke" viewBox="0 0 250 28" aria-hidden="true">
-          <path
-            d="M4 16 C 42 7, 94 20, 138 12 S 218 7, 246 14"
-            className="stroke-main"
-            strokeWidth={4}
-            fill="none"
-            strokeLinecap="round"
-            opacity="0.78"
-          />
-          <path
-            d="M10 21 C 62 15, 124 23, 186 17 S 236 14, 244 17"
-            className="stroke-thin"
-            strokeWidth={1.6}
-            fill="none"
-            strokeLinecap="round"
-            opacity="0.42"
-          />
-          <path
-            d="M124 3 C 156 8, 176 10, 204 7"
-            className="stroke-red"
-            strokeWidth={3}
-            fill="none"
-            strokeLinecap="round"
-            opacity="0.55"
-          />
-        </svg>
-        <p className="lede">
-          {SITE_DESC}。{SITE_VERSE}。
-        </p>
-      </header>
+          <span className="hs-item">
+            <b>{photoCount}</b>
+            <i>光影</i>
+          </span>
+        </div>
+
+        <div className="scroll-hint">
+          <span>向下滑动 · 展开画卷</span>
+          <i aria-hidden="true" />
+        </div>
+      </div>
 
       {notConfigured ? (
         <div className="setup-hint">
@@ -111,30 +152,76 @@ export default async function HomePage() {
         </div>
       ) : (
         <>
-          <section className="list" id="posts">
-            {posts.map((post, i) => (
-              <Link key={post.id} href={`/posts/${post.slug}`} className="item">
-                <span className="no">
-                  {i < CN_NO.length ? CN_NO[i] : String(i + 1).padStart(2, '0')}
-                </span>
-                <span className="tag-seal" aria-hidden="true">
-                  阅
-                </span>
-                <span className="wm" aria-hidden="true">
-                  {i < CN_WM.length ? CN_WM[i] : ''}
-                </span>
-                <h2 className="post-title">{post.title}</h2>
-                {post.excerpt ? <span className="ex">{post.excerpt}</span> : null}
-                <span className="item-foot">
-                  <span className="date">{formatDate(post.created_at)}</span>
-                  <span className="read">阅读全文</span>
-                </span>
-              </Link>
-            ))}
+          <section className="home-section" id="posts">
+            <h2 className="section-title">
+              <span>篇章</span>
+              <Link href="/posts">更多 →</Link>
+            </h2>
+            <div className="list">
+              {posts.map((post, i) => (
+                <Link key={post.id} href={`/posts/${post.slug}`} className="item">
+                  <span className="no">
+                    {i < CN_NO.length ? CN_NO[i] : String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="tag-seal" aria-hidden="true">
+                    阅
+                  </span>
+                  <span className="wm" aria-hidden="true">
+                    {i < CN_WM.length ? CN_WM[i] : ''}
+                  </span>
+                  <h2 className="post-title">{post.title}</h2>
+                  {post.excerpt ? <span className="ex">{post.excerpt}</span> : null}
+                  <span className="item-foot">
+                    <span className="date">{formatDate(post.created_at)}</span>
+                    <span className="read">阅读全文</span>
+                  </span>
+                </Link>
+              ))}
+            </div>
           </section>
-          <div className="more-link">
-            <Link href="/posts">全部文章 →</Link>
-          </div>
+
+          {moments.length > 0 ? (
+            <section className="home-section reveal" id="moments">
+              <h2 className="section-title">
+                <span>闲语</span>
+                <Link href="/moments">更多 →</Link>
+              </h2>
+              <div className="home-moments">
+                {moments.map((m) => (
+                  <Link key={m.id} href="/moments" className="hm-card">
+                    {m.images.length > 0 ? (
+                      <span className="hm-thumbs">
+                        {m.images.slice(0, 3).map((u, i) => (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img key={i} src={u} alt="" loading="lazy" />
+                        ))}
+                      </span>
+                    ) : null}
+                    <span className="hm-text">{m.content || '（一张图，胜过千言）'}</span>
+                    <span className="hm-date">{formatDate(m.created_at)}</span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {photos.length > 0 ? (
+            <section className="home-section reveal" id="photos">
+              <h2 className="section-title">
+                <span>光影</span>
+                <Link href="/album">更多 →</Link>
+              </h2>
+              <div className="home-photos">
+                {photos.slice(0, 8).map((p) => (
+                  <Link key={p.id} href="/album" className="hp-item">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={p.url} alt={p.caption || '照片'} loading="lazy" />
+                    {p.caption ? <span className="hp-cap">{p.caption}</span> : null}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
         </>
       )}
 

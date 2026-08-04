@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>枫叶精灵预览</title>
+<style>
+  body{margin:0;background:#efe7d2;font-family:serif;color:#2c2a24}
+  h1{text-align:center;font-weight:400;letter-spacing:.3em;margin:28px 0 8px}
+  p.desc{text-align:center;color:#6f685a;margin:0 0 24px}
+  .grid{display:flex;flex-wrap:wrap;gap:26px;justify-content:center;padding:0 30px 40px}
+  .cell{background:#fffdf3;border:1px solid rgba(44,42,36,.2);padding:18px;text-align:center}
+  .cell canvas{display:block;margin:0 auto}
+  .cell span{display:block;margin-top:8px;font-size:12px;color:#6f685a;letter-spacing:.15em}
+</style>
+</head>
+<body>
+<h1>枫叶 · 精灵预览</h1>
+<p class="desc">当前 sprite（96×112）放大渲染，请对照真实五裂枫叶</p>
+<div class="grid" id="grid"></div>
+<script>
+const COLORS = ['#b3402f','#c04a35','#a5352a','#8f3b28','#c2593a','#b94b34']
+function rgba(hex, a){const n=parseInt(hex.slice(1),16);return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`}
+function shade(hex, amt){const n=parseInt(hex.slice(1),16);const f=v=>Math.max(0,Math.min(255,v+amt));return `rgb(${f((n>>16)&255)},${f((n>>8)&255)},${f(n&255)})`}
+// 五裂枫叶轮廓：极坐标扫掠 + 锯齿
+// 段：[起角°, 起半径, 止角°, 止半径, 齿数]
+const SEGS=[
+  [180,7,158,11,0],   // 叶基
+  [158,11,118,38,2],  // 底裂片下缘
+  [118,38,94,15,2],   // 底裂片上缘 → 裂刻
+  [94,15,64,44,3],    // 侧裂片下缘
+  [64,44,38,15,3],    // 侧裂片上缘 → 裂刻
+  [38,15,0,56,4],     // 顶裂片缘
+]
+function buildBladePath(g){
+  const rad=d=>d*Math.PI/180
+  const pt=(a,r)=>[r*Math.sin(rad(a)),-r*Math.cos(rad(a))]
+  const pts=[]
+  for(const [a0,r0,a1,r1,teeth] of SEGS){
+    const N=Math.max(4,teeth*2+2)
+    for(let i=0;i<=N;i++){
+      const t=i/N
+      const a=a0+(a1-a0)*t, r=r0+(r1-r0)*t
+      // 锯齿：奇数步外凸，偶数步内收，两端收敛为零
+      const taper=Math.sin(Math.PI*t)
+      const jit=(Math.random()-0.5)*2.2
+      const saw=i%2===1?2.3*taper+(Math.random()-0.5)*1.2:-1.4*taper
+      pts.push(pt(a+jit*0.5,r+saw))
+    }
+  }
+  // 右侧 + 镜像左侧
+  const all=[...pts]
+  for(let i=pts.length-1;i>=0;i--){
+    const [x,y]=pts[i]
+    if(Math.abs(x)>0.001||Math.abs(y)>0.001) all.push([-x*1.05,y+(Math.random()-0.5)*1.6])
+  }
+  g.beginPath()
+  g.moveTo(all[0][0],all[0][1])
+  for(let i=1;i<all.length;i++) g.lineTo(all[i][0],all[i][1])
+  g.closePath()
+}
+function makeLeafSprite(color){
+  const c=document.createElement('canvas');c.width=192;c.height=224
+  const g=c.getContext('2d');g.translate(96,120);g.scale(2,2)
+  buildBladePath(g)
+  const grad=g.createRadialGradient(0,10,4,0,6,58)
+  grad.addColorStop(0,shade(color,30));grad.addColorStop(.5,color);grad.addColorStop(1,shade(color,-26))
+  g.fillStyle=grad;g.fill()
+  g.strokeStyle=rgba('#2e0c06',.5);g.lineWidth=1.2;g.stroke()
+  g.save();buildBladePath(g);g.clip()
+  const hi=g.createLinearGradient(-24,-40,20,32)
+  hi.addColorStop(0,'rgba(255,240,208,0.28)');hi.addColorStop(.55,'rgba(255,240,208,0)')
+  g.fillStyle=hi;g.fillRect(-48,-60,96,120)
+  // 下缘暗部
+  const lo=g.createLinearGradient(0,16,0,52)
+  lo.addColorStop(0,'rgba(60,14,7,0)');lo.addColorStop(1,'rgba(60,14,7,0.26)')
+  g.fillStyle=lo;g.fillRect(-48,-10,96,70)
+  for(let i=0;i<34;i++){g.fillStyle=rgba('#4c1309',.03+Math.random()*.045);g.beginPath();g.arc((Math.random()-.5)*64,(Math.random()-.5)*80,0.6+Math.random()*1.8,0,7);g.fill()}
+  g.restore()
+  // 五条主脉：柔和内弯，无多余分支
+  const tips=[[0,-52],[38,-8],[34,28],[-38,-8],[-34,28]]
+  g.strokeStyle=rgba('#421106',.5);g.lineCap='round'
+  for(const [tx,ty] of tips){
+    g.lineWidth=tx===0?1.5:1
+    g.beginPath();g.moveTo(0,38)
+    g.quadraticCurveTo(tx*.52,(38+ty)*.4,tx*.9,ty*.98)
+    g.stroke()
+  }
+  // 叶柄：单根平滑曲线，粗→细
+  g.strokeStyle='#5e2a15';g.lineCap='round'
+  g.lineWidth=2.8
+  g.beginPath();g.moveTo(0,38);g.quadraticCurveTo(0.8,46,1.2,52);g.stroke()
+  g.lineWidth=1.3
+  g.beginPath();g.moveTo(0,40);g.quadraticCurveTo(0.9,47,1.3,53);g.stroke()
+  return c
+}
+const grid=document.getElementById('grid')
+COLORS.forEach((col,i)=>{
+  const cell=document.createElement('div');cell.className='cell'
+  const src=makeLeafSprite(col)
+  const big=document.createElement('canvas');big.width=396;big.height=462
+  const bg=big.getContext('2d');bg.imageSmoothingEnabled=true;bg.imageSmoothingQuality='high'
+  bg.scale(2.0625,2.0625);bg.drawImage(src,0,0)
+  cell.appendChild(big)
+  const span=document.createElement('span');span.textContent=col
+  cell.appendChild(span)
+  grid.appendChild(cell)
+})
+// 实际掉落尺寸预览
+const sizeRow=document.createElement('div')
+sizeRow.style.cssText='display:flex;gap:40px;justify-content:center;align-items:flex-end;padding:6px 0 40px;'
+;['45px','30px','22px','16px'].forEach(sz=>{
+  const cell=document.createElement('div');cell.style.cssText='text-align:center'
+  const cv=document.createElement('canvas')
+  const px=parseInt(sz)
+  cv.width=px*2;cv.height=Math.round(px*2*224/192)
+  const ctx=cv.getContext('2d')
+  const src=makeLeafSprite('#b3402f')
+  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high'
+  ctx.scale(px*2/192,px*2/192);ctx.drawImage(src,0,0)
+  cv.style.width=sz;cv.style.height='auto'
+  const cap=document.createElement('div');cap.textContent=sz
+  cap.style.cssText='margin-top:6px;color:#6f685a;font-size:11px;letter-spacing:.1em'
+  cell.appendChild(cv);cell.appendChild(cap)
+  sizeRow.appendChild(cell)
+})
+document.body.appendChild(sizeRow)
+</script>
+</body>
+</html>

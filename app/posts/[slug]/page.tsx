@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import MarkdownView from '@/components/MarkdownView'
 import Comments from '@/components/Comments'
 import ScrollFX from '@/components/ScrollFX'
-import { getPostBySlug, formatDate, readingTime, listPublishedPosts } from '@/lib/posts'
+import { getPostBySlug, formatDate, readingTime, listPublishedPosts, type Post } from '@/lib/posts'
 import { SITE_NAME } from '@/lib/site'
 
 export const revalidate = 60
@@ -40,10 +40,16 @@ export default async function PostPage({ params }: Props) {
   const { slug: rawSlug } = await params
   const slug = decodeURIComponent(rawSlug)
   let post = null
+  let related: Post[] = []
   try {
     post = await getPostBySlug(slug)
   } catch {
     // 同上
+  }
+  try {
+    related = (await listPublishedPosts(6)).filter((p) => p.slug !== slug).slice(0, 3)
+  } catch {
+    // 相关文章可缺省
   }
   if (!post) notFound()
 
@@ -72,6 +78,20 @@ export default async function PostPage({ params }: Props) {
         </div>
         <MarkdownView content={post.content} />
         <Comments slug={post.slug} />
+
+        {related.length > 0 ? (
+          <section className="related-posts">
+            <h2>更多篇章</h2>
+            <ul>
+              {related.map((p) => (
+                <li key={p.id}>
+                  <Link href={`/posts/${p.slug}`}>{p.title}</Link>
+                  <span className="related-date">{formatDate(p.created_at)}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </article>
 
       <footer className="article-footer">

@@ -35,3 +35,21 @@ export async function listAllMoments(limit = 1000): Promise<TimelineMoment[]> {
   if (error) throw new Error(`读取说说失败：${error.message}`)
   return data ?? []
 }
+
+export async function countMoments(): Promise<number> {
+  if (!isSupabaseConfigured()) return 0
+  const { count, error } = await supabaseAdmin()
+    .from('moments')
+    .select('*', { count: 'exact', head: true })
+  if (error) throw new Error(`统计说说失败：${error.message}`)
+  return count ?? 0
+}
+
+export async function countPhotos(): Promise<number> {
+  if (!isSupabaseConfigured()) return 0
+  const { count, error } = await supabaseAdmin()
+    .from('photos')
+    .select('*', { count: 'exact', head: true })
+  if (error) throw new Error(`统计照片失败：${error.message}`)
+  return count ?? 0
+}
