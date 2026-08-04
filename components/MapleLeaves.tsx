@@ -123,15 +123,15 @@ function makeLeafSprite(color: string): HTMLCanvasElement {
 
   // 叶柄：单根平滑，粗→细
   g.strokeStyle = '#5e2a15'
-  g.lineWidth = 2.1
+  g.lineWidth = 2.8
+  g.beginPath()
+  g.moveTo(0, 38)
+  g.quadraticCurveTo(0.8, 46, 1.2, 52)
+  g.stroke()
+  g.lineWidth = 1.3
   g.beginPath()
   g.moveTo(0, 40)
-  g.quadraticCurveTo(0.6, 45, 0.9, 49)
-  g.stroke()
-  g.lineWidth = 1
-  g.beginPath()
-  g.moveTo(0, 41.5)
-  g.quadraticCurveTo(0.7, 46, 1, 50)
+  g.quadraticCurveTo(0.9, 47, 1.3, 53)
   g.stroke()
 
   return c
