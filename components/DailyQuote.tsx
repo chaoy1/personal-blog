@@ -29,7 +29,7 @@ export default function DailyQuote() {
         title="换一句"
         aria-label="随机换一句"
       >
-        换
+        ⟳
       </button>
     </aside>
   )

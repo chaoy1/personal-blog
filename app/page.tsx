@@ -74,56 +74,50 @@ export default async function HomePage() {
       <div className="sigil">丙午 · {SITE_NAME}集</div>
 
       <div className="home-hero">
-        <div className="hero-layout">
-          <header className="masthead">
-            <p className="eyebrow">留白处自有山河</p>
-            <h1>
-              <span className="title">
-                {SITE_NAME.split('').map((ch, i) => (
-                  <span key={i} className="title-char" style={{ '--i': i } as CSSProperties}>
-                    {ch}
-                  </span>
-                ))}
-              </span>
-              <span className="seal" aria-hidden="true">
-                记
-              </span>
-            </h1>
-            <svg className="stroke" viewBox="0 0 250 28" aria-hidden="true">
-              <path
-                d="M4 16 C 42 7, 94 20, 138 12 S 218 7, 246 14"
-                className="stroke-main"
-                strokeWidth={4}
-                fill="none"
-                strokeLinecap="round"
-                opacity="0.78"
-              />
-              <path
-                d="M10 21 C 62 15, 124 23, 186 17 S 236 14, 244 17"
-                className="stroke-thin"
-                strokeWidth={1.6}
-                fill="none"
-                strokeLinecap="round"
-                opacity="0.42"
-              />
-              <path
-                d="M124 3 C 156 8, 176 10, 204 7"
-                className="stroke-red"
-                strokeWidth={3}
-                fill="none"
-                strokeLinecap="round"
-                opacity="0.55"
-              />
-            </svg>
-            <p className="lede">
-              {SITE_DESC}。
-            </p>
-          </header>
-
-          <aside className="hero-calendar" aria-label="日历">
-            <HomeCalendar posts={posts} />
-          </aside>
-        </div>
+        <header className="masthead">
+          <p className="eyebrow">留白处自有山河</p>
+          <h1>
+            <span className="title">
+              {SITE_NAME.split('').map((ch, i) => (
+                <span key={i} className="title-char" style={{ '--i': i } as CSSProperties}>
+                  {ch}
+                </span>
+              ))}
+            </span>
+            <span className="seal" aria-hidden="true">
+              记
+            </span>
+          </h1>
+          <svg className="stroke" viewBox="0 0 250 28" aria-hidden="true">
+            <path
+              d="M4 16 C 42 7, 94 20, 138 12 S 218 7, 246 14"
+              className="stroke-main"
+              strokeWidth={4}
+              fill="none"
+              strokeLinecap="round"
+              opacity="0.78"
+            />
+            <path
+              d="M10 21 C 62 15, 124 23, 186 17 S 236 14, 244 17"
+              className="stroke-thin"
+              strokeWidth={1.6}
+              fill="none"
+              strokeLinecap="round"
+              opacity="0.42"
+            />
+            <path
+              d="M124 3 C 156 8, 176 10, 204 7"
+              className="stroke-red"
+              strokeWidth={3}
+              fill="none"
+              strokeLinecap="round"
+              opacity="0.55"
+            />
+          </svg>
+          <p className="lede">
+            {SITE_DESC}。
+          </p>
+        </header>
 
         <div className="hero-stats">
           <span className="hs-item">
@@ -147,6 +141,16 @@ export default async function HomePage() {
           <i aria-hidden="true" />
         </div>
       </div>
+
+      <section className="home-section calendar-section">
+        <h2 className="section-title">
+          <span>光阴</span>
+          <Link href="/timeline">更多 →</Link>
+        </h2>
+        <div className="calendar-wrap">
+          <HomeCalendar posts={posts} />
+        </div>
+      </section>
 
       {notConfigured ? (
         <div className="setup-hint">

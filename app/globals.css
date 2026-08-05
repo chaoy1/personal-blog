@@ -635,11 +635,11 @@ button {
 .eyebrow {
   margin: 0;
   font-family: var(--font-kai);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.7em;
   text-indent: 0.7em;
   color: var(--ink);
-  opacity: 0.8;
+  opacity: 0.95;
   text-shadow: 0 1px 2px var(--paper), 0 0 10px var(--paper);
   animation: rise-a 0.9s ease-out both;
 }
@@ -4032,26 +4032,12 @@ html.unfold-live .sigil {
   position: relative;
 }
 
-.hero-layout {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 56px;
-  flex-wrap: wrap;
-  width: 100%;
-}
-
-.hero-calendar {
-  flex: 0 1 340px;
-  min-width: 300px;
-}
-
 .hero-stats {
   display: inline-flex;
   justify-content: center;
   gap: 14px 52px;
   flex-wrap: wrap;
-  margin: 28px auto 0;
+  margin: 46px auto 0;
   padding: 9px 32px;
   background-color: rgba(250, 246, 233, 0.58);
   background-image: var(--card-paper);
@@ -4100,7 +4086,7 @@ html.unfold-live .sigil {
   justify-content: center;
   gap: 12px;
   flex-wrap: wrap;
-  margin: 22px auto 0;
+  margin: 36px auto 0;
   padding: 9px 26px;
   background-color: rgba(250, 246, 233, 0.52);
   background-image: var(--card-paper);
@@ -4331,6 +4317,16 @@ html.unfold-live .sigil {
   color: var(--seal-deep);
 }
 
+/* 日历独立区（首屏下方） */
+.calendar-section {
+  margin-top: 64px;
+}
+
+.calendar-wrap {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
 /* ---------- 首页 · 最新留言 ---------- */
 
 .home-guestbook {
@@ -4392,11 +4388,12 @@ html.unfold-live .sigil {
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  color: var(--ink-faint);
+  color: var(--ink-soft);
   font-family: var(--font-kai);
   font-size: 12px;
   letter-spacing: 0.5em;
   text-indent: 0.5em;
+  text-shadow: 0 1px 2px var(--paper), 0 0 12px var(--paper);
   animation: rise-c 2s ease-out both;
 }
 

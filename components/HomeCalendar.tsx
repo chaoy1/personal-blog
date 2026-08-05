@@ -40,7 +40,7 @@ export default function HomeCalendar({ posts }: { posts: PostMeta[] }) {
   const year = cursor.getFullYear()
   const month = cursor.getMonth()
   const lunar = Solar.fromDate(cursor).getLunar()
-  const monthLunar = `${lunar.getYearInChinese()}年${lunar.getMonthInChinese()}月`
+  const monthLunar = `${lunar.getYearInGanZhi()}年${lunar.getMonthInChinese()}月`
 
   const firstDay = new Date(year, month, 1)
   const startOffset = (firstDay.getDay() + 6) % 7
