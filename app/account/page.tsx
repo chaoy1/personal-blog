@@ -4,79 +4,58 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabaseBrowser, storagePublicUrl } from '@/lib/supabase-browser'
-
-type Profile = {
-  id: string
-  nickname: string
-  bio: string
-  avatar_url: string
-  role: string
-}
+import { useAppStore } from '@/lib/app-store'
 
 export default function AccountPage() {
   const router = useRouter()
-  const [session, setSession] = useState<{ user: { id: string } } | null>(null)
-  const [profile, setProfile] = useState<Profile | null>(null)
+  const { ready, user, profile, updateProfile, signOut } = useAppStore()
   const [nickname, setNickname] = useState('')
-  const [bio, setBio] = useState('')
-  const [role, setRole] = useState('user')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const sb = supabaseBrowser()
-    sb.auth.getSession().then(async ({ data }) => {
-      const user = data.session?.user
-      if (!user) {
-        router.replace('/login')
-        return
-      }
-      setSession({ user })
-      const { data: prof } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle()
-      if (prof) {
-        setProfile(prof)
-        setNickname(prof.nickname)
-        setBio(prof.bio)
-        setRole(prof.role)
-        setAvatarUrl(prof.avatar_url)
-      }
-    })
-  }, [router])
+    if (ready && !user) {
+      router.replace('/login')
+      return
+    }
+    if (user) {
+      setNickname(profile?.nickname ?? '')
+      setAvatarUrl(profile?.avatar_url ?? '')
+    }
+  }, [ready, user, profile, router])
 
   async function uploadAvatar(file: File) {
-    if (!session) return
+    if (!user) return
     const ext = file.name.split('.').pop() || 'png'
-    const path = `${session.user.id}/${Date.now()}.${ext}`
-    const { error } = await supabaseBrowser()
+    const path = `${user.id}/${Date.now()}.${ext}`
+    const { error: uploadErr } = await supabaseBrowser()
       .storage.from('avatars')
       .upload(path, file, { upsert: true, cacheControl: '3600' })
-    if (error) {
-      setError('头像上传失败：' + error.message)
+    if (uploadErr) {
+      setError(`头像上传失败：${uploadErr.message}`)
       return
     }
     setAvatarUrl(storagePublicUrl('avatars', path))
   }
 
   async function save() {
-    if (!session) return
+    if (!user) return
     setBusy(true)
     setError('')
     setMessage('')
-    const { error } = await supabaseBrowser()
-      .from('profiles')
-      .upsert({ id: session.user.id, nickname, bio, role, avatar_url: avatarUrl })
+    const err = await updateProfile({ nickname: nickname.trim(), avatar_url: avatarUrl })
     setBusy(false)
-    if (error) {
-      setError('保存失败：' + error.message)
+    if (err) {
+      setError(err)
       return
     }
     setMessage('已保存。')
   }
 
   async function logout() {
-    await supabaseBrowser().auth.signOut()
+    await signOut()
     router.replace('/')
     router.refresh()
   }
@@ -120,26 +99,6 @@ export default function AccountPage() {
             onChange={(e) => setNickname(e.target.value)}
           />
         </div>
-
-        <div className="field">
-          <label htmlFor="bio">个人简介（会显示在「关于我」）</label>
-          <textarea
-            id="bio"
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            placeholder="几句话介绍自己…"
-            style={{ minHeight: 120 }}
-          />
-        </div>
-
-        <label className="check-row">
-          <input
-            type="checkbox"
-            checked={role === 'owner'}
-            onChange={(e) => setRole(e.target.checked ? 'owner' : 'user')}
-          />
-          我是博主本人（勾选后，「关于我」页展示我的资料）
-        </label>
 
         {error ? <p className="error-text">{error}</p> : null}
         {message ? <p className="notice-text">{message}</p> : null}

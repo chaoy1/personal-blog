@@ -1,41 +1,32 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { supabaseBrowser, storagePublicUrl } from '@/lib/supabase-browser'
 import { formatDate } from '@/lib/blog'
+import { useAppStore, type AlbumItem, type PhotoItem } from '@/lib/app-store'
 
-type Album = {
-  id: string
-  user_id: string
-  title: string
-  description: string
-  cover_url: string
-  created_at: string
-}
-
-type Photo = {
-  id: string
-  user_id: string
-  url: string
-  caption: string
-  album_id: string | null
-  created_at: string
-}
-
-type View = { mode: 'list' } | { mode: 'album'; album: Album } | { mode: 'all' }
+type View = { mode: 'list' } | { mode: 'album'; album: AlbumItem } | { mode: 'all' }
 
 export default function AlbumPage() {
-  const [albums, setAlbums] = useState<Album[]>([])
-  const [photos, setPhotos] = useState<Photo[]>([])
+  const {
+    user,
+    albums,
+    photos,
+    error,
+    ready,
+    refreshAlbums,
+    createAlbum,
+    updateAlbum,
+    deleteAlbum,
+    deletePhoto,
+  } = useAppStore()
   const [view, setView] = useState<View>({ mode: 'list' })
-  const [session, setSession] = useState<{ user: { id: string } } | null>(null)
   const [caption, setCaption] = useState('')
   const [uploadAlbum, setUploadAlbum] = useState('all')
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
+  const [localError, setLocalError] = useState('')
 
-  // 新建 / 编辑相册
   const [showNew, setShowNew] = useState(false)
   const [newTitle, setNewTitle] = useState('')
   const [newDesc, setNewDesc] = useState('')
@@ -43,117 +34,75 @@ export default function AlbumPage() {
   const [editTitle, setEditTitle] = useState('')
   const [editDesc, setEditDesc] = useState('')
 
-  const load = useCallback(async () => {
-    const sb = supabaseBrowser()
-    const { data: albumData, error: albumErr } = await sb
-      .from('albums')
-      .select('*')
-      .order('created_at', { ascending: false })
-    if (albumErr) {
-      setError('读取相册失败：' + albumErr.message)
-      return
-    }
-    const { data: photoData, error: photoErr } = await sb
-      .from('photos')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(1000)
-    if (photoErr) {
-      setError('读取照片失败：' + photoErr.message)
-      return
-    }
-    setAlbums((albumData ?? []) as unknown as Album[])
-    setPhotos((photoData ?? []) as unknown as Photo[])
-  }, [])
-
-  useEffect(() => {
-    const sb = supabaseBrowser()
-    sb.auth
-      .getSession()
-      .then(({ data }) =>
-        setSession((data.session as { user: { id: string } } | null) ?? null)
-      )
-      .catch(() => setSession(null))
-    load().catch(() => setError('数据库尚未初始化，请运行 supabase/schema-v2.sql 与 schema-v6.sql'))
-  }, [load])
-
   const photosOf = (albumId: string) => photos.filter((p) => p.album_id === albumId)
   const orphanPhotos = photos.filter((p) => !p.album_id)
-  const coverOf = (album: Album) =>
-    album.cover_url || photosOf(album.id)[0]?.url || ''
+  const coverOf = (album: AlbumItem) => album.cover_url || photosOf(album.id)[0]?.url || ''
 
-  async function createAlbum() {
-    if (!session || !newTitle.trim()) return
+  async function createNewAlbum() {
+    if (!user || !newTitle.trim()) return
     setBusy(true)
-    setError('')
-    const { data, error } = await supabaseBrowser()
-      .from('albums')
-      .insert({ user_id: session.user.id, title: newTitle.trim(), description: newDesc.trim() })
-      .select('*')
-      .single()
+    setLocalError('')
+    const album = await createAlbum(newTitle.trim(), newDesc.trim())
     setBusy(false)
-    if (error) {
-      setError('创建相册失败：' + error.message)
+    if (!album) {
+      setLocalError('创建相册失败')
       return
     }
     setNewTitle('')
     setNewDesc('')
     setShowNew(false)
-    const album = data as unknown as Album
-    setAlbums((prev) => [album, ...prev])
     setView({ mode: 'album', album })
   }
 
   async function saveAlbumEdit() {
     if (view.mode !== 'album' || !editTitle.trim()) return
     setBusy(true)
-    const { data, error } = await supabaseBrowser()
-      .from('albums')
-      .update({ title: editTitle.trim(), description: editDesc.trim() })
-      .eq('id', view.album.id)
-      .select('*')
-      .single()
+    setLocalError('')
+    const err = await updateAlbum(view.album.id, {
+      title: editTitle.trim(),
+      description: editDesc.trim(),
+    })
     setBusy(false)
-    if (error) {
-      setError('保存失败：' + error.message)
+    if (err) {
+      setLocalError(err)
       return
     }
-    setAlbums((prev) => prev.map((a) => (a.id === view.album.id ? (data as unknown as Album) : a)))
-    setView({ mode: 'album', album: data as unknown as Album })
     setEditing(false)
+    const updated = albums.find((a) => a.id === view.album.id)
+    if (updated) setView({ mode: 'album', album: updated })
   }
 
-  async function deleteAlbum(album: Album) {
+  async function removeAlbum(album: AlbumItem) {
     if (!window.confirm(`确定删除相册「${album.title}」？相册里的照片不会被删除，只是移出该相册。`)) {
       return
     }
-    const { error } = await supabaseBrowser().from('albums').delete().eq('id', album.id)
-    if (error) {
-      setError('删除相册失败：' + error.message)
+    setLocalError('')
+    const err = await deleteAlbum(album.id)
+    if (err) {
+      setLocalError(err)
       return
     }
-    setAlbums((prev) => prev.filter((a) => a.id !== album.id))
     setView({ mode: 'list' })
   }
 
   async function upload(files: FileList | null) {
-    if (!files || !session) return
+    if (!files || !user) return
     setBusy(true)
-    setError('')
+    setLocalError('')
     const targetAlbum = uploadAlbum === 'all' ? null : uploadAlbum
     for (const file of Array.from(files)) {
       const ext = file.name.split('.').pop() || 'jpg'
-      const path = `${session.user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
-      const { error } = await supabaseBrowser()
+      const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
+      const { error: uploadErr } = await supabaseBrowser()
         .storage.from('photos')
         .upload(path, file, { upsert: true, cacheControl: '3600' })
-      if (error) {
-        setError('上传失败：' + error.message)
+      if (uploadErr) {
+        setLocalError(`上传失败：${uploadErr.message}`)
         continue
       }
       try {
         await supabaseBrowser().from('photos').insert({
-          user_id: session.user.id,
+          user_id: user.id,
           url: storagePublicUrl('photos', path),
           caption: caption.trim(),
           album_id: targetAlbum,
@@ -164,16 +113,17 @@ export default function AlbumPage() {
     }
     setBusy(false)
     setCaption('')
-    load()
+    await refreshAlbums()
   }
 
   async function removePhoto(id: string) {
     if (!window.confirm('确定删除这张照片？')) return
-    await supabaseBrowser().from('photos').delete().eq('id', id)
-    load()
+    setLocalError('')
+    const err = await deletePhoto(id)
+    if (err) setLocalError(err)
   }
 
-  const isOwnerOf = (userId: string) => session?.user.id === userId
+  const isOwnerOf = (userId: string) => user?.id === userId
 
   const uploadBar = (
     <div className="album-upload">
@@ -198,7 +148,7 @@ export default function AlbumPage() {
         ))}
       </select>
       <label className="btn btn-sm">
-        {busy ? '上传中…' : '＋ 上传照片'}
+        {busy ? '上传中…' : '+ 上传照片'}
         <input
           type="file"
           accept="image/*"
@@ -211,7 +161,7 @@ export default function AlbumPage() {
     </div>
   )
 
-  const photoGrid = (list: Photo[]) => (
+  const photoGrid = (list: PhotoItem[]) => (
     <div className="album-grid">
       {list.map((photo) => (
         <figure key={photo.id} className="album-item">
@@ -260,19 +210,20 @@ export default function AlbumPage() {
           ※ ※ ※
         </div>
 
-        {session ? uploadBar : <p className="moments-login-tip"><Link href="/login">登录</Link> 后即可上传照片。</p>}
-        {error ? <p className="error-text">{error}</p> : null}
+        {user ? uploadBar : <p className="moments-login-tip"><Link href="/login">登录</Link> 后即可上传照片。</p>}
+        {error || localError ? <p className="error-text">{localError || error}</p> : null}
+        {!ready && !error ? <p className="moments-empty">正在加载相册…</p> : null}
 
         {view.mode === 'list' ? (
           <>
-            {session ? (
+            {user ? (
               <div className="album-toolbar">
                 <button
                   type="button"
                   className="btn btn-sm"
                   onClick={() => setShowNew((v) => !v)}
                 >
-                  {showNew ? '收起' : '＋ 新建相册'}
+                  {showNew ? '收起' : '+ 新建相册'}
                 </button>
               </div>
             ) : null}
@@ -284,7 +235,7 @@ export default function AlbumPage() {
                   className="album-caption"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="相册标题，如「2026 年夏」"
+                  placeholder="相册标题，如「2026 年初」"
                 />
                 <textarea
                   className="album-desc-input"
@@ -296,7 +247,7 @@ export default function AlbumPage() {
                   <button
                     type="button"
                     className="btn btn-sm"
-                    onClick={createAlbum}
+                    onClick={createNewAlbum}
                     disabled={busy || !newTitle.trim()}
                   >
                     创建
@@ -336,7 +287,7 @@ export default function AlbumPage() {
                         aria-label="删除相册"
                         onClick={(e) => {
                           e.stopPropagation()
-                          deleteAlbum(album)
+                          removeAlbum(album)
                         }}
                       >
                         ×
@@ -359,7 +310,7 @@ export default function AlbumPage() {
                 </button>
               ) : null}
             </div>
-            {albums.length === 0 && orphanPhotos.length === 0 && !error ? (
+            {ready && albums.length === 0 && orphanPhotos.length === 0 && !error ? (
               <p className="moments-empty">相册还空着，先建一本相册吧。</p>
             ) : null}
           </>
@@ -395,7 +346,7 @@ export default function AlbumPage() {
                   <button
                     type="button"
                     className="btn btn-ghost btn-sm"
-                    onClick={() => deleteAlbum(currentAlbum)}
+                    onClick={() => removeAlbum(currentAlbum)}
                   >
                     删除
                   </button>

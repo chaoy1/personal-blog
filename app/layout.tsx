@@ -6,6 +6,7 @@ import SiteNav from '@/components/SiteNav'
 import ScrollTop from '@/components/ScrollTop'
 import Lightbox from '@/components/Lightbox'
 import BackgroundStage from '@/components/BackgroundStage'
+import { AppStoreProvider } from '@/lib/app-store'
 
 export const metadata: Metadata = {
   title: {
@@ -31,13 +32,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body>
-        <BackgroundStage />
-        <div className="vignette" aria-hidden="true" />
-        <div className="grain" aria-hidden="true" />
-        <ScrollTop />
-        <SiteNav />
-        {children}
-        <Lightbox />
+        <AppStoreProvider>
+          <BackgroundStage />
+          <div className="vignette" aria-hidden="true" />
+          <div className="grain" aria-hidden="true" />
+          <ScrollTop />
+          <SiteNav />
+          {children}
+          <Lightbox />
+        </AppStoreProvider>
       </body>
     </html>
   )

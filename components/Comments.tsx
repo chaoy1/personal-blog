@@ -1,96 +1,62 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { supabaseBrowser } from '@/lib/supabase-browser'
 import { formatDate } from '@/lib/blog'
-
-type Comment = {
-  id: string
-  content: string
-  parent_id: string | null
-  created_at: string
-  user_id: string
-  profiles: { nickname: string; avatar_url: string } | null
-}
+import { useAppStore, type CommentItem } from '@/lib/app-store'
 
 export default function Comments({ slug }: { slug: string }) {
-  const [comments, setComments] = useState<Comment[]>([])
-  const [session, setSession] = useState<{ user: { id: string; email?: string } } | null>(null)
+  const { user, profile, comments, error, addComment } = useAppStore()
   const [content, setContent] = useState('')
-  const [replyTo, setReplyTo] = useState<Comment | null>(null)
+  const [replyTo, setReplyTo] = useState<CommentItem | null>(null)
   const [replyContent, setReplyContent] = useState('')
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
+  const [localError, setLocalError] = useState('')
 
-  useEffect(() => {
-    const sb = supabaseBrowser()
-    sb.auth
-      .getSession()
-      .then(
-        ({ data }) =>
-          setSession(
-            (data.session as { user: { id: string; email?: string } } | null) ?? null
-          )
-      )
-    sb.from('comments')
-      .select(
-        'id, content, parent_id, created_at, user_id, profiles!comments_user_id_fkey(nickname, avatar_url)'
-      )
-      .eq('post_slug', slug)
-      .order('created_at', { ascending: true })
-      .then(({ data, error }) => {
-        if (error) setError('读取评论失败：' + error.message)
-        else setComments((data ?? []) as unknown as Comment[])
-      })
-  }, [slug])
+  const list = useMemo(
+    () =>
+      comments
+        .filter((c) => c.post_slug === slug)
+        .sort((a, b) => (a.created_at > b.created_at ? 1 : -1)),
+    [comments, slug]
+  )
 
   async function submit(parentId: string | null) {
     const text = (parentId ? replyContent : content).trim()
-    if (!session || !text) return
+    if (!user || !text) return
     setBusy(true)
-    const { error } = await supabaseBrowser().from('comments').insert({
-      post_slug: slug,
-      user_id: session.user.id,
-      parent_id: parentId,
-      content: text,
-    })
+    setLocalError('')
+    const err = await addComment(slug, text, parentId)
     setBusy(false)
-    if (error) {
-      setError('发布失败：' + error.message)
+    if (err) {
+      setLocalError(err)
       return
     }
     setContent('')
     setReplyContent('')
     setReplyTo(null)
-    const { data } = await supabaseBrowser()
-      .from('comments')
-      .select(
-        'id, content, parent_id, created_at, user_id, profiles!comments_user_id_fkey(nickname, avatar_url)'
-      )
-      .eq('post_slug', slug)
-      .order('created_at', { ascending: true })
-    if (data) setComments(data as unknown as Comment[])
   }
 
-  const top = comments.filter((c) => !c.parent_id)
+  const top = list.filter((c) => !c.parent_id)
 
-  function avatar(c: Comment, size: 'sm' | 'md') {
+  function avatar(c: CommentItem, size: 'sm' | 'md') {
     if (c.profiles?.avatar_url) {
       // eslint-disable-next-line @next/next/no-img-element
       return <img className={`c-avatar ${size}`} src={c.profiles.avatar_url} alt="头像" />
     }
-    return <span className={`c-avatar ${size} placeholder`}>影</span>
+    return <span className={`c-avatar ${size} placeholder`}>客</span>
   }
+
+  const nickname = profile?.nickname || user?.email?.split('@')[0] || '我'
 
   return (
     <section className="comments">
       <div className="comments-title">
         <span>评论</span>
-        <span className="comments-count">{comments.length}</span>
+        <span className="comments-count">{list.length}</span>
       </div>
 
-      {session ? (
+      {user ? (
         <div className="comment-form">
           <textarea
             value={content}
@@ -99,7 +65,7 @@ export default function Comments({ slug }: { slug: string }) {
             rows={3}
           />
           <div className="comment-form-foot">
-            <span className="hint">登录身份：{session.user.email?.split('@')[0]}</span>
+            <span className="hint">登录身份：{nickname}</span>
             <button
               className="btn btn-sm"
               type="button"
@@ -116,7 +82,7 @@ export default function Comments({ slug }: { slug: string }) {
         </p>
       )}
 
-      {error ? <p className="error-text">{error}</p> : null}
+      {error || localError ? <p className="error-text">{localError || error}</p> : null}
 
       <div className="comment-list">
         {top.length === 0 ? (
@@ -131,7 +97,7 @@ export default function Comments({ slug }: { slug: string }) {
                   <span className="comment-date">{formatDate(c.created_at)}</span>
                 </div>
                 <p className="comment-content">{c.content}</p>
-                {session ? (
+                {user ? (
                   <button
                     type="button"
                     className="link-btn comment-reply-btn"
@@ -160,16 +126,14 @@ export default function Comments({ slug }: { slug: string }) {
                   </div>
                 ) : null}
 
-                {comments
+                {list
                   .filter((r) => r.parent_id === c.id)
                   .map((r) => (
                     <div key={r.id} className="comment reply">
                       {avatar(r, 'sm')}
                       <div className="comment-body">
                         <div className="comment-meta">
-                          <span className="comment-name">
-                            {r.profiles?.nickname || '旅人'}
-                          </span>
+                          <span className="comment-name">{r.profiles?.nickname || '旅人'}</span>
                           <span className="comment-date">{formatDate(r.created_at)}</span>
                         </div>
                         <p className="comment-content">{r.content}</p>

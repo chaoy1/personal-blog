@@ -1,12 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { SITE_NAME } from '@/lib/site'
 import ThemeToggle from '@/components/ThemeToggle'
 import LangToggle from '@/components/LangToggle'
-import { supabaseBrowser } from '@/lib/supabase-browser'
+import { useAppStore } from '@/lib/app-store'
 
 type NavLink = {
   href: string
@@ -27,25 +26,13 @@ const LINKS: NavLink[] = [
 export default function SiteNav() {
   const pathname = usePathname()
   const router = useRouter()
-  const [user, setUser] = useState<{ id: string; email?: string } | null>(null)
-
-  useEffect(() => {
-    const sb = supabaseBrowser()
-    sb.auth
-      .getSession()
-      .then(({ data }) => setUser(data.session?.user ?? null))
-      .catch(() => setUser(null))
-    const { data: sub } = sb.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
-    return () => sub.subscription.unsubscribe()
-  }, [])
+  const { user, profile, signOut } = useAppStore()
 
   // 注意：必须在所有 hook 之后才能提前返回
   if (pathname.startsWith('/admin')) return null
 
   async function logout() {
-    await supabaseBrowser().auth.signOut()
+    await signOut()
     router.refresh()
   }
 
@@ -74,7 +61,7 @@ export default function SiteNav() {
               style={pathname.startsWith('/account') ? { color: 'var(--ink)' } : undefined}
             >
               <span className="nav-user-dot" />
-              {user.email?.split('@')[0] ?? '我'}
+              {profile?.nickname || user.email?.split('@')[0] || '我'}
             </Link>
             <button type="button" className="nav-link-btn" onClick={logout}>
               退出

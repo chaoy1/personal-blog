@@ -71,10 +71,6 @@ export default async function AboutPage() {
         ) : null}
       </article>
 
-      <footer className="article-footer">
-        <Link href="/">← 返回首页</Link>
-        <Link href="/login">登录 / 注册</Link>
-      </footer>
     </div>
   )
 }
