@@ -28,7 +28,7 @@ export default function LangToggle() {
       aria-label={lang === 'zh-Hans' ? '切换到繁体' : '切换到简体'}
       title={lang === 'zh-Hans' ? '切换到繁体' : '切换到简体'}
     >
-      {lang === 'zh-Hans' ? '繁' : '简'}
+      {lang === 'zh-Hans' ? '简' : '繁'}
     </button>
   )
 }
