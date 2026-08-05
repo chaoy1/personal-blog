@@ -9,10 +9,10 @@ import { listRecentGuestbook, type GuestbookRow } from '@/lib/guestbook'
 import ScrollFX from '@/components/ScrollFX'
 import ScrollUnfold from '@/components/ScrollUnfold'
 import Avatar from '@/components/Avatar'
+import CnNum from '@/components/CnNum'
 
 export const revalidate = 60
 
-const CN_NO = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖', '拾']
 const CN_WM = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十']
 
 export default async function HomePage() {
@@ -48,7 +48,6 @@ export default async function HomePage() {
   }
 
   const notConfigured = !isSupabaseConfigured()
-  const volume = String(posts.length).padStart(2, '0')
   const quote = dailyQuote()
 
   return (
@@ -76,7 +75,7 @@ export default async function HomePage() {
 
       <div className="home-hero">
         <header className="masthead">
-          <p className="eyebrow">留白处自有山河 · VOL.{volume}</p>
+          <p className="eyebrow">留白处自有山河</p>
           <h1>
             <span className="title">
               {SITE_NAME.split('').map((ch, i) => (
@@ -135,19 +134,19 @@ export default async function HomePage() {
           </span>
         </div>
 
+        <aside className="daily-quote" aria-label="每日一句">
+          <span className="dq-seal" aria-hidden="true">
+            句
+          </span>
+          <p className="dq-text">“{quote.text}”</p>
+          <span className="dq-source">— {quote.source}</span>
+        </aside>
+
         <div className="scroll-hint">
           <span>向下滑动 · 展开画卷</span>
           <i aria-hidden="true" />
         </div>
       </div>
-
-      <aside className="daily-quote" aria-label="每日一句">
-        <span className="dq-seal" aria-hidden="true">
-          句
-        </span>
-        <p className="dq-text">“{quote.text}”</p>
-        <span className="dq-source">— {quote.source}</span>
-      </aside>
 
       {notConfigured ? (
         <div className="setup-hint">
@@ -179,7 +178,7 @@ export default async function HomePage() {
               {posts.map((post, i) => (
                 <Link key={post.id} href={`/posts/${post.slug}`} className="item">
                   <span className="no">
-                    {i < CN_NO.length ? CN_NO[i] : String(i + 1).padStart(2, '0')}
+                    <CnNum i={i} />
                   </span>
                   <span className="tag-seal" aria-hidden="true">
                     阅

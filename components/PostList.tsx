@@ -1,26 +1,15 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { formatDate, type Post } from '@/lib/blog'
-import { currentLang } from '@/lib/lang'
+import CnNum from '@/components/CnNum'
 
-const CN_NO_HANS = ['壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖', '拾']
-const CN_NO_HANT = ['壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖', '拾']
 const CN_WM = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十']
 const PAGE_SIZE = 10
 
 export default function PostList({ posts }: { posts: Post[] }) {
   const [page, setPage] = useState(1)
-  const [lang, setLang] = useState<'zh-Hans' | 'zh-Hant'>('zh-Hans')
-
-  useEffect(() => {
-    const sync = () => setLang(currentLang())
-    sync()
-    const mo = new MutationObserver(sync)
-    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] })
-    return () => mo.disconnect()
-  }, [])
 
   const totalPages = Math.max(1, Math.ceil(posts.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
@@ -28,7 +17,6 @@ export default function PostList({ posts }: { posts: Post[] }) {
     () => posts.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
     [posts, safePage]
   )
-  const CN_NO = lang === 'zh-Hant' ? CN_NO_HANT : CN_NO_HANS
 
   return (
     <>
@@ -37,7 +25,9 @@ export default function PostList({ posts }: { posts: Post[] }) {
           const idx = (safePage - 1) * PAGE_SIZE + i
           return (
             <Link key={post.id} href={`/posts/${post.slug}`} className="item">
-              <span className="no">{idx < CN_NO.length ? CN_NO[idx] : String(idx + 1).padStart(2, '0')}</span>
+              <span className="no">
+                <CnNum i={idx} />
+              </span>
               <span className="tag-seal" aria-hidden="true">
                 阅
               </span>
