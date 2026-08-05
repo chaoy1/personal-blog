@@ -43,32 +43,25 @@ export default function LoginPage() {
         router.push('/')
         router.refresh()
       } else {
-        const { data, error } = await sb.auth.signUp({
-          email,
-          password,
-          options: { data: { nickname } },
+        const res = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, nickname }),
         })
-        if (error) {
-          setError(authErrorZh(error.message))
+        const j = await res.json().catch(() => ({}))
+        if (!res.ok) {
+          setError(j.error || '注册失败，请稍后再试')
           return
         }
-        const uid = data.user?.id
-        if (data.session && uid) {
-          try {
-            await sb
-              .from('profiles')
-              .upsert(
-                { id: uid, nickname: nickname || email.split('@')[0] || '旅人' },
-                { onConflict: 'id' }
-              )
-          } catch {
-            // ignore
-          }
-          router.push('/')
-          router.refresh()
-        } else {
-          setNotice('注册成功！请到邮箱查收确认邮件后再登录。')
+        // 注册即自动登录，无需邮箱确认
+        const { error: signInErr } = await sb.auth.signInWithPassword({ email, password })
+        if (signInErr) {
+          setNotice('注册成功，请直接登录。')
+          setMode('login')
+          return
         }
+        router.push('/')
+        router.refresh()
       }
     } finally {
       setBusy(false)

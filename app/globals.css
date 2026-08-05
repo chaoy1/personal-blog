@@ -1467,6 +1467,21 @@ button {
   letter-spacing: 0.15em;
 }
 
+.account-divider {
+  margin: 34px 0 26px;
+  border: none;
+  border-top: 1px dashed var(--rule-strong);
+}
+
+.account-sub-title {
+  margin: 0 0 22px;
+  font-family: var(--font-kai);
+  font-weight: 400;
+  font-size: 18px;
+  letter-spacing: 0.2em;
+  color: var(--ink);
+}
+
 .account-avatar {
   display: flex;
   align-items: center;

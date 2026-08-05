@@ -14,6 +14,12 @@ export default function AccountPage() {
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [oldPassword, setOldPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [pwBusy, setPwBusy] = useState(false)
+  const [pwMessage, setPwMessage] = useState('')
+  const [pwError, setPwError] = useState('')
 
   useEffect(() => {
     if (ready && !user) {
@@ -60,6 +66,45 @@ export default function AccountPage() {
     router.refresh()
   }
 
+  async function changePassword() {
+    if (!user?.email) {
+      setPwError('当前账号无法修改密码')
+      return
+    }
+    if (newPassword.length < 6) {
+      setPwError('新密码至少需要 6 位')
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      setPwError('两次输入的新密码不一致')
+      return
+    }
+    setPwBusy(true)
+    setPwError('')
+    setPwMessage('')
+    const sb = supabaseBrowser()
+    // 先验证旧密码，确认是本人在操作
+    const { error: verifyErr } = await sb.auth.signInWithPassword({
+      email: user.email,
+      password: oldPassword,
+    })
+    if (verifyErr) {
+      setPwBusy(false)
+      setPwError('旧密码不正确')
+      return
+    }
+    const { error: updateErr } = await sb.auth.updateUser({ password: newPassword })
+    setPwBusy(false)
+    if (updateErr) {
+      setPwError(`修改失败：${updateErr.message}`)
+      return
+    }
+    setOldPassword('')
+    setNewPassword('')
+    setConfirmPassword('')
+    setPwMessage('密码已修改。')
+  }
+
   return (
     <div className="account-wrap">
       <nav className="article-nav">
@@ -69,6 +114,7 @@ export default function AccountPage() {
 
       <div className="account-card">
         <h1>个人资料</h1>
+        {user?.email ? <p className="hint">账号：{user.email}</p> : null}
         <div className="account-avatar">
           {avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -109,6 +155,46 @@ export default function AccountPage() {
           </button>
           <button className="btn btn-ghost" type="button" onClick={logout}>
             退出登录
+          </button>
+        </div>
+
+        <hr className="account-divider" />
+        <h2 className="account-sub-title">修改密码</h2>
+        <div className="field">
+          <label htmlFor="old-password">旧密码</label>
+          <input
+            id="old-password"
+            type="password"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+            autoComplete="current-password"
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="new-password">新密码（至少 6 位）</label>
+          <input
+            id="new-password"
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            autoComplete="new-password"
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="confirm-password">确认新密码</label>
+          <input
+            id="confirm-password"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            autoComplete="new-password"
+          />
+        </div>
+        {pwError ? <p className="error-text">{pwError}</p> : null}
+        {pwMessage ? <p className="notice-text">{pwMessage}</p> : null}
+        <div className="editor-actions">
+          <button className="btn" type="button" onClick={changePassword} disabled={pwBusy}>
+            {pwBusy ? '修改中…' : '修改密码'}
           </button>
         </div>
       </div>
