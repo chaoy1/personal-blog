@@ -1,11 +1,14 @@
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
 import { listPublishedPosts, formatDate, type Post } from '@/lib/posts'
-import { SITE_NAME, SITE_DESC, SITE_VERSE } from '@/lib/site'
+import { SITE_NAME, SITE_DESC } from '@/lib/site'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { listAllMoments, listAllPhotos, countMoments, countPhotos, type TimelineMoment, type TimelinePhoto } from '@/lib/timeline'
+import { dailyQuote } from '@/lib/quotes'
+import { listRecentGuestbook, type GuestbookRow } from '@/lib/guestbook'
 import ScrollFX from '@/components/ScrollFX'
 import ScrollUnfold from '@/components/ScrollUnfold'
+import Avatar from '@/components/Avatar'
 
 export const revalidate = 60
 
@@ -19,6 +22,7 @@ export default async function HomePage() {
   let photos: TimelinePhoto[] = []
   let momentCount = 0
   let photoCount = 0
+  let recentGuestbook: GuestbookRow[] = []
 
   try {
     posts = await listPublishedPosts(6)
@@ -37,9 +41,15 @@ export default async function HomePage() {
   } catch {
     // 相册区块可缺省
   }
+  try {
+    recentGuestbook = await listRecentGuestbook(4)
+  } catch {
+    // 留言区块可缺省
+  }
 
   const notConfigured = !isSupabaseConfigured()
   const volume = String(posts.length).padStart(2, '0')
+  const quote = dailyQuote()
 
   return (
     <div className="wrap">
@@ -106,7 +116,7 @@ export default async function HomePage() {
             />
           </svg>
           <p className="lede">
-            {SITE_DESC}。{SITE_VERSE}。
+            {SITE_DESC}。
           </p>
         </header>
 
@@ -130,6 +140,14 @@ export default async function HomePage() {
           <i aria-hidden="true" />
         </div>
       </div>
+
+      <aside className="daily-quote" aria-label="每日一句">
+        <span className="dq-seal" aria-hidden="true">
+          句
+        </span>
+        <p className="dq-text">“{quote.text}”</p>
+        <span className="dq-source">— {quote.source}</span>
+      </aside>
 
       {notConfigured ? (
         <div className="setup-hint">
@@ -218,6 +236,29 @@ export default async function HomePage() {
                     <img src={p.url} alt={p.caption || '照片'} loading="lazy" />
                     {p.caption ? <span className="hp-cap">{p.caption}</span> : null}
                   </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {recentGuestbook.length > 0 ? (
+            <section className="home-section reveal" id="guestbook">
+              <h2 className="section-title">
+                <span>留言</span>
+                <Link href="/guestbook">更多 →</Link>
+              </h2>
+              <div className="home-guestbook">
+                {recentGuestbook.map((m) => (
+                  <div key={m.id} className="hg-item">
+                    <Avatar className="c-avatar sm" src={m.profiles?.avatar_url} />
+                    <div className="hg-body">
+                      <div className="hg-head">
+                        <span className="hg-name">{m.profiles?.nickname || '旅人'}</span>
+                        <span className="hg-date">{formatDate(m.created_at)}</span>
+                      </div>
+                      <p className="hg-text">{m.content}</p>
+                    </div>
+                  </div>
                 ))}
               </div>
             </section>

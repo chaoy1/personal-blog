@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { SITE_NAME } from '@/lib/site'
 import ScrollFX from '@/components/ScrollFX'
 import MarkdownView from '@/components/MarkdownView'
+import Avatar from '@/components/Avatar'
 
 export const metadata: Metadata = {
   title: '关于',
@@ -57,12 +58,7 @@ export default async function AboutPage() {
 
         {owner ? (
           <aside className="about-colophon">
-            {avatar ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img className="about-avatar" src={avatar} alt="博主头像" />
-            ) : (
-              <span className="about-avatar placeholder">影</span>
-            )}
+            <Avatar className="about-avatar" src={avatar} alt="博主头像" />
             <div className="about-colophon-info">
               <span className="about-name">{owner.nickname || SITE_NAME}</span>
               <span className="about-role">博主 · {SITE_NAME}</span>

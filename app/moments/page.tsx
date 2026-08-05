@@ -6,6 +6,7 @@ import { supabaseBrowser, storagePublicUrl } from '@/lib/supabase-browser'
 import { formatDate } from '@/lib/blog'
 import ScrollFX from '@/components/ScrollFX'
 import { useAppStore } from '@/lib/app-store'
+import Avatar from '@/components/Avatar'
 
 export default function MomentsPage() {
   const {
@@ -160,12 +161,7 @@ export default function MomentsPage() {
             return (
               <div key={m.id} className="moment reveal">
                 <div className="moment-head">
-                  {m.profiles?.avatar_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img className="moment-avatar" src={m.profiles.avatar_url} alt="头像" />
-                  ) : (
-                    <span className="moment-avatar placeholder">影</span>
-                  )}
+                  <Avatar className="moment-avatar" src={m.profiles?.avatar_url} />
                   <div>
                     <span className="moment-name">{m.profiles?.nickname || '旅人'}</span>
                     <span className="moment-date">{formatDate(m.created_at)}</span>
@@ -201,12 +197,7 @@ export default function MomentsPage() {
                 <div className="moment-comments">
                   {mComments.map((c) => (
                     <div key={c.id} className="moment-comment">
-                      {c.profiles?.avatar_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img className="c-avatar sm" src={c.profiles.avatar_url} alt="头像" />
-                      ) : (
-                        <span className="c-avatar sm placeholder">影</span>
-                      )}
+                      <Avatar className="c-avatar sm" src={c.profiles?.avatar_url} />
                       <div className="comment-body">
                         <div className="comment-meta">
                           <span className="comment-name">{c.profiles?.nickname || '旅人'}</span>

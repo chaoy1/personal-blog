@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { formatDate } from '@/lib/blog'
 import ScrollFX from '@/components/ScrollFX'
 import { useAppStore, type GuestbookItem } from '@/lib/app-store'
+import Avatar from '@/components/Avatar'
 
 const PAGE_SIZE = 20
 
@@ -110,12 +111,7 @@ export default function GuestbookPage() {
             const replies = repliesOf(m.id)
             return (
               <div key={m.id} className="comment reveal">
-                {m.profiles?.avatar_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img className="c-avatar md" src={m.profiles.avatar_url} alt="头像" />
-                ) : (
-                  <span className="c-avatar md placeholder">客</span>
-                )}
+                <Avatar className="c-avatar md" src={m.profiles?.avatar_url} />
                 <div className="comment-body">
                   <div className="comment-meta">
                     <span className="comment-name">{m.profiles?.nickname || '旅人'}</span>
@@ -161,12 +157,7 @@ export default function GuestbookPage() {
                     <div className="comment-replies">
                       {replies.map((r) => (
                         <div key={r.id} className="comment reply">
-                          {r.profiles?.avatar_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img className="c-avatar sm" src={r.profiles.avatar_url} alt="头像" />
-                          ) : (
-                            <span className="c-avatar sm placeholder">客</span>
-                          )}
+                          <Avatar className="c-avatar sm" src={r.profiles?.avatar_url} />
                           <div className="comment-body">
                             <div className="comment-meta">
                               <span className="comment-name">{r.profiles?.nickname || '旅人'}</span>

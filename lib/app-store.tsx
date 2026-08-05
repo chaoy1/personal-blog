@@ -373,11 +373,19 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       const text = content.trim()
       if (!text) return '内容不能为空'
       try {
-        const { error: err } = await supabaseBrowser()
+        const sb = supabaseBrowser()
+        const { data, error: err } = await sb
           .from('moment_comments')
           .insert({ moment_id: momentId, user_id: user.id, content: text })
+          .select('*, profiles!moment_comments_user_id_fkey(nickname, avatar_url)')
+          .single()
         if (err) return err.message
-        await refreshMoments()
+        const row = data as unknown as MomentCommentItem | null
+        if (row) {
+          setMomentComments((prev) => [...prev, row])
+        } else {
+          await refreshMoments()
+        }
         return null
       } catch (e) {
         return errMsg('评论失败', e)
@@ -392,18 +400,31 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       try {
         const sb = supabaseBrowser()
         const mine = momentLikes.some((l) => l.moment_id === momentId && l.user_id === user.id)
+        let dbErr: { message: string } | null = null
         if (mine) {
-          await sb.from('moment_likes').delete().match({ moment_id: momentId, user_id: user.id })
+          const { error } = await sb
+            .from('moment_likes')
+            .delete()
+            .match({ moment_id: momentId, user_id: user.id })
+          dbErr = error
         } else {
-          await sb.from('moment_likes').insert({ moment_id: momentId, user_id: user.id })
+          const { error } = await sb
+            .from('moment_likes')
+            .insert({ moment_id: momentId, user_id: user.id })
+          dbErr = error
         }
-        await refreshMoments()
+        if (dbErr) return dbErr.message
+        setMomentLikes((prev) =>
+          mine
+            ? prev.filter((l) => !(l.moment_id === momentId && l.user_id === user.id))
+            : [...prev, { moment_id: momentId, user_id: user.id }]
+        )
         return null
       } catch (e) {
         return errMsg('点赞失败', e)
       }
     },
-    [user, momentLikes, refreshMoments]
+    [user, momentLikes]
   )
 
   const createAlbum = useCallback(

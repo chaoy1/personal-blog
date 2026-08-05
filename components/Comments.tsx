@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { formatDate } from '@/lib/blog'
 import { useAppStore, type CommentItem } from '@/lib/app-store'
+import Avatar from '@/components/Avatar'
 
 export default function Comments({ slug }: { slug: string }) {
   const { user, profile, comments, error, addComment } = useAppStore()
@@ -40,11 +41,7 @@ export default function Comments({ slug }: { slug: string }) {
   const top = list.filter((c) => !c.parent_id)
 
   function avatar(c: CommentItem, size: 'sm' | 'md') {
-    if (c.profiles?.avatar_url) {
-      // eslint-disable-next-line @next/next/no-img-element
-      return <img className={`c-avatar ${size}`} src={c.profiles.avatar_url} alt="头像" />
-    }
-    return <span className={`c-avatar ${size} placeholder`}>客</span>
+    return <Avatar className={`c-avatar ${size}`} src={c.profiles?.avatar_url} />
   }
 
   const nickname = profile?.nickname || user?.email?.split('@')[0] || '我'
