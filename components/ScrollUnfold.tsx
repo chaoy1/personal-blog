@@ -41,6 +41,7 @@ export default function ScrollUnfold() {
   return (
     <div className="scroll-unfold" aria-hidden="true">
       <div className="su-paper">
+        <div className="su-curl" />
         <div className="su-art" />
         <div className="su-inscription">
           <span className="su-title">
@@ -54,11 +55,16 @@ export default function ScrollUnfold() {
         </div>
         <span className="su-colophon">流光容易把人抛 · 红了樱桃，绿了芭蕉</span>
       </div>
+      <div className="su-roll">
+        <i className="su-roll-paper" />
+      </div>
       <div className="su-rod">
-        <i className="su-ribbon l" />
-        <i className="su-ribbon r" />
         <i className="su-cap t" />
         <i className="su-cap b" />
+        <i className="su-ribbon t-l" />
+        <i className="su-ribbon t-r" />
+        <i className="su-ribbon b-l" />
+        <i className="su-ribbon b-r" />
       </div>
       <div className="su-shadow" />
     </div>

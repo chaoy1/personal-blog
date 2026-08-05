@@ -240,9 +240,9 @@ type LayerCfg = {
 }
 
 const LAYERS: LayerCfg[] = [
-  { scale: [0.5, 0.68], opacity: [0.3, 0.5], fall: [22, 36], swayAmp: [9, 16] },   // 远
-  { scale: [0.78, 1.0], opacity: [0.5, 0.72], fall: [34, 54], swayAmp: [15, 26] },  // 中
-  { scale: [1.12, 1.45], opacity: [0.72, 0.94], fall: [50, 80], swayAmp: [22, 38] }, // 近
+  { scale: [0.4, 0.55], opacity: [0.3, 0.5], fall: [22, 36], swayAmp: [9, 16] },   // 远
+  { scale: [0.62, 0.82], opacity: [0.5, 0.72], fall: [34, 54], swayAmp: [15, 26] },  // 中
+  { scale: [0.9, 1.18], opacity: [0.72, 0.94], fall: [50, 80], swayAmp: [22, 38] }, // 近
 ]
 
 export default function MapleLeaves({ night = false }: { night?: boolean }) {
@@ -283,7 +283,7 @@ export default function MapleLeaves({ night = false }: { night?: boolean }) {
       const count = Math.max(night ? 14 : 22, Math.min(night ? 26 : 44, Math.round(((W * H) / 56000) * density)))
       leaves = Array.from({ length: count }, () => {
         const cfg = LAYERS[layerOf(Math.random())]
-        const size = 24 + Math.random() * 18
+        const size = 20 + Math.random() * 15
         return {
           x: Math.random() * W,
           y: Math.random() * (H + 140) - 100,
@@ -322,7 +322,7 @@ export default function MapleLeaves({ night = false }: { night?: boolean }) {
           const cfg = LAYERS[layerOf(Math.random())]
           L.y = -90 - Math.random() * 80
           L.baseX = Math.random() * W
-          L.size = (24 + Math.random() * 18) * rnd(cfg.scale[0], cfg.scale[1])
+          L.size = (20 + Math.random() * 15) * rnd(cfg.scale[0], cfg.scale[1])
           L.fall = rnd(cfg.fall[0], cfg.fall[1]) * (night ? 0.72 : 1)
           L.swayAmp = rnd(cfg.swayAmp[0], cfg.swayAmp[1]) * (night ? 1.35 : 1)
           L.opacity = rnd(cfg.opacity[0], cfg.opacity[1])

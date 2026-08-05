@@ -3426,21 +3426,48 @@ a.tl-title:hover {
   overflow: hidden;
 }
 
+/* 宣纸面：细密纸纹 + 柔和明暗，避免生硬噪点 */
 .su-paper {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 130% 72% at 50% 34%, rgba(255, 252, 240, 0.9), rgba(242, 237, 222, 0) 68%),
-    linear-gradient(180deg, rgba(255, 253, 246, 0.55), rgba(244, 238, 222, 0) 42%, rgba(216, 202, 168, 0.42)),
-    var(--paper);
-  background-image:
-    radial-gradient(ellipse 130% 72% at 50% 34%, rgba(255, 252, 240, 0.9), rgba(242, 237, 222, 0) 68%),
-    linear-gradient(180deg, rgba(255, 253, 246, 0.55), rgba(244, 238, 222, 0) 42%, rgba(216, 202, 168, 0.42)),
-    var(--card-paper);
-  background-size: auto, auto, 260px 260px;
+    radial-gradient(ellipse 120% 70% at 50% 28%, rgba(255, 253, 244, 0.7), rgba(244, 238, 222, 0) 72%),
+    repeating-linear-gradient(0deg, rgba(116, 98, 70, 0.032) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(90deg, rgba(116, 98, 70, 0.022) 0 1px, transparent 1px 7px),
+    linear-gradient(180deg, #f8f3e3, #eee5cd 52%, #e3d6b8);
   animation: su-unroll-x 2.6s cubic-bezier(0.72, 0.02, 0.28, 1) forwards;
   will-change: transform;
-  box-shadow: 24px 0 46px -18px rgba(50, 34, 12, 0.24);
+}
+
+/* 纸面左缘：正在卷起的弯曲阴影 */
+.su-curl {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 46px;
+  background: linear-gradient(90deg, rgba(86, 66, 40, 0.38), rgba(250, 246, 233, 0.95) 30%, rgba(250, 246, 233, 0) 68%);
+}
+
+.su-curl::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(70, 52, 30, 0.5);
+}
+
+/* 卷边上的柱面高光 */
+.su-curl::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 46px;
+  background: linear-gradient(90deg, transparent 18%, rgba(255, 255, 255, 0.7) 21% 25%, transparent 30%);
 }
 
 /* 纸面下缘的淡墨山影 */
@@ -3554,15 +3581,52 @@ a.tl-title:hover {
 
 @keyframes su-unroll-x {
   from { transform: translateX(0); }
-  to { transform: translateX(103%); }
+  to { transform: translateX(103vw); }
 }
 
+/* 卷起的纸卷：绕在木轴中段，随展开向右收拢 */
+.su-roll {
+  position: absolute;
+  left: -20px;
+  top: 0;
+  bottom: 0;
+  width: 62px;
+  z-index: 2;
+  animation: su-rod-x 2.6s cubic-bezier(0.72, 0.02, 0.28, 1) forwards;
+  will-change: transform;
+}
+
+.su-roll-paper {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  top: 52px;
+  bottom: 52px;
+  border-radius: 9px;
+  background:
+    linear-gradient(90deg, rgba(96, 76, 48, 0.38), rgba(250, 246, 233, 0.98) 16% 84%, rgba(96, 76, 48, 0.4)),
+    repeating-linear-gradient(90deg, rgba(122, 100, 70, 0.1) 0 2px, transparent 2px 11px);
+  box-shadow:
+    inset 0 0 14px rgba(60, 44, 24, 0.22),
+    3px 0 8px rgba(30, 18, 6, 0.2);
+}
+
+.su-roll-paper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 7px;
+  background: linear-gradient(90deg, transparent 32%, rgba(255, 255, 255, 0.55) 47% 55%, transparent 68%);
+}
+
+/* 木轴：上下露出木纹，中段被纸卷遮住 */
 .su-rod {
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  width: 18px;
+  width: 22px;
+  z-index: 3;
   background:
     linear-gradient(90deg, rgba(255, 232, 190, 0.5), rgba(255, 232, 190, 0) 34%),
     linear-gradient(90deg, #9a6a35, #7a4e22 55%, #5d3a18);
@@ -3575,65 +3639,102 @@ a.tl-title:hover {
 .su-cap {
   position: absolute;
   left: 50%;
-  width: 38px;
-  height: 22px;
-  margin-left: -19px;
-  border-radius: 6px;
-  background: radial-gradient(circle at 34% 28%, #c99a58, #845425 62%, #5a3818);
-  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.14), 0 4px 10px rgba(0, 0, 0, 0.3);
+  width: 64px;
+  height: 32px;
+  margin-left: -32px;
+  border-radius: 11px;
+  background:
+    linear-gradient(180deg, rgba(255, 232, 190, 0.28), transparent 60%),
+    radial-gradient(circle at 34% 28%, #c99a58, #845425 62%, #5a3818);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.14), 0 4px 12px rgba(0, 0, 0, 0.32);
 }
 
-.su-cap.t { top: 18px; }
-.su-cap.b { bottom: 18px; }
+.su-cap.t { top: 6px; }
+.su-cap.b { bottom: 6px; }
 
-/* 卷轴两端垂下的丝带 */
+/* 轴头丝带 */
 .su-ribbon {
   position: absolute;
   left: 50%;
-  width: 8px;
-  height: 72px;
-  margin-left: -4px;
-  background: linear-gradient(180deg, #b23a2b, rgba(178, 58, 43, 0.35));
+  width: 7px;
+  background: linear-gradient(90deg, #c04a32, #b23a2b 45%, rgba(143, 43, 31, 0.8));
+  box-shadow: 0 2px 4px rgba(60, 20, 10, 0.18);
+}
+
+.su-ribbon.t-l {
+  top: 30px;
+  margin-left: -12px;
+  height: 86px;
+  border-radius: 0 0 4px 2px;
   transform-origin: top center;
+  animation: su-ribbon-l 2.2s ease-in-out infinite alternate;
 }
 
-.su-ribbon.l {
-  top: 40px;
-  animation: su-ribbon-l 2.4s ease-in-out infinite alternate;
+.su-ribbon.t-r {
+  top: 30px;
+  margin-left: 5px;
+  height: 66px;
+  border-radius: 0 0 2px 4px;
+  transform-origin: top center;
+  animation: su-ribbon-r 2.2s ease-in-out infinite alternate;
 }
 
-.su-ribbon.r {
-  bottom: 40px;
-  height: 58px;
-  background: linear-gradient(0deg, #b23a2b, rgba(178, 58, 43, 0.35));
+.su-ribbon.b-l {
+  bottom: 30px;
+  margin-left: -12px;
+  height: 72px;
+  border-radius: 4px 2px 0 0;
+  background: linear-gradient(90deg, #c04a32, #b23a2b 45%, rgba(143, 43, 31, 0.8));
   transform-origin: bottom center;
-  animation: su-ribbon-r 2.4s ease-in-out infinite alternate;
+  animation: su-ribbon-b-l 2.2s ease-in-out infinite alternate;
+}
+
+.su-ribbon.b-r {
+  bottom: 30px;
+  margin-left: 5px;
+  height: 60px;
+  border-radius: 2px 4px 0 0;
+  background: linear-gradient(90deg, #c04a32, #b23a2b 45%, rgba(143, 43, 31, 0.8));
+  transform-origin: bottom center;
+  animation: su-ribbon-b-r 2.2s ease-in-out infinite alternate;
 }
 
 @keyframes su-ribbon-l {
-  from { transform: rotate(10deg); }
-  to { transform: rotate(-12deg); }
+  from { transform: rotate(8deg); }
+  to { transform: rotate(-13deg); }
 }
 
 @keyframes su-ribbon-r {
+  from { transform: rotate(-7deg); }
+  to { transform: rotate(12deg); }
+}
+
+@keyframes su-ribbon-b-l {
   from { transform: rotate(-10deg); }
   to { transform: rotate(12deg); }
 }
 
+@keyframes su-ribbon-b-r {
+  from { transform: rotate(9deg); }
+  to { transform: rotate(-11deg); }
+}
+
+/* 卷轴在纸面上投下的阴影 */
 .su-shadow {
   position: absolute;
-  left: 18px;
+  left: 56px;
   top: 0;
   bottom: 0;
   width: 30px;
-  background: linear-gradient(90deg, rgba(30, 18, 6, 0.3), transparent);
+  z-index: 2;
+  background: linear-gradient(90deg, rgba(30, 18, 6, 0.28), transparent);
   animation: su-rod-x 2.6s cubic-bezier(0.72, 0.02, 0.28, 1) forwards;
   will-change: transform;
 }
 
 @keyframes su-rod-x {
   from { transform: translateX(-24px); }
-  to { transform: translateX(100vw); }
+  to { transform: translateX(103vw); }
 }
 
 /* 画卷展开期间，首屏题字稍候再出现，与卷轴节奏呼应 */
