@@ -32,6 +32,13 @@ yarn-error.log*
 # style preview mockups
 /style-preview/
 
+# python 生成脚本缓存
+__pycache__/
+*.pyc
+
+# 枫叶调试输出
+effect-preview/leaf-design/_dbg*.png
+
 # typescript
 *.tsbuildinfo
 

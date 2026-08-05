@@ -1,140 +1,219 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { MAPLE_OUTLINE, MAPLE_STEM } from './maple-leaf-shape'
 
 /**
- * 白天 · 枫叶飘落（优化版）
- * 近/中/远三层纵深：远景轻淡缓慢、近景清晰较快；
- * 全局微风 + 周期性阵风让叶子斜飘摆动；旋转与轻微翻转增加自然感。
- * 预渲染精灵、限制像素密度、隐藏页面时暂停，保持流畅。
+ * 枫叶飘落
+ * 白天：新叶形精灵（Python 参数化生成），暖秋配色 + 掌状叶脉 + 渐变叶面；
+ * 夜晚：剪影叶片 + 冷银月光轮廓，飘落更慢、更少。
+ * 沿用三层纵深（远/中/近）、微风 + 周期性阵风、旋转与翻面。
  */
-const COLORS = ['#b3402f', '#c04a35', '#a5352a', '#8f3b28', '#c2593a', '#b94b34']
+const DAY_COLORS = ['#b3402f', '#c04a35', '#a5352a', '#8f3b28', '#c2593a', '#b94b34', '#c07a2e']
+const NIGHT_FILL = '#12100d'
 
-/* 十六进制色 -> rgba */
 function rgba(hex: string, a: number): string {
   const n = parseInt(hex.slice(1), 16)
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`
 }
 
-/* 颜色变亮/变暗（amt 正亮负暗） */
 function shade(hex: string, amt: number): string {
   const n = parseInt(hex.slice(1), 16)
   const f = (v: number) => Math.max(0, Math.min(255, v + amt))
   return `rgb(${f((n >> 16) & 255)},${f((n >> 8) & 255)},${f(n & 255)})`
 }
 
-/* 五裂枫叶轮廓：极坐标扫掠 + 浅锯齿，裂片饱满 */
-const SEGS: [number, number, number, number, number][] = [
-  [180, 7, 158, 11, 0],
-  [158, 11, 118, 38, 2],
-  [118, 38, 94, 15, 2],
-  [94, 15, 64, 44, 3],
-  [64, 44, 38, 15, 3],
-  [38, 15, 0, 56, 4],
-]
+type Vec = [number, number]
 
-function buildBladePath(g: CanvasRenderingContext2D): void {
-  const rad = (d: number) => (d * Math.PI) / 180
-  const pt = (a: number, r: number) => [r * Math.sin(rad(a)), -r * Math.cos(rad(a))] as const
-  const pts: ReturnType<typeof pt>[] = []
-  for (const [a0, r0, a1, r1, teeth] of SEGS) {
-    const N = Math.max(4, teeth * 2 + 2)
-    for (let i = 0; i <= N; i++) {
-      const t = i / N
-      const a = a0 + (a1 - a0) * t
-      const r = r0 + (r1 - r0) * t
-      const taper = Math.sin(Math.PI * t)
-      const saw = i % 2 === 1 ? 2.3 * taper + (Math.random() - 0.5) * 1.2 : -1.4 * taper
-      pts.push(pt(a + (Math.random() - 0.5) * 1.1, r + saw))
-    }
+function polygonCentroid(pts: Vec[]): Vec {
+  let a = 0
+  let cx = 0
+  let cy = 0
+  for (let i = 0; i < pts.length; i++) {
+    const [x0, y0] = pts[i]
+    const [x1, y1] = pts[(i + 1) % pts.length]
+    const cross = x0 * y1 - x1 * y0
+    a += cross
+    cx += (x0 + x1) * cross
+    cy += (y0 + y1) * cross
   }
-  const all: [number, number][] = pts.map((p) => [p[0], p[1]])
-  for (let i = pts.length - 1; i >= 0; i--) {
-    const [x, y] = pts[i]
-    if (Math.abs(x) > 0.001 || Math.abs(y) > 0.001) {
-      all.push([-x * 1.05, y + (Math.random() - 0.5) * 1.6])
-    }
-  }
+  a *= 0.5
+  if (Math.abs(a) < 1e-9) return [0, 0]
+  return [cx / (6 * a), cy / (6 * a)]
+}
+
+function tracePath(g: CanvasRenderingContext2D, pts: Vec[], toPx: (p: Vec) => Vec): void {
   g.beginPath()
-  g.moveTo(all[0][0], all[0][1])
-  for (let i = 1; i < all.length; i++) g.lineTo(all[i][0], all[i][1])
+  const [sx, sy] = toPx(pts[0])
+  g.moveTo(sx, sy)
+  for (let i = 1; i < pts.length; i++) {
+    const [x, y] = toPx(pts[i])
+    g.lineTo(x, y)
+  }
   g.closePath()
 }
 
-function makeLeafSprite(color: string): HTMLCanvasElement {
-  const c = document.createElement('canvas')
-  c.width = 192
-  c.height = 224
-  const g = c.getContext('2d')!
-  g.translate(96, 120)
-  g.scale(2, 2)
-
-  buildBladePath(g)
-  const grad = g.createRadialGradient(0, 10, 4, 0, 6, 58)
-  grad.addColorStop(0, shade(color, 30))
-  grad.addColorStop(0.5, color)
-  grad.addColorStop(1, shade(color, -26))
-  g.fillStyle = grad
-  g.fill()
-
-  g.strokeStyle = rgba('#2e0c06', 0.5)
-  g.lineWidth = 1.2
-  g.stroke()
-
-  // 叶片内光影与细斑
-  g.save()
-  buildBladePath(g)
-  g.clip()
-  const hi = g.createLinearGradient(-24, -40, 20, 32)
-  hi.addColorStop(0, 'rgba(255,240,208,0.28)')
-  hi.addColorStop(0.55, 'rgba(255,240,208,0)')
-  g.fillStyle = hi
-  g.fillRect(-48, -60, 96, 120)
-  const lo = g.createLinearGradient(0, 16, 0, 52)
-  lo.addColorStop(0, 'rgba(60,14,7,0)')
-  lo.addColorStop(1, 'rgba(60,14,7,0.26)')
-  g.fillStyle = lo
-  g.fillRect(-48, -10, 96, 70)
-  for (let i = 0; i < 34; i++) {
-    g.fillStyle = rgba('#4c1309', 0.03 + Math.random() * 0.045)
-    g.beginPath()
-    g.arc((Math.random() - 0.5) * 64, (Math.random() - 0.5) * 80, 0.6 + Math.random() * 1.8, 0, Math.PI * 2)
-    g.fill()
-  }
-  g.restore()
-
-  // 五条主脉
-  const tips: [number, number][] = [
-    [0, -52],
-    [38, -8],
-    [34, 28],
-    [-38, -8],
-    [-34, 28],
+function bezier(p0: Vec, c1: Vec, c2: Vec, p1: Vec, t: number): Vec {
+  const u = 1 - t
+  return [
+    u * u * u * p0[0] + 3 * u * u * t * c1[0] + 3 * u * t * t * c2[0] + t * t * t * p1[0],
+    u * u * u * p0[1] + 3 * u * u * t * c1[1] + 3 * u * t * t * c2[1] + t * t * t * p1[1],
   ]
-  g.strokeStyle = rgba('#421106', 0.5)
-  g.lineCap = 'round'
-  for (const [tx, ty] of tips) {
-    g.lineWidth = tx === 0 ? 1.5 : 1
-    g.beginPath()
-    g.moveTo(0, 38)
-    g.quadraticCurveTo(tx * 0.52, (38 + ty) * 0.4, tx * 0.9, ty * 0.98)
+}
+
+/** 从轮廓中找出五个裂尖（按角度分扇区取最远点） */
+function detectTips(pts: Vec[]): Vec[] {
+  const sectors: Vec[][] = Array.from({ length: 5 }, () => [])
+  for (const [x, y] of pts) {
+    const deg = (Math.atan2(y, x) * 180) / Math.PI
+    let idx: number
+    if (deg > -90 && deg <= 1) idx = 0
+    else if (deg > 1 && deg <= 56) idx = 1
+    else if (deg > 56 && deg <= 124) idx = 2
+    else if (deg > 124 && deg <= 179) idx = 3
+    else idx = 4
+    sectors[idx].push([x, y])
+  }
+  return sectors.map((sec) => {
+    let best: Vec = sec[0] || [0, 1]
+    let bestR = -1
+    for (const p of sec) {
+      const r = p[0] * p[0] + p[1] * p[1]
+      if (r > bestR) {
+        bestR = r
+        best = p
+      }
+    }
+    return best
+  })
+}
+
+type Sprite = {
+  canvas: HTMLCanvasElement
+  cx: number
+  cy: number
+}
+
+const TIPS = detectTips(MAPLE_OUTLINE)
+
+function makeSprite(color: string, night: boolean): Sprite {
+  const S = 96
+  let minX = Infinity
+  let maxX = -Infinity
+  let minY = Infinity
+  let maxY = -Infinity
+  for (const [x, y] of MAPLE_OUTLINE) {
+    if (x < minX) minX = x
+    if (x > maxX) maxX = x
+    if (y < minY) minY = y
+    if (y > maxY) maxY = y
+  }
+  const stemBottom = Math.min(...MAPLE_STEM.map((p) => p[1]))
+  const margin = 4
+  const w = Math.ceil((maxX - minX) * S) + margin * 2
+  const h = Math.ceil((maxY - stemBottom) * S) + margin * 2
+  const c = document.createElement('canvas')
+  c.width = w
+  c.height = h
+  const g = c.getContext('2d')!
+
+  const toPx = (p: Vec): Vec => [(p[0] - minX) * S + margin, (maxY - p[1]) * S + margin]
+
+  // 叶面
+  tracePath(g, MAPLE_OUTLINE, toPx)
+
+  if (night) {
+    g.fillStyle = NIGHT_FILL
+    g.fill()
+    // 柔和月光光晕 + 冷银轮廓
+    g.strokeStyle = 'rgba(198, 214, 230, 0.06)'
+    g.lineWidth = 6
+    g.stroke()
+    g.strokeStyle = 'rgba(205, 220, 234, 0.30)'
+    g.lineWidth = 1.2
+    g.lineJoin = 'round'
+    g.stroke()
+    // 左上月光渐变
+    g.save()
+    tracePath(g, MAPLE_OUTLINE, toPx)
+    g.clip()
+    const ml = g.createLinearGradient(0, 0, w, h)
+    ml.addColorStop(0, 'rgba(205, 222, 236, 0.16)')
+    ml.addColorStop(0.55, 'rgba(205, 222, 236, 0)')
+    g.fillStyle = ml
+    g.fillRect(0, 0, w, h)
+    g.restore()
+  } else {
+    const [cx, cy] = polygonCentroid(MAPLE_OUTLINE)
+    const topY = maxY
+    const botY = minY
+    const grad = g.createLinearGradient(0, toPx([cx, topY])[1], 0, toPx([cx, botY])[1])
+    grad.addColorStop(0, shade(color, 34))
+    grad.addColorStop(0.45, color)
+    grad.addColorStop(1, shade(color, -34))
+    g.fillStyle = grad
+    g.fill()
+
+    g.save()
+    tracePath(g, MAPLE_OUTLINE, toPx)
+    g.clip()
+    // 左上侧光
+    const [hx, hy] = toPx([cx - 0.28, cy + 0.22])
+    const gl = g.createRadialGradient(hx, hy, 2, hx, hy, Math.max(w, h) * 0.55)
+    gl.addColorStop(0, 'rgba(255, 226, 180, 0.34)')
+    gl.addColorStop(0.5, 'rgba(255, 226, 180, 0.08)')
+    gl.addColorStop(1, 'rgba(255, 226, 180, 0)')
+    g.fillStyle = gl
+    g.fillRect(0, 0, w, h)
+    // 叶缘暗部
+    const edge = g.createLinearGradient(0, toPx([cx, botY])[1], 0, toPx([cx, topY])[1])
+    edge.addColorStop(0, 'rgba(58, 14, 7, 0.30)')
+    edge.addColorStop(1, 'rgba(58, 14, 7, 0)')
+    g.fillStyle = edge
+    g.fillRect(0, 0, w, h)
+
+    // 掌状叶脉
+    const basePx = toPx([0, 0])
+    g.lineCap = 'round'
+    for (const [tx, ty] of TIPS) {
+      const tipPx = toPx([tx * 0.92, ty * 0.92])
+      const ctrlPx = toPx([tx * 0.58, ty * 0.58])
+      g.strokeStyle = rgba('#421106', 0.42)
+      g.lineWidth = Math.abs(tx) < 0.08 ? 1.3 : 0.95
+      g.beginPath()
+      g.moveTo(basePx[0], basePx[1])
+      for (let i = 1; i <= 10; i++) {
+        const [bx, by] = bezier(basePx, ctrlPx, ctrlPx, tipPx, i / 10)
+        g.lineTo(bx, by)
+      }
+      g.stroke()
+    }
+    g.restore()
+
+    // 外描边
+    g.strokeStyle = rgba('#2e0c06', 0.5)
+    g.lineWidth = 1.1
+    g.lineJoin = 'round'
     g.stroke()
   }
 
-  // 叶柄：单根平滑，粗→细
-  g.strokeStyle = '#5e2a15'
-  g.lineWidth = 2.8
-  g.beginPath()
-  g.moveTo(0, 38)
-  g.quadraticCurveTo(0.8, 46, 1.2, 52)
-  g.stroke()
-  g.lineWidth = 1.3
-  g.beginPath()
-  g.moveTo(0, 40)
-  g.quadraticCurveTo(0.9, 47, 1.3, 53)
-  g.stroke()
+  // 叶柄：粗细渐变
+  const stemPts = MAPLE_STEM.map(toPx)
+  g.lineCap = 'round'
+  g.strokeStyle = night ? 'rgba(24, 20, 16, 0.95)' : '#5e2a15'
+  const w0 = Math.max(1.6, 0.05 * S)
+  const w1 = Math.max(1, 0.03 * S)
+  for (let i = 0; i < stemPts.length - 1; i++) {
+    const t = i / (stemPts.length - 1)
+    g.lineWidth = w0 + (w1 - w0) * t
+    g.beginPath()
+    g.moveTo(stemPts[i][0], stemPts[i][1])
+    g.lineTo(stemPts[i + 1][0], stemPts[i + 1][1])
+    g.stroke()
+  }
 
-  return c
+  const [ccx, ccy] = toPx(polygonCentroid(MAPLE_OUTLINE))
+  return { canvas: c, cx: ccx, cy: ccy }
 }
 
 type Leaf = {
@@ -161,12 +240,12 @@ type LayerCfg = {
 }
 
 const LAYERS: LayerCfg[] = [
-  { scale: [0.55, 0.75], opacity: [0.35, 0.55], fall: [24, 40], swayAmp: [10, 18] }, // 远
-  { scale: [0.82, 1.05], opacity: [0.55, 0.75], fall: [38, 60], swayAmp: [16, 28] }, // 中
-  { scale: [1.18, 1.5], opacity: [0.78, 0.95], fall: [56, 88], swayAmp: [24, 40] }, // 近
+  { scale: [0.5, 0.68], opacity: [0.3, 0.5], fall: [22, 36], swayAmp: [9, 16] },   // 远
+  { scale: [0.78, 1.0], opacity: [0.5, 0.72], fall: [34, 54], swayAmp: [15, 26] },  // 中
+  { scale: [1.12, 1.45], opacity: [0.72, 0.94], fall: [50, 80], swayAmp: [22, 38] }, // 近
 ]
 
-export default function MapleLeaves() {
+export default function MapleLeaves({ night = false }: { night?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -181,7 +260,7 @@ export default function MapleLeaves() {
     let raf = 0
     let last = performance.now()
     let leaves: Leaf[] = []
-    let sprites: HTMLCanvasElement[] = []
+    let sprites: Sprite[] = []
 
     const rnd = (a: number, b: number) => a + Math.random() * (b - a)
     const layerOf = (r: number) => (r < 0.4 ? 0 : r < 0.75 ? 1 : 2)
@@ -194,12 +273,17 @@ export default function MapleLeaves() {
       canvas.height = Math.round(H * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
-      if (!sprites.length) sprites = COLORS.map(makeLeafSprite)
+      if (!sprites.length) {
+        sprites = night
+          ? [makeSprite(NIGHT_FILL, true)]
+          : DAY_COLORS.map((c) => makeSprite(c, false))
+      }
 
-      const count = Math.max(22, Math.min(44, Math.round((W * H) / 56000)))
+      const density = night ? 0.62 : 1
+      const count = Math.max(night ? 14 : 22, Math.min(night ? 26 : 44, Math.round(((W * H) / 56000) * density)))
       leaves = Array.from({ length: count }, () => {
         const cfg = LAYERS[layerOf(Math.random())]
-        const size = 22 + Math.random() * 18
+        const size = 24 + Math.random() * 18
         return {
           x: Math.random() * W,
           y: Math.random() * (H + 140) - 100,
@@ -207,13 +291,13 @@ export default function MapleLeaves() {
           size: size * rnd(cfg.scale[0], cfg.scale[1]),
           sprite: Math.floor(Math.random() * sprites.length),
           flip: Math.random() < 0.5 ? 1 : -1,
-          fall: rnd(cfg.fall[0], cfg.fall[1]),
-          swayAmp: rnd(cfg.swayAmp[0], cfg.swayAmp[1]),
+          fall: rnd(cfg.fall[0], cfg.fall[1]) * (night ? 0.72 : 1),
+          swayAmp: rnd(cfg.swayAmp[0], cfg.swayAmp[1]) * (night ? 1.35 : 1),
           swayFreq: 0.35 + Math.random() * 0.6,
           rot: Math.random() * Math.PI * 2,
-          rotSpd: (0.35 + Math.random() * 0.75) * (Math.random() < 0.5 ? -1 : 1),
+          rotSpd: (0.3 + Math.random() * 0.7) * (Math.random() < 0.5 ? -1 : 1) * (night ? 0.7 : 1),
           phase: Math.random() * Math.PI * 2,
-          opacity: rnd(cfg.opacity[0], cfg.opacity[1]),
+          opacity: rnd(cfg.opacity[0], cfg.opacity[1]) * (night ? 0.9 : 1),
         }
       })
     }
@@ -226,7 +310,6 @@ export default function MapleLeaves() {
       const t = now / 1000
       ctx.clearRect(0, 0, W, H)
 
-      // 微风 + 周期性阵风
       const gust = Math.pow(Math.max(0, Math.sin(t * 0.5)), 6) * 30
       const wind = Math.sin(t * 0.12) * 10 + gust
 
@@ -239,9 +322,9 @@ export default function MapleLeaves() {
           const cfg = LAYERS[layerOf(Math.random())]
           L.y = -90 - Math.random() * 80
           L.baseX = Math.random() * W
-          L.size = (22 + Math.random() * 18) * rnd(cfg.scale[0], cfg.scale[1])
-          L.fall = rnd(cfg.fall[0], cfg.fall[1])
-          L.swayAmp = rnd(cfg.swayAmp[0], cfg.swayAmp[1])
+          L.size = (24 + Math.random() * 18) * rnd(cfg.scale[0], cfg.scale[1])
+          L.fall = rnd(cfg.fall[0], cfg.fall[1]) * (night ? 0.72 : 1)
+          L.swayAmp = rnd(cfg.swayAmp[0], cfg.swayAmp[1]) * (night ? 1.35 : 1)
           L.opacity = rnd(cfg.opacity[0], cfg.opacity[1])
           L.sprite = Math.floor(Math.random() * sprites.length)
           L.flip = Math.random() < 0.5 ? 1 : -1
@@ -253,9 +336,10 @@ export default function MapleLeaves() {
         ctx.globalAlpha = L.opacity
         ctx.translate(x, L.y)
         ctx.rotate(L.rot)
-        const s = L.size / 192
+        const sp = sprites[L.sprite]
+        const s = L.size / 96
         ctx.scale(L.flip * s, s)
-        ctx.drawImage(sprites[L.sprite], -96, -120)
+        ctx.drawImage(sp.canvas, -sp.cx, -sp.cy)
         ctx.restore()
       }
 
@@ -277,7 +361,7 @@ export default function MapleLeaves() {
       document.removeEventListener('visibilitychange', onVis)
       cancelAnimationFrame(raf)
     }
-  }, [])
+  }, [night])
 
   return <canvas ref={ref} className="bg-canvas" aria-hidden="true" />
 }

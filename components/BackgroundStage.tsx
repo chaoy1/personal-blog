@@ -21,7 +21,12 @@ export default function BackgroundStage() {
     <>
       <div className={`bg-painting${dark ? ' night' : ''}`} aria-hidden="true" />
       {dark ? <div className="bg-tint" aria-hidden="true" /> : <div className="bg-blend" aria-hidden="true" />}
-      {dark ? <StarryNight /> : (
+      {dark ? (
+        <>
+          <StarryNight />
+          <MapleLeaves night />
+        </>
+      ) : (
         <>
           <QianliAmbient />
           <MapleLeaves />

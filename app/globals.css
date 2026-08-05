@@ -3423,16 +3423,133 @@ a.tl-title:hover {
   inset: 0;
   z-index: 85;
   pointer-events: none;
+  overflow: hidden;
 }
 
 .su-paper {
   position: absolute;
   inset: 0;
-  background: var(--paper);
-  background-image: var(--card-paper);
-  background-size: 260px 260px;
-  animation: su-unroll-x 2.1s cubic-bezier(0.72, 0.02, 0.28, 1) forwards;
+  background:
+    radial-gradient(ellipse 130% 72% at 50% 34%, rgba(255, 252, 240, 0.9), rgba(242, 237, 222, 0) 68%),
+    linear-gradient(180deg, rgba(255, 253, 246, 0.55), rgba(244, 238, 222, 0) 42%, rgba(216, 202, 168, 0.42)),
+    var(--paper);
+  background-image:
+    radial-gradient(ellipse 130% 72% at 50% 34%, rgba(255, 252, 240, 0.9), rgba(242, 237, 222, 0) 68%),
+    linear-gradient(180deg, rgba(255, 253, 246, 0.55), rgba(244, 238, 222, 0) 42%, rgba(216, 202, 168, 0.42)),
+    var(--card-paper);
+  background-size: auto, auto, 260px 260px;
+  animation: su-unroll-x 2.6s cubic-bezier(0.72, 0.02, 0.28, 1) forwards;
   will-change: transform;
+  box-shadow: 24px 0 46px -18px rgba(50, 34, 12, 0.24);
+}
+
+/* 纸面下缘的淡墨山影 */
+.su-art {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 46%;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse 52% 46% at 18% 92%, rgba(58, 48, 34, 0.5), transparent 70%),
+    radial-gradient(ellipse 46% 40% at 52% 96%, rgba(68, 56, 40, 0.46), transparent 72%),
+    radial-gradient(ellipse 42% 38% at 84% 90%, rgba(52, 44, 32, 0.42), transparent 70%),
+    linear-gradient(180deg, transparent 46%, rgba(48, 40, 28, 0.24) 100%);
+  filter: blur(1px);
+  animation: su-art-in 2.6s ease-out 0.35s both;
+}
+
+.su-art::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 12%;
+  background: rgba(86, 68, 46, 0.22);
+  filter: blur(3px);
+}
+
+/* 纸面中央的题字与印章 */
+.su-inscription {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -54%);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.su-title {
+  display: flex;
+  font-family: var(--font-kai);
+  font-size: clamp(52px, 8vw, 84px);
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  color: rgba(44, 42, 36, 0.86);
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+.su-title i {
+  display: inline-block;
+  font-style: normal;
+  opacity: 0;
+  transform: translateY(18px) scale(1.06);
+  animation: su-char-in 0.7s cubic-bezier(0.22, 0.9, 0.28, 1.15) forwards;
+}
+
+.su-seal {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--seal);
+  color: var(--paper);
+  font-family: var(--font-kai);
+  font-size: 19px;
+  transform: rotate(-6deg);
+  opacity: 0;
+  animation: su-seal-in 0.65s cubic-bezier(0.2, 0.9, 0.3, 1.4) 1.05s both;
+}
+
+.su-seal::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(242, 237, 222, 0.55);
+}
+
+.su-colophon {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 58px);
+  transform: translateX(-50%);
+  font-family: var(--font-kai);
+  font-size: 13px;
+  letter-spacing: 0.4em;
+  color: rgba(111, 104, 90, 0.72);
+  white-space: nowrap;
+  opacity: 0;
+  animation: su-char-in 0.8s ease-out 1.15s both;
+}
+
+@keyframes su-char-in {
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes su-seal-in {
+  0% { opacity: 0; transform: rotate(-6deg) scale(2.3); }
+  62% { opacity: 1; transform: rotate(-1deg) scale(0.9); }
+  100% { opacity: 1; transform: rotate(-6deg) scale(1); }
+}
+
+@keyframes su-art-in {
+  0% { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes su-unroll-x {
@@ -3445,44 +3562,99 @@ a.tl-title:hover {
   left: 0;
   top: 0;
   bottom: 0;
-  width: 15px;
-  height: auto;
-  background: linear-gradient(90deg, #9a6a35, #7a4e22 55%, #5d3a18);
-  border-right: 1px solid rgba(20, 12, 4, 0.4);
-  box-shadow: 0 3px 10px rgba(25, 16, 6, 0.24);
-  animation: su-rod-x 2.1s cubic-bezier(0.72, 0.02, 0.28, 1) forwards;
+  width: 18px;
+  background:
+    linear-gradient(90deg, rgba(255, 232, 190, 0.5), rgba(255, 232, 190, 0) 34%),
+    linear-gradient(90deg, #9a6a35, #7a4e22 55%, #5d3a18);
+  border-right: 1px solid rgba(20, 12, 4, 0.42);
+  box-shadow: 0 3px 14px rgba(25, 16, 6, 0.3);
+  animation: su-rod-x 2.6s cubic-bezier(0.72, 0.02, 0.28, 1) forwards;
   will-change: transform;
+}
+
+.su-cap {
+  position: absolute;
+  left: 50%;
+  width: 38px;
+  height: 22px;
+  margin-left: -19px;
+  border-radius: 6px;
+  background: radial-gradient(circle at 34% 28%, #c99a58, #845425 62%, #5a3818);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.14), 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.su-cap.t { top: 18px; }
+.su-cap.b { bottom: 18px; }
+
+/* 卷轴两端垂下的丝带 */
+.su-ribbon {
+  position: absolute;
+  left: 50%;
+  width: 8px;
+  height: 72px;
+  margin-left: -4px;
+  background: linear-gradient(180deg, #b23a2b, rgba(178, 58, 43, 0.35));
+  transform-origin: top center;
+}
+
+.su-ribbon.l {
+  top: 40px;
+  animation: su-ribbon-l 2.4s ease-in-out infinite alternate;
+}
+
+.su-ribbon.r {
+  bottom: 40px;
+  height: 58px;
+  background: linear-gradient(0deg, #b23a2b, rgba(178, 58, 43, 0.35));
+  transform-origin: bottom center;
+  animation: su-ribbon-r 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes su-ribbon-l {
+  from { transform: rotate(10deg); }
+  to { transform: rotate(-12deg); }
+}
+
+@keyframes su-ribbon-r {
+  from { transform: rotate(-10deg); }
+  to { transform: rotate(12deg); }
 }
 
 .su-shadow {
   position: absolute;
-  left: 15px;
+  left: 18px;
   top: 0;
   bottom: 0;
-  width: 26px;
-  background: linear-gradient(90deg, rgba(30, 18, 6, 0.28), transparent);
-  animation: su-rod-x 2.1s cubic-bezier(0.72, 0.02, 0.28, 1) forwards;
+  width: 30px;
+  background: linear-gradient(90deg, rgba(30, 18, 6, 0.3), transparent);
+  animation: su-rod-x 2.6s cubic-bezier(0.72, 0.02, 0.28, 1) forwards;
   will-change: transform;
 }
 
 @keyframes su-rod-x {
-  from { transform: translateX(-20px); }
+  from { transform: translateX(-24px); }
   to { transform: translateX(100vw); }
 }
 
-.su-knob {
-  position: absolute;
-  left: 50%;
-  width: 30px;
-  height: 30px;
-  margin-left: -15px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 32% 28%, #c99a58, #845425 62%, #5a3818);
-  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.16), 0 3px 8px rgba(0, 0, 0, 0.35);
+/* 画卷展开期间，首屏题字稍候再出现，与卷轴节奏呼应 */
+html.unfold-live .masthead h1 {
+  animation-delay: 2.15s;
 }
 
-.su-knob.l { top: 2.4vh; }
-.su-knob.r { bottom: 2.4vh; }
+html.unfold-live .masthead .eyebrow {
+  animation-delay: 2s;
+}
+
+html.unfold-live .masthead .lede,
+html.unfold-live .hero-stats,
+html.unfold-live .scroll-hint {
+  animation-delay: 2.4s;
+}
+
+html.unfold-live .verse,
+html.unfold-live .sigil {
+  animation-delay: 2.2s;
+}
 
 /* ---------- 首页首屏 ---------- */
 

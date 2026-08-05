@@ -4,8 +4,8 @@ import { useEffect, useRef } from 'react'
 
 /**
  * 黑夜 · 晚星
- * 层层星子明灭、几颗亮星带光晕、右上角暖月、偶有流星划过、薄雾轻绕。
- * 无孔明灯。遵守 reduced-motion。
+ * 层层星子明灭、几颗亮星带光晕、右上暖月（月晕呼吸）、偶有流星划过、薄雾轻绕，
+ * 山脚处另有流萤缓缓飘动。无孔明灯。遵循 prefers-reduced-motion。
  */
 export default function StarryNight() {
   const ref = useRef<HTMLCanvasElement>(null)
@@ -58,6 +58,16 @@ export default function StarryNight() {
       sp: rnd(2, 5),
       a: rnd(0.05, 0.11),
     }))
+    // 流萤：低处缓缓飘动的暖黄光点
+    const fireflies = Array.from({ length: 14 }, () => ({
+      x: Math.random(),
+      y: rnd(0.45, 0.9),
+      ph: rnd(0, Math.PI * 2),
+      sp: rnd(0.12, 0.3),
+      drift: rnd(4, 10),
+      r: rnd(0.9, 1.6),
+      a: rnd(0.55, 1.0),
+    }))
     let meteor: { x: number; y: number; vx: number; vy: number; t0: number } | null = null
     let nextMeteor = 6000
 
@@ -100,25 +110,47 @@ export default function StarryNight() {
         ctx.fill()
       }
 
-      // 暖月（右上）
+      // 暖月（右上），月晕缓慢呼吸
       const mx = W * 0.74
       const my = H * 0.15
-      const halo = ctx.createRadialGradient(mx, my, 0, mx, my, H * 0.26)
-      halo.addColorStop(0, 'rgba(239,224,184,0.2)')
+      const breathe = 0.5 + 0.5 * Math.sin(t * 0.45)
+      const haloR = H * (0.24 + 0.05 * breathe)
+      const halo = ctx.createRadialGradient(mx, my, 0, mx, my, haloR)
+      halo.addColorStop(0, `rgba(239,224,184,${(0.16 + 0.09 * breathe).toFixed(3)})`)
       halo.addColorStop(1, 'rgba(239,224,184,0)')
       ctx.fillStyle = halo
-      ctx.fillRect(mx - H * 0.26, my - H * 0.26, H * 0.52, H * 0.52)
-      ctx.fillStyle = '#efe0b8'
+      ctx.fillRect(mx - haloR, my - haloR, haloR * 2, haloR * 2)
+      ctx.fillStyle = `rgba(239,224,184,${(0.94 + 0.06 * breathe).toFixed(3)})`
       ctx.beginPath()
       ctx.arc(mx, my, H * 0.04, 0, Math.PI * 2)
       ctx.fill()
-      ctx.fillStyle = 'rgba(180,164,126,0.28)'
+      ctx.fillStyle = 'rgba(180,164,126,0.15)'
       ctx.beginPath()
       ctx.arc(mx - H * 0.01, my - H * 0.007, H * 0.009, 0, Math.PI * 2)
       ctx.fill()
       ctx.beginPath()
       ctx.arc(mx + H * 0.012, my + H * 0.009, H * 0.0065, 0, Math.PI * 2)
       ctx.fill()
+
+      // 流萤：暖黄光点在山脚飘动，忽明忽暗
+      for (const f of fireflies) {
+        const fx = ((f.x * W + t * f.drift * 4) % (W + 120)) - 60
+        const fy = f.y * H + Math.sin(t * f.sp + f.ph) * 34
+        const tw = 0.5 + 0.5 * Math.sin(t * 1.7 + f.ph * 2.3)
+        const fa = f.a * (0.35 + 0.65 * tw)
+        const fg = ctx.createRadialGradient(fx, fy, 0, fx, fy, f.r * 14)
+        fg.addColorStop(0, `rgba(224, 228, 146, ${(0.85 * fa).toFixed(3)})`)
+        fg.addColorStop(0.28, `rgba(210, 218, 130, ${(0.4 * fa).toFixed(3)})`)
+        fg.addColorStop(1, 'rgba(210, 218, 130, 0)')
+        ctx.fillStyle = fg
+        ctx.beginPath()
+        ctx.arc(fx, fy, f.r * 14, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.fillStyle = `rgba(238, 240, 178, ${(0.95 * fa).toFixed(3)})`
+        ctx.beginPath()
+        ctx.arc(fx, fy, f.r * 0.9, 0, Math.PI * 2)
+        ctx.fill()
+      }
 
       // 流星
       if (!reduced) {
