@@ -60,12 +60,6 @@ export default function AccountPage() {
     setMessage('已保存。')
   }
 
-  async function logout() {
-    await signOut()
-    router.replace('/')
-    router.refresh()
-  }
-
   async function changePassword() {
     if (!user?.email) {
       setPwError('当前账号无法修改密码')
@@ -83,7 +77,6 @@ export default function AccountPage() {
     setPwError('')
     setPwMessage('')
     const sb = supabaseBrowser()
-    // 先验证旧密码，确认是本人在操作
     const { error: verifyErr } = await sb.auth.signInWithPassword({
       email: user.email,
       password: oldPassword,
@@ -105,6 +98,12 @@ export default function AccountPage() {
     setPwMessage('密码已修改。')
   }
 
+  async function logout() {
+    await signOut()
+    router.replace('/')
+    router.refresh()
+  }
+
   return (
     <div className="account-wrap">
       <nav className="article-nav">
@@ -113,90 +112,118 @@ export default function AccountPage() {
       </nav>
 
       <div className="account-card">
-        <h1>个人资料</h1>
-        {user?.email ? <p className="hint">账号：{user.email}</p> : null}
-        <div className="account-avatar">
-          {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt="头像" />
-          ) : (
-            <span>影</span>
-          )}
-          <label className="btn btn-ghost btn-sm">
-            上传头像
-            <input
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={(e) => {
-                const f = e.target.files?.[0]
-                if (f) uploadAvatar(f)
-              }}
-            />
-          </label>
-        </div>
+        <header className="account-head">
+          <h1>个人资料</h1>
+          {user?.email ? <p className="account-email">账号 · {user.email}</p> : null}
+        </header>
 
-        <div className="field">
-          <label htmlFor="nickname">昵称</label>
-          <input
-            id="nickname"
-            type="text"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-          />
-        </div>
+        <section className="account-section">
+          <h2 className="account-section-title">
+            <span className="sec-seal" aria-hidden="true">
+              资
+            </span>
+            基本资料
+          </h2>
+          <div className="account-profile-row">
+            <div className="account-avatar">
+              {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatarUrl} alt="头像" />
+              ) : (
+                <span className="placeholder">影</span>
+              )}
+              <label className="account-avatar-btn">
+                更换头像
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={(e) => {
+                    const f = e.target.files?.[0]
+                    if (f) uploadAvatar(f)
+                  }}
+                />
+              </label>
+            </div>
 
-        {error ? <p className="error-text">{error}</p> : null}
-        {message ? <p className="notice-text">{message}</p> : null}
+            <div className="account-profile-fields">
+              <div className="field">
+                <label htmlFor="nickname">昵称</label>
+                <input
+                  id="nickname"
+                  type="text"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  placeholder="怎么称呼你？"
+                />
+              </div>
+              {error ? <p className="error-text">{error}</p> : null}
+              {message ? <p className="notice-text">{message}</p> : null}
+              <div className="editor-actions">
+                <button className="btn btn-sm" type="button" onClick={save} disabled={busy}>
+                  {busy ? '保存中…' : '保存资料'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
 
-        <div className="editor-actions">
-          <button className="btn" type="button" onClick={save} disabled={busy}>
-            {busy ? '保存中…' : '保存资料'}
-          </button>
-          <button className="btn btn-ghost" type="button" onClick={logout}>
+        <section className="account-section">
+          <h2 className="account-section-title">
+            <span className="sec-seal" aria-hidden="true">
+              密
+            </span>
+            修改密码
+          </h2>
+          <div className="account-pw-grid">
+            <div className="field">
+              <label htmlFor="old-password">旧密码</label>
+              <input
+                id="old-password"
+                type="password"
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
+                autoComplete="current-password"
+                placeholder="输入当前密码"
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="new-password">新密码（至少 6 位）</label>
+              <input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                autoComplete="new-password"
+                placeholder="设置新密码"
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="confirm-password">确认新密码</label>
+              <input
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
+                placeholder="再输一遍新密码"
+              />
+            </div>
+            {pwError ? <p className="error-text">{pwError}</p> : null}
+            {pwMessage ? <p className="notice-text">{pwMessage}</p> : null}
+            <div className="editor-actions">
+              <button className="btn btn-sm" type="button" onClick={changePassword} disabled={pwBusy}>
+                {pwBusy ? '修改中…' : '修改密码'}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <footer className="account-foot">
+          <button className="btn btn-ghost btn-sm" type="button" onClick={logout}>
             退出登录
           </button>
-        </div>
-
-        <hr className="account-divider" />
-        <h2 className="account-sub-title">修改密码</h2>
-        <div className="field">
-          <label htmlFor="old-password">旧密码</label>
-          <input
-            id="old-password"
-            type="password"
-            value={oldPassword}
-            onChange={(e) => setOldPassword(e.target.value)}
-            autoComplete="current-password"
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="new-password">新密码（至少 6 位）</label>
-          <input
-            id="new-password"
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            autoComplete="new-password"
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="confirm-password">确认新密码</label>
-          <input
-            id="confirm-password"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            autoComplete="new-password"
-          />
-        </div>
-        {pwError ? <p className="error-text">{pwError}</p> : null}
-        {pwMessage ? <p className="notice-text">{pwMessage}</p> : null}
-        <div className="editor-actions">
-          <button className="btn" type="button" onClick={changePassword} disabled={pwBusy}>
-            {pwBusy ? '修改中…' : '修改密码'}
-          </button>
-        </div>
+        </footer>
       </div>
     </div>
   )
