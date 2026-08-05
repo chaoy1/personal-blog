@@ -4,12 +4,13 @@ import { listPublishedPosts, formatDate, type Post } from '@/lib/posts'
 import { SITE_NAME, SITE_DESC } from '@/lib/site'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { listAllMoments, listAllPhotos, countMoments, countPhotos, type TimelineMoment, type TimelinePhoto } from '@/lib/timeline'
-import { dailyQuote } from '@/lib/quotes'
 import { listRecentGuestbook, type GuestbookRow } from '@/lib/guestbook'
 import ScrollFX from '@/components/ScrollFX'
 import ScrollUnfold from '@/components/ScrollUnfold'
 import Avatar from '@/components/Avatar'
 import CnNum from '@/components/CnNum'
+import DailyQuote from '@/components/DailyQuote'
+import HomeCalendar from '@/components/HomeCalendar'
 
 export const revalidate = 60
 
@@ -48,7 +49,6 @@ export default async function HomePage() {
   }
 
   const notConfigured = !isSupabaseConfigured()
-  const quote = dailyQuote()
 
   return (
     <div className="wrap">
@@ -74,50 +74,56 @@ export default async function HomePage() {
       <div className="sigil">丙午 · {SITE_NAME}集</div>
 
       <div className="home-hero">
-        <header className="masthead">
-          <p className="eyebrow">留白处自有山河</p>
-          <h1>
-            <span className="title">
-              {SITE_NAME.split('').map((ch, i) => (
-                <span key={i} className="title-char" style={{ '--i': i } as CSSProperties}>
-                  {ch}
-                </span>
-              ))}
-            </span>
-            <span className="seal" aria-hidden="true">
-              记
-            </span>
-          </h1>
-          <svg className="stroke" viewBox="0 0 250 28" aria-hidden="true">
-            <path
-              d="M4 16 C 42 7, 94 20, 138 12 S 218 7, 246 14"
-              className="stroke-main"
-              strokeWidth={4}
-              fill="none"
-              strokeLinecap="round"
-              opacity="0.78"
-            />
-            <path
-              d="M10 21 C 62 15, 124 23, 186 17 S 236 14, 244 17"
-              className="stroke-thin"
-              strokeWidth={1.6}
-              fill="none"
-              strokeLinecap="round"
-              opacity="0.42"
-            />
-            <path
-              d="M124 3 C 156 8, 176 10, 204 7"
-              className="stroke-red"
-              strokeWidth={3}
-              fill="none"
-              strokeLinecap="round"
-              opacity="0.55"
-            />
-          </svg>
-          <p className="lede">
-            {SITE_DESC}。
-          </p>
-        </header>
+        <div className="hero-layout">
+          <header className="masthead">
+            <p className="eyebrow">留白处自有山河</p>
+            <h1>
+              <span className="title">
+                {SITE_NAME.split('').map((ch, i) => (
+                  <span key={i} className="title-char" style={{ '--i': i } as CSSProperties}>
+                    {ch}
+                  </span>
+                ))}
+              </span>
+              <span className="seal" aria-hidden="true">
+                记
+              </span>
+            </h1>
+            <svg className="stroke" viewBox="0 0 250 28" aria-hidden="true">
+              <path
+                d="M4 16 C 42 7, 94 20, 138 12 S 218 7, 246 14"
+                className="stroke-main"
+                strokeWidth={4}
+                fill="none"
+                strokeLinecap="round"
+                opacity="0.78"
+              />
+              <path
+                d="M10 21 C 62 15, 124 23, 186 17 S 236 14, 244 17"
+                className="stroke-thin"
+                strokeWidth={1.6}
+                fill="none"
+                strokeLinecap="round"
+                opacity="0.42"
+              />
+              <path
+                d="M124 3 C 156 8, 176 10, 204 7"
+                className="stroke-red"
+                strokeWidth={3}
+                fill="none"
+                strokeLinecap="round"
+                opacity="0.55"
+              />
+            </svg>
+            <p className="lede">
+              {SITE_DESC}。
+            </p>
+          </header>
+
+          <aside className="hero-calendar" aria-label="日历">
+            <HomeCalendar posts={posts} />
+          </aside>
+        </div>
 
         <div className="hero-stats">
           <span className="hs-item">
@@ -134,13 +140,7 @@ export default async function HomePage() {
           </span>
         </div>
 
-        <aside className="daily-quote" aria-label="每日一句">
-          <span className="dq-seal" aria-hidden="true">
-            句
-          </span>
-          <p className="dq-text">“{quote.text}”</p>
-          <span className="dq-source">— {quote.source}</span>
-        </aside>
+        <DailyQuote />
 
         <div className="scroll-hint">
           <span>向下滑动 · 展开画卷</span>

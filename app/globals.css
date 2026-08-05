@@ -645,7 +645,7 @@ button {
 }
 
 .masthead h1 {
-  margin: 32px 0 0;
+  margin: 24px 0 0;
   line-height: 1;
   animation: rise-b 1.2s ease-out both;
 }
@@ -653,7 +653,7 @@ button {
 .title {
   display: inline-block;
   font-family: var(--font-kai);
-  font-size: clamp(64px, 10vw, 92px);
+  font-size: clamp(56px, 8.5vw, 80px);
   font-weight: 400;
   color: var(--c-title);
   transition: color 0.5s ease;
@@ -748,7 +748,7 @@ button {
 }
 
 .lede {
-  margin: 26px auto 0;
+  margin: 14px auto 0;
   color: var(--ink);
   font-family: var(--font-kai);
   font-size: 15px;
@@ -757,6 +757,28 @@ button {
   max-width: 440px;
   text-shadow: 0 1px 2px var(--paper), 0 0 12px var(--paper);
   animation: rise-c 1.6s ease-out both;
+}
+
+.hero-date {
+  margin: 16px 0 0;
+  font-family: var(--font-kai);
+  font-size: 13px;
+  letter-spacing: 0.28em;
+  color: var(--ink);
+  opacity: 0.86;
+  text-shadow: 0 1px 2px var(--paper), 0 0 12px var(--paper);
+  animation: rise-c 1.7s ease-out both;
+}
+
+.hero-meta {
+  margin: 9px 0 0;
+  font-family: var(--font-kai);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: var(--ink);
+  opacity: 0.68;
+  text-shadow: 0 1px 2px var(--paper), 0 0 12px var(--paper);
+  animation: rise-c 1.8s ease-out both;
 }
 
 .list {
@@ -4006,8 +4028,22 @@ html.unfold-live .sigil {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 56px 0 8px;
+  padding: 40px 0 8px;
   position: relative;
+}
+
+.hero-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 56px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.hero-calendar {
+  flex: 0 1 340px;
+  min-width: 300px;
 }
 
 .hero-stats {
@@ -4015,7 +4051,7 @@ html.unfold-live .sigil {
   justify-content: center;
   gap: 14px 52px;
   flex-wrap: wrap;
-  margin: 40px auto 0;
+  margin: 28px auto 0;
   padding: 9px 32px;
   background-color: rgba(250, 246, 233, 0.58);
   background-image: var(--card-paper);
@@ -4064,7 +4100,7 @@ html.unfold-live .sigil {
   justify-content: center;
   gap: 12px;
   flex-wrap: wrap;
-  margin: 36px auto 0;
+  margin: 22px auto 0;
   padding: 9px 26px;
   background-color: rgba(250, 246, 233, 0.52);
   background-image: var(--card-paper);
@@ -4110,6 +4146,189 @@ html.unfold-live .sigil {
   letter-spacing: 0.2em;
   color: var(--ink);
   opacity: 0.72;
+}
+
+.dq-shuffle {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  background: none;
+  color: var(--ink-soft);
+  font-family: var(--font-kai);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+.dq-shuffle:hover {
+  color: var(--seal);
+  border-color: var(--seal);
+  transform: rotate(180deg);
+}
+
+/* ---------- 首页 · 日历 ---------- */
+
+.home-calendar {
+  padding: 18px 18px 14px;
+  background-color: rgba(250, 246, 233, 0.8);
+  background-image: var(--card-paper);
+  background-size: 180px 180px;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  box-shadow: 0 18px 40px -26px rgba(40, 30, 12, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+:root[data-theme='dark'] .home-calendar {
+  background-color: rgba(46, 36, 20, 0.82);
+}
+
+.hc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.hc-nav {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+
+.hc-nav:hover {
+  color: var(--seal);
+  border-color: var(--seal);
+}
+
+.hc-title {
+  text-align: center;
+}
+
+.hc-month {
+  display: block;
+  font-family: var(--font-kai);
+  font-size: 16px;
+  letter-spacing: 0.2em;
+  color: var(--ink);
+}
+
+.hc-lunar {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--ink-soft);
+}
+
+.hc-week,
+.hc-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.hc-week span {
+  text-align: center;
+  font-family: var(--font-kai);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  padding: 6px 0;
+}
+
+.hc-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  border-radius: 4px;
+}
+
+.hc-cell.today {
+  color: var(--paper);
+  background: var(--seal);
+  box-shadow: 0 0 0 1px var(--seal-deep);
+}
+
+.hc-dots {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+}
+
+.hc-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.hc-dot.post {
+  background: var(--seal);
+}
+
+.hc-dot.moment {
+  background: var(--seal-deep);
+}
+
+.hc-dot.photo {
+  background: var(--ink-soft);
+}
+
+.hc-cell.today .hc-dot {
+  background: var(--paper);
+}
+
+.hc-legend {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 10px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+}
+
+.hc-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.hc-foot {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--rule-strong);
+  text-align: center;
+}
+
+.hc-foot a {
+  font-family: var(--font-kai);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: var(--seal);
+  transition: color 0.25s ease;
+}
+
+.hc-foot a:hover {
+  color: var(--seal-deep);
 }
 
 /* ---------- 首页 · 最新留言 ---------- */
