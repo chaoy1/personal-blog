@@ -4037,7 +4037,7 @@ html.unfold-live .sigil {
   justify-content: center;
   gap: 14px 52px;
   flex-wrap: wrap;
-  margin: 46px auto 0;
+  margin: 76px auto 0;
   padding: 9px 32px;
   background-color: rgba(250, 246, 233, 0.58);
   background-image: var(--card-paper);
@@ -4086,7 +4086,7 @@ html.unfold-live .sigil {
   justify-content: center;
   gap: 12px;
   flex-wrap: wrap;
-  margin: 36px auto 0;
+  margin: 60px auto 0;
   padding: 9px 26px;
   background-color: rgba(250, 246, 233, 0.52);
   background-image: var(--card-paper);
@@ -4155,177 +4155,6 @@ html.unfold-live .sigil {
   transform: rotate(180deg);
 }
 
-/* ---------- 首页 · 日历 ---------- */
-
-.home-calendar {
-  padding: 18px 18px 14px;
-  background-color: rgba(250, 246, 233, 0.8);
-  background-image: var(--card-paper);
-  background-size: 180px 180px;
-  border: 1px solid var(--card-border);
-  border-radius: 6px;
-  box-shadow: 0 18px 40px -26px rgba(40, 30, 12, 0.45);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
-:root[data-theme='dark'] .home-calendar {
-  background-color: rgba(46, 36, 20, 0.82);
-}
-
-.hc-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.hc-nav {
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--rule-strong);
-  border-radius: 50%;
-  background: none;
-  color: var(--ink-soft);
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
-  transition: color 0.25s ease, border-color 0.25s ease;
-}
-
-.hc-nav:hover {
-  color: var(--seal);
-  border-color: var(--seal);
-}
-
-.hc-title {
-  text-align: center;
-}
-
-.hc-month {
-  display: block;
-  font-family: var(--font-kai);
-  font-size: 16px;
-  letter-spacing: 0.2em;
-  color: var(--ink);
-}
-
-.hc-lunar {
-  display: block;
-  margin-top: 2px;
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  color: var(--ink-soft);
-}
-
-.hc-week,
-.hc-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-}
-
-.hc-week span {
-  text-align: center;
-  font-family: var(--font-kai);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--ink-faint);
-  padding: 6px 0;
-}
-
-.hc-cell {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 34px;
-  font-size: 13px;
-  color: var(--ink-soft);
-  border-radius: 4px;
-}
-
-.hc-cell.today {
-  color: var(--paper);
-  background: var(--seal);
-  box-shadow: 0 0 0 1px var(--seal-deep);
-}
-
-.hc-dots {
-  position: absolute;
-  bottom: 3px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 2px;
-}
-
-.hc-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.hc-dot.post {
-  background: var(--seal);
-}
-
-.hc-dot.moment {
-  background: var(--seal-deep);
-}
-
-.hc-dot.photo {
-  background: var(--ink-soft);
-}
-
-.hc-cell.today .hc-dot {
-  background: var(--paper);
-}
-
-.hc-legend {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 10px;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--ink-soft);
-}
-
-.hc-legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.hc-foot {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px dashed var(--rule-strong);
-  text-align: center;
-}
-
-.hc-foot a {
-  font-family: var(--font-kai);
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  color: var(--seal);
-  transition: color 0.25s ease;
-}
-
-.hc-foot a:hover {
-  color: var(--seal-deep);
-}
-
-/* 日历独立区（首屏下方） */
-.calendar-section {
-  margin-top: 64px;
-}
-
-.calendar-wrap {
-  max-width: 400px;
-  margin: 0 auto;
-}
 
 /* ---------- 首页 · 最新留言 ---------- */
 

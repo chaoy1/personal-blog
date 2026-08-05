@@ -10,7 +10,6 @@ import ScrollUnfold from '@/components/ScrollUnfold'
 import Avatar from '@/components/Avatar'
 import CnNum from '@/components/CnNum'
 import DailyQuote from '@/components/DailyQuote'
-import HomeCalendar from '@/components/HomeCalendar'
 
 export const revalidate = 60
 
@@ -141,16 +140,6 @@ export default async function HomePage() {
           <i aria-hidden="true" />
         </div>
       </div>
-
-      <section className="home-section calendar-section">
-        <h2 className="section-title">
-          <span>光阴</span>
-          <Link href="/timeline">更多 →</Link>
-        </h2>
-        <div className="calendar-wrap">
-          <HomeCalendar posts={posts} />
-        </div>
-      </section>
 
       {notConfigured ? (
         <div className="setup-hint">
