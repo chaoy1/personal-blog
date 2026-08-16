@@ -80,7 +80,7 @@ export default function AdminProfile() {
       setError(j.error || '保存失败')
       return
     }
-    setMessage('已保存。此账号也可用于网站登录（说说、评论、上传）。')
+    setMessage('已保存。此账号也可用于网站登录（闲语、评论、上传）。')
   }
 
   return (
@@ -92,7 +92,7 @@ export default function AdminProfile() {
       {!profile ? (
         <div className="field">
           <p className="hint">
-            还没有博主账号。创建后它会成为「关于我」页的主角，也能用它在网站登录（发说说、评论、上传）。
+            还没有博主账号。创建后它会成为「关于我」页的主角，也能用它在网站登录（发闲语、评论、上传）。
           </p>
           <div className="field">
             <label htmlFor="a-email">博主邮箱</label>

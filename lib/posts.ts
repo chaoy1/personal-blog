@@ -140,6 +140,16 @@ export async function listPublishedPosts(limit?: number): Promise<Post[]> {
   return data ?? []
 }
 
+export async function countPosts(): Promise<number> {
+  if (!isSupabaseConfigured()) return DEMO_POSTS.length
+  const { count, error } = await supabaseAdmin()
+    .from('posts')
+    .select('*', { count: 'exact', head: true })
+    .eq('published', true)
+  if (error) throw new Error(`统计文章失败：${error.message}`)
+  return count ?? 0
+}
+
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   if (!isSupabaseConfigured()) {
     return DEMO_POSTS.find((p) => p.slug === slug) ?? null

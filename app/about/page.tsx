@@ -37,7 +37,7 @@ export default async function AboutPage() {
       <ScrollFX />
       <nav className="article-nav">
         <Link href="/">← 返回首页</Link>
-        <span>{SITE_NAME}</span>
+        <span>关于</span>
       </nav>
 
       <article className="article">

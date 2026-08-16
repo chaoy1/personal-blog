@@ -120,7 +120,7 @@ export default function AdminPhotos() {
   return (
     <>
       <div className="admin-toolbar">
-        <h1>相册管理</h1>
+        <h1>光影管理</h1>
       </div>
 
       <div className="admin-album-create">

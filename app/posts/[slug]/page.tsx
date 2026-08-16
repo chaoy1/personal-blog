@@ -4,8 +4,8 @@ import { notFound } from 'next/navigation'
 import MarkdownView from '@/components/MarkdownView'
 import Comments from '@/components/Comments'
 import ScrollFX from '@/components/ScrollFX'
-import { getPostBySlug, formatDate, readingTime, listPublishedPosts, type Post } from '@/lib/posts'
-import { SITE_NAME } from '@/lib/site'
+import BackLink from '@/components/BackLink'
+import { getPostBySlug, formatDate, listPublishedPosts, type Post } from '@/lib/posts'
 
 export const revalidate = 60
 
@@ -36,6 +36,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: post.title, description: post.excerpt || undefined }
 }
 
+/**
+ * 推荐逻辑：以当前文章在时间轴上的位置为中心，
+ * 依次取时间上相邻的文章（先旧后新交替），比固定取最新三篇更贴合上下文。
+ */
+function pickRelated(all: Post[], slug: string): Post[] {
+  const idx = all.findIndex((p) => p.slug === slug)
+  if (idx < 0) return all.slice(0, 3)
+  const related: Post[] = []
+  let older = idx + 1
+  let newer = idx - 1
+  while (related.length < 3 && (older < all.length || newer >= 0)) {
+    if (older < all.length) related.push(all[older++])
+    if (related.length < 3 && newer >= 0) related.push(all[newer--])
+  }
+  return related
+}
+
 export default async function PostPage({ params }: Props) {
   const { slug: rawSlug } = await params
   const slug = decodeURIComponent(rawSlug)
@@ -47,7 +64,7 @@ export default async function PostPage({ params }: Props) {
     // 同上
   }
   try {
-    related = (await listPublishedPosts(6)).filter((p) => p.slug !== slug).slice(0, 3)
+    related = pickRelated(await listPublishedPosts(), slug)
   } catch {
     // 相关文章可缺省
   }
@@ -57,21 +74,20 @@ export default async function PostPage({ params }: Props) {
     <div className="wrap">
       <ScrollFX />
       <nav className="article-nav">
-        <Link href="/">← 返回首页</Link>
-        <span>{SITE_NAME}</span>
+        <BackLink fallback="/posts" />
+        <span>文章</span>
       </nav>
 
       <article className="article">
-        <p className="eyebrow">{formatDate(post.created_at)}</p>
         <h1>
           {post.title}
           <span className="article-seal" aria-hidden="true">
             记
           </span>
         </h1>
+        {post.excerpt ? <p className="article-excerpt">{post.excerpt}</p> : null}
         <div className="article-meta">
-          <span>{readingTime(post.content)}</span>
-          {post.excerpt ? <span>{post.excerpt}</span> : null}
+          <span>{formatDate(post.created_at)}</span>
         </div>
         <div className="divider-ornament" aria-hidden="true">
           ※ ※ ※
@@ -81,7 +97,7 @@ export default async function PostPage({ params }: Props) {
 
         {related.length > 0 ? (
           <section className="related-posts">
-            <h2>更多篇章</h2>
+            <h2>更多文章</h2>
             <ul>
               {related.map((p) => (
                 <li key={p.id}>
@@ -93,11 +109,6 @@ export default async function PostPage({ params }: Props) {
           </section>
         ) : null}
       </article>
-
-      <footer className="article-footer">
-        <Link href="/">← 返回首页</Link>
-        <span>写于 {formatDate(post.created_at)}</span>
-      </footer>
     </div>
   )
 }

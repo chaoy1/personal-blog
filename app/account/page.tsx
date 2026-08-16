@@ -5,10 +5,11 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabaseBrowser, storagePublicUrl } from '@/lib/supabase-browser'
 import { useAppStore } from '@/lib/app-store'
+import Avatar from '@/components/Avatar'
 
 export default function AccountPage() {
   const router = useRouter()
-  const { ready, user, profile, updateProfile, signOut } = useAppStore()
+  const { ready, user, profile, updateProfile } = useAppStore()
   const [nickname, setNickname] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [busy, setBusy] = useState(false)
@@ -57,7 +58,7 @@ export default function AccountPage() {
       setError(err)
       return
     }
-    setMessage('已保存。')
+    setMessage('资料已保存')
   }
 
   async function changePassword() {
@@ -95,13 +96,15 @@ export default function AccountPage() {
     setOldPassword('')
     setNewPassword('')
     setConfirmPassword('')
-    setPwMessage('密码已修改。')
+    setPwMessage('密码已修改')
   }
 
-  async function logout() {
-    await signOut()
-    router.replace('/')
-    router.refresh()
+  function finish() {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back()
+    } else {
+      router.push('/')
+    }
   }
 
   return (
@@ -126,12 +129,7 @@ export default function AccountPage() {
           </h2>
           <div className="account-profile-row">
             <div className="account-avatar">
-              {avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={avatarUrl} alt="头像" />
-              ) : (
-                <span className="placeholder">影</span>
-              )}
+              <Avatar src={avatarUrl} alt="头像" />
               <label className="account-avatar-btn">
                 更换头像
                 <input
@@ -206,7 +204,7 @@ export default function AccountPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 autoComplete="new-password"
-                placeholder="再输一遍新密码"
+                placeholder="请确认新密码"
               />
             </div>
             {pwError ? <p className="error-text">{pwError}</p> : null}
@@ -220,8 +218,8 @@ export default function AccountPage() {
         </section>
 
         <footer className="account-foot">
-          <button className="btn btn-ghost btn-sm" type="button" onClick={logout}>
-            退出登录
+          <button className="btn btn-sm" type="button" onClick={finish}>
+            修改完成
           </button>
         </footer>
       </div>

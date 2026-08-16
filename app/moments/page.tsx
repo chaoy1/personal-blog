@@ -2,11 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { supabaseBrowser, storagePublicUrl } from '@/lib/supabase-browser'
 import { formatDate } from '@/lib/blog'
 import ScrollFX from '@/components/ScrollFX'
 import { useAppStore } from '@/lib/app-store'
 import Avatar from '@/components/Avatar'
+import CommentThread from '@/components/CommentThread'
 
 export default function MomentsPage() {
   const {
@@ -17,49 +17,16 @@ export default function MomentsPage() {
     momentLikes,
     error,
     ready,
-    postMoment,
     deleteMoment,
     addMomentComment,
     toggleMomentLike,
   } = useAppStore()
-  const [content, setContent] = useState('')
-  const [images, setImages] = useState<string[]>([])
   const [commentText, setCommentText] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
   const [localError, setLocalError] = useState('')
 
-  async function uploadImages(files: FileList | null) {
-    if (!files || !user) return
-    setBusy(true)
-    const urls: string[] = []
-    for (const file of Array.from(files)) {
-      const ext = file.name.split('.').pop() || 'jpg'
-      const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
-      const { error: uploadErr } = await supabaseBrowser()
-        .storage.from('moments')
-        .upload(path, file, { upsert: true, cacheControl: '3600' })
-      if (!uploadErr) urls.push(storagePublicUrl('moments', path))
-    }
-    setImages((prev) => [...prev, ...urls])
-    setBusy(false)
-  }
-
-  async function post() {
-    if (!user || !isOwner || (!content.trim() && images.length === 0)) return
-    setBusy(true)
-    setLocalError('')
-    const err = await postMoment(content, images)
-    setBusy(false)
-    if (err) {
-      setLocalError(err)
-      return
-    }
-    setContent('')
-    setImages([])
-  }
-
   async function remove(id: string) {
-    if (!window.confirm('确定删除这条说说？')) return
+    if (!window.confirm('确定删除这条闲语？')) return
     setLocalError('')
     const err = await deleteMoment(id)
     if (err) setLocalError(err)
@@ -89,13 +56,13 @@ export default function MomentsPage() {
       <ScrollFX />
       <nav className="article-nav">
         <Link href="/">← 返回首页</Link>
-        <span>说说</span>
+        <span>闲语</span>
       </nav>
 
       <article className="article">
-        <p className="eyebrow">MOMENTS</p>
+        <p className="eyebrow">MUSINGS</p>
         <h1>
-          说说
+          闲语
           <span className="article-seal" aria-hidden="true">
             言
           </span>
@@ -104,51 +71,8 @@ export default function MomentsPage() {
           ※ ※ ※
         </div>
 
-        {user && isOwner ? (
-          <div className="moments-composer">
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="此刻想说点什么…"
-            />
-            {images.length > 0 ? (
-              <div className="moments-images">
-                {images.map((u, i) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img key={i} src={u} alt="配图" />
-                ))}
-              </div>
-            ) : null}
-            <div className="moments-actions">
-              <label className="btn btn-ghost btn-sm">
-                配图
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  hidden
-                  onChange={(e) => uploadImages(e.target.files)}
-                />
-              </label>
-              <button className="btn btn-sm" type="button" onClick={post} disabled={busy}>
-                {busy ? '处理中…' : '发布'}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <p className="moments-login-tip">
-            {user ? (
-              '说说由博主发布，欢迎点赞和评论。'
-            ) : (
-              <>
-                <Link href="/login">登录</Link> 后可以点赞和评论。
-              </>
-            )}
-          </p>
-        )}
-
         {error || localError ? <p className="error-text">{localError || error}</p> : null}
-        {!ready && !error ? <p className="moments-empty">正在加载说说…</p> : null}
+        {!ready && !error ? <p className="moments-empty">正在加载闲语…</p> : null}
 
         <div className="moments-list">
           {moments.map((m) => {
@@ -177,7 +101,7 @@ export default function MomentsPage() {
                   <div className="moment-images">
                     {m.images.map((u, i) => (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img key={i} src={u} alt="说说配图" />
+                      <img key={i} src={u} alt="闲语配图" />
                     ))}
                   </div>
                 ) : null}
@@ -195,18 +119,11 @@ export default function MomentsPage() {
                 </div>
 
                 <div className="moment-comments">
-                  {mComments.map((c) => (
-                    <div key={c.id} className="moment-comment">
-                      <Avatar className="c-avatar sm" src={c.profiles?.avatar_url} />
-                      <div className="comment-body">
-                        <div className="comment-meta">
-                          <span className="comment-name">{c.profiles?.nickname || '旅人'}</span>
-                          <span className="comment-date">{formatDate(c.created_at)}</span>
-                        </div>
-                        <p className="comment-content">{c.content}</p>
-                      </div>
-                    </div>
-                  ))}
+                  <CommentThread
+                    items={mComments}
+                    userId={user?.id ?? null}
+                    onReply={(parentId, text) => addMomentComment(m.id, text, parentId)}
+                  />
                   {user ? (
                     <div className="moment-comment-form">
                       <input
@@ -235,9 +152,15 @@ export default function MomentsPage() {
             )
           })}
           {ready && moments.length === 0 && !error ? (
-            <p className="moments-empty">还没有说说。</p>
+            <p className="moments-empty">还没有闲语。</p>
           ) : null}
         </div>
+
+        {!user && ready ? (
+          <p className="moments-login-tip gb-login-tip">
+            <Link href="/login">登录</Link> 后可以点赞和评论。
+          </p>
+        ) : null}
       </article>
     </div>
   )

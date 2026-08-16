@@ -16,8 +16,8 @@ type NavLink = {
 const LINKS: NavLink[] = [
   { href: '/', label: '首页', match: (p) => p === '/' },
   { href: '/posts', label: '文章', match: (p) => p.startsWith('/posts') },
-  { href: '/moments', label: '说说', match: (p) => p.startsWith('/moments') },
-  { href: '/album', label: '相册', match: (p) => p.startsWith('/album') },
+  { href: '/moments', label: '闲语', match: (p) => p.startsWith('/moments') },
+  { href: '/album', label: '光影', match: (p) => p.startsWith('/album') },
   { href: '/timeline', label: '时间轴', match: (p) => p.startsWith('/timeline') },
   { href: '/guestbook', label: '留言', match: (p) => p.startsWith('/guestbook') },
   { href: '/about', label: '关于', match: (p) => p.startsWith('/about') },

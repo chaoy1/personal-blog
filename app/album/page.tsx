@@ -39,13 +39,13 @@ export default function AlbumPage() {
     <div className="wrap">
       <nav className="article-nav">
         <Link href="/">← 返回首页</Link>
-        <span>相册</span>
+        <span>光影</span>
       </nav>
 
       <article className="article" style={{ maxWidth: 940 }}>
-        <p className="eyebrow">ALBUM</p>
+        <p className="eyebrow">GALLERY</p>
         <h1>
-          相册
+          光影
           <span className="article-seal" aria-hidden="true">
             影
           </span>

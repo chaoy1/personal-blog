@@ -18,8 +18,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </Link>
         <nav>
           <Link href="/admin">文章</Link>
-          <Link href="/admin/moments">说说</Link>
-          <Link href="/admin/photos">相册</Link>
+          <Link href="/admin/moments">闲语</Link>
+          <Link href="/admin/photos">光影</Link>
           <Link href="/admin/profile">资料</Link>
           <Link href="/">查看博客</Link>
           <AdminHeader />

@@ -33,6 +33,7 @@ export type MomentCommentItem = {
   moment_id: string
   user_id: string
   content: string
+  parent_id: string | null
   created_at: string
   profiles: { nickname: string; avatar_url: string } | null
 }
@@ -105,7 +106,7 @@ type AppStore = {
   deleteGuestbook: (id: string) => Promise<string | null>
   postMoment: (content: string, images: string[]) => Promise<string | null>
   deleteMoment: (id: string) => Promise<string | null>
-  addMomentComment: (momentId: string, content: string) => Promise<string | null>
+  addMomentComment: (momentId: string, content: string, parentId?: string | null) => Promise<string | null>
   toggleMomentLike: (momentId: string) => Promise<string | null>
   createAlbum: (title: string, description: string) => Promise<AlbumItem | null>
   updateAlbum: (id: string, patch: { title: string; description: string }) => Promise<string | null>
@@ -192,7 +193,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       setMomentComments((cRes.data ?? []) as unknown as MomentCommentItem[])
       setMomentLikes((lRes.data ?? []) as unknown as MomentLikeItem[])
     } catch (e) {
-      setError(errMsg('读取说说失败', e))
+      setError(errMsg('读取闲语失败', e))
     }
   }, [])
 
@@ -206,7 +207,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       setAlbums((aRes.data ?? []) as unknown as AlbumItem[])
       setPhotos((pRes.data ?? []) as unknown as PhotoItem[])
     } catch (e) {
-      setError(errMsg('读取相册失败', e))
+      setError(errMsg('读取光影失败', e))
     }
   }, [])
 
@@ -368,17 +369,28 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   )
 
   const addMomentComment = useCallback(
-    async (momentId: string, content: string) => {
+    async (momentId: string, content: string, parentId?: string | null) => {
       if (!user) return '未登录'
       const text = content.trim()
       if (!text) return '内容不能为空'
       try {
         const sb = supabaseBrowser()
-        const { data, error: err } = await sb
+        const SELECT = '*, profiles!moment_comments_user_id_fkey(nickname, avatar_url)'
+        let { data, error: err } = await sb
           .from('moment_comments')
-          .insert({ moment_id: momentId, user_id: user.id, content: text })
-          .select('*, profiles!moment_comments_user_id_fkey(nickname, avatar_url)')
+          .insert({ moment_id: momentId, user_id: user.id, content: text, parent_id: parentId ?? null })
+          .select(SELECT)
           .single()
+        if (err && parentId && /parent_id|column/i.test(err.message || '')) {
+          // 数据库还没运行 schema-v8.sql（缺 parent_id 列）时，退化为普通评论
+          const retry = await sb
+            .from('moment_comments')
+            .insert({ moment_id: momentId, user_id: user.id, content: text })
+            .select(SELECT)
+            .single()
+          data = retry.data
+          err = retry.error
+        }
         if (err) return err.message
         const row = data as unknown as MomentCommentItem | null
         if (row) {

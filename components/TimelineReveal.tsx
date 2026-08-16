@@ -43,29 +43,31 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
             </div>
             {g.list.map((e) => (
               <article className={`tl-item tl-${e.type} reveal`} key={e.key}>
-                <span className="tl-dot" aria-hidden="true" />
                 <div className="tl-date">{formatDate(e.created_at)}</div>
-                <div className="tl-card">
-                  <span className={`tl-tag tl-tag-${e.type}`} aria-hidden="true">
-                    {e.type === 'post' ? '文' : e.type === 'photo' ? '影' : '言'}
-                  </span>
-                  <div className="tl-body">
-                    {e.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img className="tl-thumb" src={e.image} alt={e.title} loading="lazy" />
-                    ) : null}
-                    <div className="tl-text">
-                      {e.type === 'post' ? (
-                        <Link className="tl-title" href={e.href}>
-                          {e.title}
+                <div className="tl-track">
+                  <span className="tl-dot" aria-hidden="true" />
+                  <div className="tl-card">
+                    <span className={`tl-tag tl-tag-${e.type}`} aria-hidden="true">
+                      {e.type === 'post' ? '文' : e.type === 'photo' ? '影' : '言'}
+                    </span>
+                    <div className="tl-body">
+                      {e.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img className="tl-thumb" src={e.image} alt={e.title} loading="lazy" />
+                      ) : null}
+                      <div className="tl-text">
+                        {e.type === 'post' ? (
+                          <Link className="tl-title" href={e.href}>
+                            {e.title}
+                          </Link>
+                        ) : (
+                          <span className="tl-title">{e.title}</span>
+                        )}
+                        {e.excerpt ? <p className="tl-excerpt">{e.excerpt}</p> : null}
+                        <Link className="tl-more" href={e.href}>
+                          {e.type === 'post' ? '阅读全文 →' : '查看全部 →'}
                         </Link>
-                      ) : (
-                        <span className="tl-title">{e.title}</span>
-                      )}
-                      {e.excerpt ? <p className="tl-excerpt">{e.excerpt}</p> : null}
-                      <Link className="tl-more" href={e.href}>
-                        {e.type === 'post' ? '阅读全文 →' : '查看全部 →'}
-                      </Link>
+                      </div>
                     </div>
                   </div>
                 </div>

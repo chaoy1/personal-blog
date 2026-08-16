@@ -46,7 +46,7 @@ export default async function TimelinePage() {
     ...moments.map((m) => ({
       key: `moment-${m.id}`,
       type: 'moment' as const,
-      title: '说说',
+      title: '闲语',
       excerpt: m.content,
       image: m.images[0],
       href: '/moments',

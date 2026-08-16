@@ -21,7 +21,7 @@ export async function listAllPhotos(limit = 1000): Promise<TimelinePhoto[]> {
     .select('id,url,caption,created_at')
     .order('created_at', { ascending: false })
     .limit(limit)
-  if (error) throw new Error(`读取相册失败：${error.message}`)
+  if (error) throw new Error(`读取光影失败：${error.message}`)
   return data ?? []
 }
 
@@ -32,7 +32,7 @@ export async function listAllMoments(limit = 1000): Promise<TimelineMoment[]> {
     .select('id,content,images,created_at')
     .order('created_at', { ascending: false })
     .limit(limit)
-  if (error) throw new Error(`读取说说失败：${error.message}`)
+  if (error) throw new Error(`读取闲语失败：${error.message}`)
   return data ?? []
 }
 
@@ -41,7 +41,7 @@ export async function countMoments(): Promise<number> {
   const { count, error } = await supabaseAdmin()
     .from('moments')
     .select('*', { count: 'exact', head: true })
-  if (error) throw new Error(`统计说说失败：${error.message}`)
+  if (error) throw new Error(`统计闲语失败：${error.message}`)
   return count ?? 0
 }
 

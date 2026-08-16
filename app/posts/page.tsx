@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { listPublishedPosts, formatDate, type Post } from '@/lib/posts'
-import { SITE_NAME } from '@/lib/site'
+import { listPublishedPosts, type Post } from '@/lib/posts'
 import ScrollFX from '@/components/ScrollFX'
 import PostList from '@/components/PostList'
 
@@ -24,7 +23,7 @@ export default async function PostsPage() {
       <ScrollFX />
       <nav className="article-nav">
         <Link href="/">← 返回首页</Link>
-        <span>{SITE_NAME} · 文章</span>
+        <span>文章</span>
       </nav>
 
       <header className="posts-head">

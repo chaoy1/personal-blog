@@ -1,31 +1,34 @@
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
-import { listPublishedPosts, formatDate, type Post } from '@/lib/posts'
+import { listPublishedPosts, countPosts, formatDate, type Post } from '@/lib/posts'
 import { SITE_NAME, SITE_DESC } from '@/lib/site'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { listAllMoments, listAllPhotos, countMoments, countPhotos, type TimelineMoment, type TimelinePhoto } from '@/lib/timeline'
 import { listRecentGuestbook, type GuestbookRow } from '@/lib/guestbook'
 import ScrollFX from '@/components/ScrollFX'
 import ScrollUnfold from '@/components/ScrollUnfold'
+import ScrollHint from '@/components/ScrollHint'
 import Avatar from '@/components/Avatar'
 import CnNum from '@/components/CnNum'
 import DailyQuote from '@/components/DailyQuote'
 
 export const revalidate = 60
 
-const CN_WM = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十']
+const CN_WM = ['壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖', '拾']
 
 export default async function HomePage() {
   let posts: Post[] = []
   let dbError = false
   let moments: TimelineMoment[] = []
   let photos: TimelinePhoto[] = []
+  let postCount = 0
   let momentCount = 0
   let photoCount = 0
   let recentGuestbook: GuestbookRow[] = []
 
   try {
-    posts = await listPublishedPosts(6)
+    posts = await listPublishedPosts(3)
+    postCount = await countPosts()
   } catch {
     dbError = true
   }
@@ -33,16 +36,16 @@ export default async function HomePage() {
     moments = await listAllMoments(3)
     momentCount = await countMoments()
   } catch {
-    // 说说区块可缺省
+    // 闲语区块可缺省
   }
   try {
-    photos = await listAllPhotos(8)
+    photos = await listAllPhotos(3)
     photoCount = await countPhotos()
   } catch {
-    // 相册区块可缺省
+    // 光影区块可缺省
   }
   try {
-    recentGuestbook = await listRecentGuestbook(4)
+    recentGuestbook = await listRecentGuestbook(3)
   } catch {
     // 留言区块可缺省
   }
@@ -70,7 +73,7 @@ export default async function HomePage() {
       <div className="verse">
         言有尽而<b>意</b>无穷
       </div>
-      <div className="sigil">丙午 · {SITE_NAME}集</div>
+      <div className="sigil">{SITE_NAME}集</div>
 
       <div className="home-hero">
         <header className="masthead">
@@ -120,8 +123,8 @@ export default async function HomePage() {
 
         <div className="hero-stats">
           <span className="hs-item">
-            <b>{posts.length}</b>
-            <i>篇章</i>
+            <b>{postCount}</b>
+            <i>文章</i>
           </span>
           <span className="hs-item">
             <b>{momentCount}</b>
@@ -135,10 +138,7 @@ export default async function HomePage() {
 
         <DailyQuote />
 
-        <div className="scroll-hint">
-          <span>向下滑动 · 展开画卷</span>
-          <i aria-hidden="true" />
-        </div>
+        <ScrollHint />
       </div>
 
       {notConfigured ? (
@@ -164,7 +164,7 @@ export default async function HomePage() {
         <>
           <section className="home-section" id="posts">
             <h2 className="section-title">
-              <span>篇章</span>
+              <span>文章</span>
               <Link href="/posts">更多 →</Link>
             </h2>
             <div className="list">
@@ -222,7 +222,7 @@ export default async function HomePage() {
                 <Link href="/album">更多 →</Link>
               </h2>
               <div className="home-photos">
-                {photos.slice(0, 8).map((p) => (
+                {photos.map((p) => (
                   <Link key={p.id} href="/album" className="hp-item">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={p.url} alt={p.caption || '照片'} loading="lazy" />

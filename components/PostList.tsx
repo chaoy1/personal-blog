@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { formatDate, type Post } from '@/lib/blog'
 import CnNum from '@/components/CnNum'
 
-const CN_WM = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十']
+const CN_WM = ['壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖', '拾']
 const PAGE_SIZE = 10
 
 export default function PostList({ posts }: { posts: Post[] }) {

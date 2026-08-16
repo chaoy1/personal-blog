@@ -83,7 +83,7 @@ export default function AdminMoments() {
   }
 
   async function remove(id: string) {
-    if (!window.confirm('确定删除这条说说？')) return
+    if (!window.confirm('确定删除这条闲语？')) return
     await fetch(`/api/admin/moments/${id}`, { method: 'DELETE' })
     load()
   }
@@ -91,14 +91,14 @@ export default function AdminMoments() {
   return (
     <>
       <div className="admin-toolbar">
-        <h1>说说管理</h1>
+        <h1>闲语管理</h1>
       </div>
 
       <div className="moments-composer">
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="以博主身份发布说说…"
+          placeholder="以博主身份发布闲语…"
         />
         {images.length > 0 ? (
           <div className="moments-images">
@@ -148,7 +148,7 @@ export default function AdminMoments() {
           </div>
         ))}
         {moments.length === 0 ? (
-          <p className="moments-empty">还没有说说。</p>
+          <p className="moments-empty">还没有闲语。</p>
         ) : null}
       </div>
     </>

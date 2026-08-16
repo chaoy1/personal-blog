@@ -7,7 +7,7 @@ const REVEAL_SELECTOR = '.item, .reveal'
 /**
  * 滚动与入场动效：
  * 1. IntersectionObserver 让 .item / .reveal 元素进入视口时浮现（含错落延迟）
- * 2. MutationObserver 监听后续插入的节点（说说、评论等异步内容同样生效）
+ * 2. MutationObserver 监听后续插入的节点（闲语、评论等异步内容同样生效）
  * 3. 首页 masthead 视差、导航栏滚动态
  * 4. 卡片上的「墨光」：悬停时一团淡墨光晕跟随指针（--mx/--my）
  */
@@ -28,12 +28,12 @@ export default function ScrollFX() {
         el.classList.add('is-in')
         return
       }
-      // 按观察顺序给一个轻微错落延迟，成组元素依次浮现
+      // 按观察顺序给一个轻微错落延迟，成组元素依次浮现（节奏放缓，避免同帧堆叠）
       const siblings = el.parentElement
         ? Array.from(el.parentElement.querySelectorAll<HTMLElement>(REVEAL_SELECTOR))
         : [el]
       const idx = Math.max(0, siblings.indexOf(el))
-      el.style.transitionDelay = `${Math.min(idx, 6) * 70}ms`
+      el.style.transitionDelay = `${Math.min(idx, 5) * 105}ms`
       io.observe(el)
     }
 

@@ -36,7 +36,7 @@ export default function QianliAmbient() {
       y: rnd(0.3, 0.62),
       r: rnd(0.2, 0.3),
       sp: rnd(3, 7),
-      a: rnd(0.14, 0.24),
+      a: rnd(0.06, 0.12),
     }))
     const dusts = Array.from({ length: 16 }, () => ({
       x: Math.random(),
@@ -67,7 +67,7 @@ export default function QianliAmbient() {
 
       for (const d of dusts) {
         const dy = d.y * H + Math.sin(t * d.sp + d.ph) * 30
-        const a = 0.15 + 0.5 * Math.abs(Math.sin(t * 1.3 + d.ph))
+        const a = 0.1 + 0.32 * Math.abs(Math.sin(t * 1.3 + d.ph))
         ctx.fillStyle = `rgba(206,164,60,${a.toFixed(3)})`
         ctx.beginPath()
         ctx.arc(d.x * W, dy, d.r, 0, Math.PI * 2)

@@ -1,15 +1,17 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { SITE_NAME } from '@/lib/site'
 
 /**
  * 首页首次进入：背景像画卷一样自左向右展开。
- * 一张宣纸面覆盖全屏，纸面绘有淡墨山影与题字印章；
- * 卷轴木杆沿纸面顶端从左向右滑过，纸面随之卷出屏幕，露出底下的千里江山。
+ * 一张宣纸面覆盖全屏，纸面仅有淡墨山影，不浮现任何文字；
+ * 卷轴木杆沿纸面从左向右滑过，纸面随之卷出屏幕，露出底下的千里江山。
  * 仅每个会话第一次播放。
  */
-const DURATION = 2600
+const DURATION = 3000
+// 首屏内容在卷轴之后依次浮现，全部播完再移除 unfold-live，
+// 避免动画延迟被中途取消而瞬间跳到终态（卡顿的来源之一）。
+const CLASS_REMOVE_DELAY = 5950
 
 export default function ScrollUnfold() {
   const [active, setActive] = useState(false)
@@ -24,16 +26,21 @@ export default function ScrollUnfold() {
     }
     setActive(true)
     document.documentElement.classList.add('unfold-live')
-    const t = window.setTimeout(() => {
+    const t1 = window.setTimeout(() => {
       setActive(false)
-      document.documentElement.classList.remove('unfold-live')
       try {
         sessionStorage.setItem('unfoldSeen', '1')
       } catch {
         // ignore
       }
-    }, DURATION)
-    return () => window.clearTimeout(t)
+    }, DURATION + 80)
+    const t2 = window.setTimeout(() => {
+      document.documentElement.classList.remove('unfold-live')
+    }, CLASS_REMOVE_DELAY)
+    return () => {
+      window.clearTimeout(t1)
+      window.clearTimeout(t2)
+    }
   }, [])
 
   if (!active) return null
@@ -43,17 +50,6 @@ export default function ScrollUnfold() {
       <div className="su-paper">
         <div className="su-curl" />
         <div className="su-art" />
-        <div className="su-inscription">
-          <span className="su-title">
-            {SITE_NAME.split('').map((ch, i) => (
-              <i key={i} style={{ animationDelay: `${0.35 + i * 0.12}s` }}>
-                {ch}
-              </i>
-            ))}
-          </span>
-          <span className="su-seal">记</span>
-        </div>
-        <span className="su-colophon">流光容易把人抛 · 红了樱桃，绿了芭蕉</span>
       </div>
       <div className="su-roll">
         <i className="su-roll-paper" />
