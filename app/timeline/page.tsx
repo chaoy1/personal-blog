@@ -56,31 +56,29 @@ export default async function TimelinePage() {
   ].sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
 
   return (
-    <div className="wrap">
+    <div className="wrap timeline-page">
       <ScrollFX />
       <nav className="article-nav">
         <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
         <span>时间轴</span>
       </nav>
 
-      <main className="collection-scroll collection-scroll-timeline">
-        <PageIntro
-          index="04"
-          eyebrow="TIMELINE"
-          title="时间轴"
-          seal="岁"
-          description={`凡 ${entries.length} 事，按时而录。`}
-        />
+      <PageIntro
+        index="04"
+        eyebrow="TIMELINE"
+        title="时间轴"
+        seal="岁"
+        description={`凡 ${entries.length} 事，按时而录。`}
+      />
 
-        {entries.length === 0 ? (
-          <div className="empty-state">
-            <div className="big">空</div>
-            还没有任何记录。
-          </div>
-        ) : (
-          <TimelineReveal entries={entries} />
-        )}
-      </main>
+      {entries.length === 0 ? (
+        <div className="empty-state">
+          <div className="big">空</div>
+          还没有任何记录。
+        </div>
+      ) : (
+        <TimelineReveal entries={entries} />
+      )}
     </div>
   )
 }

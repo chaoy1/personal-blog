@@ -1756,10 +1756,6 @@
   content: "文";
 }
 
-.collection-scroll-timeline::after {
-  content: "岁";
-}
-
 .collection-scroll > .page-intro {
   width: 100%;
   margin: 0;
@@ -2062,5 +2058,124 @@
   .page-intro + .list,
   .page-intro + .timeline {
     margin-top: 4px;
+  }
+}
+
+/* ---------- 文章 / 时间轴：月下卷首 ---------- */
+
+@keyframes moonlit-header-breathe {
+  0%, 100% {
+    opacity: 0.62;
+    transform: translate3d(0, 0, 0) scale(0.98);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translate3d(-3px, 2px, 0) scale(1.025);
+  }
+}
+
+/* 文章页的月光留在整张长卷内部，不产生新的分块。 */
+:root[data-theme='dark'] .collection-scroll-posts > .page-intro {
+  background-image:
+    radial-gradient(circle at 82% 34%, rgba(222, 213, 176, 0.12), transparent 21%),
+    linear-gradient(96deg, rgba(16, 27, 31, 0.2), transparent 68%);
+}
+
+/* 时间轴恢复开放式页首，只让墨色和月光在背景上自然散开。 */
+:root[data-theme='dark'] .timeline-page > .page-intro {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+}
+
+:root[data-theme='dark'] .timeline-page > .page-intro::before {
+  content: "";
+  position: absolute;
+  left: -10%;
+  top: -28%;
+  z-index: -1;
+  display: block;
+  width: 112%;
+  height: 156%;
+  border: 0;
+  background:
+    radial-gradient(ellipse at 28% 52%, rgba(21, 30, 32, 0.82), rgba(27, 31, 29, 0.46) 47%, transparent 77%),
+    radial-gradient(circle at 83% 44%, rgba(220, 209, 167, 0.1), transparent 20%);
+  opacity: 1;
+  transform: none;
+  pointer-events: none;
+}
+
+/* 一轮不刺眼的纸月，同时承担页首夜间识别。 */
+:root[data-theme='dark'] .collection-scroll-posts > .page-intro::after,
+:root[data-theme='dark'] .timeline-page > .page-intro::after {
+  content: "";
+  position: absolute;
+  right: 64px;
+  top: 32px;
+  z-index: 0;
+  display: block;
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 38% 35%, rgba(242, 231, 194, 0.22) 0 8%, transparent 9%),
+    radial-gradient(circle at 63% 58%, rgba(20, 27, 29, 0.14) 0 13%, transparent 14%),
+    radial-gradient(circle, rgba(226, 216, 178, 0.16), rgba(191, 190, 164, 0.055) 58%, transparent 72%);
+  box-shadow:
+    0 0 34px rgba(214, 206, 171, 0.08),
+    inset 0 0 0 1px rgba(229, 219, 183, 0.08);
+  animation: moonlit-header-breathe 6.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+:root[data-theme='dark'] .collection-scroll-posts > .page-intro::before,
+:root[data-theme='dark'] .timeline-page > .page-intro .page-intro-mark::before,
+:root[data-theme='dark'] .timeline-page > .page-intro .page-intro-mark::after,
+:root[data-theme='dark'] .collection-scroll-posts > .page-intro .page-intro-mark::before,
+:root[data-theme='dark'] .collection-scroll-posts > .page-intro .page-intro-mark::after {
+  border-color: rgba(224, 212, 174, 0.18);
+}
+
+:root[data-theme='dark'] .collection-scroll-posts > .page-intro .page-intro-copy,
+:root[data-theme='dark'] .collection-scroll-posts > .page-intro .page-intro-mark,
+:root[data-theme='dark'] .timeline-page > .page-intro .page-intro-copy,
+:root[data-theme='dark'] .timeline-page > .page-intro .page-intro-mark {
+  position: relative;
+  z-index: 1;
+}
+
+:root[data-theme='dark'] .collection-scroll-posts > .page-intro h1,
+:root[data-theme='dark'] .timeline-page > .page-intro h1 {
+  color: rgba(239, 230, 204, 0.96);
+  text-shadow:
+    0 1px 1px rgba(8, 12, 13, 0.9),
+    0 0 20px rgba(216, 204, 164, 0.12);
+}
+
+:root[data-theme='dark'] .collection-scroll-posts > .page-intro .page-intro-description,
+:root[data-theme='dark'] .timeline-page > .page-intro .page-intro-description {
+  color: rgba(202, 195, 173, 0.78);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme='dark'] .collection-scroll-posts > .page-intro::after,
+  :root[data-theme='dark'] .timeline-page > .page-intro::after {
+    animation: none;
+  }
+}
+
+@media (max-width: 720px) {
+  :root[data-theme='dark'] .collection-scroll-posts > .page-intro::after,
+  :root[data-theme='dark'] .timeline-page > .page-intro::after {
+    right: 17px;
+    top: 24px;
+    width: 76px;
+    height: 76px;
+  }
+
+  :root[data-theme='dark'] .timeline-page > .page-intro::before {
+    left: -18%;
+    width: 130%;
   }
 }
