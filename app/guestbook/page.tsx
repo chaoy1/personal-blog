@@ -8,14 +8,18 @@ import CommentThread from '@/components/CommentThread'
 import PageIntro from '@/components/PageIntro'
 
 const PAGE_SIZE = 20
+type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
 export default function GuestbookPage() {
   const { user, profile, guestbook, ready, error, addGuestbook, deleteGuestbook } = useAppStore()
   const [page, setPage] = useState(1)
   const [content, setContent] = useState('')
   const [composeOpen, setComposeOpen] = useState(false)
-  const [busy, setBusy] = useState(false)
+  const [formState, setFormState] = useState<FormState>('idle')
   const [localError, setLocalError] = useState('')
+  const [formError, setFormError] = useState('')
+  const [success, setSuccess] = useState('')
+  const busy = formState === 'submitting'
 
   // 顶层留言（含兼容：父级已不存在的回复按顶层处理），新的在前
   const { parents, rootIdOf } = useMemo(() => {
@@ -49,17 +53,20 @@ export default function GuestbookPage() {
   async function post() {
     const text = content.trim()
     if (!user || !text) return
-    setBusy(true)
-    setLocalError('')
+    setFormState('submitting')
+    setFormError('')
+    setSuccess('')
     const err = await addGuestbook(text, null)
-    setBusy(false)
     if (err) {
-      setLocalError(err)
+      setFormError(err)
+      setFormState('error')
       return
     }
     setContent('')
     setComposeOpen(false)
     setPage(1)
+    setSuccess('留言已保存')
+    setFormState('success')
   }
 
   async function remove(id: string) {
@@ -113,8 +120,9 @@ export default function GuestbookPage() {
           </div>
 
           {user && composeOpen ? (
-            <div className="moments-composer gb-composer">
+            <div className="moments-composer gb-composer" aria-busy={busy} data-form-state={formState}>
               <textarea
+                aria-label="留言内容"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder={`以「${nickname}」的身份留下几句话…`}
@@ -128,7 +136,6 @@ export default function GuestbookPage() {
                   className="btn btn-ghost btn-sm"
                   onClick={() => {
                     setComposeOpen(false)
-                    setContent('')
                   }}
                 >
                   取消
@@ -136,12 +143,18 @@ export default function GuestbookPage() {
                 <button type="button" className="btn btn-sm" onClick={post} disabled={busy || !content.trim()}>
                   {busy ? '处理中…' : '留下这句话'}
                 </button>
+                {formState === 'error' ? (
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={post} disabled={busy || !content.trim()}>
+                    重试留言
+                  </button>
+                ) : null}
               </div>
             </div>
           ) : null}
         </section>
 
-        {error || localError ? <p className="error-text">{localError || error}</p> : null}
+        {error || localError || formError ? <p className="error-text" role="alert">{formError || localError || error}</p> : null}
+        {success ? <p className="notice-text" role="status">{success}</p> : null}
         {!ready && !error ? <p className="moments-empty">正在加载留言…</p> : null}
 
         {/* 留言内容优先展示 */}
@@ -149,7 +162,6 @@ export default function GuestbookPage() {
           <CommentThread
             items={threadItems}
             userId={user?.id ?? null}
-            busy={busy}
             emptyText={ready && !error ? '还没有人留言，来写第一句吧。' : undefined}
             onReply={(parentId, text) => addGuestbook(text, parentId)}
             onDelete={(id) => remove(id)}

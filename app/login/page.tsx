@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 import { SITE_NAME } from '@/lib/site'
 
+type FormState = 'idle' | 'submitting' | 'success' | 'error'
+
 export default function LoginPage() {
   const router = useRouter()
   const [mode, setMode] = useState<'login' | 'register'>('login')
@@ -14,7 +16,8 @@ export default function LoginPage() {
   const [nickname, setNickname] = useState('')
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
-  const [busy, setBusy] = useState(false)
+  const [formState, setFormState] = useState<FormState>('idle')
+  const busy = formState === 'submitting'
 
   function authErrorZh(msg: string): string {
     const m = msg.toLowerCase()
@@ -31,13 +34,14 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
     setNotice('')
-    setBusy(true)
+    setFormState('submitting')
     const sb = supabaseBrowser()
     try {
       if (mode === 'login') {
         const { error } = await sb.auth.signInWithPassword({ email, password })
         if (error) {
           setError(authErrorZh(error.message))
+          setFormState('error')
           return
         }
         router.push('/')
@@ -51,6 +55,7 @@ export default function LoginPage() {
         const j = await res.json().catch(() => ({}))
         if (!res.ok) {
           setError(j.error || '注册失败，请稍后再试')
+          setFormState('error')
           return
         }
         // 注册即自动登录，无需邮箱确认
@@ -58,13 +63,14 @@ export default function LoginPage() {
         if (signInErr) {
           setNotice('注册成功，请直接登录。')
           setMode('login')
+          setFormState('success')
           return
         }
         router.push('/')
         router.refresh()
       }
     } finally {
-      setBusy(false)
+      setFormState((state) => (state === 'submitting' ? 'idle' : state))
     }
   }
 
@@ -98,7 +104,7 @@ export default function LoginPage() {
         </button>
       </div>
 
-      <form onSubmit={submit} style={{ marginTop: 26 }}>
+      <form onSubmit={submit} style={{ marginTop: 26 }} aria-busy={busy} data-form-state={formState}>
         {mode === 'register' ? (
           <div className="field">
             <label htmlFor="nickname">昵称</label>
@@ -136,8 +142,8 @@ export default function LoginPage() {
             autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
           />
         </div>
-        {error ? <p className="error-text">{error}</p> : null}
-        {notice ? <p className="notice-text">{notice}</p> : null}
+        {error ? <p className="error-text" role="alert">{error}</p> : null}
+        {notice ? <p className="notice-text" role="status">{notice}</p> : null}
         <button className="btn" type="submit" disabled={busy || !email || !password}>
           {busy ? '处理中…' : mode === 'login' ? '登录' : '注册并登录'}
         </button>

@@ -7,21 +7,25 @@ import { supabaseBrowser, storagePublicUrl } from '@/lib/supabase-browser'
 import { useAppStore } from '@/lib/app-store'
 import Avatar from '@/components/Avatar'
 
+type FormState = 'idle' | 'submitting' | 'success' | 'error'
+
 export default function AccountPage() {
   const router = useRouter()
   const { ready, user, profile, updateProfile } = useAppStore()
   const [nickname, setNickname] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
-  const [busy, setBusy] = useState(false)
+  const [profileState, setProfileState] = useState<FormState>('idle')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [pwBusy, setPwBusy] = useState(false)
+  const [passwordState, setPasswordState] = useState<FormState>('idle')
   const [pwMessage, setPwMessage] = useState('')
   const [pwError, setPwError] = useState('')
   const [showPasswords, setShowPasswords] = useState(false)
+  const busy = profileState === 'submitting'
+  const pwBusy = passwordState === 'submitting'
 
   useEffect(() => {
     if (ready && !user) {
@@ -43,6 +47,7 @@ export default function AccountPage() {
       .upload(path, file, { upsert: true, cacheControl: '3600' })
     if (uploadErr) {
       setError(`头像上传失败：${uploadErr.message}`)
+      setProfileState('error')
       return
     }
     setAvatarUrl(storagePublicUrl('avatars', path))
@@ -50,32 +55,36 @@ export default function AccountPage() {
 
   async function save() {
     if (!user) return
-    setBusy(true)
+    setProfileState('submitting')
     setError('')
     setMessage('')
     const err = await updateProfile({ nickname: nickname.trim(), avatar_url: avatarUrl })
-    setBusy(false)
     if (err) {
       setError(err)
+      setProfileState('error')
       return
     }
     setMessage('资料已保存')
+    setProfileState('success')
   }
 
   async function changePassword() {
     if (!user?.email) {
       setPwError('当前账号无法修改密码')
+      setPasswordState('error')
       return
     }
     if (newPassword.length < 6) {
       setPwError('新密码至少需要 6 位')
+      setPasswordState('error')
       return
     }
     if (newPassword !== confirmPassword) {
       setPwError('两次输入的新密码不一致')
+      setPasswordState('error')
       return
     }
-    setPwBusy(true)
+    setPasswordState('submitting')
     setPwError('')
     setPwMessage('')
     const sb = supabaseBrowser()
@@ -84,20 +93,21 @@ export default function AccountPage() {
       password: oldPassword,
     })
     if (verifyErr) {
-      setPwBusy(false)
       setPwError('旧密码不正确')
+      setPasswordState('error')
       return
     }
     const { error: updateErr } = await sb.auth.updateUser({ password: newPassword })
-    setPwBusy(false)
     if (updateErr) {
       setPwError(`修改失败：${updateErr.message}`)
+      setPasswordState('error')
       return
     }
     setOldPassword('')
     setNewPassword('')
     setConfirmPassword('')
     setPwMessage('密码已修改')
+    setPasswordState('success')
   }
 
   function finish() {
@@ -145,7 +155,7 @@ export default function AccountPage() {
               </label>
             </div>
 
-            <div className="account-profile-fields">
+            <div className="account-profile-fields" aria-busy={busy} data-form-state={profileState}>
               <div className="field">
                 <label htmlFor="nickname">昵称</label>
                 <input
@@ -156,12 +166,17 @@ export default function AccountPage() {
                   placeholder="怎么称呼你？"
                 />
               </div>
-              {error ? <p className="error-text">{error}</p> : null}
-              {message ? <p className="notice-text">{message}</p> : null}
+              {error ? <p className="error-text" role="alert">{error}</p> : null}
+              {message ? <p className="notice-text" role="status">{message}</p> : null}
               <div className="editor-actions">
                 <button className="btn btn-sm" type="button" onClick={save} disabled={busy}>
                   {busy ? '保存中…' : '保存资料'}
                 </button>
+                {profileState === 'error' ? (
+                  <button className="btn btn-ghost btn-sm" type="button" onClick={save} disabled={busy}>
+                    重试保存资料
+                  </button>
+                ) : null}
               </div>
             </div>
           </div>
@@ -185,6 +200,8 @@ export default function AccountPage() {
 
             <form
               className="account-pw-grid"
+              aria-busy={pwBusy}
+              data-form-state={passwordState}
               onSubmit={(event) => {
                 event.preventDefault()
                 changePassword()
@@ -253,8 +270,8 @@ export default function AccountPage() {
                   />
                 </div>
               </div>
-              {pwError ? <p className="error-text account-pw-status">{pwError}</p> : null}
-              {pwMessage ? <p className="notice-text account-pw-status">{pwMessage}</p> : null}
+              {pwError ? <p className="error-text account-pw-status" role="alert">{pwError}</p> : null}
+              {pwMessage ? <p className="notice-text account-pw-status" role="status">{pwMessage}</p> : null}
               <div className="editor-actions">
                 <button className="btn btn-sm" type="submit" disabled={pwBusy}>
                   {pwBusy ? '正在更新…' : '确认更新密码'}
