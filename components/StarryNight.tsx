@@ -7,10 +7,11 @@ import { useEffect, useRef } from 'react'
  * 层层星子明灭、几颗亮星带光晕、右上暖月（月晕呼吸）、偶有流星划过、薄雾轻绕，
  * 山脚处另有流萤缓缓飘动。无孔明灯。遵循 prefers-reduced-motion。
  */
-export default function StarryNight() {
+export default function StarryNight({ active = true }: { active?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
+    if (!active) return
     const canvas = ref.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
@@ -199,7 +200,7 @@ export default function StarryNight() {
       window.removeEventListener('resize', resize)
       cancelAnimationFrame(raf)
     }
-  }, [])
+  }, [active])
 
-  return <canvas ref={ref} className="bg-canvas" aria-hidden="true" />
+  return active ? <canvas ref={ref} className="bg-canvas" aria-hidden="true" /> : null
 }

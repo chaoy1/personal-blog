@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react'
 import QianliAmbient from './QianliAmbient'
 import MapleLeaves from './MapleLeaves'
 import StarryNight from './StarryNight'
+import useAmbientMotion from './useAmbientMotion'
 
 export default function BackgroundStage() {
   const [dark, setDark] = useState(false)
+  const active = useAmbientMotion()
 
   useEffect(() => {
     const root = document.documentElement
@@ -23,13 +25,13 @@ export default function BackgroundStage() {
       {dark ? <div className="bg-tint" aria-hidden="true" /> : <div className="bg-blend" aria-hidden="true" />}
       {dark ? (
         <>
-          <StarryNight />
-          <MapleLeaves night />
+          <StarryNight active={active} />
+          <MapleLeaves active={active} night />
         </>
       ) : (
         <>
-          <QianliAmbient />
-          <MapleLeaves />
+          <QianliAmbient active={active} />
+          <MapleLeaves active={active} />
         </>
       )}
     </>

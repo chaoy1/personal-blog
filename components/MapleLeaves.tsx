@@ -245,10 +245,11 @@ const LAYERS: LayerCfg[] = [
   { scale: [0.9, 1.18], opacity: [0.72, 0.94], fall: [50, 80], swayAmp: [22, 38] }, // 近
 ]
 
-export default function MapleLeaves({ night = false }: { night?: boolean }) {
+export default function MapleLeaves({ night = false, active = true }: { night?: boolean; active?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
+    if (!active) return
     const canvas = ref.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
@@ -343,25 +344,15 @@ export default function MapleLeaves({ night = false }: { night?: boolean }) {
         ctx.restore()
       }
 
-      if (!reduced && !document.hidden) raf = requestAnimationFrame(frame)
+      if (!reduced) raf = requestAnimationFrame(frame)
     }
     if (!reduced) raf = requestAnimationFrame(frame)
 
-    const onVis = () => {
-      cancelAnimationFrame(raf)
-      if (!reduced && !document.hidden) {
-        last = performance.now()
-        raf = requestAnimationFrame(frame)
-      }
-    }
-    document.addEventListener('visibilitychange', onVis)
-
     return () => {
       window.removeEventListener('resize', resize)
-      document.removeEventListener('visibilitychange', onVis)
       cancelAnimationFrame(raf)
     }
-  }, [night])
+  }, [active, night])
 
-  return <canvas ref={ref} className="bg-canvas" aria-hidden="true" />
+  return active ? <canvas ref={ref} className="bg-canvas" aria-hidden="true" /> : null
 }

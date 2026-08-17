@@ -1,11 +1,13 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import useAmbientMotion from './useAmbientMotion'
 
 export default function ThemeToggle() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
   const [wash, setWash] = useState(0)
   const trackRef = useRef<HTMLSpanElement>(null)
+  const active = useAmbientMotion()
 
   useEffect(() => {
     setTheme(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light')
@@ -20,7 +22,7 @@ export default function ThemeToggle() {
       // ignore
     }
     setTheme(next)
-    setWash((w) => w + 1)
+    if (active) setWash((w) => w + 1)
   }
 
   const dark = theme === 'dark'
@@ -41,8 +43,7 @@ export default function ThemeToggle() {
       })
     }
 
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduced) {
+    if (!active) {
       particles.forEach((el) => {
         el.style.opacity = dark ? '0.9' : '0.8'
         el.style.transform = 'none'
@@ -79,7 +80,7 @@ export default function ThemeToggle() {
       animations.forEach((a) => a.cancel())
       clearInline()
     }
-  }, [dark])
+  }, [active, dark])
 
   return (
     <button

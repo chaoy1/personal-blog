@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import useAmbientMotion, { supportsFinePointer } from './useAmbientMotion'
 
 const REVEAL_SELECTOR = '.item, .reveal'
 
@@ -12,14 +13,17 @@ const REVEAL_SELECTOR = '.item, .reveal'
  * 4. 卡片上的「墨光」：悬停时一团淡墨光晕跟随指针（--mx/--my）
  */
 export default function ScrollFX() {
+  const active = useAmbientMotion()
+
   useEffect(() => {
     const masthead = document.querySelector<HTMLElement>('.masthead')
     const nav = document.querySelector<HTMLElement>('.site-nav')
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const reduced = !active
 
     // ---------- 入场浮现 ----------
     let io: IntersectionObserver | null = null
     const seen = new WeakSet<HTMLElement>()
+    const transitionTimers = new Set<number>()
 
     const observe = (el: HTMLElement) => {
       if (seen.has(el)) return
@@ -42,7 +46,7 @@ export default function ScrollFX() {
       root.querySelectorAll<HTMLElement>(REVEAL_SELECTOR).forEach(observe)
     }
 
-    if ('IntersectionObserver' in window && !reduced) {
+    if ('IntersectionObserver' in window && active) {
       io = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
@@ -51,9 +55,11 @@ export default function ScrollFX() {
               el.classList.add('is-in')
               io?.unobserve(el)
               // 动画完成后清掉延迟，避免影响后续的 hover 过渡
-              window.setTimeout(() => {
+              const timer = window.setTimeout(() => {
                 el.style.transitionDelay = ''
+                transitionTimers.delete(timer)
               }, 1300)
+              transitionTimers.add(timer)
             }
           }
         },
@@ -81,7 +87,8 @@ export default function ScrollFX() {
       target.style.setProperty('--mx', `${((e.clientX - rect.left) / rect.width) * 100}%`)
       target.style.setProperty('--my', `${((e.clientY - rect.top) / rect.height) * 100}%`)
     }
-    window.addEventListener('pointermove', onPointerMove, { passive: true })
+    const trackPointer = active && supportsFinePointer()
+    if (trackPointer) window.addEventListener('pointermove', onPointerMove, { passive: true })
 
     // ---------- masthead 视差 + 导航滚动态 ----------
     let raf = 0
@@ -101,17 +108,24 @@ export default function ScrollFX() {
       })
     }
 
-    window.addEventListener('scroll', onScroll, { passive: true })
-    onScroll()
+    if (active) {
+      window.addEventListener('scroll', onScroll, { passive: true })
+      onScroll()
+    }
 
     return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('pointermove', onPointerMove)
+      if (active) window.removeEventListener('scroll', onScroll)
+      if (trackPointer) window.removeEventListener('pointermove', onPointerMove)
       cancelAnimationFrame(raf)
+      transitionTimers.forEach((timer) => window.clearTimeout(timer))
+      if (masthead) {
+        masthead.style.transform = ''
+        masthead.style.opacity = ''
+      }
       mo.disconnect()
       io?.disconnect()
     }
-  }, [])
+  }, [active])
 
   return null
 }
