@@ -28,6 +28,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="zh-CN">
       <head>
+        <link rel="preload" as="image" href="/bg/qianli-bridge.jpg" />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=d?'dark':'light';var l=localStorage.getItem('lang');document.documentElement.dataset.lang=(l==='zh-Hant'||l==='zh-Hans')?l:'zh-Hans';}catch(e){document.documentElement.dataset.theme='light';document.documentElement.dataset.lang='zh-Hans';}})();`,

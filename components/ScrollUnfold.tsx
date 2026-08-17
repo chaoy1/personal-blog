@@ -1,45 +1,84 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
-/**
- * 首页首次进入：背景像画卷一样自左向右展开。
- * 一张宣纸面覆盖全屏，纸面仅有淡墨山影，不浮现任何文字；
- * 卷轴木杆沿纸面从左向右滑过，纸面随之卷出屏幕，露出底下的千里江山。
- * 仅每个会话第一次播放。
- */
-const DURATION = 1750
-// 首屏内容在卷轴之后依次浮现，全部播完再移除 unfold-live，
-// 避免动画延迟被中途取消而瞬间跳到终态（卡顿的来源之一）。
-const CLASS_REMOVE_DELAY = 3350
+import { shouldPlayFullUnfold, UNFOLD_VERSION_KEY } from '@/lib/motion-policy'
+
+const UNFOLD_DURATION_MS = 3000
+const CONTENT_COMPLETE_MS = 4200
+const RETURNING_FADE_MS = 600
 
 export default function ScrollUnfold() {
   const [active, setActive] = useState(false)
 
   useEffect(() => {
+    const root = document.documentElement
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduced) return
+    let storedVersion: string | null = null
+    let animationFrame: number | undefined
+    let unfoldTimer: number | undefined
+    let contentTimer: number | undefined
+    let returningTimer: number | undefined
+
     try {
-      if (sessionStorage.getItem('unfoldSeen')) return
+      storedVersion = localStorage.getItem(UNFOLD_VERSION_KEY)
     } catch {
-      // ignore
+      // Storage may be unavailable in private or locked-down contexts.
     }
-    setActive(true)
-    document.documentElement.classList.add('unfold-live')
-    const t1 = window.setTimeout(() => {
-      setActive(false)
-      try {
-        sessionStorage.setItem('unfoldSeen', '1')
-      } catch {
-        // ignore
+
+    if (!shouldPlayFullUnfold({ reduced, storedVersion })) {
+      if (!reduced) {
+        root.classList.add('unfold-returning')
+        returningTimer = window.setTimeout(() => {
+          root.classList.remove('unfold-returning')
+        }, RETURNING_FADE_MS)
       }
-    }, DURATION + 80)
-    const t2 = window.setTimeout(() => {
-      document.documentElement.classList.remove('unfold-live')
-    }, CLASS_REMOVE_DELAY)
+
+      return () => {
+        if (returningTimer !== undefined) window.clearTimeout(returningTimer)
+        root.classList.remove('unfold-live', 'unfold-returning')
+      }
+    }
+
+    const startUnfold = () => {
+      animationFrame = window.requestAnimationFrame(() => {
+        root.classList.add('unfold-live')
+        setActive(true)
+
+        unfoldTimer = window.setTimeout(() => {
+          setActive(false)
+          try {
+            localStorage.setItem(UNFOLD_VERSION_KEY, UNFOLD_VERSION_KEY)
+          } catch {
+            // Storage may be unavailable in private or locked-down contexts.
+          }
+        }, UNFOLD_DURATION_MS)
+
+        contentTimer = window.setTimeout(() => {
+          root.classList.remove('unfold-live')
+        }, CONTENT_COMPLETE_MS)
+      })
+    }
+
+    const whenInteractive = () => {
+      if (document.readyState !== 'loading') {
+        document.removeEventListener('readystatechange', whenInteractive)
+        startUnfold()
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('readystatechange', whenInteractive)
+    } else {
+      startUnfold()
+    }
+
     return () => {
-      window.clearTimeout(t1)
-      window.clearTimeout(t2)
+      document.removeEventListener('readystatechange', whenInteractive)
+      if (animationFrame !== undefined) window.cancelAnimationFrame(animationFrame)
+      if (unfoldTimer !== undefined) window.clearTimeout(unfoldTimer)
+      if (contentTimer !== undefined) window.clearTimeout(contentTimer)
+      root.classList.remove('unfold-live', 'unfold-returning')
     }
   }, [])
 

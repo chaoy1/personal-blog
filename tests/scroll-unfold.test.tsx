@@ -1,0 +1,60 @@
+import { cleanup, render } from '@testing-library/react'
+import React from 'react'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+
+import ScrollUnfold from '@/components/ScrollUnfold'
+import { UNFOLD_VERSION_KEY } from '@/lib/motion-policy'
+
+const standardMotion = {
+  matches: false,
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+  addListener: vi.fn(),
+  removeListener: vi.fn(),
+  dispatchEvent: vi.fn(),
+  media: '(prefers-reduced-motion: reduce)',
+  onchange: null,
+}
+
+beforeEach(() => {
+  localStorage.clear()
+  document.documentElement.classList.remove('unfold-live', 'unfold-returning')
+  vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+    callback(0)
+    return 1
+  })
+  vi.stubGlobal('cancelAnimationFrame', vi.fn())
+  vi.stubGlobal('matchMedia', vi.fn(() => standardMotion))
+})
+
+afterEach(() => {
+  cleanup()
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+})
+
+test('shows the first-visit overlay and marks the document as actively unfolding', () => {
+  render(<ScrollUnfold />)
+
+  expect(document.querySelector('.scroll-unfold')).toBeInTheDocument()
+  expect(document.documentElement).toHaveClass('unfold-live')
+})
+
+test('skips the overlay and fades in returning visitors', () => {
+  localStorage.setItem(UNFOLD_VERSION_KEY, UNFOLD_VERSION_KEY)
+
+  render(<ScrollUnfold />)
+
+  expect(document.querySelector('.scroll-unfold')).not.toBeInTheDocument()
+  expect(document.documentElement).toHaveClass('unfold-returning')
+})
+
+test('does not add moving unfold states when reduced motion is preferred', () => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ ...standardMotion, matches: true })))
+
+  render(<ScrollUnfold />)
+
+  expect(document.querySelector('.scroll-unfold')).not.toBeInTheDocument()
+  expect(document.documentElement).not.toHaveClass('unfold-live')
+  expect(document.documentElement).not.toHaveClass('unfold-returning')
+})
