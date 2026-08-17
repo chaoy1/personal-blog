@@ -29,8 +29,9 @@
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.4",
     "@types/react-dom": "^19.0.2",
-    "jsdom": "^30.0.1",
+    "jsdom": "^26.1.0",
     "typescript": "^5.7.3",
-    "vitest": "^4.1.10"
+    "vite": "^6.4.3",
+    "vitest": "^3.2.7"
   }
 }
