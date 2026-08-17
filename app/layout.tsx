@@ -10,7 +10,7 @@ import ScrollTop from '@/components/ScrollTop'
 import Lightbox from '@/components/Lightbox'
 import BackgroundStage from '@/components/BackgroundStage'
 import { AppStoreProvider } from '@/lib/app-store'
-import { siteUrl } from '@/lib/seo'
+import { DEFAULT_SHARE_IMAGE, absoluteUrl, siteUrl } from '@/lib/seo'
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -19,7 +19,15 @@ export const metadata: Metadata = {
     template: `%s · ${SITE_NAME}`,
   },
   description: SITE_DESC,
-  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    url: absoluteUrl('/'),
+    title: SITE_NAME,
+    description: SITE_DESC,
+    siteName: SITE_NAME,
+    locale: 'zh_CN',
+    images: [{ url: absoluteUrl(DEFAULT_SHARE_IMAGE), alt: SITE_NAME }],
+  },
   icons: { icon: '/icon.svg' },
 }
 

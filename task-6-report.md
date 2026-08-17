@@ -39,3 +39,14 @@ Implementation commit: `7841d67cfc1b511b126edb3ce883a135c1cb461b` (`feat: comple
 - Task 2's `/bg/qianli-bridge.jpg` preload remains intact.
 - No external runtime dependencies were added.
 - Authentication routes are explicitly `noindex` and intentionally excluded from the content sitemap.
+
+## Fix Round 1 — canonical, sitemap, and sharing metadata
+
+- RED: expanded `tests/seo.test.ts`; the first run failed because `normalizeSiteUrl`, `publicMetadata`, and `articleMetadata` did not exist.
+- GREEN: the SEO suite passes 6 tests, covering valid HTTP(S) URL normalization/fallback, absolute public/article canonicals, Open Graph share images, and sitemap revalidation/static timestamps.
+- Added route-specific absolute canonicals and Open Graph data for `/`, `/posts`, `/moments`, `/album`, `/timeline`, `/guestbook`, `/about`, `/login`, `/account`, and articles. The shared local image is `/bg/qianli-bridge.jpg`.
+- Removed the root-layout canonical to prevent static routes inheriting `/`; the home page now owns `/` explicitly.
+- `app/sitemap.ts` exports `revalidate = 60`; static route entries no longer emit false `lastModified` dates.
+- Production source inspection at `http://localhost:3007` confirmed unique canonicals and Open Graph URL/image tags for every route above plus `/posts/hello-world`; the article reports `og:type=article`.
+- `.next/prerender-manifest.json` reports `/sitemap.xml` `initialRevalidateSeconds: 60`.
+- Browser automation was unavailable in this follow-up; source inspection used the local production HTTP server instead.

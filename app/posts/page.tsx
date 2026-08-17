@@ -4,13 +4,15 @@ import { listPublishedPosts, type Post } from '@/lib/posts'
 import ScrollFX from '@/components/ScrollFX'
 import PostList from '@/components/PostList'
 import PageIntro from '@/components/PageIntro'
+import { publicMetadata } from '@/lib/seo'
 
 export const revalidate = 60
 
-export const metadata: Metadata = {
+export const metadata: Metadata = publicMetadata({
+  path: '/posts',
   title: '文章',
   description: '收录阅读、技术与生活的长篇手记。',
-}
+})
 
 export default async function PostsPage() {
   let posts: Post[] = []

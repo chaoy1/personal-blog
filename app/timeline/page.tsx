@@ -5,13 +5,15 @@ import { listAllPhotos, listAllMoments, type TimelinePhoto, type TimelineMoment 
 import ScrollFX from '@/components/ScrollFX'
 import TimelineReveal, { type TimelineEntry } from '@/components/TimelineReveal'
 import PageIntro from '@/components/PageIntro'
+import { publicMetadata } from '@/lib/seo'
 
 export const revalidate = 60
 
-export const metadata: Metadata = {
+export const metadata: Metadata = publicMetadata({
+  path: '/timeline',
   title: '时间轴',
   description: '按时间串起文章、闲语与光影的记录。',
-}
+})
 
 export default async function TimelinePage() {
   let posts: Post[] = []

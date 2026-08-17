@@ -7,7 +7,7 @@ import ScrollFX from '@/components/ScrollFX'
 import BackLink from '@/components/BackLink'
 import ReadingCompanion from '@/components/ReadingCompanion'
 import { getPostBySlug, formatDate, listPublishedPosts, type Post } from '@/lib/posts'
-import { articleJsonLd, siteUrl } from '@/lib/seo'
+import { articleJsonLd, articleMetadata, siteUrl } from '@/lib/seo'
 
 export const revalidate = 60
 
@@ -35,11 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // 环境变量未配置等情况，交给页面兜底
   }
   if (!post) return { title: '文章未找到', description: '这篇文章暂时无法找到。' }
-  return {
-    title: post.title,
-    description: post.excerpt || '一篇来自似水流年的手记。',
-    alternates: { canonical: `/posts/${encodeURIComponent(post.slug)}` },
-  }
+  return articleMetadata(post)
 }
 
 /**

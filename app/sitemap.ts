@@ -2,6 +2,8 @@ import type { MetadataRoute } from 'next'
 import { listPublishedPosts } from '@/lib/posts'
 import { absoluteUrl, siteUrl } from '@/lib/seo'
 
+export const revalidate = 60
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = siteUrl()
   const routes = ['', '/posts', '/moments', '/album', '/timeline', '/guestbook', '/about']
@@ -16,7 +18,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...routes.map((route) => ({
       url: absoluteUrl(route || '/', baseUrl),
-      lastModified: new Date(),
     })),
     ...posts.map((post) => ({
       url: absoluteUrl(`/posts/${encodeURIComponent(post.slug)}`, baseUrl),
