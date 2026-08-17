@@ -22,7 +22,7 @@ export default async function PostsPage() {
     <div className="wrap">
       <ScrollFX />
       <nav className="article-nav">
-        <Link href="/">← 返回首页</Link>
+        <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
         <span>文章</span>
       </nav>
 
@@ -47,7 +47,7 @@ export default async function PostsPage() {
       )}
 
       <footer className="article-footer">
-        <Link href="/">← 返回首页</Link>
+        <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
         <span>共 {posts.length} 篇</span>
       </footer>
     </div>

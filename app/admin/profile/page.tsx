@@ -20,6 +20,19 @@ export default function AdminProfile() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
+  function indentBio(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key !== 'Tab') return
+    event.preventDefault()
+    const input = event.currentTarget
+    const start = input.selectionStart
+    const end = input.selectionEnd
+    const indent = '　　'
+    setBio((value) => `${value.slice(0, start)}${indent}${value.slice(end)}`)
+    requestAnimationFrame(() => {
+      input.selectionStart = input.selectionEnd = start + indent.length
+    })
+  }
+
   useEffect(() => {
     fetch('/api/admin/profile')
       .then(async (res) => {
@@ -154,8 +167,11 @@ export default function AdminProfile() {
           id="a-bio"
           value={bio}
           onChange={(e) => setBio(e.target.value)}
+          onKeyDown={indentBio}
+          placeholder="一行写一段；按 Tab 可插入中文段首缩进"
           style={{ minHeight: 120 }}
         />
+        <p className="field-help">换行会按独立段落展示；Tab 会插入两个中文全角空格。</p>
       </div>
 
       {error ? <p className="error-text">{error}</p> : null}

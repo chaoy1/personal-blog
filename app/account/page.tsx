@@ -21,6 +21,7 @@ export default function AccountPage() {
   const [pwBusy, setPwBusy] = useState(false)
   const [pwMessage, setPwMessage] = useState('')
   const [pwError, setPwError] = useState('')
+  const [showPasswords, setShowPasswords] = useState(false)
 
   useEffect(() => {
     if (ready && !user) {
@@ -110,7 +111,7 @@ export default function AccountPage() {
   return (
     <div className="account-wrap">
       <nav className="article-nav">
-        <Link href="/">← 返回首页</Link>
+        <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
         <span>个人资料</span>
       </nav>
 
@@ -166,54 +167,85 @@ export default function AccountPage() {
           </div>
         </section>
 
-        <section className="account-section">
-          <h2 className="account-section-title">
-            <span className="sec-seal" aria-hidden="true">
-              密
-            </span>
-            修改密码
-          </h2>
-          <div className="account-pw-grid">
-            <div className="field">
-              <label htmlFor="old-password">旧密码</label>
-              <input
-                id="old-password"
-                type="password"
-                value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
-                autoComplete="current-password"
-                placeholder="输入当前密码"
-              />
+        <section className="account-section account-security">
+          <div className="account-security-head">
+            <div>
+              <span className="account-section-index">02 · SECURITY</span>
+              <h2>修改密码</h2>
             </div>
-            <div className="field">
-              <label htmlFor="new-password">新密码（至少 6 位）</label>
-              <input
-                id="new-password"
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                autoComplete="new-password"
-                placeholder="设置新密码"
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="confirm-password">确认新密码</label>
-              <input
-                id="confirm-password"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                autoComplete="new-password"
-                placeholder="请确认新密码"
-              />
-            </div>
-            {pwError ? <p className="error-text">{pwError}</p> : null}
-            {pwMessage ? <p className="notice-text">{pwMessage}</p> : null}
-            <div className="editor-actions">
-              <button className="btn btn-sm" type="button" onClick={changePassword} disabled={pwBusy}>
-                {pwBusy ? '修改中…' : '修改密码'}
-              </button>
-            </div>
+            <p>更新后，其他设备上的登录状态可能需要重新验证。</p>
+          </div>
+
+          <div className="account-security-layout">
+            <aside className="security-note" aria-label="密码建议">
+              <span>密码建议</span>
+              <p>至少六位，并混合使用字母、数字或符号。不要与其他网站共用同一密码。</p>
+              <i aria-hidden="true">安</i>
+            </aside>
+
+            <form
+              className="account-pw-grid"
+              onSubmit={(event) => {
+                event.preventDefault()
+                changePassword()
+              }}
+            >
+              <div className="field">
+                <label htmlFor="old-password">当前密码</label>
+                <div className="password-input">
+                  <input
+                    id="old-password"
+                    type={showPasswords ? 'text' : 'password'}
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    autoComplete="current-password"
+                    placeholder="输入当前密码"
+                  />
+                  <button type="button" onClick={() => setShowPasswords((value) => !value)}>
+                    {showPasswords ? '隐藏' : '显示'}
+                  </button>
+                </div>
+              </div>
+              <div className="field">
+                <label htmlFor="new-password">新密码</label>
+                <div className="password-input">
+                  <input
+                    id="new-password"
+                    type={showPasswords ? 'text' : 'password'}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    autoComplete="new-password"
+                    placeholder="至少 6 位"
+                  />
+                </div>
+                <div className="password-meter" aria-label="密码长度提示">
+                  <i className={newPassword.length >= 6 ? 'active' : ''} />
+                  <i className={newPassword.length >= 8 ? 'active' : ''} />
+                  <i className={newPassword.length >= 10 ? 'active' : ''} />
+                  <span>{newPassword ? (newPassword.length >= 10 ? '较稳妥' : newPassword.length >= 6 ? '可用' : '还需补充') : '至少 6 位'}</span>
+                </div>
+              </div>
+              <div className="field">
+                <label htmlFor="confirm-password">再次输入新密码</label>
+                <div className="password-input">
+                  <input
+                    id="confirm-password"
+                    type={showPasswords ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    autoComplete="new-password"
+                    placeholder="保持两次输入一致"
+                  />
+                </div>
+              </div>
+              {pwError ? <p className="error-text account-pw-status">{pwError}</p> : null}
+              {pwMessage ? <p className="notice-text account-pw-status">{pwMessage}</p> : null}
+              <div className="editor-actions">
+                <button className="btn btn-sm" type="submit" disabled={pwBusy}>
+                  {pwBusy ? '正在更新…' : '确认更新密码'}
+                </button>
+              </div>
+            </form>
           </div>
         </section>
 

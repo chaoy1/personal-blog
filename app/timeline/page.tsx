@@ -58,7 +58,7 @@ export default async function TimelinePage() {
     <div className="wrap">
       <ScrollFX />
       <nav className="article-nav">
-        <Link href="/">← 返回首页</Link>
+        <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
         <span>时间轴</span>
       </nav>
 

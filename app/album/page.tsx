@@ -38,7 +38,7 @@ export default function AlbumPage() {
   return (
     <div className="wrap">
       <nav className="article-nav">
-        <Link href="/">← 返回首页</Link>
+        <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
         <span>光影</span>
       </nav>
 

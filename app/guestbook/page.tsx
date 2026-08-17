@@ -74,7 +74,7 @@ export default function GuestbookPage() {
     <div className="wrap">
       <ScrollFX />
       <nav className="article-nav">
-        <Link href="/">← 返回首页</Link>
+        <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
         <span>留言</span>
       </nav>
 
@@ -89,6 +89,58 @@ export default function GuestbookPage() {
         <div className="divider-ornament" aria-hidden="true">
           ※ ※ ※
         </div>
+
+        <section className="guestbook-write" aria-label="写留言">
+          <div className="guestbook-write-head">
+            <div>
+              <span className="guestbook-write-kicker">LEAVE A NOTE</span>
+              <p>若有一句话想留下，就写在这里。</p>
+            </div>
+            {user ? (
+              <button
+                type="button"
+                className={`gb-compose-open${composeOpen ? ' active' : ''}`}
+                onClick={() => setComposeOpen((value) => !value)}
+                aria-expanded={composeOpen}
+              >
+                <span className="gb-write-mark" aria-hidden="true" />
+                {composeOpen ? '收起纸笺' : '写留言'}
+              </button>
+            ) : (
+              <p className="moments-login-tip gb-login-tip">
+                <Link href="/login">登录后写留言</Link>
+              </p>
+            )}
+          </div>
+
+          {user && composeOpen ? (
+            <div className="moments-composer gb-composer">
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder={`以「${nickname}」的身份留下几句话…`}
+                maxLength={500}
+                autoFocus
+              />
+              <div className="moments-actions">
+                <span className="moments-counter">{content.length}/500</span>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => {
+                    setComposeOpen(false)
+                    setContent('')
+                  }}
+                >
+                  取消
+                </button>
+                <button type="button" className="btn btn-sm" onClick={post} disabled={busy || !content.trim()}>
+                  {busy ? '处理中…' : '留下这句话'}
+                </button>
+              </div>
+            </div>
+          ) : null}
+        </section>
 
         {error || localError ? <p className="error-text">{localError || error}</p> : null}
         {!ready && !error ? <p className="moments-empty">正在加载留言…</p> : null}
@@ -119,55 +171,6 @@ export default function GuestbookPage() {
           </div>
         ) : null}
 
-        {/* 编写入口收起在列表之后，点开才占据视觉中心 */}
-        <div className="gb-compose">
-          {user ? (
-            composeOpen ? (
-              <div className="moments-composer gb-composer">
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder={`以「${nickname}」的身份留下几句话…`}
-                  maxLength={500}
-                  autoFocus
-                />
-                <div className="moments-actions">
-                  <span className="moments-counter">{content.length}/500</span>
-                  <button
-                    type="button"
-                    className="btn btn-ghost btn-sm"
-                    onClick={() => {
-                      setComposeOpen(false)
-                      setContent('')
-                    }}
-                  >
-                    收起
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-sm"
-                    onClick={post}
-                    disabled={busy || !content.trim()}
-                  >
-                    {busy ? '处理中…' : '留言'}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm gb-compose-open"
-                onClick={() => setComposeOpen(true)}
-              >
-                ✎ 写留言
-              </button>
-            )
-          ) : (
-            <p className="moments-login-tip gb-login-tip">
-              <Link href="/login">登录</Link> 后即可留言和回复。
-            </p>
-          )}
-        </div>
       </article>
     </div>
   )

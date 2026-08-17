@@ -36,7 +36,7 @@ export default async function AboutPage() {
     <div className="wrap">
       <ScrollFX />
       <nav className="article-nav">
-        <Link href="/">← 返回首页</Link>
+        <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
         <span>关于</span>
       </nav>
 
@@ -53,7 +53,7 @@ export default async function AboutPage() {
         </div>
 
         <div className="about-essay">
-          {owner?.bio ? <MarkdownView content={owner.bio} /> : null}
+          {owner?.bio ? <MarkdownView content={owner.bio} preserveParagraphs /> : null}
         </div>
 
         {owner ? (

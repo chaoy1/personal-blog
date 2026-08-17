@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 /** 返回上一页：有浏览历史时逐级后退，否则回到兜底页 */
 export default function BackLink({
   fallback = '/',
-  children = '← 返回上一页',
+  children = '返回上一页',
 }: {
   fallback?: string
   children?: React.ReactNode
@@ -24,6 +24,7 @@ export default function BackLink({
         }
       }}
     >
+      <span className="nav-back-mark" aria-hidden="true" />
       {children}
     </button>
   )

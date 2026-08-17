@@ -69,22 +69,24 @@ export default function ReadingCompanion() {
         <i style={{ transform: `scaleX(${progress})` }} />
       </div>
       {headings.length > 0 ? (
-        <aside className="reading-companion" aria-label="文章目录">
-          <span className="rc-eyebrow">卷内路径</span>
-          <nav>
-            {headings.map((heading) => (
-              <a
-                key={heading.id}
-                href={`#${heading.id}`}
-                className={`${heading.level === 3 ? 'sub ' : ''}${activeId === heading.id ? 'active' : ''}`}
-              >
-                <i aria-hidden="true" />
-                {heading.text}
-              </a>
-            ))}
-          </nav>
-          <span className="rc-percent">已读 {Math.round(progress * 100)}%</span>
-        </aside>
+        <div className="reading-companion-rail">
+          <aside className="reading-companion" aria-label="文章目录">
+            <span className="rc-eyebrow">卷内路径</span>
+            <nav>
+              {headings.map((heading) => (
+                <a
+                  key={heading.id}
+                  href={`#${heading.id}`}
+                  className={`${heading.level === 3 ? 'sub ' : ''}${activeId === heading.id ? 'active' : ''}`}
+                >
+                  <i aria-hidden="true" />
+                  {heading.text}
+                </a>
+              ))}
+            </nav>
+            <span className="rc-percent">已读 {Math.round(progress * 100)}%</span>
+          </aside>
+        </div>
       ) : null}
     </>
   )
