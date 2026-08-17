@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { formatDate } from '@/lib/blog'
 import Avatar from '@/components/Avatar'
 
@@ -36,6 +36,7 @@ export default function CommentThread({ items, userId, emptyText, onReply, onDel
   const [replyState, setReplyState] = useState<FormState>('idle')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const submissionId = useRef(0)
   const sending = replyState === 'submitting'
 
   const { roots, rootIdOf, childrenOf } = useMemo(() => {
@@ -69,6 +70,7 @@ export default function CommentThread({ items, userId, emptyText, onReply, onDel
   }, [items])
 
   function toggleReply(it: ThreadItem) {
+    submissionId.current += 1
     setError('')
     setSuccess('')
     setReplyState('idle')
@@ -81,10 +83,17 @@ export default function CommentThread({ items, userId, emptyText, onReply, onDel
     if (!text || sending) return
     const rootId = rootIdOf.get(target.id) ?? target.id
     const mention = rootId === target.id ? '' : `@${target.profiles?.nickname || '旅人'} `
+    const requestId = ++submissionId.current
     setReplyState('submitting')
     setError('')
     setSuccess('')
-    const err = await onReply(rootId, mention + text)
+    let err: string | null
+    try {
+      err = await onReply(rootId, mention + text)
+    } catch {
+      err = '回复失败，请稍后再试'
+    }
+    if (requestId !== submissionId.current) return
     if (err) {
       setError(err)
       setReplyState('error')
@@ -96,13 +105,21 @@ export default function CommentThread({ items, userId, emptyText, onReply, onDel
     setReplyState('success')
   }
 
+  function updateReplyText(value: string) {
+    if (sending) {
+      submissionId.current += 1
+      setReplyState('idle')
+    }
+    setReplyText(value)
+  }
+
   function renderReplyForm(target: ThreadItem) {
     return (
       <div className="reply-form" aria-busy={sending} data-form-state={replyState}>
         <textarea
           aria-label="回复内容"
           value={replyText}
-          onChange={(e) => setReplyText(e.target.value)}
+          onChange={(e) => updateReplyText(e.target.value)}
           placeholder={`回复 ${target.profiles?.nickname || '旅人'}：`}
           rows={2}
           maxLength={500}

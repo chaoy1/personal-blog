@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import ScrollFX from '@/components/ScrollFX'
 import { useAppStore } from '@/lib/app-store'
@@ -19,6 +19,7 @@ export default function GuestbookPage() {
   const [localError, setLocalError] = useState('')
   const [formError, setFormError] = useState('')
   const [success, setSuccess] = useState('')
+  const submissionId = useRef(0)
   const busy = formState === 'submitting'
 
   // 顶层留言（含兼容：父级已不存在的回复按顶层处理），新的在前
@@ -53,10 +54,17 @@ export default function GuestbookPage() {
   async function post() {
     const text = content.trim()
     if (!user || !text) return
+    const requestId = ++submissionId.current
     setFormState('submitting')
     setFormError('')
     setSuccess('')
-    const err = await addGuestbook(text, null)
+    let err: string | null
+    try {
+      err = await addGuestbook(text, null)
+    } catch {
+      err = '发表失败，请稍后再试'
+    }
+    if (requestId !== submissionId.current) return
     if (err) {
       setFormError(err)
       setFormState('error')
@@ -67,6 +75,22 @@ export default function GuestbookPage() {
     setPage(1)
     setSuccess('留言已保存')
     setFormState('success')
+  }
+
+  function toggleComposer() {
+    submissionId.current += 1
+    setComposeOpen((value) => !value)
+    setFormState('idle')
+    setFormError('')
+    setSuccess('')
+  }
+
+  function updateContent(value: string) {
+    if (busy) {
+      submissionId.current += 1
+      setFormState('idle')
+    }
+    setContent(value)
   }
 
   async function remove(id: string) {
@@ -106,7 +130,7 @@ export default function GuestbookPage() {
               <button
                 type="button"
                 className={`gb-compose-open${composeOpen ? ' active' : ''}`}
-                onClick={() => setComposeOpen((value) => !value)}
+                onClick={toggleComposer}
                 aria-expanded={composeOpen}
               >
                 <span className="gb-write-mark" aria-hidden="true" />
@@ -124,7 +148,7 @@ export default function GuestbookPage() {
               <textarea
                 aria-label="留言内容"
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => updateContent(e.target.value)}
                 placeholder={`以「${nickname}」的身份留下几句话…`}
                 maxLength={500}
                 autoFocus
@@ -134,9 +158,7 @@ export default function GuestbookPage() {
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm"
-                  onClick={() => {
-                    setComposeOpen(false)
-                  }}
+                  onClick={toggleComposer}
                 >
                   取消
                 </button>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useAppStore } from '@/lib/app-store'
 import CommentThread from '@/components/CommentThread'
@@ -14,6 +14,7 @@ export default function Comments({ slug }: { slug: string }) {
   const [formState, setFormState] = useState<FormState>('idle')
   const [localError, setLocalError] = useState('')
   const [success, setSuccess] = useState('')
+  const submissionId = useRef(0)
   const busy = formState === 'submitting'
 
   const list = useMemo(
@@ -27,10 +28,17 @@ export default function Comments({ slug }: { slug: string }) {
   async function submit() {
     const text = content.trim()
     if (!user || !text) return
+    const requestId = ++submissionId.current
     setFormState('submitting')
     setLocalError('')
     setSuccess('')
-    const err = await addComment(slug, text, null)
+    let err: string | null
+    try {
+      err = await addComment(slug, text, null)
+    } catch {
+      err = '发布失败，请稍后再试'
+    }
+    if (requestId !== submissionId.current) return
     if (err) {
       setLocalError(err)
       setFormState('error')
@@ -40,6 +48,28 @@ export default function Comments({ slug }: { slug: string }) {
     setComposeOpen(false)
     setSuccess('评论已发布')
     setFormState('success')
+  }
+
+  function openComposer() {
+    submissionId.current += 1
+    setComposeOpen(true)
+    setFormState('idle')
+    setLocalError('')
+    setSuccess('')
+  }
+
+  function closeComposer() {
+    submissionId.current += 1
+    setComposeOpen(false)
+    setFormState('idle')
+  }
+
+  function updateContent(value: string) {
+    if (busy) {
+      submissionId.current += 1
+      setFormState('idle')
+    }
+    setContent(value)
   }
 
   return (
@@ -70,7 +100,7 @@ export default function Comments({ slug }: { slug: string }) {
               <textarea
                 aria-label="评论内容"
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => updateContent(e.target.value)}
                 placeholder="说点什么…"
                 rows={3}
                 autoFocus
@@ -79,9 +109,7 @@ export default function Comments({ slug }: { slug: string }) {
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm"
-                  onClick={() => {
-                    setComposeOpen(false)
-                  }}
+                  onClick={closeComposer}
                 >
                   收起
                 </button>
@@ -104,7 +132,7 @@ export default function Comments({ slug }: { slug: string }) {
             <button
               type="button"
               className="btn btn-ghost btn-sm gb-compose-open"
-              onClick={() => setComposeOpen(true)}
+              onClick={openComposer}
             >
               ✎ 写评论
             </button>

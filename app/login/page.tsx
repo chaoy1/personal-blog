@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabaseBrowser } from '@/lib/supabase-browser'
@@ -30,13 +30,12 @@ export default function LoginPage() {
     return msg
   }
 
-  async function submit(e: FormEvent) {
-    e.preventDefault()
+  async function submit() {
     setError('')
     setNotice('')
     setFormState('submitting')
-    const sb = supabaseBrowser()
     try {
+      const sb = supabaseBrowser()
       if (mode === 'login') {
         const { error } = await sb.auth.signInWithPassword({ email, password })
         if (error) {
@@ -69,6 +68,9 @@ export default function LoginPage() {
         router.push('/')
         router.refresh()
       }
+    } catch {
+      setError(mode === 'login' ? '登录失败，请稍后再试' : '注册失败，请稍后再试')
+      setFormState('error')
     } finally {
       setFormState((state) => (state === 'submitting' ? 'idle' : state))
     }
@@ -87,6 +89,7 @@ export default function LoginPage() {
             setMode('login')
             setError('')
             setNotice('')
+            setFormState('idle')
           }}
         >
           登录
@@ -98,13 +101,14 @@ export default function LoginPage() {
             setMode('register')
             setError('')
             setNotice('')
+            setFormState('idle')
           }}
         >
           注册
         </button>
       </div>
 
-      <form onSubmit={submit} style={{ marginTop: 26 }} aria-busy={busy} data-form-state={formState}>
+      <form onSubmit={(event) => { event.preventDefault(); submit() }} style={{ marginTop: 26 }} aria-busy={busy} data-form-state={formState}>
         {mode === 'register' ? (
           <div className="field">
             <label htmlFor="nickname">昵称</label>
@@ -147,6 +151,11 @@ export default function LoginPage() {
         <button className="btn" type="submit" disabled={busy || !email || !password}>
           {busy ? '处理中…' : mode === 'login' ? '登录' : '注册并登录'}
         </button>
+        {formState === 'error' ? (
+          <button className="btn btn-ghost" type="button" disabled={busy || !email || !password} onClick={submit}>
+            {mode === 'login' ? '重试登录' : '重试注册'}
+          </button>
+        ) : null}
       </form>
 
       <Link href="/" className="back-link">

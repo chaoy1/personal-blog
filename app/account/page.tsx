@@ -17,6 +17,9 @@ export default function AccountPage() {
   const [profileState, setProfileState] = useState<FormState>('idle')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [uploadState, setUploadState] = useState<FormState>('idle')
+  const [uploadError, setUploadError] = useState('')
+  const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null)
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -26,6 +29,7 @@ export default function AccountPage() {
   const [showPasswords, setShowPasswords] = useState(false)
   const busy = profileState === 'submitting'
   const pwBusy = passwordState === 'submitting'
+  const uploadBusy = uploadState === 'submitting'
 
   useEffect(() => {
     if (ready && !user) {
@@ -40,21 +44,41 @@ export default function AccountPage() {
 
   async function uploadAvatar(file: File) {
     if (!user) return
+    setUploadState('submitting')
+    setUploadError('')
+    setError('')
+    setMessage('')
     const ext = file.name.split('.').pop() || 'png'
     const path = `${user.id}/${Date.now()}.${ext}`
-    const { error: uploadErr } = await supabaseBrowser()
-      .storage.from('avatars')
-      .upload(path, file, { upsert: true, cacheControl: '3600' })
-    if (uploadErr) {
-      setError(`头像上传失败：${uploadErr.message}`)
-      setProfileState('error')
-      return
+    try {
+      const { error: uploadErr } = await supabaseBrowser()
+        .storage.from('avatars')
+        .upload(path, file, { upsert: true, cacheControl: '3600' })
+      if (uploadErr) {
+        setUploadError(`头像上传失败：${uploadErr.message}`)
+        setUploadState('error')
+        return
+      }
+      setAvatarUrl(storagePublicUrl('avatars', path))
+      setPendingAvatarFile(null)
+      setUploadState('success')
+    } catch {
+      setUploadError('头像上传失败，请稍后再试')
+      setUploadState('error')
     }
-    setAvatarUrl(storagePublicUrl('avatars', path))
+  }
+
+  function selectAvatar(file: File) {
+    setPendingAvatarFile(file)
+    uploadAvatar(file)
+  }
+
+  function retryAvatarUpload() {
+    if (pendingAvatarFile) uploadAvatar(pendingAvatarFile)
   }
 
   async function save() {
-    if (!user) return
+    if (!user || uploadBusy) return
     setProfileState('submitting')
     setError('')
     setMessage('')
@@ -149,13 +173,19 @@ export default function AccountPage() {
                   hidden
                   onChange={(e) => {
                     const f = e.target.files?.[0]
-                    if (f) uploadAvatar(f)
+                    if (f) selectAvatar(f)
                   }}
                 />
               </label>
+              {uploadState === 'error' && pendingAvatarFile ? (
+                <button className="btn btn-ghost btn-sm" type="button" onClick={retryAvatarUpload} disabled={uploadBusy}>
+                  重试上传头像
+                </button>
+              ) : null}
+              {uploadError ? <p className="error-text" role="alert">{uploadError}</p> : null}
             </div>
 
-            <div className="account-profile-fields" aria-busy={busy} data-form-state={profileState}>
+            <div className="account-profile-fields" aria-busy={busy || uploadBusy} data-form-state={uploadBusy ? 'submitting' : profileState}>
               <div className="field">
                 <label htmlFor="nickname">昵称</label>
                 <input
@@ -169,11 +199,11 @@ export default function AccountPage() {
               {error ? <p className="error-text" role="alert">{error}</p> : null}
               {message ? <p className="notice-text" role="status">{message}</p> : null}
               <div className="editor-actions">
-                <button className="btn btn-sm" type="button" onClick={save} disabled={busy}>
+                <button className="btn btn-sm" type="button" onClick={save} disabled={busy || uploadBusy}>
                   {busy ? '保存中…' : '保存资料'}
                 </button>
                 {profileState === 'error' ? (
-                  <button className="btn btn-ghost btn-sm" type="button" onClick={save} disabled={busy}>
+                  <button className="btn btn-ghost btn-sm" type="button" onClick={save} disabled={busy || uploadBusy}>
                     重试保存资料
                   </button>
                 ) : null}
@@ -276,6 +306,11 @@ export default function AccountPage() {
                 <button className="btn btn-sm" type="submit" disabled={pwBusy}>
                   {pwBusy ? '正在更新…' : '确认更新密码'}
                 </button>
+                {passwordState === 'error' ? (
+                  <button className="btn btn-ghost btn-sm" type="button" onClick={changePassword} disabled={pwBusy}>
+                    重试更新密码
+                  </button>
+                ) : null}
               </div>
             </form>
           </div>

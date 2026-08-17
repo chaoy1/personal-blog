@@ -8,6 +8,8 @@ const mocks = vi.hoisted(() => ({
   deleteGuestbook: vi.fn(),
   updateProfile: vi.fn(),
   signInWithPassword: vi.fn(),
+  updateUser: vi.fn(),
+  uploadAvatar: vi.fn(),
   router: { back: vi.fn(), push: vi.fn(), refresh: vi.fn(), replace: vi.fn() },
 }))
 
@@ -33,8 +35,11 @@ vi.mock('next/link', () => ({
 vi.mock('next/navigation', () => ({ useRouter: () => mocks.router }))
 vi.mock('@/lib/app-store', () => ({ useAppStore: () => store }))
 vi.mock('@/lib/supabase-browser', () => ({
-  supabaseBrowser: () => ({ auth: { signInWithPassword: mocks.signInWithPassword } }),
-  storagePublicUrl: () => '',
+  supabaseBrowser: () => ({
+    auth: { signInWithPassword: mocks.signInWithPassword, updateUser: mocks.updateUser },
+    storage: { from: () => ({ upload: mocks.uploadAvatar }) },
+  }),
+  storagePublicUrl: (_bucket: string, path: string) => `https://assets.example/${path}`,
 }))
 vi.mock('@/components/ScrollFX', () => ({ default: () => null }))
 vi.mock('@/components/PageIntro', () => ({ default: () => null }))
@@ -47,10 +52,12 @@ import Comments from '@/components/Comments'
 
 function deferred<T>() {
   let resolve!: (value: T) => void
-  const promise = new Promise<T>((resolvePromise) => {
+  let reject!: (reason?: unknown) => void
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
     resolve = resolvePromise
+    reject = rejectPromise
   })
-  return { promise, resolve }
+  return { promise, resolve, reject }
 }
 
 function openCommentComposer() {
@@ -70,6 +77,8 @@ describe('public form feedback', () => {
     mocks.deleteGuestbook.mockReset()
     mocks.updateProfile.mockReset()
     mocks.signInWithPassword.mockReset()
+    mocks.updateUser.mockReset()
+    mocks.uploadAvatar.mockReset()
     Object.assign(store, {
       ready: true,
       user: { id: 'user-1', email: 'traveler@example.com' },
@@ -105,6 +114,23 @@ describe('public form feedback', () => {
     expect(mocks.addComment).toHaveBeenCalledTimes(2)
   })
 
+  it('ignores an old comment completion after the composer is reopened for a new draft', async () => {
+    const request = deferred<string | null>()
+    mocks.addComment.mockImplementationOnce(() => request.promise)
+    render(<Comments slug="qianli-jiangshan" />)
+
+    fireEvent.change(openCommentComposer(), { target: { value: '旧评论。' } })
+    fireEvent.click(screen.getByRole('button', { name: '发布评论' }))
+    fireEvent.click(screen.getByRole('button', { name: '收起' }))
+    const newDraft = openCommentComposer()
+    fireEvent.change(newDraft, { target: { value: '新的评论草稿。' } })
+
+    request.resolve(null)
+
+    await waitFor(() => expect(newDraft).toHaveValue('新的评论草稿。'))
+    expect(screen.getByLabelText('评论内容')).toBeInTheDocument()
+  })
+
   it('retains a failed guestbook entry and gives it an error alert', async () => {
     mocks.addGuestbook.mockResolvedValue('暂时无法保存')
     render(<GuestbookPage />)
@@ -116,6 +142,23 @@ describe('public form feedback', () => {
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('暂时无法保存'))
     expect(textarea).toHaveValue('此处留一言。')
     expect(screen.getByRole('button', { name: '重试留言' })).toBeEnabled()
+  })
+
+  it('ignores an old guestbook completion after the composer is reopened for a new draft', async () => {
+    const request = deferred<string | null>()
+    mocks.addGuestbook.mockImplementationOnce(() => request.promise)
+    render(<GuestbookPage />)
+
+    fireEvent.change(openGuestbookComposer(), { target: { value: '旧留言。' } })
+    fireEvent.click(screen.getByRole('button', { name: '留下这句话' }))
+    fireEvent.click(screen.getByRole('button', { name: '取消' }))
+    const newDraft = openGuestbookComposer()
+    fireEvent.change(newDraft, { target: { value: '新的留言草稿。' } })
+
+    request.resolve(null)
+
+    await waitFor(() => expect(newDraft).toHaveValue('新的留言草稿。'))
+    expect(screen.getByLabelText('留言内容')).toBeInTheDocument()
   })
 
   it('retains a failed reply and exposes a labelled retry action', async () => {
@@ -133,7 +176,7 @@ describe('public form feedback', () => {
     fireEvent.click(screen.getByRole('button', { name: '回复' }))
     const textarea = screen.getByLabelText('回复内容')
     fireEvent.change(textarea, { target: { value: '欢迎。' } })
-    fireEvent.click(screen.getByRole('button', { name: /^回复$/ }))
+    fireEvent.click(screen.getAllByRole('button', { name: /^回复$/ }).find((button) => button.classList.contains('btn-sm'))!)
 
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('回复失败'))
     expect(textarea).toHaveValue('欢迎。')
@@ -163,6 +206,35 @@ describe('public form feedback', () => {
     expect(screen.queryByRole('button', { name: '重试回复' })).not.toBeInTheDocument()
   })
 
+  it('ignores a completed reply after the user retargets a new reply draft', async () => {
+    const items: ThreadItem[] = [
+      {
+        id: 'comment-1', user_id: 'user-2', content: '第一条。', parent_id: null,
+        created_at: '2026-08-18T00:00:00.000Z', profiles: { nickname: '甲', avatar_url: '' },
+      },
+      {
+        id: 'comment-2', user_id: 'user-3', content: '第二条。', parent_id: null,
+        created_at: '2026-08-18T00:00:01.000Z', profiles: { nickname: '乙', avatar_url: '' },
+      },
+    ]
+    const request = deferred<string | null>()
+    mocks.addComment.mockImplementationOnce(() => request.promise)
+    render(<CommentThread items={items} userId="user-1" onReply={mocks.addComment} />)
+
+    fireEvent.click(screen.getAllByRole('button', { name: '回复' })[0])
+    fireEvent.change(screen.getByLabelText('回复内容'), { target: { value: '旧回复。' } })
+    fireEvent.click(screen.getAllByRole('button', { name: /^回复$/ }).find((button) => button.classList.contains('btn-sm'))!)
+    fireEvent.click(screen.getByRole('button', { name: '取消回复' }))
+    fireEvent.click(screen.getAllByRole('button', { name: '回复' })[1])
+    const newDraft = screen.getByLabelText('回复内容')
+    fireEvent.change(newDraft, { target: { value: '新的回复草稿。' } })
+
+    request.resolve(null)
+
+    await waitFor(() => expect(newDraft).toHaveValue('新的回复草稿。'))
+    expect(screen.getByLabelText('回复内容')).toBeInTheDocument()
+  })
+
   it('announces invalid login credentials', async () => {
     mocks.signInWithPassword.mockResolvedValue({ error: { message: 'Invalid login credentials' } })
     render(<LoginPage />)
@@ -172,6 +244,33 @@ describe('public form feedback', () => {
     fireEvent.click(screen.getAllByRole('button', { name: '登录' }).find((button) => (button as HTMLButtonElement).type === 'submit')!)
 
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('邮箱或密码错误'))
+    fireEvent.click(screen.getByRole('button', { name: '重试登录' }))
+    await waitFor(() => expect(mocks.signInWithPassword).toHaveBeenCalledTimes(2))
+  })
+
+  it('announces a rejected login request and leaves an explicit retry action', async () => {
+    mocks.signInWithPassword.mockRejectedValue(new Error('network unavailable'))
+    render(<LoginPage />)
+
+    fireEvent.change(screen.getByLabelText('邮箱'), { target: { value: 'traveler@example.com' } })
+    fireEvent.change(screen.getByLabelText('密码'), { target: { value: 'mistake' } })
+    fireEvent.click(screen.getAllByRole('button', { name: '登录' }).find((button) => (button as HTMLButtonElement).type === 'submit')!)
+
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('登录失败，请稍后再试'))
+    expect(screen.getByRole('button', { name: '重试登录' })).toBeEnabled()
+  })
+
+  it('returns login form state to idle when switching modes after an error', async () => {
+    mocks.signInWithPassword.mockResolvedValue({ error: { message: 'Invalid login credentials' } })
+    render(<LoginPage />)
+
+    fireEvent.change(screen.getByLabelText('邮箱'), { target: { value: 'traveler@example.com' } })
+    fireEvent.change(screen.getByLabelText('密码'), { target: { value: 'mistake' } })
+    fireEvent.click(screen.getAllByRole('button', { name: '登录' }).find((button) => (button as HTMLButtonElement).type === 'submit')!)
+    await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
+    fireEvent.click(screen.getByRole('button', { name: '注册' }))
+
+    expect(document.querySelector('form')).toHaveAttribute('data-form-state', 'idle')
   })
 
   it('announces profile save completion without moving focus', async () => {
@@ -194,5 +293,37 @@ describe('public form feedback', () => {
 
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('保存失败，请重试'))
     expect(screen.getByRole('button', { name: '重试保存资料' })).toBeEnabled()
+  })
+
+  it('retries a failed avatar upload with the selected file before saving the new URL', async () => {
+    const file = new File(['avatar'], 'portrait.png', { type: 'image/png' })
+    mocks.uploadAvatar
+      .mockResolvedValueOnce({ error: { message: '网络中断' } })
+      .mockResolvedValueOnce({ error: null })
+    mocks.updateProfile.mockResolvedValue(null)
+    render(<AccountPage />)
+
+    fireEvent.change(screen.getByLabelText('更换头像'), { target: { files: [file] } })
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('头像上传失败：网络中断'))
+    fireEvent.click(screen.getByRole('button', { name: '重试上传头像' }))
+    await waitFor(() => expect(mocks.uploadAvatar).toHaveBeenCalledTimes(2))
+    expect(mocks.uploadAvatar).toHaveBeenLastCalledWith(expect.any(String), file, expect.any(Object))
+
+    fireEvent.click(screen.getByRole('button', { name: '保存资料' }))
+    await waitFor(() => expect(mocks.updateProfile).toHaveBeenCalledWith(expect.objectContaining({ avatar_url: expect.stringContaining('/user-1/') })))
+  })
+
+  it('offers an explicit retry after a password verification failure', async () => {
+    mocks.signInWithPassword.mockResolvedValue({ error: { message: 'Invalid login credentials' } })
+    render(<AccountPage />)
+
+    fireEvent.change(screen.getByLabelText('当前密码'), { target: { value: 'wrong-pass' } })
+    fireEvent.change(screen.getByLabelText('新密码'), { target: { value: 'new-pass' } })
+    fireEvent.change(screen.getByLabelText('再次输入新密码'), { target: { value: 'new-pass' } })
+    fireEvent.click(screen.getByRole('button', { name: '确认更新密码' }))
+
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('旧密码不正确'))
+    fireEvent.click(screen.getByRole('button', { name: '重试更新密码' }))
+    await waitFor(() => expect(mocks.signInWithPassword).toHaveBeenCalledTimes(2))
   })
 })
