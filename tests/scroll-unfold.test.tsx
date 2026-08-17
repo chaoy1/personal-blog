@@ -1,4 +1,4 @@
-import { cleanup, render } from '@testing-library/react'
+import { act, cleanup, render } from '@testing-library/react'
 import React from 'react'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 
@@ -16,6 +16,8 @@ const standardMotion = {
   onchange: null,
 }
 
+const startAnimationClock = () => act(() => vi.advanceTimersByTime(16))
+
 beforeEach(() => {
   localStorage.clear()
   document.documentElement.classList.remove('unfold-live', 'unfold-returning')
@@ -29,6 +31,7 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup()
+  vi.useRealTimers()
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
 })
@@ -56,5 +59,40 @@ test('does not add moving unfold states when reduced motion is preferred', () =>
 
   expect(document.querySelector('.scroll-unfold')).not.toBeInTheDocument()
   expect(document.documentElement).not.toHaveClass('unfold-live')
+  expect(document.documentElement).not.toHaveClass('unfold-returning')
+})
+
+test('persists the unfold version when the three-second overlay completes', () => {
+  vi.useFakeTimers()
+
+  render(<ScrollUnfold />)
+  startAnimationClock()
+  act(() => vi.advanceTimersByTime(3000))
+
+  expect(localStorage.getItem(UNFOLD_VERSION_KEY)).toBe(UNFOLD_VERSION_KEY)
+  expect(document.querySelector('.scroll-unfold')).not.toBeInTheDocument()
+})
+
+test('cleans up the active unfold class at the content-complete boundary', () => {
+  vi.useFakeTimers()
+
+  render(<ScrollUnfold />)
+  startAnimationClock()
+  act(() => vi.advanceTimersByTime(4199))
+  expect(document.documentElement).toHaveClass('unfold-live')
+
+  act(() => vi.advanceTimersByTime(1))
+  expect(document.documentElement).not.toHaveClass('unfold-live')
+})
+
+test('cleans up the returning class after its 600ms fade', () => {
+  vi.useFakeTimers()
+  localStorage.setItem(UNFOLD_VERSION_KEY, UNFOLD_VERSION_KEY)
+
+  render(<ScrollUnfold />)
+  act(() => vi.advanceTimersByTime(599))
+  expect(document.documentElement).toHaveClass('unfold-returning')
+
+  act(() => vi.advanceTimersByTime(1))
   expect(document.documentElement).not.toHaveClass('unfold-returning')
 })
