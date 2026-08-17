@@ -194,18 +194,34 @@ export default async function HomePage() {
                 <Link href="/moments">更多 →</Link>
               </h2>
               <div className="home-moments">
-                {moments.map((m) => (
-                  <Link key={m.id} href="/moments" className="hm-card">
+                {moments.map((m, index) => (
+                  <Link
+                    key={m.id}
+                    href="/moments"
+                    className={`hm-card${m.images.length > 0 ? '' : ' no-image'}`}
+                  >
+                    <span className="hm-index" aria-hidden="true">
+                      <b>{String(index + 1).padStart(2, '0')}</b>
+                      <i>闲</i>
+                    </span>
+                    <span className="hm-copy">
+                      <span className="hm-meta">
+                        <span>片刻 · MOMENT</span>
+                        <time dateTime={m.created_at}>{formatDate(m.created_at)}</time>
+                      </span>
+                      <span className="hm-text">{m.content || '一张图，胜过千言。'}</span>
+                      <span className="hm-action">
+                        读这一则 <i aria-hidden="true">↗</i>
+                      </span>
+                    </span>
                     {m.images.length > 0 ? (
-                      <span className="hm-thumbs">
+                      <span className={`hm-thumbs count-${Math.min(m.images.length, 3)}`}>
                         {m.images.slice(0, 3).map((u, i) => (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img key={i} src={u} alt="" loading="lazy" />
+                          <img key={i} src={u} alt={`闲语配图 ${i + 1}`} loading="lazy" />
                         ))}
                       </span>
                     ) : null}
-                    <span className="hm-text">{m.content || '（一张图，胜过千言）'}</span>
-                    <span className="hm-date">{formatDate(m.created_at)}</span>
                   </Link>
                 ))}
               </div>
