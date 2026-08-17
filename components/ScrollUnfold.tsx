@@ -8,10 +8,10 @@ import { useEffect, useState } from 'react'
  * 卷轴木杆沿纸面从左向右滑过，纸面随之卷出屏幕，露出底下的千里江山。
  * 仅每个会话第一次播放。
  */
-const DURATION = 3000
+const DURATION = 1750
 // 首屏内容在卷轴之后依次浮现，全部播完再移除 unfold-live，
 // 避免动画延迟被中途取消而瞬间跳到终态（卡顿的来源之一）。
-const CLASS_REMOVE_DELAY = 5950
+const CLASS_REMOVE_DELAY = 3350
 
 export default function ScrollUnfold() {
   const [active, setActive] = useState(false)

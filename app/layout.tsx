@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
+import '@fontsource/fraunces/600.css'
 import './globals.css'
 import { SITE_NAME, SITE_DESC } from '@/lib/site'
 import SiteNav from '@/components/SiteNav'

@@ -26,29 +26,26 @@ export default async function HomePage() {
   let photoCount = 0
   let recentGuestbook: GuestbookRow[] = []
 
-  try {
-    posts = await listPublishedPosts(3)
-    postCount = await countPosts()
-  } catch {
-    dbError = true
-  }
-  try {
-    moments = await listAllMoments(3)
-    momentCount = await countMoments()
-  } catch {
-    // 闲语区块可缺省
-  }
-  try {
-    photos = await listAllPhotos(3)
-    photoCount = await countPhotos()
-  } catch {
-    // 光影区块可缺省
-  }
-  try {
-    recentGuestbook = await listRecentGuestbook(3)
-  } catch {
-    // 留言区块可缺省
-  }
+  // 首页各区块互不依赖，并行读取可避免一个慢查询拖住整张画卷。
+  const [postsResult, postCountResult, momentsResult, momentCountResult, photosResult, photoCountResult, guestbookResult] =
+    await Promise.allSettled([
+      listPublishedPosts(3),
+      countPosts(),
+      listAllMoments(3),
+      countMoments(),
+      listAllPhotos(3),
+      countPhotos(),
+      listRecentGuestbook(3),
+    ])
+
+  if (postsResult.status === 'fulfilled') posts = postsResult.value
+  else dbError = true
+  postCount = postCountResult.status === 'fulfilled' ? postCountResult.value : posts.length
+  if (momentsResult.status === 'fulfilled') moments = momentsResult.value
+  momentCount = momentCountResult.status === 'fulfilled' ? momentCountResult.value : moments.length
+  if (photosResult.status === 'fulfilled') photos = photosResult.value
+  photoCount = photoCountResult.status === 'fulfilled' ? photoCountResult.value : photos.length
+  if (guestbookResult.status === 'fulfilled') recentGuestbook = guestbookResult.value
 
   const notConfigured = !isSupabaseConfigured()
 
@@ -122,18 +119,18 @@ export default async function HomePage() {
         </header>
 
         <div className="hero-stats">
-          <span className="hs-item">
+          <Link href="/posts" className="hs-item">
             <b>{postCount}</b>
             <i>文章</i>
-          </span>
-          <span className="hs-item">
+          </Link>
+          <Link href="/moments" className="hs-item">
             <b>{momentCount}</b>
             <i>闲语</i>
-          </span>
-          <span className="hs-item">
+          </Link>
+          <Link href="/album" className="hs-item">
             <b>{photoCount}</b>
             <i>光影</i>
-          </span>
+          </Link>
         </div>
 
         <DailyQuote />

@@ -2,10 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { SITE_NAME } from '@/lib/site'
 import ThemeToggle from '@/components/ThemeToggle'
 import LangToggle from '@/components/LangToggle'
 import { useAppStore } from '@/lib/app-store'
+import SearchPalette from '@/components/SearchPalette'
 
 type NavLink = {
   href: string
@@ -27,6 +29,23 @@ export default function SiteNav() {
   const pathname = usePathname()
   const router = useRouter()
   const { user, profile, signOut } = useAppStore()
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  useEffect(() => setMenuOpen(false), [pathname])
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMenuOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = previous
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [menuOpen])
 
   // 注意：必须在所有 hook 之后才能提前返回
   if (pathname.startsWith('/admin')) return null
@@ -37,7 +56,7 @@ export default function SiteNav() {
   }
 
   return (
-    <nav className="site-nav">
+    <nav className={`site-nav${menuOpen ? ' menu-open' : ''}`}>
       <Link href="/" className="nav-brand">
         {SITE_NAME}
       </Link>
@@ -72,8 +91,48 @@ export default function SiteNav() {
             登录
           </Link>
         )}
+        <SearchPalette />
         <LangToggle />
         <ThemeToggle />
+        <button
+          type="button"
+          className="mobile-nav-toggle"
+          aria-label={menuOpen ? '收起导航' : '展开导航'}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-site-menu"
+          onClick={() => setMenuOpen((value) => !value)}
+        >
+          <span />
+          <span />
+        </button>
+      </div>
+      <div id="mobile-site-menu" className="mobile-nav-panel" aria-hidden={!menuOpen}>
+        <div className="mobile-nav-caption">
+          <span>游园路径</span>
+          <i>PATHS THROUGH THE SCROLL</i>
+        </div>
+        <div className="mobile-nav-links">
+          {LINKS.map((link, index) => {
+            const active = link.match ? link.match(pathname) : false
+            return (
+              <Link key={link.href} href={link.href} className={active ? 'active' : undefined}>
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <b>{link.label}</b>
+                <i aria-hidden="true">↗</i>
+              </Link>
+            )
+          })}
+        </div>
+        <div className="mobile-nav-account">
+          {user ? (
+            <>
+              <Link href="/account">{profile?.nickname || user.email?.split('@')[0] || '个人资料'}</Link>
+              <button type="button" onClick={logout}>退出登录</button>
+            </>
+          ) : (
+            <Link href="/login">登录后参与留言与评论</Link>
+          )}
+        </div>
       </div>
     </nav>
   )

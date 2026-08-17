@@ -5,7 +5,9 @@ import MarkdownView from '@/components/MarkdownView'
 import Comments from '@/components/Comments'
 import ScrollFX from '@/components/ScrollFX'
 import BackLink from '@/components/BackLink'
+import ReadingCompanion from '@/components/ReadingCompanion'
 import { getPostBySlug, formatDate, listPublishedPosts, type Post } from '@/lib/posts'
+import { readingTime } from '@/lib/blog'
 
 export const revalidate = 60
 
@@ -78,37 +80,41 @@ export default async function PostPage({ params }: Props) {
         <span>文章</span>
       </nav>
 
-      <article className="article">
-        <h1>
-          {post.title}
-          <span className="article-seal" aria-hidden="true">
-            记
-          </span>
-        </h1>
-        {post.excerpt ? <p className="article-excerpt">{post.excerpt}</p> : null}
-        <div className="article-meta">
-          <span>{formatDate(post.created_at)}</span>
-        </div>
-        <div className="divider-ornament" aria-hidden="true">
-          ※ ※ ※
-        </div>
-        <MarkdownView content={post.content} />
-        <Comments slug={post.slug} />
+      <div className="article-reading-shell">
+        <article className="article">
+          <h1>
+            {post.title}
+            <span className="article-seal" aria-hidden="true">
+              记
+            </span>
+          </h1>
+          {post.excerpt ? <p className="article-excerpt">{post.excerpt}</p> : null}
+          <div className="article-meta">
+            <span>{formatDate(post.created_at)}</span>
+            <span>{readingTime(post.content)}</span>
+          </div>
+          <div className="divider-ornament" aria-hidden="true">
+            ※ ※ ※
+          </div>
+          <MarkdownView content={post.content} />
+          <Comments slug={post.slug} />
 
-        {related.length > 0 ? (
-          <section className="related-posts">
-            <h2>更多文章</h2>
-            <ul>
-              {related.map((p) => (
-                <li key={p.id}>
-                  <Link href={`/posts/${p.slug}`}>{p.title}</Link>
-                  <span className="related-date">{formatDate(p.created_at)}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
-      </article>
+          {related.length > 0 ? (
+            <section className="related-posts">
+              <h2>更多文章</h2>
+              <ul>
+                {related.map((p) => (
+                  <li key={p.id}>
+                    <Link href={`/posts/${p.slug}`}>{p.title}</Link>
+                    <span className="related-date">{formatDate(p.created_at)}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+        </article>
+        <ReadingCompanion />
+      </div>
     </div>
   )
 }
