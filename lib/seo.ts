@@ -38,7 +38,19 @@ export function siteUrl(): string {
 }
 
 export function absoluteUrl(path: string, baseUrl = siteUrl()): string {
-  return new URL(path, `${normalizeSiteUrl(baseUrl)}/`).toString()
+  return new URL(path.replace(/^\/+/, ''), `${normalizeSiteUrl(baseUrl)}/`).toString()
+}
+
+function articleImageUrl(image: string | undefined, baseUrl: string): string | undefined {
+  const candidate = image?.trim()
+  if (!candidate) return undefined
+
+  try {
+    const url = new URL(candidate)
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url.toString() : undefined
+  } catch {
+    return absoluteUrl(candidate, baseUrl)
+  }
 }
 
 export function publicMetadata(
@@ -67,6 +79,7 @@ export function publicMetadata(
 export function articleMetadata(post: ArticlePost, baseUrl = siteUrl()): Metadata {
   const canonicalUrl = absoluteUrl(`/posts/${encodeURIComponent(post.slug)}`, baseUrl)
   const description = post.excerpt || '一篇来自似水流年的手记。'
+  const imageUrl = articleImageUrl(post.image, baseUrl)
 
   return {
     title: post.title,
@@ -79,7 +92,7 @@ export function articleMetadata(post: ArticlePost, baseUrl = siteUrl()): Metadat
       description,
       siteName: SITE_NAME,
       locale: 'zh_CN',
-      images: [{ url: post.image || absoluteUrl(DEFAULT_SHARE_IMAGE, baseUrl), alt: post.title }],
+      images: [{ url: imageUrl || absoluteUrl(DEFAULT_SHARE_IMAGE, baseUrl), alt: post.title }],
       publishedTime: post.created_at,
       modifiedTime: post.updated_at,
     },
@@ -88,6 +101,7 @@ export function articleMetadata(post: ArticlePost, baseUrl = siteUrl()): Metadat
 
 export function articleJsonLd(post: ArticlePost, baseUrl = siteUrl()): ArticleSchema {
   const canonicalUrl = absoluteUrl(`/posts/${encodeURIComponent(post.slug)}`, baseUrl)
+  const imageUrl = articleImageUrl(post.image, baseUrl)
 
   return {
     '@context': 'https://schema.org',
@@ -100,6 +114,6 @@ export function articleJsonLd(post: ArticlePost, baseUrl = siteUrl()): ArticleSc
     dateModified: post.updated_at,
     author: { '@type': 'Organization', name: SITE_NAME },
     publisher: { '@type': 'Organization', name: SITE_NAME },
-    ...(post.image ? { image: post.image } : {}),
+    ...(imageUrl ? { image: imageUrl } : {}),
   }
 }

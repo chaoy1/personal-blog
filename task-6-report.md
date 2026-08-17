@@ -50,3 +50,10 @@ Implementation commit: `7841d67cfc1b511b126edb3ce883a135c1cb461b` (`feat: comple
 - Production source inspection at `http://localhost:3007` confirmed unique canonicals and Open Graph URL/image tags for every route above plus `/posts/hello-world`; the article reports `og:type=article`.
 - `.next/prerender-manifest.json` reports `/sitemap.xml` `initialRevalidateSeconds: 60`.
 - Browser automation was unavailable in this follow-up; source inspection used the local production HTTP server instead.
+
+## Fix Round 2 — subpath and article image URLs
+
+- RED: added regression tests for a configured `/blog` site prefix and relative/data article image inputs. The SEO test run failed because leading-slash paths discarded the configured prefix and article Open Graph data retained a relative image.
+- GREEN: `absoluteUrl` now composes app paths beneath the validated configured pathname prefix. The SEO suite passes 8 tests, including public metadata and Article JSON-LD coverage for a `/blog` deployment.
+- Article image contract: HTTP(S) absolute image URLs are retained; relative image paths are normalized beneath the configured site prefix; absent, invalid, and `data:` images are omitted from JSON-LD and use the existing local bridge image as the Open Graph fallback.
+- Full verification: 55 tests passed; typecheck and build passed; `git diff --check` passed. A production build with `NEXT_PUBLIC_SITE_URL=https://example.com/blog` emitted `https://example.com/blog/` for the home canonical/share image and `https://example.com/blog/posts/hello-world` for article canonical/JSON-LD.

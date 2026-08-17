@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { articleJsonLd, articleMetadata, normalizeSiteUrl, publicMetadata } from '@/lib/seo'
+import { absoluteUrl, articleJsonLd, articleMetadata, normalizeSiteUrl, publicMetadata } from '@/lib/seo'
 import sitemap, { revalidate as sitemapRevalidate } from '@/app/sitemap'
 
 const samplePost = {
@@ -18,6 +18,18 @@ test('normalizes only valid http site URLs', () => {
   expect(normalizeSiteUrl('  https://example.com/blog/  ')).toBe('https://example.com/blog')
   expect(normalizeSiteUrl('ftp://example.com')).toBe('http://localhost:3000')
   expect(normalizeSiteUrl('not a url')).toBe('http://localhost:3000')
+})
+
+test('preserves a configured path prefix when composing public URLs', () => {
+  expect(absoluteUrl('/posts/hello-world', 'https://example.com/blog')).toBe(
+    'https://example.com/blog/posts/hello-world'
+  )
+
+  const metadata = publicMetadata(
+    { path: '/about', title: '关于', description: '认识这间小屋。' },
+    'https://example.com/blog'
+  )
+  expect(metadata.alternates?.canonical).toBe('https://example.com/blog/about')
 })
 
 test('creates an absolute canonical and share image for a public page', () => {
@@ -94,4 +106,20 @@ test('includes an image only when one is supplied', () => {
   )
 
   expect(schema.image).toBe('https://cdn.example.com/cover.jpg')
+})
+
+test('normalizes relative post images and excludes data URLs from share metadata', () => {
+  const relativeImagePost = { ...samplePost, image: '/covers/mountains.jpg' }
+  const articleMetadataWithImage = articleMetadata(relativeImagePost, 'https://example.com/blog')
+  const schemaWithImage = articleJsonLd(relativeImagePost, 'https://example.com/blog')
+  const dataImagePost = { ...samplePost, image: 'data:image/png;base64,abc' }
+
+  expect(articleMetadataWithImage.openGraph).toMatchObject({
+    images: [{ url: 'https://example.com/blog/covers/mountains.jpg' }],
+  })
+  expect(schemaWithImage.image).toBe('https://example.com/blog/covers/mountains.jpg')
+  expect(articleJsonLd(dataImagePost, 'https://example.com/blog')).not.toHaveProperty('image')
+  expect(articleMetadata(dataImagePost, 'https://example.com/blog').openGraph).toMatchObject({
+    images: [{ url: 'https://example.com/blog/bg/qianli-bridge.jpg' }],
+  })
 })
