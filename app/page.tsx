@@ -166,22 +166,28 @@ export default async function HomePage() {
             </h2>
             <div className="list">
               {posts.map((post, i) => (
-                <Link key={post.id} href={`/posts/${post.slug}`} className="item">
-                  <span className="no">
-                    <CnNum i={i} />
-                  </span>
-                  <span className="tag-seal" aria-hidden="true">
-                    阅
+                <Link key={post.id} href={`/posts/${post.slug}`} className="item home-post-card">
+                  <span className="hpc-index" aria-hidden="true">
+                    <b>
+                      <CnNum i={i} />
+                    </b>
+                    <i>文</i>
                   </span>
                   <span className="wm" aria-hidden="true">
                     {i < CN_WM.length ? CN_WM[i] : ''}
                   </span>
-                  <h2 className="post-title">{post.title}</h2>
-                  {post.excerpt ? <span className="ex">{post.excerpt}</span> : null}
-                  <span className="item-foot">
-                    <span className="date">{formatDate(post.created_at)}</span>
-                    <span className="read">阅读全文</span>
-                  </span>
+                  <div className="hpc-copy">
+                    <span className="hpc-meta">
+                      <span>长文 · ARTICLE</span>
+                      <time dateTime={post.created_at}>{formatDate(post.created_at)}</time>
+                    </span>
+                    <h3 className="post-title">{post.title}</h3>
+                    {post.excerpt ? <span className="ex">{post.excerpt}</span> : null}
+                    <span className="item-foot">
+                      <span className="hpc-note">收录于此间手记</span>
+                      <span className="read">阅读全文</span>
+                    </span>
+                  </div>
                 </Link>
               ))}
             </div>
@@ -235,11 +241,18 @@ export default async function HomePage() {
                 <Link href="/album">更多 →</Link>
               </h2>
               <div className="home-photos">
-                {photos.map((p) => (
+                {photos.map((p, index) => (
                   <Link key={p.id} href="/album" className="hp-item">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={p.url} alt={p.caption || '照片'} loading="lazy" />
-                    {p.caption ? <span className="hp-cap">{p.caption}</span> : null}
+                    <span className="hp-frame">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={p.url} alt={p.caption || '照片'} loading="lazy" />
+                      <i className="hp-seal" aria-hidden="true">影</i>
+                    </span>
+                    <span className="hp-copy">
+                      <span className="hp-kicker">FRAME {String(index + 1).padStart(2, '0')}</span>
+                      <b>{p.caption || '未题之景'}</b>
+                      <i aria-hidden="true">↗</i>
+                    </span>
                   </Link>
                 ))}
               </div>
@@ -253,17 +266,22 @@ export default async function HomePage() {
                 <Link href="/guestbook">更多 →</Link>
               </h2>
               <div className="home-guestbook">
-                {recentGuestbook.map((m) => (
-                  <div key={m.id} className="hg-item">
-                    <Avatar className="c-avatar sm" src={m.profiles?.avatar_url} />
+                {recentGuestbook.map((m, index) => (
+                  <Link key={m.id} href="/guestbook" className="hg-item">
+                    <span className="hg-index" aria-hidden="true">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <Avatar className="hg-avatar" src={m.profiles?.avatar_url} />
                     <div className="hg-body">
+                      <span className="hg-kicker">来信 · NOTE</span>
+                      <p className="hg-text">{m.content}</p>
                       <div className="hg-head">
                         <span className="hg-name">{m.profiles?.nickname || '旅人'}</span>
-                        <span className="hg-date">{formatDate(m.created_at)}</span>
+                        <time className="hg-date" dateTime={m.created_at}>{formatDate(m.created_at)}</time>
                       </div>
-                      <p className="hg-text">{m.content}</p>
                     </div>
-                  </div>
+                    <span className="hg-action" aria-hidden="true">↗</span>
+                  </Link>
                 ))}
               </div>
             </section>
