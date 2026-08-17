@@ -70,7 +70,7 @@ export default async function HomePage() {
       <div className="verse">
         言有尽而<b>意</b>无穷
       </div>
-      <div className="sigil">{SITE_NAME}集</div>
+      <div className="sigil">笔有止而思无涯</div>
 
       <div className="home-hero">
         <header className="masthead">

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { formatDate } from '@/lib/blog'
 import { useAppStore, type AlbumItem, type PhotoItem } from '@/lib/app-store'
+import PageIntro from '@/components/PageIntro'
 
 type View = { mode: 'list' } | { mode: 'album'; album: AlbumItem } | { mode: 'all' }
 
@@ -46,17 +47,15 @@ export default function AlbumPage() {
         <span>光影</span>
       </nav>
 
-      <article className="article" style={{ maxWidth: 940 }}>
-        <p className="eyebrow">GALLERY</p>
-        <h1>
-          光影
-          <span className="article-seal" aria-hidden="true">
-            影
-          </span>
-        </h1>
-        <div className="divider-ornament" aria-hidden="true">
-          ※ ※ ※
-        </div>
+      <PageIntro
+        index="03"
+        eyebrow="GALLERY"
+        title="光影"
+        seal="影"
+        description="收存沿途光影与未题之景。"
+      />
+
+      <article className="article content-sheet" style={{ maxWidth: 1080 }}>
 
         {error ? <p className="error-text">{error}</p> : null}
         {!ready && !error ? <p className="moments-empty">正在加载相册…</p> : null}

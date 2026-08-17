@@ -4,6 +4,7 @@ import { listPublishedPosts, type Post } from '@/lib/posts'
 import { listAllPhotos, listAllMoments, type TimelinePhoto, type TimelineMoment } from '@/lib/timeline'
 import ScrollFX from '@/components/ScrollFX'
 import TimelineReveal, { type TimelineEntry } from '@/components/TimelineReveal'
+import PageIntro from '@/components/PageIntro'
 
 export const revalidate = 60
 
@@ -62,16 +63,13 @@ export default async function TimelinePage() {
         <span>时间轴</span>
       </nav>
 
-      <header className="posts-head">
-        <p className="eyebrow">TIMELINE</p>
-        <h1>
-          时间轴
-          <span className="article-seal" aria-hidden="true">
-            岁
-          </span>
-        </h1>
-        <p className="lede">凡 {entries.length} 事，按时而录。</p>
-      </header>
+      <PageIntro
+        index="04"
+        eyebrow="TIMELINE"
+        title="时间轴"
+        seal="岁"
+        description={`凡 ${entries.length} 事，按时而录。`}
+      />
 
       {entries.length === 0 ? (
         <div className="empty-state">

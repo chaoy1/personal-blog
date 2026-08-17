@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { SITE_NAME } from '@/lib/site'
 import ThemeToggle from '@/components/ThemeToggle'
 import LangToggle from '@/components/LangToggle'
@@ -61,12 +61,15 @@ export default function SiteNav() {
         {SITE_NAME}
       </Link>
       <div className="nav-links">
-        {LINKS.map((link) => {
+        {LINKS.map((link, index) => {
           const active = link.match ? link.match(pathname) : false
           return (
-            <Link key={link.href} href={link.href} className={active ? 'active' : undefined}>
-              {link.label}
-            </Link>
+            <Fragment key={link.href}>
+              <Link href={link.href} className={active ? 'active' : undefined}>
+                {link.label}
+              </Link>
+              {index < LINKS.length - 1 ? <span className="nav-divider" aria-hidden="true" /> : null}
+            </Fragment>
           )
         })}
       </div>

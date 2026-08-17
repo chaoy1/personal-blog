@@ -201,8 +201,23 @@ export default function AccountPage() {
                     autoComplete="current-password"
                     placeholder="输入当前密码"
                   />
-                  <button type="button" onClick={() => setShowPasswords((value) => !value)}>
-                    {showPasswords ? '隐藏' : '显示'}
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords((value) => !value)}
+                    aria-label={showPasswords ? '隐藏密码' : '显示密码'}
+                    title={showPasswords ? '隐藏密码' : '显示密码'}
+                    aria-pressed={showPasswords}
+                  >
+                    {showPasswords ? (
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 3l18 18M10.6 10.7a2 2 0 002.7 2.7M9.9 4.3A10.8 10.8 0 0112 4c5.5 0 9 5.2 9 5.2a14.5 14.5 0 01-3.1 3.5M6.2 6.2C4.2 7.6 3 9.2 3 9.2S6.5 14.4 12 14.4c1 0 1.9-.2 2.7-.5" />
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 12s3.5-5.2 9-5.2 9 5.2 9 5.2-3.5 5.2-9 5.2S3 12 3 12z" />
+                        <circle cx="12" cy="12" r="2.4" />
+                      </svg>
+                    )}
                   </button>
                 </div>
               </div>

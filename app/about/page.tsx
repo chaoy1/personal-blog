@@ -5,6 +5,7 @@ import { SITE_NAME } from '@/lib/site'
 import ScrollFX from '@/components/ScrollFX'
 import MarkdownView from '@/components/MarkdownView'
 import Avatar from '@/components/Avatar'
+import PageIntro from '@/components/PageIntro'
 
 export const metadata: Metadata = {
   title: '关于',
@@ -40,17 +41,15 @@ export default async function AboutPage() {
         <span>关于</span>
       </nav>
 
-      <article className="article">
-        <p className="eyebrow">ABOUT</p>
-        <h1>
-          关于这间小屋
-          <span className="article-seal" aria-hidden="true">
-            记
-          </span>
-        </h1>
-        <div className="divider-ornament" aria-hidden="true">
-          ※ ※ ※
-        </div>
+      <PageIntro
+        index="06"
+        eyebrow="ABOUT"
+        title="关于这间小屋"
+        seal="记"
+        description="写代码，也写生活。"
+      />
+
+      <article className="article content-sheet">
 
         <div className="about-essay">
           {owner?.bio ? <MarkdownView content={owner.bio} preserveParagraphs /> : null}

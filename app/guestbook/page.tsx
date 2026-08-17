@@ -5,6 +5,7 @@ import Link from 'next/link'
 import ScrollFX from '@/components/ScrollFX'
 import { useAppStore } from '@/lib/app-store'
 import CommentThread from '@/components/CommentThread'
+import PageIntro from '@/components/PageIntro'
 
 const PAGE_SIZE = 20
 
@@ -78,17 +79,15 @@ export default function GuestbookPage() {
         <span>留言</span>
       </nav>
 
-      <article className="article">
-        <p className="eyebrow">GUESTBOOK</p>
-        <h1>
-          留言
-          <span className="article-seal" aria-hidden="true">
-            留
-          </span>
-        </h1>
-        <div className="divider-ornament" aria-hidden="true">
-          ※ ※ ※
-        </div>
+      <PageIntro
+        index="05"
+        eyebrow="GUESTBOOK"
+        title="留言"
+        seal="留"
+        description="来者有言，皆收于此。"
+      />
+
+      <article className="article content-sheet">
 
         <section className="guestbook-write" aria-label="写留言">
           <div className="guestbook-write-head">

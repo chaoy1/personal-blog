@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { listPublishedPosts, type Post } from '@/lib/posts'
 import ScrollFX from '@/components/ScrollFX'
 import PostList from '@/components/PostList'
+import PageIntro from '@/components/PageIntro'
 
 export const revalidate = 60
 
@@ -26,16 +27,13 @@ export default async function PostsPage() {
         <span>文章</span>
       </nav>
 
-      <header className="posts-head">
-        <p className="eyebrow">ARTICLES</p>
-        <h1>
-          全部文章
-          <span className="article-seal" aria-hidden="true">
-            文
-          </span>
-        </h1>
-        <p className="lede">凡 {posts.length} 篇，皆手记。</p>
-      </header>
+      <PageIntro
+        index="01"
+        eyebrow="ARTICLES"
+        title="全部文章"
+        seal="文"
+        description={`凡 ${posts.length} 篇，皆手记。`}
+      />
 
       {posts.length === 0 ? (
         <div className="empty-state">

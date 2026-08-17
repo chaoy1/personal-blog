@@ -7,6 +7,7 @@ import ScrollFX from '@/components/ScrollFX'
 import { useAppStore } from '@/lib/app-store'
 import Avatar from '@/components/Avatar'
 import CommentThread from '@/components/CommentThread'
+import PageIntro from '@/components/PageIntro'
 
 export default function MomentsPage() {
   const {
@@ -59,17 +60,15 @@ export default function MomentsPage() {
         <span>闲语</span>
       </nav>
 
-      <article className="article">
-        <p className="eyebrow">MUSINGS</p>
-        <h1>
-          闲语
-          <span className="article-seal" aria-hidden="true">
-            言
-          </span>
-        </h1>
-        <div className="divider-ornament" aria-hidden="true">
-          ※ ※ ※
-        </div>
+      <PageIntro
+        index="02"
+        eyebrow="MUSINGS"
+        title="闲语"
+        seal="言"
+        description="片言只语，也是一日光景。"
+      />
+
+      <article className="article content-sheet">
 
         {error || localError ? <p className="error-text">{localError || error}</p> : null}
         {!ready && !error ? <p className="moments-empty">正在加载闲语…</p> : null}

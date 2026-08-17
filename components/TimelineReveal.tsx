@@ -84,10 +84,15 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
         <div className="timeline-more-wrap">
           <button
             type="button"
-            className="btn btn-ghost btn-sm"
+            className="timeline-unfold"
             onClick={() => setShown((s) => s + 1)}
           >
-            展开更早的时光（还有 {remaining} 年）
+            <span className="timeline-unfold-seal" aria-hidden="true">续</span>
+            <span className="timeline-unfold-copy">
+              <b>续展旧卷</b>
+              <small>尚余 {remaining} 年时光</small>
+            </span>
+            <span className="timeline-unfold-arrow" aria-hidden="true">↓</span>
           </button>
         </div>
       ) : null}
