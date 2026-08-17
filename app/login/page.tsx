@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabaseBrowser } from '@/lib/supabase-browser'
@@ -17,6 +17,7 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [formState, setFormState] = useState<FormState>('idle')
+  const authRequestId = useRef(0)
   const busy = formState === 'submitting'
 
   function authErrorZh(msg: string): string {
@@ -31,13 +32,16 @@ export default function LoginPage() {
   }
 
   async function submit() {
+    const requestId = ++authRequestId.current
+    const requestMode = mode
     setError('')
     setNotice('')
     setFormState('submitting')
     try {
       const sb = supabaseBrowser()
-      if (mode === 'login') {
+      if (requestMode === 'login') {
         const { error } = await sb.auth.signInWithPassword({ email, password })
+        if (requestId !== authRequestId.current) return
         if (error) {
           setError(authErrorZh(error.message))
           setFormState('error')
@@ -51,7 +55,9 @@ export default function LoginPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password, nickname }),
         })
+        if (requestId !== authRequestId.current) return
         const j = await res.json().catch(() => ({}))
+        if (requestId !== authRequestId.current) return
         if (!res.ok) {
           setError(j.error || '注册失败，请稍后再试')
           setFormState('error')
@@ -59,6 +65,7 @@ export default function LoginPage() {
         }
         // 注册即自动登录，无需邮箱确认
         const { error: signInErr } = await sb.auth.signInWithPassword({ email, password })
+        if (requestId !== authRequestId.current) return
         if (signInErr) {
           setNotice('注册成功，请直接登录。')
           setMode('login')
@@ -69,11 +76,22 @@ export default function LoginPage() {
         router.refresh()
       }
     } catch {
-      setError(mode === 'login' ? '登录失败，请稍后再试' : '注册失败，请稍后再试')
+      if (requestId !== authRequestId.current) return
+      setError(requestMode === 'login' ? '登录失败，请稍后再试' : '注册失败，请稍后再试')
       setFormState('error')
     } finally {
-      setFormState((state) => (state === 'submitting' ? 'idle' : state))
+      if (requestId === authRequestId.current) {
+        setFormState((state) => (state === 'submitting' ? 'idle' : state))
+      }
     }
+  }
+
+  function switchMode(nextMode: 'login' | 'register') {
+    authRequestId.current += 1
+    setMode(nextMode)
+    setError('')
+    setNotice('')
+    setFormState('idle')
   }
 
   return (
@@ -85,24 +103,14 @@ export default function LoginPage() {
         <button
           type="button"
           className={`tab ${mode === 'login' ? 'active' : ''}`}
-          onClick={() => {
-            setMode('login')
-            setError('')
-            setNotice('')
-            setFormState('idle')
-          }}
+          onClick={() => switchMode('login')}
         >
           登录
         </button>
         <button
           type="button"
           className={`tab ${mode === 'register' ? 'active' : ''}`}
-          onClick={() => {
-            setMode('register')
-            setError('')
-            setNotice('')
-            setFormState('idle')
-          }}
+          onClick={() => switchMode('register')}
         >
           注册
         </button>

@@ -79,6 +79,7 @@ describe('public form feedback', () => {
     mocks.signInWithPassword.mockReset()
     mocks.updateUser.mockReset()
     mocks.uploadAvatar.mockReset()
+    Object.values(mocks.router).forEach((method) => method.mockReset())
     Object.assign(store, {
       ready: true,
       user: { id: 'user-1', email: 'traveler@example.com' },
@@ -273,6 +274,22 @@ describe('public form feedback', () => {
     expect(document.querySelector('form')).toHaveAttribute('data-form-state', 'idle')
   })
 
+  it('ignores a completed login after the user switches to register mode', async () => {
+    const request = deferred<{ error: null }>()
+    mocks.signInWithPassword.mockImplementationOnce(() => request.promise)
+    render(<LoginPage />)
+
+    fireEvent.change(screen.getByLabelText('邮箱'), { target: { value: 'traveler@example.com' } })
+    fireEvent.change(screen.getByLabelText('密码'), { target: { value: 'mistake' } })
+    fireEvent.click(screen.getAllByRole('button', { name: '登录' }).find((button) => (button as HTMLButtonElement).type === 'submit')!)
+    fireEvent.click(screen.getByRole('button', { name: '注册' }))
+    request.resolve({ error: null })
+
+    await waitFor(() => expect(document.querySelector('form')).toHaveAttribute('data-form-state', 'idle'))
+    expect(mocks.router.push).not.toHaveBeenCalled()
+    expect(screen.getByRole('heading', { name: '注册' })).toBeInTheDocument()
+  })
+
   it('announces profile save completion without moving focus', async () => {
     mocks.updateProfile.mockResolvedValue(null)
     render(<AccountPage />)
@@ -313,6 +330,48 @@ describe('public form feedback', () => {
     await waitFor(() => expect(mocks.updateProfile).toHaveBeenCalledWith(expect.objectContaining({ avatar_url: expect.stringContaining('/user-1/') })))
   })
 
+  it('keeps the newest selected avatar when an older upload completes later', async () => {
+    const first = deferred<{ error: null }>()
+    const second = deferred<{ error: null }>()
+    mocks.uploadAvatar
+      .mockImplementationOnce(() => first.promise)
+      .mockImplementationOnce(() => second.promise)
+    render(<AccountPage />)
+
+    fireEvent.change(screen.getByLabelText('更换头像'), { target: { files: [new File(['a'], 'first.png', { type: 'image/png' })] } })
+    fireEvent.change(screen.getByLabelText('更换头像'), { target: { files: [new File(['b'], 'second.jpg', { type: 'image/jpeg' })] } })
+    second.resolve({ error: null })
+    await waitFor(() => expect(screen.getByRole('img', { name: '头像' })).toHaveAttribute('src', expect.stringContaining('.jpg')))
+
+    first.resolve({ error: null })
+    await new Promise<void>((resolve) => setTimeout(resolve, 0))
+    expect(screen.getByRole('img', { name: '头像' })).toHaveAttribute('src', expect.stringContaining('.jpg'))
+    expect(screen.getByRole('status')).toHaveTextContent('头像已上传')
+  })
+
+  it('retries the newest failed avatar instead of a superseded upload', async () => {
+    const first = deferred<{ error: { message: string } | null }>()
+    const second = deferred<{ error: { message: string } | null }>()
+    const firstFile = new File(['a'], 'first.png', { type: 'image/png' })
+    const secondFile = new File(['b'], 'second.jpg', { type: 'image/jpeg' })
+    mocks.uploadAvatar
+      .mockImplementationOnce(() => first.promise)
+      .mockImplementationOnce(() => second.promise)
+      .mockResolvedValueOnce({ error: null })
+    render(<AccountPage />)
+
+    fireEvent.change(screen.getByLabelText('更换头像'), { target: { files: [firstFile] } })
+    fireEvent.change(screen.getByLabelText('更换头像'), { target: { files: [secondFile] } })
+    second.resolve({ error: { message: 'B 上传失败' } })
+    await waitFor(() => expect(screen.getByRole('button', { name: '重试上传头像' })).toBeEnabled())
+    first.resolve({ error: null })
+    await new Promise<void>((resolve) => setTimeout(resolve, 0))
+    fireEvent.click(screen.getByRole('button', { name: '重试上传头像' }))
+
+    await waitFor(() => expect(mocks.uploadAvatar).toHaveBeenCalledTimes(3))
+    expect(mocks.uploadAvatar).toHaveBeenLastCalledWith(expect.any(String), secondFile, expect.any(Object))
+  })
+
   it('offers an explicit retry after a password verification failure', async () => {
     mocks.signInWithPassword.mockResolvedValue({ error: { message: 'Invalid login credentials' } })
     render(<AccountPage />)
@@ -325,5 +384,35 @@ describe('public form feedback', () => {
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('旧密码不正确'))
     fireEvent.click(screen.getByRole('button', { name: '重试更新密码' }))
     await waitFor(() => expect(mocks.signInWithPassword).toHaveBeenCalledTimes(2))
+  })
+
+  it('announces a rejected password request and restores a retryable state', async () => {
+    mocks.signInWithPassword.mockRejectedValue(new Error('network unavailable'))
+    render(<AccountPage />)
+
+    fireEvent.change(screen.getByLabelText('当前密码'), { target: { value: 'old-pass' } })
+    fireEvent.change(screen.getByLabelText('新密码'), { target: { value: 'new-pass' } })
+    fireEvent.change(screen.getByLabelText('再次输入新密码'), { target: { value: 'new-pass' } })
+    fireEvent.click(screen.getByRole('button', { name: '确认更新密码' }))
+
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('修改失败，请稍后再试'))
+    expect(screen.getByRole('button', { name: '重试更新密码' })).toBeEnabled()
+  })
+
+  it('does not update a password after its verification request is invalidated by an edit', async () => {
+    const verify = deferred<{ error: null }>()
+    mocks.signInWithPassword.mockImplementationOnce(() => verify.promise)
+    render(<AccountPage />)
+
+    fireEvent.change(screen.getByLabelText('当前密码'), { target: { value: 'old-pass' } })
+    fireEvent.change(screen.getByLabelText('新密码'), { target: { value: 'new-pass' } })
+    fireEvent.change(screen.getByLabelText('再次输入新密码'), { target: { value: 'new-pass' } })
+    fireEvent.click(screen.getByRole('button', { name: '确认更新密码' }))
+    fireEvent.change(screen.getByLabelText('新密码'), { target: { value: 'newer-pass' } })
+    verify.resolve({ error: null })
+
+    await waitFor(() => expect(screen.getByLabelText('新密码')).toHaveValue('newer-pass'))
+    expect(mocks.updateUser).not.toHaveBeenCalled()
+    expect(document.querySelector('.account-pw-grid')).toHaveAttribute('data-form-state', 'idle')
   })
 })
