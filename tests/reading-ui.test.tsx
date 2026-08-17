@@ -1,6 +1,6 @@
 import React from 'react'
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import Lightbox from '@/components/Lightbox'
 import MarkdownView from '@/components/MarkdownView'
 import ReadingCompanion from '@/components/ReadingCompanion'
@@ -39,5 +39,53 @@ describe('reading UI accessibility', () => {
     fireEvent.keyDown(window, { key: 'Escape' })
 
     await waitFor(() => expect(image).toHaveFocus())
+  })
+
+  it('leaves current focus alone when Escape is pressed after the Lightbox closes', async () => {
+    render(
+      <>
+        <div className="md-body">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/example.jpg" alt="示例图" tabIndex={0} />
+        </div>
+        <button type="button">继续阅读</button>
+        <Lightbox />
+      </>,
+    )
+    const image = screen.getByRole('img', { name: '示例图' })
+    const continueReading = screen.getByRole('button', { name: '继续阅读' })
+
+    fireEvent.click(image)
+    await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument())
+    fireEvent.keyDown(window, { key: 'Escape' })
+    await waitFor(() => expect(image).toHaveFocus())
+
+    continueReading.focus()
+    fireEvent.keyDown(window, { key: 'Escape' })
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+
+    expect(continueReading).toHaveFocus()
+  })
+
+  it('restores focus once when the Lightbox close button is clicked', async () => {
+    render(
+      <>
+        <div className="md-body">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/example.jpg" alt="示例图" tabIndex={0} />
+        </div>
+        <Lightbox />
+      </>,
+    )
+    const image = screen.getByRole('img', { name: '示例图' })
+    fireEvent.click(image)
+    await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument())
+    const focus = vi.spyOn(image, 'focus')
+
+    fireEvent.click(screen.getByRole('button', { name: '关闭' }))
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+
+    expect(focus).toHaveBeenCalledTimes(1)
+    expect(image).toHaveFocus()
   })
 })

@@ -11,14 +11,17 @@ export default function Lightbox() {
   const openerRef = useRef<HTMLElement | null>(null)
 
   const close = useCallback(() => {
+    if (!src) return
     const opener = openerRef.current
     setSrc(null)
     requestAnimationFrame(() => {
-      if (!opener?.isConnected) return
-      if (!opener.hasAttribute('tabindex')) opener.tabIndex = -1
-      opener.focus()
+      if (opener?.isConnected) {
+        if (!opener.hasAttribute('tabindex')) opener.tabIndex = -1
+        opener.focus()
+      }
+      if (openerRef.current === opener) openerRef.current = null
     })
-  }, [])
+  }, [src])
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
@@ -54,7 +57,9 @@ export default function Lightbox() {
   return (
     <div
       className="lightbox"
-      onClick={close}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) close()
+      }}
       role="dialog"
       aria-modal="true"
       aria-label={alt || '图片预览'}
