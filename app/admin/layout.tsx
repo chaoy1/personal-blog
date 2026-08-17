@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import Link from 'next/link'
 import AdminHeader from '@/components/AdminHeader'
 import AdminNav from '@/components/AdminNav'
+import ThemeToggle from '@/components/ThemeToggle'
 import { SITE_NAME } from '@/lib/site'
 
 export const metadata: Metadata = {
@@ -23,6 +24,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </Link>
         <AdminNav />
         <div className="admin-head-foot">
+          <div className="admin-theme-control">
+            <span>昼夜</span>
+            <ThemeToggle />
+          </div>
           <Link href="/" className="admin-view-blog">查看博客 ↗</Link>
           <AdminHeader />
         </div>

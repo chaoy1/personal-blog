@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: '未登录' }, { status: 401 })
   }
   try {
-    const posts = await listAllPosts()
+    const posts = await listAllPosts({ trashed: req.nextUrl.searchParams.get('trash') === '1' })
     return NextResponse.json(posts)
   } catch (e) {
     return NextResponse.json(

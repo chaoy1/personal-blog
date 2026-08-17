@@ -27,6 +27,7 @@ export default function AdminPhotos() {
   const [caption, setCaption] = useState('')
   const [albumId, setAlbumId] = useState('')
   const [newTitle, setNewTitle] = useState('')
+  const [newDescription, setNewDescription] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
@@ -86,7 +87,7 @@ export default function AdminPhotos() {
     const res = await fetch('/api/admin/albums', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: newTitle.trim(), description: '' }),
+      body: JSON.stringify({ title: newTitle.trim(), description: newDescription.trim() }),
     })
     setBusy(false)
     if (!res.ok) {
@@ -95,6 +96,7 @@ export default function AdminPhotos() {
       return
     }
     setNewTitle('')
+    setNewDescription('')
     load()
   }
 
@@ -127,23 +129,44 @@ export default function AdminPhotos() {
         description="归拢照片，为每一帧留下名字。"
       />
 
-      <div className="admin-album-create">
-        <input
-          type="text"
-          className="album-caption"
-          value={newTitle}
-          onChange={(e) => setNewTitle(e.target.value)}
-          placeholder="新相册标题"
-        />
+      <section className="admin-album-create" aria-labelledby="new-album-title">
+        <div className="admin-album-create-mark" aria-hidden="true">册</div>
+        <div className="admin-album-create-copy">
+          <span>NEW COLLECTION</span>
+          <h2 id="new-album-title">新建相册</h2>
+          <p>先给一组照片留出位置，之后再慢慢装满。</p>
+        </div>
+        <div className="admin-album-create-fields">
+          <label>
+            <span>相册标题</span>
+            <input
+              type="text"
+              className="album-caption"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              placeholder="例如：江南小记"
+            />
+          </label>
+          <label>
+            <span>一句说明</span>
+            <input
+              type="text"
+              className="album-caption"
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+              placeholder="可留空"
+            />
+          </label>
+        </div>
         <button
           type="button"
-          className="btn btn-sm"
+          className="btn btn-sm admin-album-create-submit"
           onClick={createAlbum}
           disabled={busy || !newTitle.trim()}
         >
-          新建相册
+          创建相册
         </button>
-      </div>
+      </section>
 
       {albums.length > 0 ? (
         <div className="admin-album-chips">

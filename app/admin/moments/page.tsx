@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { formatDate } from '@/lib/blog'
 import AdminPageHead from '@/components/AdminPageHead'
 
+const MOMENT_DRAFT_KEY = 'admin-moment-draft-v1'
+
 type AdminMoment = {
   id: string
   content: string
@@ -20,6 +22,8 @@ export default function AdminMoments() {
   const [images, setImages] = useState<string[]>([])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [draftReady, setDraftReady] = useState(false)
+  const [draftNotice, setDraftNotice] = useState('')
 
   const load = useCallback(async () => {
     try {
@@ -38,6 +42,32 @@ export default function AdminMoments() {
   useEffect(() => {
     load()
   }, [load])
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(MOMENT_DRAFT_KEY)
+      if (raw) {
+        const draft = JSON.parse(raw) as { content?: string; images?: string[] }
+        setContent(typeof draft.content === 'string' ? draft.content : '')
+        setImages(Array.isArray(draft.images) ? draft.images.filter((item) => typeof item === 'string') : [])
+        setDraftNotice('已恢复上次暂存')
+      }
+    } catch {
+      // 暂存损坏时忽略，不影响正常发布
+    } finally {
+      setDraftReady(true)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!draftReady) return
+    try {
+      if (!content.trim() && images.length === 0) localStorage.removeItem(MOMENT_DRAFT_KEY)
+      else localStorage.setItem(MOMENT_DRAFT_KEY, JSON.stringify({ content, images }))
+    } catch {
+      // ignore
+    }
+  }, [content, images, draftReady])
 
   async function uploadFiles(files: FileList | null) {
     if (!files) return
@@ -80,7 +110,32 @@ export default function AdminMoments() {
     setBusy(false)
     setContent('')
     setImages([])
+    setDraftNotice('')
+    try {
+      localStorage.removeItem(MOMENT_DRAFT_KEY)
+    } catch {
+      // ignore
+    }
     load()
+  }
+
+  function removePendingImage(index: number) {
+    setImages((items) => items.filter((_, itemIndex) => itemIndex !== index))
+  }
+
+  function clearDraft() {
+    setContent('')
+    setImages([])
+    setDraftNotice('')
+  }
+
+  function saveDraft() {
+    try {
+      localStorage.setItem(MOMENT_DRAFT_KEY, JSON.stringify({ content, images }))
+      setDraftNotice('已暂存')
+    } catch {
+      setError('当前浏览器无法暂存内容')
+    }
   }
 
   async function remove(id: string) {
@@ -101,18 +156,29 @@ export default function AdminMoments() {
       <div className="moments-composer">
         <textarea
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={(e) => {
+            setContent(e.target.value)
+            setDraftNotice('')
+          }}
           placeholder="以博主身份发布闲语…"
         />
         {images.length > 0 ? (
-          <div className="moments-images">
+          <div className="moments-images moment-draft-images">
             {images.map((u, i) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img key={i} src={u} alt="配图" />
+              <span key={`${u}-${i}`} className="moment-draft-image">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={u} alt={`待发布配图 ${i + 1}`} />
+                <button type="button" onClick={() => removePendingImage(i)} aria-label={`移除第 ${i + 1} 张配图`}>
+                  ×
+                </button>
+              </span>
             ))}
           </div>
         ) : null}
         <div className="moments-actions">
+          <span className="moment-draft-note">
+            {draftNotice || (content.trim() || images.length ? '正在自动暂存' : '尚未开始书写')}
+          </span>
           <label className="btn btn-ghost btn-sm">
             配图
             <input
@@ -123,6 +189,16 @@ export default function AdminMoments() {
               onChange={(e) => uploadFiles(e.target.files)}
             />
           </label>
+          {content.trim() || images.length ? (
+            <button className="btn btn-ghost btn-sm" type="button" onClick={saveDraft} disabled={busy}>
+              暂存
+            </button>
+          ) : null}
+          {content.trim() || images.length ? (
+            <button className="btn btn-ghost btn-sm" type="button" onClick={clearDraft} disabled={busy}>
+              清空暂存
+            </button>
+          ) : null}
           <button className="btn btn-sm" type="button" onClick={publish} disabled={busy}>
             {busy ? '处理中…' : '发布'}
           </button>

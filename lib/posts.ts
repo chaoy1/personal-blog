@@ -6,6 +6,16 @@ export { formatDate, readingTime } from './blog'
 export type { Post, PostInput } from './blog'
 
 const FIELDS = 'id,title,slug,excerpt,content,published,created_at,updated_at'
+const TRASH_PREFIX = 'trashbin-'
+
+export function isTrashedPostSlug(slug: string): boolean {
+  return /^trashbin-\d{13}-.+/.test(slug)
+}
+
+export function originalPostSlug(slug: string): string {
+  const match = slug.match(/^trashbin-\d{13}-(.+)$/)
+  return match?.[1] ?? slug
+}
 
 // 未配置 Supabase 时返回演示文章，方便本地预览界面样式；配置后自动失效
 const DEMO_POSTS: Post[] = [
@@ -164,14 +174,15 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
   return data
 }
 
-export async function listAllPosts(): Promise<Post[]> {
-  if (!isSupabaseConfigured()) return DEMO_POSTS
+export async function listAllPosts(options?: { trashed?: boolean }): Promise<Post[]> {
+  const trashed = options?.trashed === true
+  if (!isSupabaseConfigured()) return trashed ? [] : DEMO_POSTS
   const { data, error } = await supabaseAdmin()
     .from('posts')
     .select(FIELDS)
     .order('created_at', { ascending: false })
   if (error) throw new Error(`读取文章失败：${error.message}`)
-  return data ?? []
+  return (data ?? []).filter((post) => isTrashedPostSlug(post.slug) === trashed)
 }
 
 export async function getPostById(id: string): Promise<Post | null> {
@@ -219,4 +230,33 @@ export async function updatePost(id: string, input: PostInput): Promise<Post> {
 export async function deletePost(id: string): Promise<void> {
   const { error } = await supabaseAdmin().from('posts').delete().eq('id', id)
   if (error) throw new Error(`删除文章失败：${error.message}`)
+}
+
+export async function movePostToTrash(id: string): Promise<void> {
+  const post = await getPostById(id)
+  if (!post) throw new Error('文章不存在')
+  if (isTrashedPostSlug(post.slug)) return
+  const slug = `${TRASH_PREFIX}${Date.now()}-${post.slug}`
+  const { error } = await supabaseAdmin()
+    .from('posts')
+    .update({ slug, published: false, updated_at: new Date().toISOString() })
+    .eq('id', id)
+  if (error) throw new Error(`移入回收站失败：${error.message}`)
+}
+
+export async function restorePost(id: string): Promise<Post> {
+  const post = await getPostById(id)
+  if (!post || !isTrashedPostSlug(post.slug)) throw new Error('回收站中没有这篇文章')
+  const slug = originalPostSlug(post.slug)
+  const { data, error } = await supabaseAdmin()
+    .from('posts')
+    .update({ slug, published: false, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select(FIELDS)
+    .single()
+  if (error) {
+    if (error.code === '23505') throw new Error('原链接已被其他文章占用，请先修改冲突文章')
+    throw new Error(`恢复文章失败：${error.message}`)
+  }
+  return data
 }

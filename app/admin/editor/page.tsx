@@ -25,11 +25,12 @@ function Editor() {
   const [slugTouched, setSlugTouched] = useState(false)
   const [excerpt, setExcerpt] = useState('')
   const [content, setContent] = useState('')
-  const [published, setPublished] = useState(true)
+  const [published, setPublished] = useState(false)
   const [mode, setMode] = useState<'edit' | 'preview'>('edit')
   const [immersive, setImmersive] = useState(false)
+  const [editorTone, setEditorTone] = useState<'paper' | 'plain' | 'warm' | 'night'>('paper')
   const [error, setError] = useState('')
-  const [saving, setSaving] = useState(false)
+  const [saving, setSaving] = useState<'draft' | 'publish' | null>(null)
   const contentRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
@@ -69,6 +70,26 @@ function Editor() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [immersive])
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('blog-editor-tone')
+      if (saved === 'paper' || saved === 'plain' || saved === 'warm' || saved === 'night') {
+        setEditorTone(saved)
+      }
+    } catch {
+      // 浏览器禁用本地存储时继续使用默认纸色
+    }
+  }, [])
+
+  function changeEditorTone(tone: 'paper' | 'plain' | 'warm' | 'night') {
+    setEditorTone(tone)
+    try {
+      localStorage.setItem('blog-editor-tone', tone)
+    } catch {
+      // ignore
+    }
+  }
 
   function handleTitleChange(value: string) {
     setTitle(value)
@@ -117,15 +138,15 @@ function Editor() {
   const characterCount = content.replace(/\s/g, '').length
   const paragraphCount = content.trim() ? content.trim().split(/\n\s*\n/).length : 0
 
-  async function save() {
+  async function save(nextPublished: boolean) {
     setError('')
     if (!title.trim()) {
       setError('标题不能为空')
       return
     }
-    setSaving(true)
+    setSaving(nextPublished ? 'publish' : 'draft')
     try {
-      const payload = { title, slug, excerpt, content, published }
+      const payload = { title, slug, excerpt, content, published: nextPublished }
       const res = await fetch(isEdit ? `/api/admin/posts/${id}` : '/api/admin/posts', {
         method: isEdit ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -140,9 +161,10 @@ function Editor() {
         setError(data.error ?? '保存失败')
         return
       }
+      setPublished(nextPublished)
       router.push('/admin')
     } finally {
-      setSaving(false)
+      setSaving(null)
     }
   }
 
@@ -171,6 +193,20 @@ function Editor() {
         >
           {mode === 'edit' ? '预览' : '编辑'}
         </button>
+        <span className="editor-tone-label">底色</span>
+        <span className="editor-tone-picker" aria-label="写作背景">
+          {(['paper', 'plain', 'warm', 'night'] as const).map((tone) => (
+            <button
+              key={tone}
+              type="button"
+              className={`editor-tone-swatch tone-${tone}${editorTone === tone ? ' active' : ''}`}
+              onClick={() => changeEditorTone(tone)}
+              aria-label={{ paper: '宣纸', plain: '素白', warm: '暖杏', night: '夜墨' }[tone]}
+              aria-pressed={editorTone === tone}
+              title={{ paper: '宣纸', plain: '素白', warm: '暖杏', night: '夜墨' }[tone]}
+            />
+          ))}
+        </span>
       </div>
       {mode === 'edit' ? (
         <textarea
@@ -226,21 +262,22 @@ function Editor() {
           placeholder="首页列表里显示的一句话简介（可留空）"
         />
       </div>
-      <label className="check-row">
-        <input
-          type="checkbox"
-          checked={published}
-          onChange={(e) => setPublished(e.target.checked)}
-        />
-        立即发布（取消勾选则保存为草稿）
-      </label>
+      <div className="editor-publish-state">
+        <span className={published ? 'published' : undefined}>{published ? '当前状态 · 已发布' : '当前状态 · 草稿'}</span>
+        <p>保存草稿不会出现在前台；点击发布后才会公开。</p>
+      </div>
     </details>
   )
 
-  const saveBtn = (
-    <button className="btn btn-sm" type="button" onClick={save} disabled={saving}>
-      {saving ? '保存中…' : isEdit ? '保存修改' : '发布文章'}
-    </button>
+  const saveActions = (
+    <div className="editor-save-actions">
+      <button className="btn btn-ghost btn-sm" type="button" onClick={() => save(false)} disabled={saving !== null}>
+        {saving === 'draft' ? '保存中…' : '保存草稿'}
+      </button>
+      <button className="btn btn-sm" type="button" onClick={() => save(true)} disabled={saving !== null}>
+        {saving === 'publish' ? '发布中…' : published ? '更新发布' : '发布文章'}
+      </button>
+    </div>
   )
 
   if (immersive) {
@@ -251,9 +288,9 @@ function Editor() {
             ← 返回工作台
           </button>
           <span className="editor-immersive-title">{title || '未命名文章'}</span>
-          {saveBtn}
+          {saveActions}
         </div>
-        <div className="editor-stage editor-stage-immersive">
+        <div className={`editor-stage editor-stage-immersive editor-tone-${editorTone}`}>
           {writer}
           {settings}
           {error ? <p className="error-text">{error}</p> : null}
@@ -276,11 +313,11 @@ function Editor() {
           <button type="button" className="editor-quiet-action" onClick={() => setImmersive(true)}>
             全屏写作
           </button>
-          {saveBtn}
+          {saveActions}
         </div>
       </div>
 
-      <div className="editor-stage">
+      <div className={`editor-stage editor-tone-${editorTone}`}>
         {writer}
         {settings}
         {error ? <p className="error-text">{error}</p> : null}
