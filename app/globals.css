@@ -3360,6 +3360,15 @@ a.tl-title:hover {
 
 }
 
+/* Runtime no-motion fallback for hidden tabs and data-saving connections. */
+html.motion-static .item,
+html.motion-static .reveal,
+html.motion-static .item:hover {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
 /* ---------- 回到顶部印章 ---------- */
 
 .back-top {

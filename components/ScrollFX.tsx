@@ -18,7 +18,25 @@ export default function ScrollFX() {
   useEffect(() => {
     const masthead = document.querySelector<HTMLElement>('.masthead')
     const nav = document.querySelector<HTMLElement>('.site-nav')
-    const reduced = !active
+    const root = document.documentElement
+
+    const syncNav = () => nav?.classList.toggle('nav-scrolled', window.scrollY > 10)
+
+    if (!active) {
+      root.classList.add('motion-static')
+      document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR).forEach((el) => el.classList.add('is-in'))
+
+      const onStaticScroll = () => syncNav()
+      window.addEventListener('scroll', onStaticScroll, { passive: true })
+      syncNav()
+
+      return () => {
+        window.removeEventListener('scroll', onStaticScroll)
+        root.classList.remove('motion-static')
+      }
+    }
+
+    root.classList.remove('motion-static')
 
     // ---------- 入场浮现 ----------
     let io: IntersectionObserver | null = null
@@ -28,7 +46,7 @@ export default function ScrollFX() {
     const observe = (el: HTMLElement) => {
       if (seen.has(el)) return
       seen.add(el)
-      if (reduced || !io) {
+      if (!io) {
         el.classList.add('is-in')
         return
       }
@@ -46,7 +64,7 @@ export default function ScrollFX() {
       root.querySelectorAll<HTMLElement>(REVEAL_SELECTOR).forEach(observe)
     }
 
-    if ('IntersectionObserver' in window && active) {
+    if ('IntersectionObserver' in window) {
       io = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
@@ -87,7 +105,7 @@ export default function ScrollFX() {
       target.style.setProperty('--mx', `${((e.clientX - rect.left) / rect.width) * 100}%`)
       target.style.setProperty('--my', `${((e.clientY - rect.top) / rect.height) * 100}%`)
     }
-    const trackPointer = active && supportsFinePointer()
+    const trackPointer = supportsFinePointer()
     if (trackPointer) window.addEventListener('pointermove', onPointerMove, { passive: true })
 
     // ---------- masthead 视差 + 导航滚动态 ----------
@@ -95,26 +113,24 @@ export default function ScrollFX() {
     let ticking = false
 
     const onScroll = () => {
+      syncNav()
       if (ticking) return
       ticking = true
       raf = requestAnimationFrame(() => {
         const y = window.scrollY
-        if (masthead && !reduced) {
+        if (masthead) {
           masthead.style.transform = `translate3d(0, ${y * 0.28}px, 0)`
           masthead.style.opacity = String(Math.max(0, 1 - y / 420))
         }
-        if (nav) nav.classList.toggle('nav-scrolled', y > 10)
         ticking = false
       })
     }
 
-    if (active) {
-      window.addEventListener('scroll', onScroll, { passive: true })
-      onScroll()
-    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
 
     return () => {
-      if (active) window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('scroll', onScroll)
       if (trackPointer) window.removeEventListener('pointermove', onPointerMove)
       cancelAnimationFrame(raf)
       transitionTimers.forEach((timer) => window.clearTimeout(timer))

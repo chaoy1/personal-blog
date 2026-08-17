@@ -20,7 +20,7 @@ function readAmbientMotion(): boolean {
 }
 
 export function supportsFinePointer(): boolean {
-  return window.matchMedia?.('(hover: hover) and (pointer: fine)').matches ?? false
+  return window.matchMedia?.('(any-hover: hover) and (any-pointer: fine)').matches ?? false
 }
 
 export default function useAmbientMotion(): boolean {
