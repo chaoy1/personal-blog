@@ -9,6 +9,7 @@ import PageIntro from '@/components/PageIntro'
 
 export const metadata: Metadata = {
   title: '关于',
+  description: '认识这间记录代码与生活的小屋。',
 }
 
 export const revalidate = 60

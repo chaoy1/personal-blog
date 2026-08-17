@@ -2185,8 +2185,8 @@
   }
 
   :root[data-theme='dark'] .timeline-page > .page-intro::before {
-    left: -18%;
-    width: 130%;
+    left: 0;
+    width: 100%;
   }
 }
 

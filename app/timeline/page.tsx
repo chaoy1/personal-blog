@@ -10,6 +10,7 @@ export const revalidate = 60
 
 export const metadata: Metadata = {
   title: '时间轴',
+  description: '按时间串起文章、闲语与光影的记录。',
 }
 
 export default async function TimelinePage() {

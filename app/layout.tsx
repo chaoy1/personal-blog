@@ -10,13 +10,16 @@ import ScrollTop from '@/components/ScrollTop'
 import Lightbox from '@/components/Lightbox'
 import BackgroundStage from '@/components/BackgroundStage'
 import { AppStoreProvider } from '@/lib/app-store'
+import { siteUrl } from '@/lib/seo'
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: {
     default: `${SITE_NAME} · ${SITE_DESC}`,
     template: `%s · ${SITE_NAME}`,
   },
   description: SITE_DESC,
+  alternates: { canonical: '/' },
   icons: { icon: '/icon.svg' },
 }
 

@@ -7,6 +7,7 @@ import ScrollFX from '@/components/ScrollFX'
 import BackLink from '@/components/BackLink'
 import ReadingCompanion from '@/components/ReadingCompanion'
 import { getPostBySlug, formatDate, listPublishedPosts, type Post } from '@/lib/posts'
+import { articleJsonLd, siteUrl } from '@/lib/seo'
 
 export const revalidate = 60
 
@@ -33,8 +34,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   } catch {
     // 环境变量未配置等情况，交给页面兜底
   }
-  if (!post) return { title: '文章未找到' }
-  return { title: post.title, description: post.excerpt || undefined }
+  if (!post) return { title: '文章未找到', description: '这篇文章暂时无法找到。' }
+  return {
+    title: post.title,
+    description: post.excerpt || '一篇来自似水流年的手记。',
+    alternates: { canonical: `/posts/${encodeURIComponent(post.slug)}` },
+  }
 }
 
 /**
@@ -71,8 +76,14 @@ export default async function PostPage({ params }: Props) {
   }
   if (!post) notFound()
 
+  const jsonLd = articleJsonLd(post, siteUrl())
+
   return (
     <div className="wrap article-wrap">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
       <ScrollFX />
       <nav className="article-nav">
         <BackLink fallback="/posts" />

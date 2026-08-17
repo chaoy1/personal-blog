@@ -9,6 +9,7 @@ export const revalidate = 60
 
 export const metadata: Metadata = {
   title: '文章',
+  description: '收录阅读、技术与生活的长篇手记。',
 }
 
 export default async function PostsPage() {
