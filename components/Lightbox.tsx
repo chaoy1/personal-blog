@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 const ZOOMABLE =
   '.md-body img, .album-item img, .moment-images img, .moments-images img, .tl-thumb'
@@ -8,8 +8,17 @@ const ZOOMABLE =
 export default function Lightbox() {
   const [src, setSrc] = useState<string | null>(null)
   const [alt, setAlt] = useState('')
+  const openerRef = useRef<HTMLElement | null>(null)
 
-  const close = useCallback(() => setSrc(null), [])
+  const close = useCallback(() => {
+    const opener = openerRef.current
+    setSrc(null)
+    requestAnimationFrame(() => {
+      if (!opener?.isConnected) return
+      if (!opener.hasAttribute('tabindex')) opener.tabIndex = -1
+      opener.focus()
+    })
+  }, [])
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
@@ -17,6 +26,7 @@ export default function Lightbox() {
       const img = target.closest<HTMLImageElement>(ZOOMABLE)
       if (!img) return
       e.preventDefault()
+      openerRef.current = img
       setSrc(img.currentSrc || img.src)
       setAlt(img.alt || '')
     }

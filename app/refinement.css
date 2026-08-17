@@ -787,3 +787,20 @@
     text-indent: 0.22em;
   }
 }
+
+@media (max-width: 720px) {
+  .page-intro,
+  .page-intro-copy,
+  .content-sheet,
+  .home-post-card,
+  .archive-post-card {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .page-intro-description,
+  .home-post-card .ex,
+  .archive-post-card .ex {
+    overflow-wrap: anywhere;
+  }
+}

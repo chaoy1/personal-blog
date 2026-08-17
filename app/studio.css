@@ -1698,6 +1698,16 @@
   }
 }
 
+@media (max-width: 720px) {
+  .collection-scroll,
+  .collection-scroll > .page-intro,
+  .wrap > .page-intro + .content-sheet {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
 /* ---------- 集合页长卷：文章与时间轴 ---------- */
 
 @keyframes page-scroll-arrive {
@@ -2177,5 +2187,16 @@
   :root[data-theme='dark'] .timeline-page > .page-intro::before {
     left: -18%;
     width: 130%;
+  }
+}
+
+@media (max-width: 720px) {
+  .verse,
+  .sigil {
+    display: none;
+  }
+
+  .bg-painting {
+    inset: 0;
   }
 }

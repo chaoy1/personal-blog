@@ -5919,6 +5919,82 @@ html.unfold-returning .wrap {
   }
 }
 
+/* ---------- 小屏幕内容收束 ---------- */
+@media (max-width: 720px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .wrap,
+  .home-hero,
+  .masthead,
+  .hero-stats,
+  .daily-quote,
+  .mobile-nav-panel {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .home-hero,
+  .masthead {
+    overflow: clip;
+  }
+
+  .hero-stats,
+  .daily-quote {
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .mobile-nav-panel {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .verse,
+  .sigil {
+    display: none;
+  }
+
+  .md-body,
+  .md-body p,
+  .md-body li,
+  .md-body td,
+  .md-body th,
+  .md-body a,
+  .md-body code {
+    overflow-wrap: anywhere;
+  }
+
+  .md-table-wrap {
+    max-width: 100%;
+    margin: 1.6em 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .md-table-wrap .md-body table,
+  .md-body .md-table-wrap table {
+    width: max-content;
+    min-width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  .md-body pre,
+  .md-body img,
+  .md-body video,
+  .md-body iframe {
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+}
+
 /* ---------- 2026-08 · 纸面层次与内容动线校准 ---------- */
 
 :root {

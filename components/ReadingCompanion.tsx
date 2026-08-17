@@ -65,8 +65,16 @@ export default function ReadingCompanion() {
 
   return (
     <>
-      <div className="reading-progress" aria-hidden="true">
-        <i style={{ transform: `scaleX(${progress})` }} />
+      <div
+        className="reading-progress"
+        role="progressbar"
+        aria-label="阅读进度"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(progress * 100)}
+        aria-valuetext={`已读 ${Math.round(progress * 100)}%`}
+      >
+        <i aria-hidden="true" style={{ transform: `scaleX(${progress})` }} />
       </div>
       {headings.length > 0 ? (
         <div className="reading-companion-rail">

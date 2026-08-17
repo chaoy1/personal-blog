@@ -19,7 +19,16 @@ export default function MarkdownView({
 }) {
   return (
     <div className="md-body">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          table: ({ children, ...props }) => (
+            <div className="md-table-wrap" role="region" aria-label="文章表格，可横向滚动" tabIndex={0}>
+              <table {...props}>{children}</table>
+            </div>
+          ),
+        }}
+      >
         {preserveParagraphs ? keepProseParagraphs(content) : content}
       </ReactMarkdown>
     </div>
