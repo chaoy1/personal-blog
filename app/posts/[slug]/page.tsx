@@ -7,7 +7,6 @@ import ScrollFX from '@/components/ScrollFX'
 import BackLink from '@/components/BackLink'
 import ReadingCompanion from '@/components/ReadingCompanion'
 import { getPostBySlug, formatDate, listPublishedPosts, type Post } from '@/lib/posts'
-import { readingTime } from '@/lib/blog'
 
 export const revalidate = 60
 
@@ -73,7 +72,7 @@ export default async function PostPage({ params }: Props) {
   if (!post) notFound()
 
   return (
-    <div className="wrap">
+    <div className="wrap article-wrap">
       <ScrollFX />
       <nav className="article-nav">
         <BackLink fallback="/posts" />
@@ -82,20 +81,19 @@ export default async function PostPage({ params }: Props) {
 
       <div className="article-reading-shell">
         <article className="article">
-          <h1>
-            {post.title}
-            <span className="article-seal" aria-hidden="true">
-              记
-            </span>
-          </h1>
-          {post.excerpt ? <p className="article-excerpt">{post.excerpt}</p> : null}
-          <div className="article-meta">
-            <span>{formatDate(post.created_at)}</span>
-            <span>{readingTime(post.content)}</span>
-          </div>
-          <div className="divider-ornament" aria-hidden="true">
-            ※ ※ ※
-          </div>
+          <header className="article-header">
+            <div className="article-kicker">
+              <span>ARTICLE · 手记</span>
+              <time dateTime={post.created_at}>{formatDate(post.created_at)}</time>
+            </div>
+            <h1>
+              {post.title}
+              <span className="article-seal" aria-hidden="true">
+                记
+              </span>
+            </h1>
+            {post.excerpt ? <p className="article-excerpt">{post.excerpt}</p> : null}
+          </header>
           <MarkdownView content={post.content} />
           <Comments slug={post.slug} />
 
