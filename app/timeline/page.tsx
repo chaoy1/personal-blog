@@ -63,22 +63,24 @@ export default async function TimelinePage() {
         <span>时间轴</span>
       </nav>
 
-      <PageIntro
-        index="04"
-        eyebrow="TIMELINE"
-        title="时间轴"
-        seal="岁"
-        description={`凡 ${entries.length} 事，按时而录。`}
-      />
+      <main className="collection-scroll collection-scroll-timeline">
+        <PageIntro
+          index="04"
+          eyebrow="TIMELINE"
+          title="时间轴"
+          seal="岁"
+          description={`凡 ${entries.length} 事，按时而录。`}
+        />
 
-      {entries.length === 0 ? (
-        <div className="empty-state">
-          <div className="big">空</div>
-          还没有任何记录。
-        </div>
-      ) : (
-        <TimelineReveal entries={entries} />
-      )}
+        {entries.length === 0 ? (
+          <div className="empty-state">
+            <div className="big">空</div>
+            还没有任何记录。
+          </div>
+        ) : (
+          <TimelineReveal entries={entries} />
+        )}
+      </main>
     </div>
   )
 }

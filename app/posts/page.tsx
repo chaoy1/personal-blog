@@ -27,27 +27,29 @@ export default async function PostsPage() {
         <span>文章</span>
       </nav>
 
-      <PageIntro
-        index="01"
-        eyebrow="ARTICLES"
-        title="全部文章"
-        seal="文"
-        description={`凡 ${posts.length} 篇，皆手记。`}
-      />
+      <main className="collection-scroll collection-scroll-posts">
+        <PageIntro
+          index="01"
+          eyebrow="ARTICLES"
+          title="全部文章"
+          seal="文"
+          description={`凡 ${posts.length} 篇，皆手记。`}
+        />
 
-      {posts.length === 0 ? (
-        <div className="empty-state">
-          <div className="big">空</div>
-          还没有文章。
-        </div>
-      ) : (
-        <PostList posts={posts} />
-      )}
+        {posts.length === 0 ? (
+          <div className="empty-state">
+            <div className="big">空</div>
+            还没有文章。
+          </div>
+        ) : (
+          <PostList posts={posts} />
+        )}
 
-      <footer className="article-footer">
-        <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
-        <span>共 {posts.length} 篇</span>
-      </footer>
+        <footer className="article-footer">
+          <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
+          <span>共 {posts.length} 篇</span>
+        </footer>
+      </main>
     </div>
   )
 }
