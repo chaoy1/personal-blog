@@ -34,22 +34,23 @@ export default async function AboutPage() {
     : null
 
   return (
-    <div className="wrap">
+    <div className="wrap about-page">
       <ScrollFX />
       <nav className="article-nav">
         <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
         <span>关于</span>
       </nav>
 
-      <PageIntro
-        index="06"
-        eyebrow="ABOUT"
-        title="关于这间小屋"
-        seal="记"
-        description="写代码，也写生活。"
-      />
+      <main className="about-scroll">
+        <PageIntro
+          index="06"
+          eyebrow="ABOUT"
+          title="关于这间小屋"
+          seal="记"
+          description="写代码，也写生活。"
+        />
 
-      <article className="article content-sheet">
+        <article className="article content-sheet">
 
         <div className="about-essay">
           {owner?.bio ? <MarkdownView content={owner.bio} preserveParagraphs /> : null}
@@ -64,7 +65,8 @@ export default async function AboutPage() {
             </div>
           </aside>
         ) : null}
-      </article>
+        </article>
+      </main>
 
     </div>
   )

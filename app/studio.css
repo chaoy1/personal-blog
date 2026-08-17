@@ -1517,3 +1517,183 @@
     margin-top: 20px;
   }
 }
+
+/* 关于页是一张连续展开的长卷，不再拆成导航、题头、正文三张卡片。 */
+.about-page .article-nav {
+  width: min(1080px, 100%);
+  min-height: 46px;
+  margin: 6px auto 18px;
+  padding: 8px 5px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  text-shadow:
+    0 1px 1px rgba(247, 238, 214, 0.9),
+    0 0 18px rgba(247, 238, 214, 0.72);
+}
+
+.about-page .article-nav::before,
+.about-page .article-nav::after {
+  display: none;
+}
+
+.about-page .article-nav > span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.about-page .article-nav > span:last-child::before {
+  width: 7px;
+  height: 7px;
+  border-color: var(--seal);
+  background: rgba(247, 238, 214, 0.5);
+}
+
+.about-scroll {
+  position: relative;
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 3px;
+  background-color: rgba(241, 230, 202, 0.92);
+  background-image:
+    linear-gradient(112deg, rgba(255, 250, 232, 0.42), transparent 36%),
+    radial-gradient(circle at 86% 16%, rgba(178, 58, 43, 0.055), transparent 23%),
+    var(--card-paper);
+  background-size: auto, auto, 220px 220px;
+  box-shadow: 0 30px 68px -42px rgba(38, 27, 13, 0.8);
+  isolation: isolate;
+}
+
+.about-scroll::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 42px;
+  width: 3px;
+  height: 82px;
+  background: linear-gradient(180deg, var(--seal), rgba(178, 58, 43, 0));
+  opacity: 0.85;
+}
+
+.about-scroll::after {
+  content: "记";
+  position: absolute;
+  right: 42px;
+  bottom: 34px;
+  z-index: -1;
+  color: var(--seal);
+  font-family: var(--font-kai);
+  font-size: 86px;
+  line-height: 1;
+  opacity: 0.035;
+  transform: rotate(-8deg);
+}
+
+.about-scroll .page-intro {
+  width: 100%;
+  margin: 0;
+  padding: 46px 54px 25px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.about-scroll .page-intro::before,
+.about-scroll .page-intro::after {
+  display: none;
+}
+
+.about-scroll .page-intro-mark {
+  opacity: 0.7;
+}
+
+.about-scroll .content-sheet {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 10px 54px 52px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.about-scroll .about-essay {
+  max-width: 850px;
+  color: var(--ink-soft);
+}
+
+.about-scroll .about-colophon {
+  width: fit-content;
+  min-width: 260px;
+  margin: 38px 0 0 auto;
+  padding: 8px 4px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.about-scroll .about-colophon::before {
+  content: "落款";
+  margin-right: 5px;
+  color: var(--seal-deep);
+  font-family: var(--font-kai);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  writing-mode: vertical-rl;
+  opacity: 0.72;
+}
+
+.about-scroll .about-colophon::after {
+  display: none;
+}
+
+:root[data-theme='dark'] .about-scroll {
+  background-color: rgba(54, 43, 26, 0.94);
+  background-image:
+    linear-gradient(112deg, rgba(242, 226, 188, 0.035), transparent 36%),
+    radial-gradient(circle at 86% 16%, rgba(201, 77, 55, 0.08), transparent 23%),
+    var(--card-paper);
+}
+
+@media (max-width: 720px) {
+  .about-page .article-nav {
+    min-height: 40px;
+    margin: 0 auto 12px;
+    padding: 5px 2px;
+  }
+
+  .about-scroll .page-intro {
+    display: block;
+    min-height: 0;
+    padding: 34px 24px 20px;
+  }
+
+  .about-scroll .page-intro-meta {
+    margin-bottom: 13px;
+  }
+
+  .about-scroll .page-intro h1 {
+    font-size: clamp(29px, 10vw, 36px);
+  }
+
+  .about-scroll .content-sheet {
+    padding: 8px 24px 38px;
+  }
+
+  .about-scroll .about-colophon {
+    min-width: 0;
+    margin-top: 28px;
+  }
+
+  .about-scroll::after {
+    right: 8px;
+    bottom: 20px;
+    font-size: 64px;
+  }
+}
