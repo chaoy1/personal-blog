@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import AdminPageHead from '@/components/AdminPageHead'
 
 export default function AdminProfile() {
   const router = useRouter()
@@ -98,9 +99,12 @@ export default function AdminProfile() {
 
   return (
     <>
-      <div className="admin-toolbar">
-        <h1>博主资料</h1>
-      </div>
+      <AdminPageHead
+        index="04"
+        eyebrow="OWNER PROFILE"
+        title="博主资料"
+        description="这里的名字、头像和简介，会成为小屋主人的落款。"
+      />
 
       {!profile ? (
         <div className="field">

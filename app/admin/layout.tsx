@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import Link from 'next/link'
 import AdminHeader from '@/components/AdminHeader'
+import AdminNav from '@/components/AdminNav'
 import { SITE_NAME } from '@/lib/site'
 
 export const metadata: Metadata = {
@@ -14,18 +15,19 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     <div className="admin-shell">
       <header className="admin-head">
         <Link href="/admin" className="admin-brand">
-          {SITE_NAME} · 后台
+          <span className="admin-brand-mark" aria-hidden="true">写</span>
+          <span>
+            <b>{SITE_NAME}</b>
+            <small>WRITING STUDIO</small>
+          </span>
         </Link>
-        <nav>
-          <Link href="/admin">文章</Link>
-          <Link href="/admin/moments">闲语</Link>
-          <Link href="/admin/photos">光影</Link>
-          <Link href="/admin/profile">资料</Link>
-          <Link href="/">查看博客</Link>
+        <AdminNav />
+        <div className="admin-head-foot">
+          <Link href="/" className="admin-view-blog">查看博客 ↗</Link>
           <AdminHeader />
-        </nav>
+        </div>
       </header>
-      {children}
+      <main className="admin-content">{children}</main>
     </div>
   )
 }

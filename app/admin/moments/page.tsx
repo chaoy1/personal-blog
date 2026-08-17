@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatDate } from '@/lib/blog'
+import AdminPageHead from '@/components/AdminPageHead'
 
 type AdminMoment = {
   id: string
@@ -90,9 +91,12 @@ export default function AdminMoments() {
 
   return (
     <>
-      <div className="admin-toolbar">
-        <h1>闲语管理</h1>
-      </div>
+      <AdminPageHead
+        index="02"
+        eyebrow="QUICK NOTES"
+        title="闲语"
+        description="短句不必完整，记下当下就好。"
+      />
 
       <div className="moments-composer">
         <textarea
@@ -128,8 +132,11 @@ export default function AdminMoments() {
       {error ? <p className="error-text">{error}</p> : null}
 
       <div className="admin-list">
-        {moments.map((m) => (
+        {moments.map((m, index) => (
           <div key={m.id} className="admin-item">
+            <span className="admin-item-index" aria-hidden="true">
+              {String(index + 1).padStart(2, '0')}
+            </span>
             <div>
               <h3>{m.content || '（仅图片）'}</h3>
               <div className="meta">

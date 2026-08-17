@@ -89,6 +89,19 @@ function Editor() {
     })
   }
 
+  function handleEditorKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key !== 'Tab') return
+    event.preventDefault()
+    const input = event.currentTarget
+    const start = input.selectionStart
+    const end = input.selectionEnd
+    const indent = '  '
+    setContent((value) => `${value.slice(0, start)}${indent}${value.slice(end)}`)
+    requestAnimationFrame(() => {
+      input.selectionStart = input.selectionEnd = start + indent.length
+    })
+  }
+
   const toolbar = [
     { label: 'H2', run: () => insertMarkdown('## ', '', '小标题') },
     { label: '粗', run: () => insertMarkdown('**', '**', '加粗') },
@@ -100,6 +113,9 @@ function Editor() {
     { label: '图', run: () => insertMarkdown('![', '](图片地址)', '图片说明') },
     { label: '·', run: () => insertMarkdown('- ', '', '列表项') },
   ]
+
+  const characterCount = content.replace(/\s/g, '').length
+  const paragraphCount = content.trim() ? content.trim().split(/\n\s*\n/).length : 0
 
   async function save() {
     setError('')
@@ -141,6 +157,7 @@ function Editor() {
         placeholder="这篇文章叫什么？"
       />
       <div className="md-toolbar" role="toolbar" aria-label="Markdown 快捷插入">
+        <span className="md-toolbar-label" aria-hidden="true">MARKDOWN</span>
         {toolbar.map((t) => (
           <button key={t.label} type="button" onClick={t.run} title={`插入：${t.label}`}>
             {t.label}
@@ -161,6 +178,7 @@ function Editor() {
           className="editor-body"
           value={content}
           onChange={(e) => setContent(e.target.value)}
+          onKeyDown={handleEditorKeyDown}
           placeholder={'用 Markdown 写作，支持 **加粗**、[链接](https://…)、代码块、表格等。'}
           spellCheck={false}
         />
@@ -173,6 +191,11 @@ function Editor() {
           )}
         </div>
       )}
+      <div className="editor-status" aria-live="polite">
+        <span>{characterCount} 字</span>
+        <span>{paragraphCount} 段</span>
+        <span>Markdown</span>
+      </div>
     </>
   )
 
@@ -224,8 +247,8 @@ function Editor() {
     return (
       <div className="editor-immersive">
         <div className="editor-immersive-top">
-          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setImmersive(false)}>
-            ← 退出沉浸
+          <button type="button" className="editor-quiet-action" onClick={() => setImmersive(false)}>
+            ← 返回工作台
           </button>
           <span className="editor-immersive-title">{title || '未命名文章'}</span>
           {saveBtn}
@@ -245,10 +268,13 @@ function Editor() {
         <Link href="/admin" className="back-link">
           ← 文章列表
         </Link>
-        <h1>{isEdit ? '编辑文章' : '写新文章'}</h1>
+        <div className="editor-top-title">
+          <span>WRITING ROOM</span>
+          <h1>{isEdit ? '编辑文章' : '写新文章'}</h1>
+        </div>
         <div className="editor-top-actions">
-          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setImmersive(true)}>
-            沉浸写作
+          <button type="button" className="editor-quiet-action" onClick={() => setImmersive(true)}>
+            全屏写作
           </button>
           {saveBtn}
         </div>

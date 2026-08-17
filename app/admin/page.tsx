@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { formatDate, type Post } from '@/lib/blog'
+import AdminPageHead from '@/components/AdminPageHead'
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -45,12 +46,13 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <div className="admin-toolbar">
-        <h1>文章管理</h1>
-        <Link href="/admin/editor" className="btn">
-          ＋ 写新文章
-        </Link>
-      </div>
+      <AdminPageHead
+        index="01"
+        eyebrow="ARTICLE ARCHIVE"
+        title="文章"
+        description="整理旧稿，也为下一篇文字留出位置。"
+        action={<Link href="/admin/editor" className="btn">写新文章</Link>}
+      />
 
       {error ? <p className="error-text">{error}</p> : null}
 
@@ -63,8 +65,11 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <div className="admin-list">
-          {posts.map((post) => (
+          {posts.map((post, index) => (
             <div key={post.id} className="admin-item">
+              <span className="admin-item-index" aria-hidden="true">
+                {String(index + 1).padStart(2, '0')}
+              </span>
               <div>
                 <h3>
                   {post.title}

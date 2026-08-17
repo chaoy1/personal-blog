@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatDate } from '@/lib/blog'
+import AdminPageHead from '@/components/AdminPageHead'
 
 type AdminPhoto = {
   id: string
@@ -119,9 +120,12 @@ export default function AdminPhotos() {
 
   return (
     <>
-      <div className="admin-toolbar">
-        <h1>光影管理</h1>
-      </div>
+      <AdminPageHead
+        index="03"
+        eyebrow="PHOTO CABINET"
+        title="光影"
+        description="归拢照片，为每一帧留下名字。"
+      />
 
       <div className="admin-album-create">
         <input

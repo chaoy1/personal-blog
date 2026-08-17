@@ -9,12 +9,11 @@ type PageIntroProps = {
 export default function PageIntro({ index, eyebrow, title, seal, description }: PageIntroProps) {
   return (
     <header className="page-intro">
-      <span className="page-intro-index" aria-hidden="true">
-        <b>{index}</b>
-        <i>卷首</i>
-      </span>
       <div className="page-intro-copy">
-        <p className="eyebrow">{eyebrow}</p>
+        <div className="page-intro-meta">
+          <span className="page-intro-index" aria-hidden="true">卷 {index}</span>
+          <p className="eyebrow">{eyebrow}</p>
+        </div>
         <h1>
           {title}
           <span className="article-seal" aria-hidden="true">
@@ -23,7 +22,10 @@ export default function PageIntro({ index, eyebrow, title, seal, description }: 
         </h1>
         <p className="page-intro-description">{description}</p>
       </div>
-      <span className="page-intro-mark" aria-hidden="true">COLLECTED NOTES</span>
+      <span className="page-intro-mark" aria-hidden="true">
+        <i />
+        COLLECTED NOTES
+      </span>
     </header>
   )
 }
