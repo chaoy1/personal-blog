@@ -3362,8 +3362,13 @@ a.tl-title:hover {
 
 /* Runtime no-motion fallback for hidden tabs and data-saving connections. */
 html.motion-static .item,
-html.motion-static .reveal,
 html.motion-static .item:hover {
+  opacity: 1;
+  transform: translateY(0) rotate(var(--tilt, 0deg));
+  transition: none;
+}
+
+html.motion-static .reveal {
   opacity: 1;
   transform: none;
   transition: none;

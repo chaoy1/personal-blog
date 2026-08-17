@@ -23,10 +23,10 @@ export function supportsFinePointer(): boolean {
   return window.matchMedia?.('(any-hover: hover) and (any-pointer: fine)').matches ?? false
 }
 
-export default function useAmbientMotion(): boolean {
-  // Start inert so the server and the first client render agree; the effect
-  // immediately activates only when the browser policy allows it.
-  const [active, setActive] = useState(false)
+export default function useAmbientMotion(): boolean | null {
+  // Keep the server and first client render neutral until browser-only policy
+  // signals resolve; null is distinct from a confirmed inactive state.
+  const [active, setActive] = useState<boolean | null>(null)
 
   useEffect(() => {
     const reducedQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)')

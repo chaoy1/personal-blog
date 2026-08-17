@@ -8,7 +8,7 @@ import useAmbientMotion from './useAmbientMotion'
 
 export default function BackgroundStage() {
   const [dark, setDark] = useState(false)
-  const active = useAmbientMotion()
+  const active = useAmbientMotion() === true
 
   useEffect(() => {
     const root = document.documentElement

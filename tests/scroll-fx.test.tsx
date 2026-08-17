@@ -23,6 +23,26 @@ function setInactiveMotion() {
   }))
 }
 
+function setActiveMotion() {
+  Object.defineProperty(document, 'visibilityState', {
+    configurable: true,
+    value: 'visible',
+  })
+  Object.defineProperty(navigator, 'connection', {
+    configurable: true,
+    value: { saveData: false },
+  })
+  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }))
+}
+
 describe('ScrollFX inactive motion policy', () => {
   afterEach(() => {
     cleanup()
@@ -67,6 +87,25 @@ describe('ScrollFX inactive motion policy', () => {
     expect(mutationObserver).not.toHaveBeenCalled()
     expect(document.documentElement).toHaveClass('motion-static')
     expect(inserted).not.toHaveClass('is-in')
+  })
+
+  it('waits for policy resolution before finalizing active-session reveal targets', () => {
+    setActiveMotion()
+    const intersectionObserver = vi.fn(() => ({
+      observe: vi.fn(),
+      unobserve: vi.fn(),
+      disconnect: vi.fn(),
+    }))
+    vi.stubGlobal('IntersectionObserver', intersectionObserver)
+    const { container } = render(
+      <>
+        <div className="item" />
+        <ScrollFX />
+      </>
+    )
+
+    expect(intersectionObserver).toHaveBeenCalledOnce()
+    expect(container.querySelector('.item')).not.toHaveClass('is-in')
   })
 
   it('recognizes a fine secondary pointer on hybrid devices', () => {

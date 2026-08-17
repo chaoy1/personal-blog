@@ -7,7 +7,7 @@ export default function ThemeToggle() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
   const [wash, setWash] = useState(0)
   const trackRef = useRef<HTMLSpanElement>(null)
-  const active = useAmbientMotion()
+  const active = useAmbientMotion() === true
 
   useEffect(() => {
     setTheme(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light')

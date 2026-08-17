@@ -16,6 +16,8 @@ export default function ScrollFX() {
   const active = useAmbientMotion()
 
   useEffect(() => {
+    if (active === null) return
+
     const masthead = document.querySelector<HTMLElement>('.masthead')
     const nav = document.querySelector<HTMLElement>('.site-nav')
     const root = document.documentElement
