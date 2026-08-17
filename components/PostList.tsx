@@ -24,22 +24,28 @@ export default function PostList({ posts }: { posts: Post[] }) {
         {pagePosts.map((post, i) => {
           const idx = (safePage - 1) * PAGE_SIZE + i
           return (
-            <Link key={post.id} href={`/posts/${post.slug}`} className="item">
-              <span className="no">
-                <CnNum i={idx} />
-              </span>
-              <span className="tag-seal" aria-hidden="true">
-                阅
+            <Link key={post.id} href={`/posts/${post.slug}`} className="item home-post-card archive-post-card">
+              <span className="hpc-index" aria-hidden="true">
+                <b>
+                  <CnNum i={idx} />
+                </b>
+                <i>文</i>
               </span>
               <span className="wm" aria-hidden="true">
                 {idx < CN_WM.length ? CN_WM[idx] : ''}
               </span>
-              <h2 className="post-title">{post.title}</h2>
-              {post.excerpt ? <span className="ex">{post.excerpt}</span> : null}
-              <span className="item-foot">
-                <span className="date">{formatDate(post.created_at)}</span>
-                <span className="read">阅读全文</span>
-              </span>
+              <div className="hpc-copy">
+                <span className="hpc-meta">
+                  <span>典藏 · ARTICLE</span>
+                  <time dateTime={post.created_at}>{formatDate(post.created_at)}</time>
+                </span>
+                <h2 className="post-title">{post.title}</h2>
+                {post.excerpt ? <span className="ex">{post.excerpt}</span> : null}
+                <span className="item-foot">
+                  <span className="hpc-note">第 {String(idx + 1).padStart(2, '0')} 卷 · 手记</span>
+                  <span className="read">阅读全文</span>
+                </span>
+              </div>
             </Link>
           )
         })}

@@ -17,10 +17,14 @@ export default function AlbumPage() {
 
   const photoGrid = (list: PhotoItem[]) => (
     <div className="album-grid">
-      {list.map((photo) => (
+      {list.map((photo, index) => (
         <figure key={photo.id} className="album-item">
+          <span className="album-photo-index" aria-hidden="true">
+            FRAME {String(index + 1).padStart(2, '0')}
+          </span>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={photo.url} alt={photo.caption || '照片'} loading="lazy" />
+          <i className="album-photo-seal" aria-hidden="true">影</i>
           {photo.caption ? <figcaption>{photo.caption}</figcaption> : null}
           <span className="album-date">{formatDate(photo.created_at)}</span>
         </figure>
@@ -60,7 +64,7 @@ export default function AlbumPage() {
         {view.mode === 'list' ? (
           <>
             <div className="albums-grid">
-              {albums.map((album) => {
+              {albums.map((album, index) => {
                 const cover = coverOf(album)
                 const count = photosOf(album.id).length
                 return (
@@ -70,6 +74,9 @@ export default function AlbumPage() {
                     className="album-card"
                     onClick={() => setView({ mode: 'album', album })}
                   >
+                    <span className="album-card-kicker">
+                      ALBUM · {String(index + 1).padStart(2, '0')}
+                    </span>
                     {cover ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img className="album-cover" src={cover} alt={album.title} loading="lazy" />
@@ -83,11 +90,15 @@ export default function AlbumPage() {
                     <span className="album-card-meta">
                       {count} 张 · {formatDate(album.created_at)}
                     </span>
+                    <span className="album-card-action" aria-hidden="true">开卷 ↗</span>
                   </button>
                 )
               })}
               {orphanPhotos.length > 0 ? (
                 <button type="button" className="album-card" onClick={() => setView({ mode: 'all' })}>
+                  <span className="album-card-kicker">
+                    ALBUM · {String(albums.length + 1).padStart(2, '0')}
+                  </span>
                   {orphanPhotos[0] ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img className="album-cover" src={orphanPhotos[0].url} alt="全部照片" loading="lazy" />
@@ -97,6 +108,7 @@ export default function AlbumPage() {
                   <span className="album-card-title">全部照片</span>
                   <span className="album-card-desc">未归入相册的照片</span>
                   <span className="album-card-meta">{orphanPhotos.length} 张</span>
+                  <span className="album-card-action" aria-hidden="true">开卷 ↗</span>
                 </button>
               ) : null}
             </div>

@@ -75,7 +75,7 @@ export default function MomentsPage() {
         {!ready && !error ? <p className="moments-empty">正在加载闲语…</p> : null}
 
         <div className="moments-list">
-          {moments.map((m) => {
+          {moments.map((m, index) => {
             const likeCount = momentLikes.filter((l) => l.moment_id === m.id).length
             const liked = user
               ? momentLikes.some((l) => l.moment_id === m.id && l.user_id === user.id)
@@ -84,9 +84,13 @@ export default function MomentsPage() {
 
             return (
               <div key={m.id} className="moment reveal">
+                <span className="moment-index" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
                 <div className="moment-head">
                   <Avatar className="moment-avatar" src={m.profiles?.avatar_url} />
                   <div>
+                    <span className="moment-kicker">MOMENT · 闲语</span>
                     <span className="moment-name">{m.profiles?.nickname || '旅人'}</span>
                     <span className="moment-date">{formatDate(m.created_at)}</span>
                   </div>

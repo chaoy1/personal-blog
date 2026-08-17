@@ -56,6 +56,9 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
                         <img className="tl-thumb" src={e.image} alt={e.title} loading="lazy" />
                       ) : null}
                       <div className="tl-text">
+                        <span className="tl-kicker">
+                          {e.type === 'post' ? 'ARTICLE · 文章' : e.type === 'photo' ? 'FRAME · 光影' : 'MOMENT · 闲语'}
+                        </span>
                         {e.type === 'post' ? (
                           <Link className="tl-title" href={e.href}>
                             {e.title}
