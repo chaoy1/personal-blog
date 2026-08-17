@@ -1697,3 +1697,203 @@
     font-size: 64px;
   }
 }
+
+/* ---------- 公共内页：开放式题头与连续内容 ---------- */
+
+/* 返回导航直接落在画面上，不再成为单独的横向卡片。 */
+.article-nav {
+  min-height: 46px;
+  margin: 6px auto 18px;
+  padding: 8px 5px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  text-shadow:
+    0 1px 1px rgba(247, 238, 214, 0.92),
+    0 0 18px rgba(247, 238, 214, 0.76);
+}
+
+.article-nav::before,
+.article-nav::after {
+  display: none;
+}
+
+.article-nav > span:last-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.article-nav > span:last-child::before {
+  width: 7px;
+  height: 7px;
+  border-color: var(--seal);
+  background: rgba(247, 238, 214, 0.5);
+}
+
+:root[data-theme='dark'] .article-nav {
+  text-shadow:
+    0 1px 1px rgba(28, 23, 15, 0.95),
+    0 0 18px rgba(28, 23, 15, 0.8);
+}
+
+/* 列表型页面使用没有硬边缘的纸雾题头。 */
+.page-intro {
+  isolation: isolate;
+  overflow: visible;
+  min-height: 0;
+  margin: 4px auto 22px;
+  padding: 34px 30px 32px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.page-intro::before {
+  display: none;
+}
+
+.page-intro::after {
+  display: none;
+}
+
+:root[data-theme='dark'] .page-intro {
+  background: transparent;
+}
+
+.page-intro-copy,
+.page-intro-mark {
+  position: relative;
+  z-index: 1;
+}
+
+.page-intro-meta {
+  gap: 12px;
+}
+
+.page-intro-index {
+  gap: 10px;
+  padding-right: 0;
+  border-right: 0;
+}
+
+.page-intro-index::after {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border: 1px solid var(--seal);
+  transform: rotate(45deg);
+  opacity: 0.7;
+}
+
+.page-intro h1,
+.page-intro-description,
+.page-intro .eyebrow,
+.page-intro-index {
+  text-shadow:
+    0 1px 1px rgba(252, 247, 232, 0.94),
+    0 0 5px rgba(247, 238, 214, 0.9),
+    0 0 15px rgba(247, 238, 214, 0.76),
+    0 0 28px rgba(247, 238, 214, 0.46);
+}
+
+:root[data-theme='dark'] .page-intro h1,
+:root[data-theme='dark'] .page-intro-description,
+:root[data-theme='dark'] .page-intro .eyebrow,
+:root[data-theme='dark'] .page-intro-index {
+  text-shadow: 0 1px 8px rgba(22, 18, 12, 0.62);
+}
+
+.page-intro-mark {
+  opacity: 0.54;
+}
+
+/* 有主内容纸面的页面，让题头与正文真正连成一页。 */
+.wrap:has(> .page-intro + .content-sheet) > .page-intro {
+  margin-bottom: 0;
+  padding: 42px 48px 24px;
+  overflow: hidden;
+  border-radius: 3px 3px 0 0;
+  background-color: rgba(241, 230, 202, 0.92);
+  background-image:
+    linear-gradient(112deg, rgba(255, 250, 232, 0.4), transparent 42%),
+    radial-gradient(circle at 87% 18%, rgba(178, 58, 43, 0.05), transparent 22%),
+    var(--card-paper);
+  background-size: auto, auto, 220px 220px;
+  box-shadow: 0 -18px 40px -36px rgba(38, 27, 13, 0.74);
+}
+
+.wrap:has(> .page-intro + .content-sheet) > .page-intro::before {
+  display: none;
+}
+
+.wrap > .page-intro + .content-sheet {
+  width: 100%;
+  max-width: none !important;
+  margin: 0;
+  padding: 12px 48px 50px;
+  border: 0;
+  border-radius: 0 0 3px 3px;
+  background-color: rgba(241, 230, 202, 0.92);
+  background-image: var(--card-paper);
+  background-size: 220px 220px;
+  box-shadow: 0 30px 68px -42px rgba(38, 27, 13, 0.8);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:root[data-theme='dark'] .wrap:has(> .page-intro + .content-sheet) > .page-intro,
+:root[data-theme='dark'] .wrap > .page-intro + .content-sheet {
+  background-color: rgba(54, 43, 26, 0.94);
+}
+
+/* 列表紧随题头进入视线，去掉过去的大段空白。 */
+.page-intro + .list,
+.page-intro + .timeline {
+  margin-top: 8px;
+}
+
+.article-footer {
+  padding-left: 4px;
+  padding-right: 4px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  text-shadow:
+    0 1px 1px rgba(247, 238, 214, 0.92),
+    0 0 18px rgba(247, 238, 214, 0.76);
+}
+
+:root[data-theme='dark'] .article-footer {
+  text-shadow: 0 1px 10px rgba(20, 16, 10, 0.82);
+}
+
+@media (max-width: 720px) {
+  .article-nav {
+    min-height: 40px;
+    margin: 0 auto 12px;
+    padding: 5px 2px;
+  }
+
+  .page-intro {
+    margin: 0 0 14px;
+    padding: 29px 18px 27px;
+  }
+
+  .wrap:has(> .page-intro + .content-sheet) > .page-intro {
+    padding: 32px 24px 19px;
+  }
+
+  .wrap > .page-intro + .content-sheet {
+    padding: 9px 24px 38px;
+  }
+
+  .page-intro + .list,
+  .page-intro + .timeline {
+    margin-top: 4px;
+  }
+}
