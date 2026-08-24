@@ -7,7 +7,6 @@ import { isSupabaseConfigured } from '@/lib/supabase'
 import { listAllMoments, listAllPhotos, countMoments, countPhotos, type TimelineMoment, type TimelinePhoto } from '@/lib/timeline'
 import { listRecentGuestbook, type GuestbookRow } from '@/lib/guestbook'
 import ScrollFX from '@/components/ScrollFX'
-import ScrollUnfold from '@/components/ScrollUnfold'
 import ScrollHint from '@/components/ScrollHint'
 import Avatar from '@/components/Avatar'
 import CnNum from '@/components/CnNum'
@@ -59,7 +58,6 @@ export default async function HomePage() {
   return (
     <div className="wrap">
       <ScrollFX />
-      <ScrollUnfold />
       <div className="branch" aria-hidden="true">
         <svg viewBox="0 0 300 330" fill="none">
           <path className="stem" d="M292 4 C 246 46, 234 98, 216 156 S 186 244, 152 300" />
