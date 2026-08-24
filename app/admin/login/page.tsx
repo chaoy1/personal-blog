@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { safeAdminNext } from '@/lib/admin-return'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -25,7 +26,8 @@ export default function LoginPage() {
         setError(data.error ?? '登录失败，请重试')
         return
       }
-      router.replace('/admin')
+      const next = safeAdminNext(new URLSearchParams(window.location.search).get('next'))
+      router.replace(next)
       router.refresh()
     } finally {
       setLoading(false)
