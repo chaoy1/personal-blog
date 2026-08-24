@@ -3809,6 +3809,14 @@ html.motion-static .reveal {
 
 /* ---------- 首页画卷展开 ---------- */
 
+:root {
+  --unfold-scene: url('/bg/opening-scroll-day.png');
+}
+
+:root[data-theme='dark'] {
+  --unfold-scene: url('/bg/opening-scroll-night.png');
+}
+
 .scroll-unfold {
   position: fixed;
   inset: 0;
@@ -3828,17 +3836,22 @@ html.motion-static .reveal {
 .su-paper {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse 130% 80% at 50% 24%, rgba(255, 254, 246, 0.55), rgba(244, 238, 222, 0) 70%),
-    radial-gradient(ellipse 40% 30% at 22% 68%, rgba(150, 128, 88, 0.07), transparent 70%),
-    radial-gradient(ellipse 34% 26% at 78% 30%, rgba(150, 128, 88, 0.06), transparent 70%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55 0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.38 0 0 0 0 0.25 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E"),
-    repeating-linear-gradient(90deg, rgba(120, 100, 66, 0.035) 0 1px, transparent 1px 9px),
-    repeating-linear-gradient(0deg, rgba(120, 100, 66, 0.022) 0 1px, transparent 1px 15px),
-    linear-gradient(180deg, rgba(110, 88, 52, 0.12), rgba(110, 88, 52, 0) 9%, rgba(110, 88, 52, 0) 90%, rgba(100, 78, 44, 0.16)),
-    linear-gradient(180deg, #f8f2e1, #f0e7cf 55%, #e7dabb);
+  background-color: #e9d7b5;
+  background-image: var(--unfold-scene);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
   animation: su-unroll-x 3s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
   will-change: transform;
+}
+
+/* 场景图已经包含真实纸张、山水和左侧画轴，避免旧的 CSS 画轴叠加。 */
+.su-paper > .su-curl,
+.su-paper > .su-art,
+.su-roll,
+.su-rod,
+.su-shadow {
+  display: none;
 }
 
 /* 纸面左缘：正在卷起的弯曲阴影 */
