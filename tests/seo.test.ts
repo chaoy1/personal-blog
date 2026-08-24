@@ -20,6 +20,16 @@ test('normalizes only valid http site URLs', () => {
   expect(normalizeSiteUrl('not a url')).toBe('http://localhost:3000')
 })
 
+test('uses the configured public site URL for generated metadata', () => {
+  const previous = process.env.NEXT_PUBLIC_SITE_URL
+  process.env.NEXT_PUBLIC_SITE_URL = 'https://blog.example.com/'
+
+  expect(absoluteUrl('/sitemap.xml')).toBe('https://blog.example.com/sitemap.xml')
+
+  if (previous === undefined) delete process.env.NEXT_PUBLIC_SITE_URL
+  else process.env.NEXT_PUBLIC_SITE_URL = previous
+})
+
 test('preserves a configured path prefix when composing public URLs', () => {
   expect(absoluteUrl('/posts/hello-world', 'https://example.com/blog')).toBe(
     'https://example.com/blog/posts/hello-world'

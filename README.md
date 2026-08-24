@@ -20,6 +20,8 @@
 4. 启动：`npm run dev`，访问 http://localhost:3000
 5. 打开 http://localhost:3000/admin 登录后台（密码为 `.env.local` 里的 `ADMIN_PASSWORD`）
 
+其中 `NEXT_PUBLIC_SITE_URL` 要填写实际部署域名（例如 `https://blog.example.com`），用于生成 canonical、sitemap、robots 和社交分享链接；本地开发可以省略，默认使用 `http://localhost:3000`。
+
 ## 部署到 Vercel（免费）
 
 1. 把项目推送到 GitHub：
@@ -35,14 +37,15 @@
 
 2. 打开 vercel.com → 用 GitHub 登录 → New Project → Import 你的仓库。
 3. 框架会自动识别 Next.js，无需修改构建命令，直接 Deploy。
-4. 部署完成后在 Vercel 项目 Settings → Environment Variables 添加四个变量（与 `.env.local` 相同）：
+4. 部署完成后在 Vercel 项目 Settings → Environment Variables 添加五个变量（与 `.env.local` 相同）：
 
    | 变量 | 说明 |
    |---|---|
    | `NEXT_PUBLIC_SUPABASE_URL` | Supabase 项目地址 |
-   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase 公开 anon key |
-   | `SUPABASE_SERVICE_ROLE_KEY` | Supabase 服务端密钥（仅服务器使用，注意保密） |
-   | `ADMIN_PASSWORD` | 后台登录密码（换成强密码） |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase 公开 anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase 服务端密钥（仅服务器使用，注意保密） |
+| `NEXT_PUBLIC_SITE_URL` | 实际部署域名，例如 `https://blog.example.com` |
+| `ADMIN_PASSWORD` | 后台登录密码（换成强密码） |
 
 5. 重新 Deploy 后，打开 `https://你的项目.vercel.app` 即可访问，后台在 `/admin`。
 
