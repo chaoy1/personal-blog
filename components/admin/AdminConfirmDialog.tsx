@@ -70,20 +70,25 @@ export function useAdminConfirm(): {
 
   const dialog = pending ? (
     <div
+      className="admin-dialog-backdrop"
       aria-describedby={descriptionId}
       aria-labelledby={titleId}
       aria-modal="true"
       onKeyDown={trapFocus}
       role="alertdialog"
     >
-      <h2 id={titleId}>{pending.title}</h2>
-      <p id={descriptionId}>{pending.description}</p>
-      <button ref={cancelRef} type="button" onClick={() => close(false)}>
-        取消
-      </button>
-      <button ref={confirmRef} type="button" onClick={() => close(true)}>
-        {pending.confirmLabel}
-      </button>
+      <div className="admin-dialog-card">
+        <h2 id={titleId}>{pending.title}</h2>
+        <p id={descriptionId}>{pending.description}</p>
+        <div className="editor-save-actions">
+          <button ref={cancelRef} type="button" className="btn btn-ghost" onClick={() => close(false)}>
+            取消
+          </button>
+          <button ref={confirmRef} type="button" className="btn btn-danger" onClick={() => close(true)}>
+            {pending.confirmLabel}
+          </button>
+        </div>
+      </div>
     </div>
   ) : null
 
