@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
   const { data, error } = await supabaseAdmin()
     .from('photos')
     .select('*')
+    .order('sort_order', { ascending: true })
     .order('created_at', { ascending: false })
     .limit(200)
   if (error) {
@@ -25,6 +26,7 @@ export async function POST(req: NextRequest) {
   const url = typeof body.url === 'string' ? body.url.trim() : ''
   const caption = typeof body.caption === 'string' ? body.caption.trim() : ''
   const albumId = typeof body.album_id === 'string' && body.album_id ? body.album_id : null
+  const sortOrder = Number.isInteger(body.sort_order) ? body.sort_order : 0
   if (!url) {
     return NextResponse.json({ error: '缺少图片地址' }, { status: 400 })
   }
@@ -37,13 +39,13 @@ export async function POST(req: NextRequest) {
   if (!owner) {
     return NextResponse.json(
       { error: '尚未设置博主账号，请先到「资料」页创建或标记博主本人' },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
   const { data, error } = await supabaseAdmin()
     .from('photos')
-    .insert({ user_id: owner.id, url, caption, album_id: albumId })
+    .insert({ user_id: owner.id, url, caption, album_id: albumId, sort_order: sortOrder })
     .select('*')
     .single()
   if (error) {
