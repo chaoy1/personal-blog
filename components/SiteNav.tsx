@@ -99,7 +99,11 @@ export default function SiteNav() {
           const active = link.match ? link.match(pathname) : false
           return (
             <Fragment key={link.href}>
-              <Link href={link.href} className={active ? 'active' : undefined}>
+              <Link
+                href={link.href}
+                className={active ? 'active' : undefined}
+                aria-current={active ? 'page' : undefined}
+              >
                 {link.label}
               </Link>
               {index < LINKS.length - 1 ? <span className="nav-divider" aria-hidden="true" /> : null}
@@ -159,7 +163,12 @@ export default function SiteNav() {
           {LINKS.map((link, index) => {
             const active = link.match ? link.match(pathname) : false
             return (
-              <Link key={link.href} href={link.href} className={active ? 'active' : undefined}>
+              <Link
+                key={link.href}
+                href={link.href}
+                className={active ? 'active' : undefined}
+                aria-current={active ? 'page' : undefined}
+              >
                 <span>{String(index + 1).padStart(2, '0')}</span>
                 <b>{link.label}</b>
                 <i aria-hidden="true">↗</i>
@@ -168,6 +177,10 @@ export default function SiteNav() {
           })}
         </div>
         <div className="mobile-nav-account">
+          <span className="mobile-nav-language">
+            <span>字形</span>
+            <LangToggle />
+          </span>
           {user ? (
             <>
               <Link href="/account">{profile?.nickname || user.email?.split('@')[0] || '个人资料'}</Link>

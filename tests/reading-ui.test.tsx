@@ -20,6 +20,53 @@ describe('reading UI accessibility', () => {
     expect(within(screen.getByRole('region', { name: '文章表格，可横向滚动' })).getByRole('table')).toBeInTheDocument()
   })
 
+  it('makes real Markdown images keyboard-focusable and opens them with Enter or Space', async () => {
+    render(
+      <>
+        <MarkdownView content="![示例图](/example.jpg)" />
+        <Lightbox />
+      </>,
+    )
+    const image = screen.getByRole('img', { name: '示例图' })
+
+    await waitFor(() => expect(image).toHaveAttribute('tabindex', '0'))
+    image.focus()
+    fireEvent.keyDown(image, { key: 'Enter' })
+    await waitFor(() => expect(screen.getByRole('button', { name: '关闭' })).toHaveFocus())
+
+    fireEvent.keyDown(window, { key: 'Escape' })
+    await waitFor(() => expect(image).toHaveFocus())
+    fireEvent.keyDown(image, { key: ' ' })
+    await waitFor(() => expect(screen.getByRole('button', { name: '关闭' })).toHaveFocus())
+  })
+
+  it('moves focus into the Lightbox and keeps Tab in the modal', async () => {
+    render(
+      <>
+        <div className="md-body">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/example.jpg" alt="示例图" />
+        </div>
+        <button type="button">背景操作</button>
+        <Lightbox />
+      </>,
+    )
+    const image = screen.getByRole('img', { name: '示例图' })
+    fireEvent.click(image)
+
+    const closeButton = await screen.findByRole('button', { name: '关闭' })
+    await waitFor(() => expect(closeButton).toHaveFocus())
+
+    fireEvent.keyDown(closeButton, { key: 'Tab' })
+    expect(closeButton).toHaveFocus()
+    fireEvent.keyDown(closeButton, { key: 'Tab', shiftKey: true })
+    expect(closeButton).toHaveFocus()
+
+    screen.getByRole('button', { name: '背景操作' }).focus()
+    fireEvent.keyDown(window, { key: 'Tab' })
+    expect(closeButton).toHaveFocus()
+  })
+
   it('restores focus to the image that opened the Lightbox after Escape', async () => {
     render(
       <>

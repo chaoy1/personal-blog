@@ -5733,6 +5733,13 @@ html.unfold-returning .wrap {
     color: var(--ink-soft);
   }
 
+  .mobile-nav-language {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: auto;
+  }
+
   .mobile-nav-account button {
     border: 0;
     color: inherit;
@@ -5788,8 +5795,12 @@ html.unfold-returning .wrap {
   }
 
   .nav-search kbd,
-  .lang-toggle {
+  .nav-side > .lang-toggle {
     display: none;
+  }
+
+  .mobile-nav-account .lang-toggle {
+    display: inline-flex;
   }
 
   .theme-switch {

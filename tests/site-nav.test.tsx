@@ -18,7 +18,6 @@ vi.mock('@/lib/app-store', () => ({
 }))
 
 vi.mock('@/components/SearchPalette', () => ({ default: () => null }))
-vi.mock('@/components/LangToggle', () => ({ default: () => null }))
 vi.mock('@/components/ThemeToggle', () => ({ default: () => null }))
 
 import SiteNav from '@/components/SiteNav'
@@ -45,17 +44,40 @@ describe('SiteNav mobile menu', () => {
     fireEvent.click(screen.getByRole('button', { name: '展开导航' }))
 
     const panel = document.getElementById('mobile-site-menu')!
-    const links = within(panel).getAllByRole('link')
-    const firstLink = links[0]
-    const lastLink = links[links.length - 1]
+    const focusable = Array.from(panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'))
+    const firstLink = within(panel).getAllByRole('link')[0]
+    const lastControl = focusable[focusable.length - 1]
 
     await waitFor(() => expect(firstLink).toHaveFocus())
-    lastLink.focus()
+    lastControl.focus()
     fireEvent.keyDown(panel, { key: 'Tab' })
     expect(firstLink).toHaveFocus()
 
     fireEvent.keyDown(panel, { key: 'Tab', shiftKey: true })
-    expect(lastLink).toHaveFocus()
+    expect(lastControl).toHaveFocus()
+  })
+
+  it('keeps a working language switch inside the mobile menu', async () => {
+    render(<SiteNav />)
+    fireEvent.click(screen.getByRole('button', { name: '展开导航' }))
+
+    const panel = document.getElementById('mobile-site-menu')!
+    await waitFor(() => {
+      expect(within(panel).getByRole('button', { name: /切换到(?:繁体|简体)/ })).toBeInTheDocument()
+    })
+  })
+
+  it('marks the current page in both desktop and mobile navigation', async () => {
+    render(<SiteNav />)
+
+    fireEvent.click(screen.getByRole('button', { name: '展开导航' }))
+
+    const desktopLink = document.querySelector<HTMLAnchorElement>('.nav-links a[href="/"]')
+    const panel = document.getElementById('mobile-site-menu')!
+    const mobileLink = within(panel).getByRole('link', { name: /首页/ })
+
+    expect(desktopLink).toHaveAttribute('aria-current', 'page')
+    expect(mobileLink).toHaveAttribute('aria-current', 'page')
   })
 
   it('closes with Escape and restores toggle focus', async () => {
