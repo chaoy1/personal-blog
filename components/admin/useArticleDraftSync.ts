@@ -8,7 +8,7 @@ import {
   writeDraft,
   type ArticleDraftSnapshot,
 } from '@/lib/article-draft'
-import { runAdminAction } from '@/lib/admin-action'
+import { AdminActionError, runAdminAction } from '@/lib/admin-action'
 
 export type ArticleDraftSyncStatus =
   | 'idle'
@@ -53,17 +53,38 @@ export function useArticleDraftSync({
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const inFlightRef = useRef<Promise<SaveResult> | null>(null)
 
+  const queuedRef = useRef<{ draft: ArticleDraftSnapshot; nextPublished: boolean } | null>(null)
+  const queuedPromiseRef = useRef<Promise<SaveResult> | null>(null)
   const onPostIdRef = useRef(onPostId)
   const onUnauthorizedRef = useRef(onUnauthorized)
   const lastSavedAtRef = useRef<string | null>(null)
   latestRef.current = snapshot
   if (snapshot.postId) postIdRef.current = snapshot.postId
 
+  if (snapshot.postId && lastSavedAtRef.current === null && snapshot.updatedAt !== '1970-01-01T00:00:00.000Z') {
+    lastSavedAtRef.current = snapshot.updatedAt
+  }
+
   onPostIdRef.current = onPostId
   onUnauthorizedRef.current = onUnauthorized
-  const saveSnapshot = useCallback((draft: ArticleDraftSnapshot, nextPublished: boolean) => {
-    if (inFlightRef.current) return inFlightRef.current
+  const saveSnapshot: (draft: ArticleDraftSnapshot, nextPublished: boolean) => Promise<SaveResult> = useCallback((draft, nextPublished) => {
+    if (inFlightRef.current) {
+      queuedRef.current = { draft, nextPublished }
+      if (!queuedPromiseRef.current) {
+        const previous = inFlightRef.current
+        queuedPromiseRef.current = previous
+          .catch(() => undefined)
+          .then(() => {
+            const queued = queuedRef.current
+            queuedRef.current = null
+            queuedPromiseRef.current = null
+            if (!queued) throw new Error('没有待保存的草稿')
+            return saveSnapshot(queued.draft, queued.nextPublished)
+          })
+      }
+      return queuedPromiseRef.current
 
+    }
     const postId = postIdRef.current
     setStatus('server-saving')
     const request = fetch(postId ? `/api/admin/posts/${postId}` : '/api/admin/posts', {
@@ -94,7 +115,7 @@ export function useArticleDraftSync({
         return { postId: post.id, updatedAt }
       })
       .catch((error) => {
-        setStatus('error')
+        setStatus(error instanceof AdminActionError && error.status === 409 ? 'conflict' : 'error')
         throw error
       })
       .finally(() => {

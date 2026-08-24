@@ -214,16 +214,26 @@ export async function createPost(input: PostInput): Promise<Post> {
 
 export async function updatePost(id: string, input: PostInput): Promise<Post> {
   const values = normalizeInput(input)
-  const { data, error } = await supabaseAdmin()
+  let query = supabaseAdmin()
     .from('posts')
     .update({ ...values, updated_at: new Date().toISOString() })
     .eq('id', id)
+
+  if (typeof input.expectedUpdatedAt === 'string' && input.expectedUpdatedAt) {
+    query = query.eq('updated_at', input.expectedUpdatedAt)
+  }
+
+  const { data, error } = await query
     .select(FIELDS)
-    .single()
+    .maybeSingle()
   if (error) {
     if (error.code === '23505') throw new Error('slug 已存在，请换一个')
     throw new Error(`更新文章失败：${error.message}`)
   }
+  if (!data && input.expectedUpdatedAt) {
+    throw new Error('文章已在其他位置更新，请刷新后比较版本')
+  }
+  if (!data) throw new Error('文章不存在')
   return data
 }
 

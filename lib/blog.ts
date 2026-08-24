@@ -15,6 +15,7 @@ export type PostInput = {
   excerpt?: string
   content?: string
   published?: boolean
+  expectedUpdatedAt?: string | null
 }
 
 export function formatDate(iso: string): string {

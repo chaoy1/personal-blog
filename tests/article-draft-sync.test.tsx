@@ -97,4 +97,71 @@ describe('useArticleDraftSync', () => {
     expect(readDraft(null, 'writer')).toEqual(current)
     expect(result.current.status).toBe('error')
   })
+
+  it('serializes an in-flight save and sends the newest queued snapshot afterward', async () => {
+    let resolveFirst!: (response: Response) => void
+    const first = new Promise<Response>((resolve) => {
+      resolveFirst = resolve
+    })
+    const fetchMock = vi.fn()
+      .mockReturnValueOnce(first)
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        id: 'post-3',
+        updated_at: '2026-08-24T03:02:00.000Z',
+      }), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const initial = makeSnapshot({ postId: 'post-3', content: '第一稿' })
+    const { rerender } = renderHook(
+      ({ snapshot }) => useArticleDraftSync({
+        snapshot,
+        onPostId: vi.fn(),
+        onUnauthorized: vi.fn(),
+      }),
+      { initialProps: { snapshot: initial } },
+    )
+
+    await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    rerender({ snapshot: makeSnapshot({
+      postId: 'post-3',
+      content: '保存期间写下的最新稿',
+      updatedAt: '2026-08-24T03:01:00.000Z',
+    }) })
+    await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    await act(async () => {
+      resolveFirst(new Response(JSON.stringify({
+        id: 'post-3',
+        updated_at: '2026-08-24T03:00:00.000Z',
+      }), { status: 200 }))
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    const body = JSON.parse(String(fetchMock.mock.calls[1][1]?.body))
+    expect(body.content).toBe('保存期间写下的最新稿')
+  })
+
+  it('maps a 409 response to conflict while preserving the local draft', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ error: '文章已在其他位置更新' }), { status: 409 }),
+    ))
+    const current = makeSnapshot({ postId: 'post-conflict' })
+    const { result } = renderHook(() => useArticleDraftSync({
+      snapshot: current,
+      onPostId: vi.fn(),
+      onUnauthorized: vi.fn(),
+    }))
+
+    await act(async () => {
+      await expect(result.current.flush()).rejects.toThrow('文章已在其他位置更新')
+    })
+
+    expect(result.current.status).toBe('conflict')
+    expect(readDraft('post-conflict', 'writer')).toEqual(current)
+  })
 })

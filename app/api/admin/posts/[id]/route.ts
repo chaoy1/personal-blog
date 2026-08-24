@@ -26,9 +26,10 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
     const post = await updatePost(id, body)
     return NextResponse.json(post)
   } catch (e) {
+    const message = e instanceof Error ? e.message : '更新失败'
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : '更新失败' },
-      { status: 400 }
+      { error: message },
+      { status: message.includes('其他位置更新') ? 409 : 400 },
     )
   }
 }
