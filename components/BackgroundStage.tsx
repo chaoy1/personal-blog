@@ -7,7 +7,9 @@ import StarryNight from './StarryNight'
 import useAmbientMotion from './useAmbientMotion'
 
 export default function BackgroundStage() {
-  const [dark, setDark] = useState(false)
+  const [dark, setDark] = useState(() =>
+    typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark'
+  )
   const active = useAmbientMotion() === true
 
   useEffect(() => {

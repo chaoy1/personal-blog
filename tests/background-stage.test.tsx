@@ -72,6 +72,15 @@ describe('BackgroundStage ambient policy', () => {
     expect(container.querySelectorAll('canvas')).toHaveLength(2)
   })
 
+  it('uses the already-selected dark theme on the first render', () => {
+    document.documentElement.dataset.theme = 'dark'
+    setMotionSettings({ visible: false, reduced: false, saveData: false })
+
+    const { container } = render(<BackgroundStage />)
+
+    expect(container.querySelector('.bg-painting')).toHaveClass('night')
+  })
+
   it('stops ambient particles when the reduced-motion preference changes', () => {
     const motion = setMotionSettings({ visible: true, reduced: false, saveData: false })
     const { container } = render(<BackgroundStage />)
