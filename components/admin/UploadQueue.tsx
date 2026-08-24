@@ -7,6 +7,7 @@ type UploadQueueProps = {
   controller: UploadQueueController
   label?: string
   accept?: string
+  showStart?: boolean
 }
 
 const statusLabel: Record<UploadStatus, string> = {
@@ -20,6 +21,7 @@ export function UploadQueue({
   controller,
   label = '选择文件',
   accept = 'image/*',
+  showStart = true,
 }: UploadQueueProps) {
   const pendingCount = controller.items.filter((item) => item.status === 'pending').length
   const uploadingCount = controller.items.filter((item) => item.status === 'uploading').length
@@ -77,13 +79,15 @@ export function UploadQueue({
       ) : null}
 
       <div className="admin-upload-toolbar">
-        <button
-          type="button"
-          disabled={controller.busy || pendingCount === 0}
-          onClick={() => void controller.start()}
-        >
-          {controller.busy ? '正在上传…' : '开始上传'}
-        </button>
+        {showStart ? (
+          <button
+            type="button"
+            disabled={controller.busy || pendingCount === 0}
+            onClick={() => void controller.start()}
+          >
+            {controller.busy ? '正在上传…' : '开始上传'}
+          </button>
+        ) : null}
         {doneCount > 0 ? (
           <button type="button" onClick={controller.clearCompleted}>清理已完成</button>
         ) : null}

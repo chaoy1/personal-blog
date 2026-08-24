@@ -2268,7 +2268,7 @@
     width: auto;
   }
 }
- 
+
 .admin-dialog-backdrop {
   position: fixed;
   inset: 0;
@@ -2386,5 +2386,144 @@
 
   .admin-dialog-card {
     padding: 20px;
+  }
+}
+
+.admin-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 0 0 22px;
+}
+
+.admin-filter-bar input,
+.admin-filter-bar select,
+.admin-album-row input,
+.photo-staging-card input,
+.photo-staging-card select,
+.photo-inline-editor input,
+.photo-inline-editor select {
+  min-height: 42px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 0;
+  padding: 8px 11px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+
+.admin-filter-bar input {
+  width: min(360px, 80vw);
+}
+
+.admin-error-state {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 18px;
+  border-left: 3px solid var(--seal);
+  padding: 12px 14px;
+  background: color-mix(in srgb, var(--seal) 7%, transparent);
+}
+
+.profile-dirty-state {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.photo-staging {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0 14px;
+}
+
+.photo-staging-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.photo-staging-card {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  border: 1px solid var(--rule);
+  padding: 14px;
+}
+
+.photo-staging-card label,
+.photo-inline-editor {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-album-list {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.admin-album-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  border-bottom: 1px solid var(--rule);
+  padding: 12px 0;
+}
+
+.admin-album-row > div {
+  min-width: min(320px, 100%);
+  margin-right: auto;
+}
+
+.admin-album-row p {
+  margin: 4px 0 0;
+  color: var(--ink-soft);
+}
+
+.photo-inline-editor {
+  padding: 10px;
+}
+
+.photo-card-actions {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.album-item:hover .photo-card-actions,
+.album-item:focus-within .photo-card-actions {
+  opacity: 1;
+}
+
+.photo-card-actions button {
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 5px 8px;
+  background: rgba(14, 16, 15, 0.76);
+  color: #fff;
+  cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .admin-filter-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-filter-bar label,
+  .admin-filter-bar input,
+  .admin-filter-bar select {
+    width: 100%;
+  }
+
+  .photo-card-actions {
+    opacity: 1;
   }
 }

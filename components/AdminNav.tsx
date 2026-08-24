@@ -16,7 +16,12 @@ export default function AdminNav() {
   return (
     <nav aria-label="后台功能">
       {ITEMS.map((item) => (
-        <Link key={item.href} href={item.href} className={item.match(pathname) ? 'active' : undefined}>
+        <Link
+          key={item.href}
+          href={item.href}
+          className={item.match(pathname) ? 'active' : undefined}
+          aria-current={item.match(pathname) ? 'page' : undefined}
+        >
           <i>{item.index}</i>
           <span>{item.label}</span>
         </Link>
