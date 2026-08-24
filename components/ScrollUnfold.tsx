@@ -8,7 +8,8 @@ const UNFOLD_DURATION_MS = 3600
 const CONTENT_COMPLETE_MS = 4200
 
 export default function ScrollUnfold() {
-  const [active, setActive] = useState(false)
+  // 服务端首屏就渲染画卷，避免 hydration 后才插入遮罩造成闪现。
+  const [active, setActive] = useState(true)
 
   useEffect(() => {
     const root = document.documentElement
@@ -18,13 +19,12 @@ export default function ScrollUnfold() {
     let contentTimer: number | undefined
 
     if (!shouldPlayFullUnfold({ reduced, storedVersion: null })) {
-      root.classList.remove('unfold-preload')
-      return () => root.classList.remove('unfold-live', 'unfold-returning', 'unfold-preload')
+      setActive(false)
+      return () => root.classList.remove('unfold-live', 'unfold-returning')
     }
 
     const startUnfold = () => {
       animationFrame = window.requestAnimationFrame(() => {
-        root.classList.remove('unfold-preload')
         root.classList.add('unfold-live')
         setActive(true)
 
@@ -56,7 +56,7 @@ export default function ScrollUnfold() {
       if (animationFrame !== undefined) window.cancelAnimationFrame(animationFrame)
       if (unfoldTimer !== undefined) window.clearTimeout(unfoldTimer)
       if (contentTimer !== undefined) window.clearTimeout(contentTimer)
-      root.classList.remove('unfold-live', 'unfold-returning', 'unfold-preload')
+      root.classList.remove('unfold-live', 'unfold-returning')
     }
   }, [])
 
