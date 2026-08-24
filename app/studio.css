@@ -2200,3 +2200,70 @@
     inset: 0;
   }
 }
+
+/* Admin feedback stays visible above the mountain-desk shell. */
+.admin-notices {
+  position: fixed;
+  top: calc(var(--nav-h, 64px) + 18px);
+  right: clamp(16px, 3vw, 42px);
+  z-index: 260;
+  display: grid;
+  width: min(390px, calc(100vw - 32px));
+  gap: 10px;
+  pointer-events: none;
+}
+
+.admin-notice {
+  display: grid;
+  grid-template-columns: 4px minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 13px 14px;
+  border: 1px solid var(--rule-strong);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  box-shadow: 0 16px 44px rgba(24, 17, 8, 0.2);
+  color: var(--ink);
+  backdrop-filter: blur(12px);
+  pointer-events: auto;
+  overflow: hidden;
+}
+
+.admin-notice::before {
+  content: "";
+  grid-row: 1;
+  width: 4px;
+  align-self: stretch;
+  background: var(--ink-faint);
+}
+
+.admin-notice-success::before { background: #4d7657; }
+.admin-notice-error::before { background: var(--seal); }
+.admin-notice-info::before { background: #58738b; }
+
+.admin-notice > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.admin-notice button {
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  padding: 2px;
+  color: var(--seal-deep);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.admin-notice button:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+  .admin-notices {
+    top: calc(var(--nav-h, 56px) + 10px);
+    left: 16px;
+    right: 16px;
+    width: auto;
+  }

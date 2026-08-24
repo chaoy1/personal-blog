@@ -22,6 +22,18 @@ describe('runAdminAction', () => {
     } satisfies Partial<AdminActionError>)
   })
 
+  it('uses a non-OK JSON message as the AdminActionError message', async () => {
+    const request = runAdminAction(
+      Promise.resolve(new Response(JSON.stringify({ message: '请求内容有误' }), { status: 400 })),
+    )
+
+    await expect(request).rejects.toMatchObject({
+      name: 'AdminActionError',
+      status: 400,
+      message: '请求内容有误',
+    } satisfies Partial<AdminActionError>)
+  })
+
   it('notifies the caller about an unauthorized response before throwing its message', async () => {
     const onUnauthorized = vi.fn()
     const request = runAdminAction(
