@@ -18,11 +18,13 @@ export default function ScrollUnfold() {
     let contentTimer: number | undefined
 
     if (!shouldPlayFullUnfold({ reduced, storedVersion: null })) {
-      return () => root.classList.remove('unfold-live', 'unfold-returning')
+      root.classList.remove('unfold-preload')
+      return () => root.classList.remove('unfold-live', 'unfold-returning', 'unfold-preload')
     }
 
     const startUnfold = () => {
       animationFrame = window.requestAnimationFrame(() => {
+        root.classList.remove('unfold-preload')
         root.classList.add('unfold-live')
         setActive(true)
 
@@ -54,7 +56,7 @@ export default function ScrollUnfold() {
       if (animationFrame !== undefined) window.cancelAnimationFrame(animationFrame)
       if (unfoldTimer !== undefined) window.clearTimeout(unfoldTimer)
       if (contentTimer !== undefined) window.clearTimeout(contentTimer)
-      root.classList.remove('unfold-live', 'unfold-returning')
+      root.classList.remove('unfold-live', 'unfold-returning', 'unfold-preload')
     }
   }, [])
 

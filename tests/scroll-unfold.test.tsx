@@ -37,6 +37,7 @@ afterEach(() => {
 })
 
 test('shows the first-visit overlay and marks the document as actively unfolding', () => {
+  document.documentElement.classList.add('unfold-preload')
   render(<ScrollUnfold />)
 
   expect(document.querySelector('.scroll-unfold')).toBeInTheDocument()
@@ -50,6 +51,7 @@ test('plays the overlay again for returning visitors', () => {
 
   expect(document.querySelector('.scroll-unfold')).toBeInTheDocument()
   expect(document.documentElement).toHaveClass('unfold-live')
+  expect(document.documentElement).not.toHaveClass('unfold-preload')
 })
 
 test('does not add moving unfold states when reduced motion is preferred', () => {

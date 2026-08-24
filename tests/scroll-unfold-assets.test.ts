@@ -14,3 +14,8 @@ test('rolls the full paper away to reveal the page underneath', () => {
   expect(globalStyles).toContain('from { clip-path: inset(0 0 0 0); }')
   expect(globalStyles).toContain('to { clip-path: inset(0 0 0 100%); }')
 })
+
+test('keeps the scroll above navigation and softens the daytime artwork', () => {
+  expect(globalStyles).toContain('z-index: 10000')
+  expect(globalStyles).toContain('--unfold-filter: brightness(1.16) saturate(0.72) contrast(0.93)')
+})

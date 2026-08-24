@@ -3811,16 +3811,18 @@ html.motion-static .reveal {
 
 :root {
   --unfold-scene: url('/bg/opening-scroll-day.png');
+  --unfold-filter: brightness(1.16) saturate(0.72) contrast(0.93);
 }
 
 :root[data-theme='dark'] {
   --unfold-scene: url('/bg/opening-scroll-night.png');
+  --unfold-filter: brightness(0.86) saturate(0.84) contrast(1.04);
 }
 
 .scroll-unfold {
   position: fixed;
   inset: 0;
-  z-index: 85;
+  z-index: 10000;
   pointer-events: none;
   overflow: hidden;
   animation: su-fade 3.6s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
@@ -3841,6 +3843,7 @@ html.motion-static .reveal {
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  filter: var(--unfold-filter);
   clip-path: inset(0 0 0 0);
   animation: su-paper-roll-up 3.6s cubic-bezier(0.52, 0.02, 0.18, 1) forwards;
   will-change: clip-path;
@@ -3930,10 +3933,10 @@ html.motion-static .reveal {
 /* 卷起的纸卷：绕在木轴中段，随展开向右收拢 */
 .su-roll {
   position: absolute;
-  left: -30px;
+  left: -46px;
   top: 0;
   bottom: 0;
-  width: 76px;
+  width: 96px;
   z-index: 5;
   animation: su-roll-track 3.6s cubic-bezier(0.52, 0.02, 0.18, 1) forwards;
   will-change: transform;
@@ -3941,35 +3944,36 @@ html.motion-static .reveal {
 
 .su-roll-paper {
   position: absolute;
-  left: 3px;
-  right: 3px;
-  top: 52px;
-  bottom: 52px;
-  border-radius: 9px;
+  left: 8px;
+  right: 8px;
+  top: 0;
+  bottom: 0;
+  border-radius: 50%;
   background:
     linear-gradient(180deg, rgba(70, 52, 30, 0.3), rgba(70, 52, 30, 0) 12%, rgba(70, 52, 30, 0) 88%, rgba(70, 52, 30, 0.34)),
     linear-gradient(90deg, rgba(96, 76, 48, 0.42), rgba(250, 246, 233, 0.98) 18% 82%, rgba(96, 76, 48, 0.44)),
     repeating-linear-gradient(90deg, rgba(122, 100, 70, 0.12) 0 2px, transparent 2px 10px);
   box-shadow:
     inset 0 0 16px rgba(60, 44, 24, 0.26),
-    4px 0 10px rgba(30, 18, 6, 0.24);
+    9px 0 20px rgba(30, 18, 6, 0.32),
+    inset -4px 0 5px rgba(50, 28, 10, 0.22);
 }
 
 .su-roll-paper::after {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 7px;
+  border-radius: 50%;
   background: linear-gradient(90deg, transparent 30%, rgba(255, 255, 255, 0.6) 46% 55%, transparent 70%);
 }
 
 /* 木轴：上下露出木纹，中段被纸卷遮住 */
 .su-rod {
   position: absolute;
-  left: -8px;
+  left: -14px;
   top: 0;
   bottom: 0;
-  width: 22px;
+  width: 30px;
   z-index: 3;
   background:
     repeating-linear-gradient(180deg, rgba(60, 38, 16, 0.14) 0 3px, transparent 3px 11px),
@@ -4156,6 +4160,10 @@ html.unfold-live .footer-seal {
 
 html.unfold-returning .wrap {
   animation: su-returning-fade 600ms ease-out both;
+}
+
+html.unfold-preload .wrap {
+  visibility: hidden;
 }
 
 @keyframes su-returning-fade {
