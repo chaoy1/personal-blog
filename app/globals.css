@@ -3360,6 +3360,20 @@ a.tl-title:hover {
 
 }
 
+/* Runtime no-motion fallback for hidden tabs and data-saving connections. */
+html.motion-static .item,
+html.motion-static .item:hover {
+  opacity: 1;
+  transform: translateY(0) rotate(var(--tilt, 0deg));
+  transition: none;
+}
+
+html.motion-static .reveal {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
 /* ---------- 回到顶部印章 ---------- */
 
 .back-top {
@@ -3801,12 +3815,12 @@ a.tl-title:hover {
   z-index: 85;
   pointer-events: none;
   overflow: hidden;
-  animation: su-fade 1.75s ease forwards;
+  animation: su-fade 3s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
   will-change: opacity;
 }
 
 @keyframes su-fade {
-  0%, 86% { opacity: 1; }
+  0%, 88% { opacity: 1; }
   100% { opacity: 0; }
 }
 
@@ -3823,7 +3837,7 @@ a.tl-title:hover {
     repeating-linear-gradient(0deg, rgba(120, 100, 66, 0.022) 0 1px, transparent 1px 15px),
     linear-gradient(180deg, rgba(110, 88, 52, 0.12), rgba(110, 88, 52, 0) 9%, rgba(110, 88, 52, 0) 90%, rgba(100, 78, 44, 0.16)),
     linear-gradient(180deg, #f8f2e1, #f0e7cf 55%, #e7dabb);
-  animation: su-unroll-x 1.75s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
+  animation: su-unroll-x 3s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
   will-change: transform;
 }
 
@@ -3910,7 +3924,7 @@ a.tl-title:hover {
   bottom: 0;
   width: 62px;
   z-index: 2;
-  animation: su-rod-x 1.75s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
+  animation: su-rod-x 3s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
   will-change: transform;
 }
 
@@ -3952,7 +3966,7 @@ a.tl-title:hover {
     linear-gradient(90deg, #9a6a35, #7a4e22 55%, #5d3a18);
   border-right: 1px solid rgba(20, 12, 4, 0.42);
   box-shadow: 0 3px 14px rgba(25, 16, 6, 0.3);
-  animation: su-rod-x 1.75s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
+  animation: su-rod-x 3s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
   will-change: transform;
 }
 
@@ -4048,7 +4062,7 @@ a.tl-title:hover {
   width: 30px;
   z-index: 2;
   background: linear-gradient(90deg, rgba(30, 18, 6, 0.28), transparent);
-  animation: su-rod-x 1.75s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
+  animation: su-rod-x 3s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
   will-change: transform;
 }
 
@@ -4063,66 +4077,86 @@ a.tl-title:hover {
  * 彼此错开、互不叠加，避免同帧集中渲染造成卡顿。
  */
 html.unfold-live .masthead::before {
-  animation-delay: 1.15s;
+  animation-delay: 1.95s;
+  animation-duration: 2.2s;
 }
 
 html.unfold-live .masthead .eyebrow {
-  animation-delay: 1.1s;
+  animation-delay: 2s;
 }
 
 html.unfold-live .masthead h1 {
-  animation-delay: 1.22s;
+  animation-delay: 2.05s;
 }
 
 html.unfold-live .title-char {
-  animation-delay: calc(1.25s + var(--i, 0) * 0.1s);
+  animation-delay: calc(2.1s + var(--i, 0) * 0.1s);
 }
 
 html.unfold-live .seal {
-  animation-delay: 1.62s;
+  animation-delay: 2.18s;
 }
 
 html.unfold-live .stroke path {
-  animation-delay: 1.42s;
+  animation-delay: 2.15s;
 }
 
 html.unfold-live .masthead .lede {
-  animation-delay: 1.55s;
+  animation-delay: 2.15s;
 }
 
 html.unfold-live .hero-stats {
-  animation-delay: 1.68s;
+  animation-delay: 2.2s;
 }
 
 html.unfold-live .daily-quote {
-  animation-delay: 1.78s;
+  animation-delay: 2.15s;
 }
 
 html.unfold-live .scroll-hint {
-  animation-delay: 1.88s;
+  animation-delay: 2.2s;
 }
 
 html.unfold-live .verse,
 html.unfold-live .sigil {
-  animation-delay: 1.72s;
+  animation-delay: 2.05s;
 }
 
 html.unfold-live .branch .stem,
-html.unfold-live .branch .stem.thin,
-html.unfold-live .branch .leaf {
-  animation-delay: 1.38s;
+html.unfold-live .branch .stem.thin {
+  animation-delay: 1.95s;
+  animation-duration: 2.25s;
 }
 
-html.unfold-live .branch {
-  animation-delay: 2s;
+html.unfold-live .branch .leaf {
+  animation-delay: 2.05s;
 }
 
 html.unfold-live .home-footer {
-  animation-delay: 1.92s;
+  animation-delay: 2s;
+  animation-duration: 2.2s;
 }
 
 html.unfold-live .footer-seal {
-  animation-delay: 2s;
+  animation-delay: 2.05s;
+  animation-duration: 2.15s;
+}
+
+html.unfold-returning .wrap {
+  animation: su-returning-fade 600ms ease-out both;
+}
+
+@keyframes su-returning-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-unfold,
+  .scroll-unfold *,
+  html.unfold-returning .wrap {
+    animation: none !important;
+  }
 }
 
 /* ---------- 首页首屏 ---------- */
@@ -5699,6 +5733,13 @@ html.unfold-live .footer-seal {
     color: var(--ink-soft);
   }
 
+  .mobile-nav-language {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: auto;
+  }
+
   .mobile-nav-account button {
     border: 0;
     color: inherit;
@@ -5754,8 +5795,12 @@ html.unfold-live .footer-seal {
   }
 
   .nav-search kbd,
-  .lang-toggle {
+  .nav-side > .lang-toggle {
     display: none;
+  }
+
+  .mobile-nav-account .lang-toggle {
+    display: inline-flex;
   }
 
   .theme-switch {
@@ -5896,6 +5941,82 @@ html.unfold-live .footer-seal {
   .mobile-nav-panel {
     animation: none;
     transition: none;
+  }
+}
+
+/* ---------- 小屏幕内容收束 ---------- */
+@media (max-width: 720px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  .wrap,
+  .home-hero,
+  .masthead,
+  .hero-stats,
+  .daily-quote,
+  .mobile-nav-panel {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .home-hero,
+  .masthead {
+    overflow: clip;
+  }
+
+  .hero-stats,
+  .daily-quote {
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .mobile-nav-panel {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .verse,
+  .sigil {
+    display: none;
+  }
+
+  .md-body,
+  .md-body p,
+  .md-body li,
+  .md-body td,
+  .md-body th,
+  .md-body a,
+  .md-body code {
+    overflow-wrap: anywhere;
+  }
+
+  .md-table-wrap {
+    max-width: 100%;
+    margin: 1.6em 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .md-table-wrap .md-body table,
+  .md-body .md-table-wrap table {
+    width: max-content;
+    min-width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  .md-body pre,
+  .md-body img,
+  .md-body video,
+  .md-body iframe {
+    box-sizing: border-box;
+    max-width: 100%;
   }
 }
 

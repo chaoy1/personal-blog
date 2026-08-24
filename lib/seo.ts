@@ -1,0 +1,119 @@
+import type { Metadata } from 'next'
+import type { Post } from '@/lib/posts'
+import { SITE_NAME } from '@/lib/site'
+
+export type ArticlePost = Post & { image?: string }
+export const DEFAULT_SHARE_IMAGE = '/bg/qianli-bridge.jpg'
+const LOCAL_SITE_URL = 'http://localhost:3000'
+
+export type ArticleSchema = {
+  '@context': 'https://schema.org'
+  '@type': 'Article'
+  headline: string
+  description?: string
+  mainEntityOfPage: string
+  url: string
+  datePublished: string
+  dateModified: string
+  author: { '@type': 'Organization'; name: string }
+  publisher: { '@type': 'Organization'; name: string }
+  image?: string
+}
+
+export function normalizeSiteUrl(value?: string): string {
+  const candidate = value?.trim()
+  if (!candidate) return LOCAL_SITE_URL
+
+  try {
+    const url = new URL(candidate)
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return LOCAL_SITE_URL
+    return url.toString().replace(/\/+$/, '')
+  } catch {
+    return LOCAL_SITE_URL
+  }
+}
+
+export function siteUrl(): string {
+  return normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL)
+}
+
+export function absoluteUrl(path: string, baseUrl = siteUrl()): string {
+  return new URL(path.replace(/^\/+/, ''), `${normalizeSiteUrl(baseUrl)}/`).toString()
+}
+
+function articleImageUrl(image: string | undefined, baseUrl: string): string | undefined {
+  const candidate = image?.trim()
+  if (!candidate) return undefined
+
+  try {
+    const url = new URL(candidate)
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url.toString() : undefined
+  } catch {
+    return absoluteUrl(candidate, baseUrl)
+  }
+}
+
+export function publicMetadata(
+  input: { path: string; title?: string; description: string },
+  baseUrl = siteUrl()
+): Metadata {
+  const canonicalUrl = absoluteUrl(input.path, baseUrl)
+  const shareImageUrl = absoluteUrl(DEFAULT_SHARE_IMAGE, baseUrl)
+
+  return {
+    ...(input.title ? { title: input.title } : {}),
+    description: input.description,
+    alternates: { canonical: canonicalUrl },
+    openGraph: {
+      type: 'website',
+      url: canonicalUrl,
+      title: input.title || SITE_NAME,
+      description: input.description,
+      siteName: SITE_NAME,
+      locale: 'zh_CN',
+      images: [{ url: shareImageUrl, alt: input.title || SITE_NAME }],
+    },
+  }
+}
+
+export function articleMetadata(post: ArticlePost, baseUrl = siteUrl()): Metadata {
+  const canonicalUrl = absoluteUrl(`/posts/${encodeURIComponent(post.slug)}`, baseUrl)
+  const description = post.excerpt || '一篇来自似水流年的手记。'
+  const imageUrl = articleImageUrl(post.image, baseUrl)
+
+  return {
+    title: post.title,
+    description,
+    alternates: { canonical: canonicalUrl },
+    openGraph: {
+      type: 'article',
+      url: canonicalUrl,
+      title: post.title,
+      description,
+      siteName: SITE_NAME,
+      locale: 'zh_CN',
+      images: [{ url: imageUrl || absoluteUrl(DEFAULT_SHARE_IMAGE, baseUrl), alt: post.title }],
+      publishedTime: post.created_at,
+      modifiedTime: post.updated_at,
+    },
+  }
+}
+
+export function articleJsonLd(post: ArticlePost, baseUrl = siteUrl()): ArticleSchema {
+  const canonicalUrl = absoluteUrl(`/posts/${encodeURIComponent(post.slug)}`, baseUrl)
+  const imageUrl = articleImageUrl(post.image, baseUrl)
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    ...(post.excerpt ? { description: post.excerpt } : {}),
+    mainEntityOfPage: canonicalUrl,
+    url: canonicalUrl,
+    datePublished: post.created_at,
+    dateModified: post.updated_at,
+    author: { '@type': 'Organization', name: SITE_NAME },
+    publisher: { '@type': 'Organization', name: SITE_NAME },
+    ...(imageUrl ? { image: imageUrl } : {}),
+  }
+}

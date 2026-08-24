@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { formatDate } from '@/lib/blog'
 import Avatar from '@/components/Avatar'
 
@@ -17,23 +17,27 @@ type Props = {
   /** 同一上下文（某篇文章 / 留言板当页 / 某条闲语）的全部评论，顺序即顶层展示顺序 */
   items: ThreadItem[]
   userId: string | null
-  busy?: boolean
   emptyText?: string
   /** parentId 永远指向顶层评论；回复楼中楼时 content 已自动带上 @对方昵称 */
   onReply: (parentId: string, content: string) => Promise<string | null>
   onDelete?: (id: string) => void
 }
 
+type FormState = 'idle' | 'submitting' | 'success' | 'error'
+
 /**
  * 评论区通用串楼组件（bilibili 风格）：
  * 所有回复都挂在顶层评论之下；回复楼中楼时，自动在新回复里 @被回复的人，
  * 因此可以在一条评论下持续追评，不受层级限制。
  */
-export default function CommentThread({ items, userId, busy, emptyText, onReply, onDelete }: Props) {
+export default function CommentThread({ items, userId, emptyText, onReply, onDelete }: Props) {
   const [replyTo, setReplyTo] = useState<ThreadItem | null>(null)
   const [replyText, setReplyText] = useState('')
-  const [sending, setSending] = useState(false)
+  const [replyState, setReplyState] = useState<FormState>('idle')
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const submissionId = useRef(0)
+  const sending = replyState === 'submitting'
 
   const { roots, rootIdOf, childrenOf } = useMemo(() => {
     const byId = new Map(items.map((i) => [i.id, i]))
@@ -66,7 +70,10 @@ export default function CommentThread({ items, userId, busy, emptyText, onReply,
   }, [items])
 
   function toggleReply(it: ThreadItem) {
+    submissionId.current += 1
     setError('')
+    setSuccess('')
+    setReplyState('idle')
     setReplyText('')
     setReplyTo((prev) => (prev?.id === it.id ? null : it))
   }
@@ -76,24 +83,43 @@ export default function CommentThread({ items, userId, busy, emptyText, onReply,
     if (!text || sending) return
     const rootId = rootIdOf.get(target.id) ?? target.id
     const mention = rootId === target.id ? '' : `@${target.profiles?.nickname || '旅人'} `
-    setSending(true)
+    const requestId = ++submissionId.current
+    setReplyState('submitting')
     setError('')
-    const err = await onReply(rootId, mention + text)
-    setSending(false)
+    setSuccess('')
+    let err: string | null
+    try {
+      err = await onReply(rootId, mention + text)
+    } catch {
+      err = '回复失败，请稍后再试'
+    }
+    if (requestId !== submissionId.current) return
     if (err) {
       setError(err)
+      setReplyState('error')
       return
     }
     setReplyText('')
     setReplyTo(null)
+    setSuccess('回复已发布')
+    setReplyState('success')
+  }
+
+  function updateReplyText(value: string) {
+    if (sending) {
+      submissionId.current += 1
+      setReplyState('idle')
+    }
+    setReplyText(value)
   }
 
   function renderReplyForm(target: ThreadItem) {
     return (
-      <div className="reply-form">
+      <div className="reply-form" aria-busy={sending} data-form-state={replyState}>
         <textarea
+          aria-label="回复内容"
           value={replyText}
-          onChange={(e) => setReplyText(e.target.value)}
+          onChange={(e) => updateReplyText(e.target.value)}
           placeholder={`回复 ${target.profiles?.nickname || '旅人'}：`}
           rows={2}
           maxLength={500}
@@ -102,11 +128,16 @@ export default function CommentThread({ items, userId, busy, emptyText, onReply,
         <button
           className="btn btn-sm"
           type="button"
-          disabled={sending || busy || !replyText.trim()}
+          disabled={sending || !replyText.trim()}
           onClick={() => submit(target)}
         >
           {sending ? '回复中…' : '回复'}
         </button>
+        {replyState === 'error' ? (
+          <button className="btn btn-ghost btn-sm" type="button" disabled={sending || !replyText.trim()} onClick={() => submit(target)}>
+            重试回复
+          </button>
+        ) : null}
       </div>
     )
   }
@@ -149,7 +180,8 @@ export default function CommentThread({ items, userId, busy, emptyText, onReply,
   return (
     <>
       {roots.map((root) => renderItem(root, false))}
-      {error ? <p className="error-text">{error}</p> : null}
+      {error ? <p className="error-text" role="alert">{error}</p> : null}
+      {success ? <p className="notice-text" role="status">{success}</p> : null}
       {roots.length === 0 && emptyText ? <p className="comment-empty">{emptyText}</p> : null}
     </>
   )

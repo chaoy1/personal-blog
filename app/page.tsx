@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
+import type { Metadata } from 'next'
 import { listPublishedPosts, countPosts, formatDate, type Post } from '@/lib/posts'
 import { SITE_NAME, SITE_DESC } from '@/lib/site'
 import { isSupabaseConfigured } from '@/lib/supabase'
@@ -11,8 +12,14 @@ import ScrollHint from '@/components/ScrollHint'
 import Avatar from '@/components/Avatar'
 import CnNum from '@/components/CnNum'
 import DailyQuote from '@/components/DailyQuote'
+import { publicMetadata } from '@/lib/seo'
 
 export const revalidate = 60
+
+export const metadata: Metadata = publicMetadata({
+  path: '/',
+  description: SITE_DESC,
+})
 
 const CN_WM = ['壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖', '拾']
 

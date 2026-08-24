@@ -4,6 +4,12 @@ import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { formatDate } from '@/lib/blog'
 import AdminPageHead from '@/components/AdminPageHead'
+import { useAdminConfirm } from '@/components/admin/AdminConfirmDialog'
+import { useAdminFeedback } from '@/components/admin/AdminFeedback'
+import { UploadQueue } from '@/components/admin/UploadQueue'
+import { runAdminAction } from '@/lib/admin-action'
+import { scheduleDeferredAction } from '@/lib/deferred-action'
+import { useUploadQueue } from '@/lib/upload-queue'
 
 const MOMENT_DRAFT_KEY = 'admin-moment-draft-v1'
 
@@ -17,135 +23,157 @@ type AdminMoment = {
 
 export default function AdminMoments() {
   const router = useRouter()
-  const [moments, setMoments] = useState<AdminMoment[]>([])
+  const { confirm, dialog } = useAdminConfirm()
+  const { notify } = useAdminFeedback()
+  const uploads = useUploadQueue({ bucket: 'moments', concurrency: 2 })
+  const [moments, setMoments] = useState<AdminMoment[] | null>(null)
   const [content, setContent] = useState('')
   const [images, setImages] = useState<string[]>([])
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [draftReady, setDraftReady] = useState(false)
-  const [draftNotice, setDraftNotice] = useState('')
 
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch('/api/admin/moments')
-      if (res.status === 401) {
-        router.replace('/admin/login')
-        return
-      }
-      if (!res.ok) throw new Error('加载失败')
-      setMoments(await res.json())
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '加载失败')
-    }
+  const onUnauthorized = useCallback(() => {
+    router.replace('/admin/login?next=%2Fadmin%2Fmoments')
   }, [router])
 
+  const load = useCallback(async () => {
+    setError('')
+    try {
+      const data = await runAdminAction<AdminMoment[]>(fetch('/api/admin/moments'), { onUnauthorized })
+      setMoments(data)
+    } catch (cause) {
+      setMoments([])
+      setError(cause instanceof Error ? cause.message : '加载闲语失败')
+    }
+  }, [onUnauthorized])
+
   useEffect(() => {
-    load()
+    void load()
   }, [load])
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(MOMENT_DRAFT_KEY)
       if (raw) {
-        const draft = JSON.parse(raw) as { content?: string; images?: string[] }
+        const draft = JSON.parse(raw) as { content?: unknown; images?: unknown }
         setContent(typeof draft.content === 'string' ? draft.content : '')
-        setImages(Array.isArray(draft.images) ? draft.images.filter((item) => typeof item === 'string') : [])
-        setDraftNotice('已恢复上次暂存')
+        setImages(Array.isArray(draft.images) ? draft.images.filter((item): item is string => typeof item === 'string') : [])
       }
     } catch {
-      // 暂存损坏时忽略，不影响正常发布
+      localStorage.removeItem(MOMENT_DRAFT_KEY)
     } finally {
       setDraftReady(true)
     }
   }, [])
 
   useEffect(() => {
-    if (!draftReady) return
+    if (!draftReady || editingId) return
     try {
       if (!content.trim() && images.length === 0) localStorage.removeItem(MOMENT_DRAFT_KEY)
       else localStorage.setItem(MOMENT_DRAFT_KEY, JSON.stringify({ content, images }))
     } catch {
-      // ignore
+      // Server save remains available when local storage is unavailable.
     }
-  }, [content, images, draftReady])
+  }, [content, draftReady, editingId, images])
 
-  async function uploadFiles(files: FileList | null) {
-    if (!files) return
-    setBusy(true)
-    for (const file of Array.from(files)) {
-      const form = new FormData()
-      form.append('bucket', 'moments')
-      form.append('file', file)
-      const res = await fetch('/api/admin/upload', { method: 'POST', body: form })
-      if (res.ok) {
-        const { url } = await res.json()
-        setImages((prev) => [...prev, url])
-      } else {
-        const j = await res.json().catch(() => ({}))
-        setError(j.error || '上传失败')
-      }
-    }
-    setBusy(false)
+  function clearUploads() {
+    uploads.items.forEach((item) => uploads.remove(item.id))
+    uploads.clearCompleted()
   }
 
-  async function publish() {
-    if (!content.trim() && images.length === 0) return
-    setBusy(true)
-    setError('')
-    const res = await fetch('/api/admin/moments', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content, images }),
-    })
-    if (res.status === 401) {
-      router.replace('/admin/login')
-      return
-    }
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({}))
-      setError(j.error || '发布失败')
-      setBusy(false)
-      return
-    }
-    setBusy(false)
+  function resetComposer() {
     setContent('')
     setImages([])
-    setDraftNotice('')
+    setEditingId(null)
+    clearUploads()
     try {
       localStorage.removeItem(MOMENT_DRAFT_KEY)
     } catch {
-      // ignore
+      // Ignore unavailable storage.
     }
-    load()
   }
 
-  function removePendingImage(index: number) {
-    setImages((items) => items.filter((_, itemIndex) => itemIndex !== index))
+  async function collectImages() {
+    const result = await uploads.start()
+    const failed = result.filter((item) => item.status === 'error')
+    if (failed.length) throw new Error(`${failed.length} 张配图上传失败，请重试后再保存`)
+    return [...images, ...result.flatMap((item) => item.status === 'done' && item.url ? [item.url] : [])]
   }
 
-  function clearDraft() {
-    setContent('')
-    setImages([])
-    setDraftNotice('')
-  }
-
-  function saveDraft() {
+  async function saveMoment() {
+    if (!content.trim() && images.length === 0 && uploads.items.length === 0) {
+      setError('内容和配图不能同时为空')
+      return
+    }
+    setBusy(true)
+    setError('')
     try {
-      localStorage.setItem(MOMENT_DRAFT_KEY, JSON.stringify({ content, images }))
-      setDraftNotice('已暂存')
-    } catch {
-      setError('当前浏览器无法暂存内容')
+      const nextImages = await collectImages()
+      const endpoint = editingId ? `/api/admin/moments/${editingId}` : '/api/admin/moments'
+      await runAdminAction(
+        fetch(endpoint, {
+          method: editingId ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content, images: nextImages }),
+        }),
+        { onUnauthorized },
+      )
+      notify({ kind: 'success', message: editingId ? '闲语已更新' : '闲语已发布' })
+      resetComposer()
+      await load()
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : '保存失败')
+    } finally {
+      setBusy(false)
     }
   }
 
-  async function remove(id: string) {
-    if (!window.confirm('确定删除这条闲语？')) return
-    await fetch(`/api/admin/moments/${id}`, { method: 'DELETE' })
-    load()
+  function beginEdit(moment: AdminMoment) {
+    clearUploads()
+    setEditingId(moment.id)
+    setContent(moment.content)
+    setImages(moment.images)
+    setError('')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  async function remove(moment: AdminMoment) {
+    const label = moment.content.trim().slice(0, 24) || '仅图片闲语'
+    const accepted = await confirm({
+      title: `删除“${label}”？`,
+      description: '确认后会等待 5 秒再删除，期间可以撤销。',
+      confirmLabel: '删除闲语',
+    })
+    if (!accepted) return
+
+    setMoments((current) => current?.filter((item) => item.id !== moment.id) ?? [])
+    const deferred = scheduleDeferredAction(async () => {
+      try {
+        await runAdminAction(fetch(`/api/admin/moments/${moment.id}`, { method: 'DELETE' }), { onUnauthorized })
+      } catch (cause) {
+        setMoments((current) => [moment, ...(current ?? [])])
+        notify({ kind: 'error', message: cause instanceof Error ? cause.message : '删除失败' })
+      }
+    }, 5000)
+    notify({
+      kind: 'info',
+      message: `“${label}”将在 5 秒后删除`,
+      action: {
+        label: '撤销',
+        run: () => {
+          deferred.cancel()
+          setMoments((current) => [moment, ...(current ?? []).filter((item) => item.id !== moment.id)])
+          notify({ kind: 'success', message: '已撤销删除' })
+        },
+      },
+    })
   }
 
   return (
     <>
+      {dialog}
       <AdminPageHead
         index="02"
         eyebrow="QUICK NOTES"
@@ -153,87 +181,74 @@ export default function AdminMoments() {
         description="短句不必完整，记下当下就好。"
       />
 
-      <div className="moments-composer">
+      <section className="moments-composer" aria-label={editingId ? '编辑闲语' : '发布闲语'}>
+        {editingId ? <p className="draft-tag">正在编辑现有闲语</p> : null}
         <textarea
           value={content}
-          onChange={(e) => {
-            setContent(e.target.value)
-            setDraftNotice('')
-          }}
+          onChange={(event) => setContent(event.target.value)}
           placeholder="以博主身份发布闲语…"
+          aria-label="闲语内容"
         />
         {images.length > 0 ? (
           <div className="moments-images moment-draft-images">
-            {images.map((u, i) => (
-              <span key={`${u}-${i}`} className="moment-draft-image">
+            {images.map((url, index) => (
+              <span key={`${url}-${index}`} className="moment-draft-image">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={u} alt={`待发布配图 ${i + 1}`} />
-                <button type="button" onClick={() => removePendingImage(i)} aria-label={`移除第 ${i + 1} 张配图`}>
+                <img src={url} alt={`配图 ${index + 1}`} />
+                <button
+                  type="button"
+                  onClick={() => setImages((items) => items.filter((_, itemIndex) => itemIndex !== index))}
+                  aria-label={`移除第 ${index + 1} 张配图`}
+                >
                   ×
                 </button>
               </span>
             ))}
           </div>
         ) : null}
+
+        <UploadQueue controller={uploads} label="选择闲语配图" />
+
         <div className="moments-actions">
-          <span className="moment-draft-note">
-            {draftNotice || (content.trim() || images.length ? '正在自动暂存' : '尚未开始书写')}
+          <span className="moment-draft-note" aria-live="polite">
+            {editingId ? '保存前不会覆盖原内容' : content.trim() || images.length || uploads.items.length ? '已自动暂存文字' : '尚未开始书写'}
           </span>
-          <label className="btn btn-ghost btn-sm">
-            配图
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              hidden
-              onChange={(e) => uploadFiles(e.target.files)}
-            />
-          </label>
-          {content.trim() || images.length ? (
-            <button className="btn btn-ghost btn-sm" type="button" onClick={saveDraft} disabled={busy}>
-              暂存
+          {editingId ? (
+            <button type="button" className="btn btn-ghost btn-sm" onClick={resetComposer} disabled={busy}>
+              取消编辑
             </button>
           ) : null}
-          {content.trim() || images.length ? (
-            <button className="btn btn-ghost btn-sm" type="button" onClick={clearDraft} disabled={busy}>
-              清空暂存
-            </button>
-          ) : null}
-          <button className="btn btn-sm" type="button" onClick={publish} disabled={busy}>
-            {busy ? '处理中…' : '发布'}
+          <button className="btn btn-sm" type="button" onClick={() => void saveMoment()} disabled={busy || uploads.busy}>
+            {busy ? '保存中…' : editingId ? '保存更改' : '发布'}
           </button>
         </div>
-      </div>
+      </section>
 
-      {error ? <p className="error-text">{error}</p> : null}
+      {error ? <p className="error-text" role="alert">{error}</p> : null}
 
-      <div className="admin-list">
-        {moments.map((m, index) => (
-          <div key={m.id} className="admin-item">
-            <span className="admin-item-index" aria-hidden="true">
-              {String(index + 1).padStart(2, '0')}
-            </span>
-            <div>
-              <h3>{m.content || '（仅图片）'}</h3>
-              <div className="meta">
-                {formatDate(m.created_at)} · 配图 {m.images.length} 张
+      {moments === null ? (
+        <p className="hint" role="status">正在加载闲语…</p>
+      ) : moments.length === 0 ? (
+        <div className="empty-state"><div className="big">空</div>还没有闲语。</div>
+      ) : (
+        <div className="admin-list">
+          {moments.map((moment, index) => (
+            <article key={moment.id} className="admin-item">
+              <span className="admin-item-index" aria-hidden="true">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <div>
+                <h3>{moment.content || '（仅图片）'}</h3>
+                <div className="meta">{formatDate(moment.created_at)} · 配图 {moment.images.length} 张</div>
               </div>
-            </div>
-            <div className="ops">
-              <button
-                type="button"
-                className="btn btn-danger btn-sm"
-                onClick={() => remove(m.id)}
-              >
-                删除
-              </button>
-            </div>
-          </div>
-        ))}
-        {moments.length === 0 ? (
-          <p className="moments-empty">还没有闲语。</p>
-        ) : null}
-      </div>
+              <div className="ops">
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => beginEdit(moment)}>编辑</button>
+                <button type="button" className="btn btn-danger btn-sm" onClick={() => void remove(moment)}>删除</button>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
     </>
   )
 }

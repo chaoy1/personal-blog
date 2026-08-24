@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { safeAdminNext } from '@/lib/admin-return'
 
 const SESSION_COOKIE = 'blog_admin_session'
 
@@ -11,7 +12,9 @@ export function middleware(req: NextRequest) {
   if (pathname === '/admin/login') {
     if (authed) {
       const url = req.nextUrl.clone()
-      url.pathname = '/admin'
+      const destination = new URL(safeAdminNext(req.nextUrl.searchParams.get('next')), url)
+      url.pathname = destination.pathname
+      url.search = destination.search
       return NextResponse.redirect(url)
     }
     return NextResponse.next()
@@ -20,6 +23,7 @@ export function middleware(req: NextRequest) {
   if (!authed) {
     const url = req.nextUrl.clone()
     url.pathname = '/admin/login'
+    url.search = new URLSearchParams({ next: `${req.nextUrl.pathname}${req.nextUrl.search}` }).toString()
     return NextResponse.redirect(url)
   }
 

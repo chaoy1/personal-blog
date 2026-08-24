@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import useAmbientMotion, { supportsFinePointer } from './useAmbientMotion'
 
 const REVEAL_SELECTOR = '.item, .reveal'
 
@@ -12,19 +13,42 @@ const REVEAL_SELECTOR = '.item, .reveal'
  * 4. 卡片上的「墨光」：悬停时一团淡墨光晕跟随指针（--mx/--my）
  */
 export default function ScrollFX() {
+  const active = useAmbientMotion()
+
   useEffect(() => {
+    if (active === null) return
+
     const masthead = document.querySelector<HTMLElement>('.masthead')
     const nav = document.querySelector<HTMLElement>('.site-nav')
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const root = document.documentElement
+
+    const syncNav = () => nav?.classList.toggle('nav-scrolled', window.scrollY > 10)
+
+    if (!active) {
+      root.classList.add('motion-static')
+      document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR).forEach((el) => el.classList.add('is-in'))
+
+      const onStaticScroll = () => syncNav()
+      window.addEventListener('scroll', onStaticScroll, { passive: true })
+      syncNav()
+
+      return () => {
+        window.removeEventListener('scroll', onStaticScroll)
+        root.classList.remove('motion-static')
+      }
+    }
+
+    root.classList.remove('motion-static')
 
     // ---------- 入场浮现 ----------
     let io: IntersectionObserver | null = null
     const seen = new WeakSet<HTMLElement>()
+    const transitionTimers = new Set<number>()
 
     const observe = (el: HTMLElement) => {
       if (seen.has(el)) return
       seen.add(el)
-      if (reduced || !io) {
+      if (!io) {
         el.classList.add('is-in')
         return
       }
@@ -42,7 +66,7 @@ export default function ScrollFX() {
       root.querySelectorAll<HTMLElement>(REVEAL_SELECTOR).forEach(observe)
     }
 
-    if ('IntersectionObserver' in window && !reduced) {
+    if ('IntersectionObserver' in window) {
       io = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
@@ -51,9 +75,11 @@ export default function ScrollFX() {
               el.classList.add('is-in')
               io?.unobserve(el)
               // 动画完成后清掉延迟，避免影响后续的 hover 过渡
-              window.setTimeout(() => {
+              const timer = window.setTimeout(() => {
                 el.style.transitionDelay = ''
+                transitionTimers.delete(timer)
               }, 1300)
+              transitionTimers.add(timer)
             }
           }
         },
@@ -81,22 +107,23 @@ export default function ScrollFX() {
       target.style.setProperty('--mx', `${((e.clientX - rect.left) / rect.width) * 100}%`)
       target.style.setProperty('--my', `${((e.clientY - rect.top) / rect.height) * 100}%`)
     }
-    window.addEventListener('pointermove', onPointerMove, { passive: true })
+    const trackPointer = supportsFinePointer()
+    if (trackPointer) window.addEventListener('pointermove', onPointerMove, { passive: true })
 
     // ---------- masthead 视差 + 导航滚动态 ----------
     let raf = 0
     let ticking = false
 
     const onScroll = () => {
+      syncNav()
       if (ticking) return
       ticking = true
       raf = requestAnimationFrame(() => {
         const y = window.scrollY
-        if (masthead && !reduced) {
+        if (masthead) {
           masthead.style.transform = `translate3d(0, ${y * 0.28}px, 0)`
           masthead.style.opacity = String(Math.max(0, 1 - y / 420))
         }
-        if (nav) nav.classList.toggle('nav-scrolled', y > 10)
         ticking = false
       })
     }
@@ -106,12 +133,17 @@ export default function ScrollFX() {
 
     return () => {
       window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('pointermove', onPointerMove)
+      if (trackPointer) window.removeEventListener('pointermove', onPointerMove)
       cancelAnimationFrame(raf)
+      transitionTimers.forEach((timer) => window.clearTimeout(timer))
+      if (masthead) {
+        masthead.style.transform = ''
+        masthead.style.opacity = ''
+      }
       mo.disconnect()
       io?.disconnect()
     }
-  }, [])
+  }, [active])
 
   return null
 }

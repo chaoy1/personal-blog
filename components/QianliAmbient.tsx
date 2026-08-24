@@ -6,10 +6,11 @@ import { useEffect, useRef } from 'react'
  * 白天 · 江山入画：云雾流动、金尘明灭、瑞鹤掠空。
  * 无鼠标视差、无点击特效。
  */
-export default function QianliAmbient() {
+export default function QianliAmbient({ active = true }: { active?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
+    if (!active) return
     const canvas = ref.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
@@ -100,7 +101,7 @@ export default function QianliAmbient() {
       window.removeEventListener('resize', resize)
       cancelAnimationFrame(raf)
     }
-  }, [])
+  }, [active])
 
-  return <canvas ref={ref} className="bg-canvas" aria-hidden="true" />
+  return active ? <canvas ref={ref} className="bg-canvas" aria-hidden="true" /> : null
 }

@@ -1,27 +1,37 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabaseBrowser, storagePublicUrl } from '@/lib/supabase-browser'
 import { useAppStore } from '@/lib/app-store'
 import Avatar from '@/components/Avatar'
 
+type FormState = 'idle' | 'submitting' | 'success' | 'error'
+
 export default function AccountPage() {
   const router = useRouter()
   const { ready, user, profile, updateProfile } = useAppStore()
   const [nickname, setNickname] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
-  const [busy, setBusy] = useState(false)
+  const [profileState, setProfileState] = useState<FormState>('idle')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [uploadState, setUploadState] = useState<FormState>('idle')
+  const [uploadError, setUploadError] = useState('')
+  const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null)
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [pwBusy, setPwBusy] = useState(false)
+  const [passwordState, setPasswordState] = useState<FormState>('idle')
   const [pwMessage, setPwMessage] = useState('')
   const [pwError, setPwError] = useState('')
   const [showPasswords, setShowPasswords] = useState(false)
+  const uploadRequestId = useRef(0)
+  const passwordRequestId = useRef(0)
+  const busy = profileState === 'submitting'
+  const pwBusy = passwordState === 'submitting'
+  const uploadBusy = uploadState === 'submitting'
 
   useEffect(() => {
     if (ready && !user) {
@@ -34,70 +44,121 @@ export default function AccountPage() {
     }
   }, [ready, user, profile, router])
 
-  async function uploadAvatar(file: File) {
+  function startAvatarUpload(file: File) {
+    const requestId = ++uploadRequestId.current
+    setPendingAvatarFile(file)
+    setProfileState('idle')
+    void uploadAvatar(file, requestId)
+  }
+
+  async function uploadAvatar(file: File, requestId: number) {
     if (!user) return
+    setUploadState('submitting')
+    setUploadError('')
+    setError('')
+    setMessage('')
     const ext = file.name.split('.').pop() || 'png'
     const path = `${user.id}/${Date.now()}.${ext}`
-    const { error: uploadErr } = await supabaseBrowser()
-      .storage.from('avatars')
-      .upload(path, file, { upsert: true, cacheControl: '3600' })
-    if (uploadErr) {
-      setError(`头像上传失败：${uploadErr.message}`)
-      return
+    try {
+      const { error: uploadErr } = await supabaseBrowser()
+        .storage.from('avatars')
+        .upload(path, file, { upsert: true, cacheControl: '3600' })
+      if (requestId !== uploadRequestId.current) return
+      if (uploadErr) {
+        setUploadError(`头像上传失败：${uploadErr.message}`)
+        setUploadState('error')
+        return
+      }
+      setAvatarUrl(storagePublicUrl('avatars', path))
+      setPendingAvatarFile(null)
+      setUploadState('success')
+    } catch {
+      if (requestId !== uploadRequestId.current) return
+      setUploadError('头像上传失败，请稍后再试')
+      setUploadState('error')
     }
-    setAvatarUrl(storagePublicUrl('avatars', path))
+  }
+
+  function retryAvatarUpload() {
+    if (pendingAvatarFile) startAvatarUpload(pendingAvatarFile)
   }
 
   async function save() {
-    if (!user) return
-    setBusy(true)
+    if (!user || uploadBusy) return
+    setProfileState('submitting')
     setError('')
     setMessage('')
     const err = await updateProfile({ nickname: nickname.trim(), avatar_url: avatarUrl })
-    setBusy(false)
     if (err) {
       setError(err)
+      setProfileState('error')
       return
     }
     setMessage('资料已保存')
+    setProfileState('success')
   }
 
   async function changePassword() {
     if (!user?.email) {
       setPwError('当前账号无法修改密码')
+      setPasswordState('error')
       return
     }
-    if (newPassword.length < 6) {
+    const payload = { oldPassword, newPassword, confirmPassword }
+    if (payload.newPassword.length < 6) {
       setPwError('新密码至少需要 6 位')
+      setPasswordState('error')
       return
     }
-    if (newPassword !== confirmPassword) {
+    if (payload.newPassword !== payload.confirmPassword) {
       setPwError('两次输入的新密码不一致')
+      setPasswordState('error')
       return
     }
-    setPwBusy(true)
+    const requestId = ++passwordRequestId.current
+    setPasswordState('submitting')
     setPwError('')
     setPwMessage('')
-    const sb = supabaseBrowser()
-    const { error: verifyErr } = await sb.auth.signInWithPassword({
-      email: user.email,
-      password: oldPassword,
-    })
-    if (verifyErr) {
-      setPwBusy(false)
-      setPwError('旧密码不正确')
-      return
+    try {
+      const sb = supabaseBrowser()
+      const { error: verifyErr } = await sb.auth.signInWithPassword({
+        email: user.email,
+        password: payload.oldPassword,
+      })
+      if (requestId !== passwordRequestId.current) return
+      if (verifyErr) {
+        setPwError('旧密码不正确')
+        setPasswordState('error')
+        return
+      }
+      if (requestId !== passwordRequestId.current) return
+      const { error: updateErr } = await sb.auth.updateUser({ password: payload.newPassword })
+      if (requestId !== passwordRequestId.current) return
+      if (updateErr) {
+        setPwError(`修改失败：${updateErr.message}`)
+        setPasswordState('error')
+        return
+      }
+      setOldPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+      setPwMessage('密码已修改')
+      setPasswordState('success')
+    } catch {
+      if (requestId !== passwordRequestId.current) return
+      setPwError('修改失败，请稍后再试')
+      setPasswordState('error')
     }
-    const { error: updateErr } = await sb.auth.updateUser({ password: newPassword })
-    setPwBusy(false)
-    if (updateErr) {
-      setPwError(`修改失败：${updateErr.message}`)
-      return
+  }
+
+  function updatePasswordField(setValue: (value: string) => void, value: string) {
+    if (pwBusy) {
+      passwordRequestId.current += 1
+      setPasswordState('idle')
+      setPwError('')
+      setPwMessage('')
     }
-    setOldPassword('')
-    setNewPassword('')
-    setConfirmPassword('')
-    setPwMessage('密码已修改')
+    setValue(value)
   }
 
   function finish() {
@@ -129,7 +190,7 @@ export default function AccountPage() {
             基本资料
           </h2>
           <div className="account-profile-row">
-            <div className="account-avatar">
+            <div className="account-avatar" aria-busy={uploadBusy} data-form-state={uploadState}>
               <Avatar src={avatarUrl} alt="头像" />
               <label className="account-avatar-btn">
                 更换头像
@@ -139,13 +200,20 @@ export default function AccountPage() {
                   hidden
                   onChange={(e) => {
                     const f = e.target.files?.[0]
-                    if (f) uploadAvatar(f)
+                    if (f) startAvatarUpload(f)
                   }}
                 />
               </label>
+              {uploadState === 'error' && pendingAvatarFile ? (
+                <button className="btn btn-ghost btn-sm" type="button" onClick={retryAvatarUpload} disabled={uploadBusy}>
+                  重试上传头像
+                </button>
+              ) : null}
+              {uploadError ? <p className="error-text" role="alert">{uploadError}</p> : null}
+              {uploadState === 'success' ? <p className="notice-text" role="status">头像已上传</p> : null}
             </div>
 
-            <div className="account-profile-fields">
+            <div className="account-profile-fields" aria-busy={busy || uploadBusy} data-form-state={uploadBusy ? 'submitting' : profileState}>
               <div className="field">
                 <label htmlFor="nickname">昵称</label>
                 <input
@@ -156,12 +224,17 @@ export default function AccountPage() {
                   placeholder="怎么称呼你？"
                 />
               </div>
-              {error ? <p className="error-text">{error}</p> : null}
-              {message ? <p className="notice-text">{message}</p> : null}
+              {error ? <p className="error-text" role="alert">{error}</p> : null}
+              {message ? <p className="notice-text" role="status">{message}</p> : null}
               <div className="editor-actions">
-                <button className="btn btn-sm" type="button" onClick={save} disabled={busy}>
+                <button className="btn btn-sm" type="button" onClick={save} disabled={busy || uploadBusy}>
                   {busy ? '保存中…' : '保存资料'}
                 </button>
+                {profileState === 'error' ? (
+                  <button className="btn btn-ghost btn-sm" type="button" onClick={save} disabled={busy || uploadBusy}>
+                    重试保存资料
+                  </button>
+                ) : null}
               </div>
             </div>
           </div>
@@ -185,6 +258,8 @@ export default function AccountPage() {
 
             <form
               className="account-pw-grid"
+              aria-busy={pwBusy}
+              data-form-state={passwordState}
               onSubmit={(event) => {
                 event.preventDefault()
                 changePassword()
@@ -197,7 +272,7 @@ export default function AccountPage() {
                     id="old-password"
                     type={showPasswords ? 'text' : 'password'}
                     value={oldPassword}
-                    onChange={(e) => setOldPassword(e.target.value)}
+                    onChange={(e) => updatePasswordField(setOldPassword, e.target.value)}
                     autoComplete="current-password"
                     placeholder="输入当前密码"
                   />
@@ -228,7 +303,7 @@ export default function AccountPage() {
                     id="new-password"
                     type={showPasswords ? 'text' : 'password'}
                     value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
+                    onChange={(e) => updatePasswordField(setNewPassword, e.target.value)}
                     autoComplete="new-password"
                     placeholder="至少 6 位"
                   />
@@ -247,18 +322,23 @@ export default function AccountPage() {
                     id="confirm-password"
                     type={showPasswords ? 'text' : 'password'}
                     value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onChange={(e) => updatePasswordField(setConfirmPassword, e.target.value)}
                     autoComplete="new-password"
                     placeholder="保持两次输入一致"
                   />
                 </div>
               </div>
-              {pwError ? <p className="error-text account-pw-status">{pwError}</p> : null}
-              {pwMessage ? <p className="notice-text account-pw-status">{pwMessage}</p> : null}
+              {pwError ? <p className="error-text account-pw-status" role="alert">{pwError}</p> : null}
+              {pwMessage ? <p className="notice-text account-pw-status" role="status">{pwMessage}</p> : null}
               <div className="editor-actions">
                 <button className="btn btn-sm" type="submit" disabled={pwBusy}>
                   {pwBusy ? '正在更新…' : '确认更新密码'}
                 </button>
+                {passwordState === 'error' ? (
+                  <button className="btn btn-ghost btn-sm" type="button" onClick={changePassword} disabled={pwBusy}>
+                    重试更新密码
+                  </button>
+                ) : null}
               </div>
             </form>
           </div>

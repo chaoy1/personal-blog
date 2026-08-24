@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { SITE_NAME } from '@/lib/site'
 import ThemeToggle from '@/components/ThemeToggle'
 import LangToggle from '@/components/LangToggle'
@@ -30,11 +30,23 @@ export default function SiteNav() {
   const router = useRouter()
   const { user, profile, signOut } = useAppStore()
   const [menuOpen, setMenuOpen] = useState(false)
+  const toggleRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const restoreToggleFocus = useRef(false)
 
   useEffect(() => setMenuOpen(false), [pathname])
 
   useEffect(() => {
-    if (!menuOpen) return
+    if (!menuOpen) {
+      if (restoreToggleFocus.current) {
+        toggleRef.current?.focus()
+        restoreToggleFocus.current = false
+      }
+      return
+    }
+
+    restoreToggleFocus.current = true
+    panelRef.current?.querySelector<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')?.focus()
     const previous = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     const onKey = (event: KeyboardEvent) => {
@@ -46,6 +58,28 @@ export default function SiteNav() {
       window.removeEventListener('keydown', onKey)
     }
   }, [menuOpen])
+
+  function trapMenuFocus(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== 'Tab') return
+    const panel = panelRef.current
+    if (!panel) return
+
+    const focusable = Array.from(
+      panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'),
+    )
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    if (!first || !last) return
+
+    const active = document.activeElement
+    if (event.shiftKey && active === first) {
+      event.preventDefault()
+      last.focus()
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault()
+      first.focus()
+    }
+  }
 
   // 注意：必须在所有 hook 之后才能提前返回
   if (pathname.startsWith('/admin')) return null
@@ -65,7 +99,11 @@ export default function SiteNav() {
           const active = link.match ? link.match(pathname) : false
           return (
             <Fragment key={link.href}>
-              <Link href={link.href} className={active ? 'active' : undefined}>
+              <Link
+                href={link.href}
+                className={active ? 'active' : undefined}
+                aria-current={active ? 'page' : undefined}
+              >
                 {link.label}
               </Link>
               {index < LINKS.length - 1 ? <span className="nav-divider" aria-hidden="true" /> : null}
@@ -98,6 +136,7 @@ export default function SiteNav() {
         <LangToggle />
         <ThemeToggle />
         <button
+          ref={toggleRef}
           type="button"
           className="mobile-nav-toggle"
           aria-label={menuOpen ? '收起导航' : '展开导航'}
@@ -109,7 +148,13 @@ export default function SiteNav() {
           <span />
         </button>
       </div>
-      <div id="mobile-site-menu" className="mobile-nav-panel" aria-hidden={!menuOpen}>
+      <div
+        ref={panelRef}
+        id="mobile-site-menu"
+        className="mobile-nav-panel"
+        aria-hidden={!menuOpen}
+        onKeyDown={trapMenuFocus}
+      >
         <div className="mobile-nav-caption">
           <span>游园路径</span>
           <i>PATHS THROUGH THE SCROLL</i>
@@ -118,7 +163,12 @@ export default function SiteNav() {
           {LINKS.map((link, index) => {
             const active = link.match ? link.match(pathname) : false
             return (
-              <Link key={link.href} href={link.href} className={active ? 'active' : undefined}>
+              <Link
+                key={link.href}
+                href={link.href}
+                className={active ? 'active' : undefined}
+                aria-current={active ? 'page' : undefined}
+              >
                 <span>{String(index + 1).padStart(2, '0')}</span>
                 <b>{link.label}</b>
                 <i aria-hidden="true">↗</i>
@@ -127,6 +177,10 @@ export default function SiteNav() {
           })}
         </div>
         <div className="mobile-nav-account">
+          <span className="mobile-nav-language">
+            <span>字形</span>
+            <LangToggle />
+          </span>
           {user ? (
             <>
               <Link href="/account">{profile?.nickname || user.email?.split('@')[0] || '个人资料'}</Link>

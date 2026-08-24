@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 import { SITE_NAME } from '@/lib/site'
+
+type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -14,7 +16,9 @@ export default function LoginPage() {
   const [nickname, setNickname] = useState('')
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
-  const [busy, setBusy] = useState(false)
+  const [formState, setFormState] = useState<FormState>('idle')
+  const authRequestId = useRef(0)
+  const busy = formState === 'submitting'
 
   function authErrorZh(msg: string): string {
     const m = msg.toLowerCase()
@@ -27,17 +31,20 @@ export default function LoginPage() {
     return msg
   }
 
-  async function submit(e: FormEvent) {
-    e.preventDefault()
+  async function submit() {
+    const requestId = ++authRequestId.current
+    const requestMode = mode
     setError('')
     setNotice('')
-    setBusy(true)
-    const sb = supabaseBrowser()
+    setFormState('submitting')
     try {
-      if (mode === 'login') {
+      const sb = supabaseBrowser()
+      if (requestMode === 'login') {
         const { error } = await sb.auth.signInWithPassword({ email, password })
+        if (requestId !== authRequestId.current) return
         if (error) {
           setError(authErrorZh(error.message))
+          setFormState('error')
           return
         }
         router.push('/')
@@ -48,24 +55,43 @@ export default function LoginPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password, nickname }),
         })
+        if (requestId !== authRequestId.current) return
         const j = await res.json().catch(() => ({}))
+        if (requestId !== authRequestId.current) return
         if (!res.ok) {
           setError(j.error || '注册失败，请稍后再试')
+          setFormState('error')
           return
         }
         // 注册即自动登录，无需邮箱确认
         const { error: signInErr } = await sb.auth.signInWithPassword({ email, password })
+        if (requestId !== authRequestId.current) return
         if (signInErr) {
           setNotice('注册成功，请直接登录。')
           setMode('login')
+          setFormState('success')
           return
         }
         router.push('/')
         router.refresh()
       }
+    } catch {
+      if (requestId !== authRequestId.current) return
+      setError(requestMode === 'login' ? '登录失败，请稍后再试' : '注册失败，请稍后再试')
+      setFormState('error')
     } finally {
-      setBusy(false)
+      if (requestId === authRequestId.current) {
+        setFormState((state) => (state === 'submitting' ? 'idle' : state))
+      }
     }
+  }
+
+  function switchMode(nextMode: 'login' | 'register') {
+    authRequestId.current += 1
+    setMode(nextMode)
+    setError('')
+    setNotice('')
+    setFormState('idle')
   }
 
   return (
@@ -77,28 +103,20 @@ export default function LoginPage() {
         <button
           type="button"
           className={`tab ${mode === 'login' ? 'active' : ''}`}
-          onClick={() => {
-            setMode('login')
-            setError('')
-            setNotice('')
-          }}
+          onClick={() => switchMode('login')}
         >
           登录
         </button>
         <button
           type="button"
           className={`tab ${mode === 'register' ? 'active' : ''}`}
-          onClick={() => {
-            setMode('register')
-            setError('')
-            setNotice('')
-          }}
+          onClick={() => switchMode('register')}
         >
           注册
         </button>
       </div>
 
-      <form onSubmit={submit} style={{ marginTop: 26 }}>
+      <form onSubmit={(event) => { event.preventDefault(); submit() }} style={{ marginTop: 26 }} aria-busy={busy} data-form-state={formState}>
         {mode === 'register' ? (
           <div className="field">
             <label htmlFor="nickname">昵称</label>
@@ -136,11 +154,16 @@ export default function LoginPage() {
             autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
           />
         </div>
-        {error ? <p className="error-text">{error}</p> : null}
-        {notice ? <p className="notice-text">{notice}</p> : null}
+        {error ? <p className="error-text" role="alert">{error}</p> : null}
+        {notice ? <p className="notice-text" role="status">{notice}</p> : null}
         <button className="btn" type="submit" disabled={busy || !email || !password}>
           {busy ? '处理中…' : mode === 'login' ? '登录' : '注册并登录'}
         </button>
+        {formState === 'error' ? (
+          <button className="btn btn-ghost" type="button" disabled={busy || !email || !password} onClick={submit}>
+            {mode === 'login' ? '重试登录' : '重试注册'}
+          </button>
+        ) : null}
       </form>
 
       <Link href="/" className="back-link">

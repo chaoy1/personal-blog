@@ -37,6 +37,9 @@ export default function SearchPalette() {
   const pathname = usePathname()
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const dialogRef = useRef<HTMLElement>(null)
+  const openerRef = useRef<HTMLElement | null>(null)
   const [mounted, setMounted] = useState(false)
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -46,17 +49,39 @@ export default function SearchPalette() {
 
   useEffect(() => setMounted(true), [])
 
+  function openSearch() {
+    openerRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : triggerRef.current
+    setOpen(true)
+  }
+
+  function closeSearch(restoreFocus = true) {
+    const opener = openerRef.current
+    setOpen(false)
+    openerRef.current = null
+    if (restoreFocus) {
+      requestAnimationFrame(() => {
+        if (opener?.isConnected) opener.focus()
+      })
+    }
+  }
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault()
-        setOpen((value) => !value)
+        if (open) closeSearch()
+        else openSearch()
       }
-      if (event.key === 'Escape') setOpen(false)
+      if (event.key === 'Escape' && open) {
+        event.preventDefault()
+        closeSearch()
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  }, [open])
 
   useEffect(() => {
     setOpen(false)
@@ -113,18 +138,39 @@ export default function SearchPalette() {
   useEffect(() => setActive(0), [query])
 
   function choose(item: SearchItem) {
-    setOpen(false)
+    closeSearch(false)
     router.push(item.href)
   }
 
+  function trapFocus(event: React.KeyboardEvent<HTMLElement>) {
+    if (event.key !== 'Tab') return
+    const focusable = Array.from(
+      dialogRef.current?.querySelectorAll<HTMLElement>(
+        'input:not([disabled]), a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ) ?? [],
+    )
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    if (!first || !last) return
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault()
+      last.focus()
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault()
+      first.focus()
+    }
+  }
+
   const dialog = open ? (
-    <div className="search-layer" role="presentation" onMouseDown={() => setOpen(false)}>
+    <div className="search-layer" role="presentation" onMouseDown={() => closeSearch()}>
       <section
+        ref={dialogRef}
         className="search-palette"
         role="dialog"
         aria-modal="true"
         aria-label="寻迹"
         onMouseDown={(event) => event.stopPropagation()}
+        onKeyDown={trapFocus}
       >
         <header className="search-head">
           <span className="search-seal" aria-hidden="true">寻</span>
@@ -162,7 +208,7 @@ export default function SearchPalette() {
               role="option"
               aria-selected={index === active}
               onMouseEnter={() => setActive(index)}
-              onClick={() => setOpen(false)}
+              onClick={() => closeSearch(false)}
             >
               <span className="search-kind" aria-hidden="true">{item.kind}</span>
               <span className="search-copy">
@@ -188,9 +234,10 @@ export default function SearchPalette() {
   return (
     <>
       <button
+        ref={triggerRef}
         type="button"
         className="nav-search"
-        onClick={() => setOpen(true)}
+        onClick={openSearch}
         aria-label="搜索文章与页面"
         title="寻迹（Ctrl / ⌘ + K）"
       >

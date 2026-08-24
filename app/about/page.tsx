@@ -6,10 +6,13 @@ import ScrollFX from '@/components/ScrollFX'
 import MarkdownView from '@/components/MarkdownView'
 import Avatar from '@/components/Avatar'
 import PageIntro from '@/components/PageIntro'
+import { publicMetadata } from '@/lib/seo'
 
-export const metadata: Metadata = {
+export const metadata: Metadata = publicMetadata({
+  path: '/about',
   title: '关于',
-}
+  description: '认识这间记录代码与生活的小屋。',
+})
 
 export const revalidate = 60
 

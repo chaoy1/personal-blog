@@ -4,6 +4,10 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import MarkdownView from '@/components/MarkdownView'
+import { DraftRecoveryDialog } from '@/components/admin/DraftRecoveryDialog'
+import { useAdminFeedback } from '@/components/admin/AdminFeedback'
+import { useArticleDraftSync } from '@/components/admin/useArticleDraftSync'
+import type { ArticleDraftSnapshot } from '@/lib/article-draft'
 import { makeSlug } from '@/lib/slug'
 
 export default function EditorPage() {
@@ -18,6 +22,8 @@ function Editor() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
+  const { notify } = useAdminFeedback()
+  const [postId, setPostId] = useState<string | null>(id)
   const isEdit = Boolean(id)
 
   const [title, setTitle] = useState('')
@@ -26,12 +32,39 @@ function Editor() {
   const [excerpt, setExcerpt] = useState('')
   const [content, setContent] = useState('')
   const [published, setPublished] = useState(false)
+  const [updatedAt, setUpdatedAt] = useState(() => id ? '1970-01-01T00:00:00.000Z' : new Date().toISOString())
   const [mode, setMode] = useState<'edit' | 'preview'>('edit')
   const [immersive, setImmersive] = useState(false)
   const [editorTone, setEditorTone] = useState<'paper' | 'plain' | 'warm' | 'night'>('paper')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState<'draft' | 'publish' | null>(null)
   const contentRef = useRef<HTMLTextAreaElement>(null)
+  const snapshot: ArticleDraftSnapshot = {
+    version: 2,
+    clientId: 'primary',
+    postId,
+    title,
+    slug,
+    excerpt,
+    content,
+    published,
+    updatedAt,
+  }
+  const draftSync = useArticleDraftSync({
+    snapshot,
+    onPostId: (nextId) => {
+      setPostId(nextId)
+      router.replace(`/admin/editor?id=${nextId}`)
+    },
+    onUnauthorized: () => router.replace(
+      `/admin/login?next=${encodeURIComponent(id ? `/admin/editor?id=${id}` : '/admin/editor')}`,
+    ),
+  })
+
+  function touchDraft() {
+    setUpdatedAt(new Date().toISOString())
+  }
+
 
   useEffect(() => {
     if (!id) return
@@ -52,6 +85,8 @@ function Editor() {
         setExcerpt(post.excerpt ?? '')
         setContent(post.content ?? '')
         setPublished(post.published)
+        setPostId(post.id)
+        setUpdatedAt(post.updated_at)
       })
       .catch(() => {
         if (!cancelled) setError('加载文章失败')
@@ -82,6 +117,19 @@ function Editor() {
     }
   }, [])
 
+  const hasUnsavedChanges = Boolean(title.trim() || excerpt.trim() || content.trim())
+    && ['local-saved', 'server-saving', 'error', 'conflict'].includes(draftSync.status)
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) return
+    const warnBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+    window.addEventListener('beforeunload', warnBeforeUnload)
+    return () => window.removeEventListener('beforeunload', warnBeforeUnload)
+  }, [hasUnsavedChanges])
+
   function changeEditorTone(tone: 'paper' | 'plain' | 'warm' | 'night') {
     setEditorTone(tone)
     try {
@@ -93,6 +141,7 @@ function Editor() {
 
   function handleTitleChange(value: string) {
     setTitle(value)
+    touchDraft()
     if (!slugTouched) setSlug(makeSlug(value))
   }
 
@@ -103,6 +152,7 @@ function Editor() {
     const e = ta.selectionEnd
     const selected = content.slice(s, e) || placeholder
     setContent(content.slice(0, s) + before + selected + after + content.slice(e))
+    touchDraft()
     requestAnimationFrame(() => {
       ta.focus()
       const start = s + before.length
@@ -118,6 +168,7 @@ function Editor() {
     const end = input.selectionEnd
     const indent = '  '
     setContent((value) => `${value.slice(0, start)}${indent}${value.slice(end)}`)
+    touchDraft()
     requestAnimationFrame(() => {
       input.selectionStart = input.selectionEnd = start + indent.length
     })
@@ -137,32 +188,51 @@ function Editor() {
 
   const characterCount = content.replace(/\s/g, '').length
   const paragraphCount = content.trim() ? content.trim().split(/\n\s*\n/).length : 0
+  const saveStatusText = draftSync.status === 'server-saving'
+    ? '正在保存…'
+    : draftSync.status === 'server-saved' && draftSync.lastSavedAt
+      ? `已保存于 ${new Date(draftSync.lastSavedAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`
+      : draftSync.status === 'error'
+        ? '自动保存失败，本地备份仍在'
+        : draftSync.status === 'conflict'
+          ? '发现版本冲突'
+          : title.trim() || excerpt.trim() || content.trim() ? '已备份到本地' : 'Markdown'
+
 
   async function save(nextPublished: boolean) {
     setError('')
     if (!title.trim()) {
       setError('标题不能为空')
-      return
+      return null
     }
     setSaving(nextPublished ? 'publish' : 'draft')
     try {
-      const payload = { title, slug, excerpt, content, published: nextPublished }
-      const res = await fetch(isEdit ? `/api/admin/posts/${id}` : '/api/admin/posts', {
-        method: isEdit ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-      if (res.status === 401) {
-        router.replace('/admin/login')
-        return
-      }
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        setError(data.error ?? '保存失败')
-        return
-      }
+      const result = await draftSync.flush(nextPublished)
       setPublished(nextPublished)
-      router.push('/admin')
+      setUpdatedAt(result.updatedAt)
+      notify({ kind: 'success', message: nextPublished ? '文章已发布' : '草稿已保存' })
+      return result
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : '保存失败')
+      return null
+    } finally {
+      setSaving(null)
+    }
+  }
+
+  async function openDraftPreview() {
+    setError('')
+    if (!title.trim()) {
+      setError('标题不能为空')
+      return
+    }
+    setSaving('draft')
+    try {
+      const result = await draftSync.flush(false)
+      setUpdatedAt(result.updatedAt)
+      router.push(`/admin/preview/${result.postId}`)
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : '预览准备失败')
     } finally {
       setSaving(null)
     }
@@ -213,7 +283,10 @@ function Editor() {
           ref={contentRef}
           className="editor-body"
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={(e) => {
+            setContent(e.target.value)
+            touchDraft()
+          }}
           onKeyDown={handleEditorKeyDown}
           placeholder={'用 Markdown 写作，支持 **加粗**、[链接](https://…)、代码块、表格等。'}
           spellCheck={false}
@@ -230,7 +303,7 @@ function Editor() {
       <div className="editor-status" aria-live="polite">
         <span>{characterCount} 字</span>
         <span>{paragraphCount} 段</span>
-        <span>Markdown</span>
+        <span>{saveStatusText}</span>
       </div>
     </>
   )
@@ -247,6 +320,7 @@ function Editor() {
           onChange={(e) => {
             setSlugTouched(true)
             setSlug(e.target.value)
+            touchDraft()
           }}
           placeholder="my-first-post"
         />
@@ -258,7 +332,10 @@ function Editor() {
           id="excerpt"
           type="text"
           value={excerpt}
-          onChange={(e) => setExcerpt(e.target.value)}
+          onChange={(e) => {
+            setExcerpt(e.target.value)
+            touchDraft()
+          }}
           placeholder="首页列表里显示的一句话简介（可留空）"
         />
       </div>
@@ -271,18 +348,45 @@ function Editor() {
 
   const saveActions = (
     <div className="editor-save-actions">
-      <button className="btn btn-ghost btn-sm" type="button" onClick={() => save(false)} disabled={saving !== null}>
+      <button className="btn btn-ghost btn-sm" type="button" onClick={() => void openDraftPreview()} disabled={saving !== null}>
+        预览草稿
+      </button>
+      <button className="btn btn-ghost btn-sm" type="button" onClick={() => void save(false)} disabled={saving !== null}>
         {saving === 'draft' ? '保存中…' : '保存草稿'}
       </button>
-      <button className="btn btn-sm" type="button" onClick={() => save(true)} disabled={saving !== null}>
+      <button className="btn btn-sm" type="button" onClick={() => void save(true)} disabled={saving !== null}>
         {saving === 'publish' ? '发布中…' : published ? '更新发布' : '发布文章'}
       </button>
     </div>
   )
 
+  const recoveryDialog = (
+    <DraftRecoveryDialog
+      open={draftSync.status === 'conflict'}
+      local={draftSync.restoreLocal()}
+      onRestore={() => {
+        const local = draftSync.restoreLocal()
+        if (!local) return
+        setTitle(local.title)
+        setSlug(local.slug)
+        setSlugTouched(Boolean(local.slug))
+        setExcerpt(local.excerpt)
+        setContent(local.content)
+        setPublished(local.published)
+        setUpdatedAt(new Date().toISOString())
+        notify({ kind: 'info', message: '已恢复本地版本，请确认后保存' })
+      }}
+      onDiscard={() => {
+        draftSync.discardLocal()
+        notify({ kind: 'info', message: '已继续使用服务器版本' })
+      }}
+    />
+  )
+
   if (immersive) {
     return (
       <div className="editor-immersive">
+        {recoveryDialog}
         <div className="editor-immersive-top">
           <button type="button" className="editor-quiet-action" onClick={() => setImmersive(false)}>
             ← 返回工作台
@@ -301,6 +405,7 @@ function Editor() {
 
   return (
     <>
+      {recoveryDialog}
       <div className="editor-topbar">
         <Link href="/admin" className="back-link">
           ← 文章列表
