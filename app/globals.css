@@ -3841,12 +3841,12 @@ html.motion-static .reveal {
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  clip-path: inset(0 100% 0 0);
-  animation: su-paper-unfurl 3.6s cubic-bezier(0.52, 0.02, 0.18, 1) forwards;
+  clip-path: inset(0 0 0 0);
+  animation: su-paper-roll-up 3.6s cubic-bezier(0.52, 0.02, 0.18, 1) forwards;
   will-change: clip-path;
 }
 
-/* 场景图作为纸面，卷轴实体在右侧展开边缘同步滚动。 */
+/* 场景图先完整铺满视口，左侧卷轴向右滚动并把画面收起。 */
 .su-paper > .su-curl,
 .su-paper > .su-art {
   display: none;
@@ -3922,9 +3922,9 @@ html.motion-static .reveal {
   100% { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes su-paper-unfurl {
-  from { clip-path: inset(0 100% 0 0); }
-  to { clip-path: inset(0 0 0 0); }
+@keyframes su-paper-roll-up {
+  from { clip-path: inset(0 0 0 0); }
+  to { clip-path: inset(0 0 0 100%); }
 }
 
 /* 卷起的纸卷：绕在木轴中段，随展开向右收拢 */

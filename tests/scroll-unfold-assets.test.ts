@@ -9,3 +9,8 @@ test('uses separate handscroll artwork for light and dark themes', () => {
   expect(globalStyles).toContain("[data-theme='dark']")
   expect(globalStyles).toContain('opening-scroll-night.png')
 })
+
+test('rolls the full paper away to reveal the page underneath', () => {
+  expect(globalStyles).toContain('from { clip-path: inset(0 0 0 0); }')
+  expect(globalStyles).toContain('to { clip-path: inset(0 0 0 100%); }')
+})
