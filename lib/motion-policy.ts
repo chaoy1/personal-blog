@@ -15,4 +15,4 @@ export const shouldRunAmbientMotion = (v: MotionPolicyInput) =>
   v.visible && !v.reduced && !v.saveData
 
 export const shouldPlayFullUnfold = (v: UnfoldPolicyInput) =>
-  !v.reduced && v.storedVersion !== UNFOLD_VERSION_KEY
+  !v.reduced

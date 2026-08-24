@@ -43,13 +43,13 @@ test('shows the first-visit overlay and marks the document as actively unfolding
   expect(document.documentElement).toHaveClass('unfold-live')
 })
 
-test('skips the overlay and fades in returning visitors', () => {
+test('plays the overlay again for returning visitors', () => {
   localStorage.setItem(UNFOLD_VERSION_KEY, UNFOLD_VERSION_KEY)
 
   render(<ScrollUnfold />)
 
-  expect(document.querySelector('.scroll-unfold')).not.toBeInTheDocument()
-  expect(document.documentElement).toHaveClass('unfold-returning')
+  expect(document.querySelector('.scroll-unfold')).toBeInTheDocument()
+  expect(document.documentElement).toHaveClass('unfold-live')
 })
 
 test('does not add moving unfold states when reduced motion is preferred', () => {
@@ -62,14 +62,14 @@ test('does not add moving unfold states when reduced motion is preferred', () =>
   expect(document.documentElement).not.toHaveClass('unfold-returning')
 })
 
-test('persists the unfold version when the three-second overlay completes', () => {
+test('does not persist a skip marker after the three-second overlay completes', () => {
   vi.useFakeTimers()
 
   render(<ScrollUnfold />)
   startAnimationClock()
   act(() => vi.advanceTimersByTime(3000))
 
-  expect(localStorage.getItem(UNFOLD_VERSION_KEY)).toBe(UNFOLD_VERSION_KEY)
+  expect(localStorage.getItem(UNFOLD_VERSION_KEY)).toBeNull()
   expect(document.querySelector('.scroll-unfold')).not.toBeInTheDocument()
 })
 
@@ -83,16 +83,4 @@ test('cleans up the active unfold class at the content-complete boundary', () =>
 
   act(() => vi.advanceTimersByTime(1))
   expect(document.documentElement).not.toHaveClass('unfold-live')
-})
-
-test('cleans up the returning class after its 600ms fade', () => {
-  vi.useFakeTimers()
-  localStorage.setItem(UNFOLD_VERSION_KEY, UNFOLD_VERSION_KEY)
-
-  render(<ScrollUnfold />)
-  act(() => vi.advanceTimersByTime(599))
-  expect(document.documentElement).toHaveClass('unfold-returning')
-
-  act(() => vi.advanceTimersByTime(1))
-  expect(document.documentElement).not.toHaveClass('unfold-returning')
 })

@@ -22,6 +22,6 @@ test('plays the full unfold for a visitor without a stored version', () => {
   expect(shouldPlayFullUnfold({ reduced: false, storedVersion: null })).toBe(true)
 })
 
-test('does not replay the full unfold for the stored version', () => {
-  expect(shouldPlayFullUnfold({ reduced: false, storedVersion: UNFOLD_VERSION_KEY })).toBe(false)
+test('replays the full unfold when a previous visit stored a version', () => {
+  expect(shouldPlayFullUnfold({ reduced: false, storedVersion: UNFOLD_VERSION_KEY })).toBe(true)
 })

@@ -2,11 +2,10 @@
 
 import React, { useEffect, useState } from 'react'
 
-import { shouldPlayFullUnfold, UNFOLD_VERSION_KEY } from '@/lib/motion-policy'
+import { shouldPlayFullUnfold } from '@/lib/motion-policy'
 
 const UNFOLD_DURATION_MS = 3000
 const CONTENT_COMPLETE_MS = 4200
-const RETURNING_FADE_MS = 600
 
 export default function ScrollUnfold() {
   const [active, setActive] = useState(false)
@@ -14,30 +13,12 @@ export default function ScrollUnfold() {
   useEffect(() => {
     const root = document.documentElement
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    let storedVersion: string | null = null
     let animationFrame: number | undefined
     let unfoldTimer: number | undefined
     let contentTimer: number | undefined
-    let returningTimer: number | undefined
 
-    try {
-      storedVersion = localStorage.getItem(UNFOLD_VERSION_KEY)
-    } catch {
-      // Storage may be unavailable in private or locked-down contexts.
-    }
-
-    if (!shouldPlayFullUnfold({ reduced, storedVersion })) {
-      if (!reduced) {
-        root.classList.add('unfold-returning')
-        returningTimer = window.setTimeout(() => {
-          root.classList.remove('unfold-returning')
-        }, RETURNING_FADE_MS)
-      }
-
-      return () => {
-        if (returningTimer !== undefined) window.clearTimeout(returningTimer)
-        root.classList.remove('unfold-live', 'unfold-returning')
-      }
+    if (!shouldPlayFullUnfold({ reduced, storedVersion: null })) {
+      return () => root.classList.remove('unfold-live', 'unfold-returning')
     }
 
     const startUnfold = () => {
@@ -47,11 +28,6 @@ export default function ScrollUnfold() {
 
         unfoldTimer = window.setTimeout(() => {
           setActive(false)
-          try {
-            localStorage.setItem(UNFOLD_VERSION_KEY, UNFOLD_VERSION_KEY)
-          } catch {
-            // Storage may be unavailable in private or locked-down contexts.
-          }
         }, UNFOLD_DURATION_MS)
 
         contentTimer = window.setTimeout(() => {
