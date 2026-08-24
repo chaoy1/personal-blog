@@ -3823,12 +3823,12 @@ html.motion-static .reveal {
   z-index: 85;
   pointer-events: none;
   overflow: hidden;
-  animation: su-fade 3s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
+  animation: su-fade 3.6s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
   will-change: opacity;
 }
 
 @keyframes su-fade {
-  0%, 88% { opacity: 1; }
+  0%, 90% { opacity: 1; }
   100% { opacity: 0; }
 }
 
@@ -3841,16 +3841,14 @@ html.motion-static .reveal {
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  animation: su-unroll-x 3s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
-  will-change: transform;
+  clip-path: inset(0 100% 0 0);
+  animation: su-paper-unfurl 3.6s cubic-bezier(0.52, 0.02, 0.18, 1) forwards;
+  will-change: clip-path;
 }
 
-/* 场景图已经包含真实纸张、山水和左侧画轴，避免旧的 CSS 画轴叠加。 */
+/* 场景图作为纸面，卷轴实体在右侧展开边缘同步滚动。 */
 .su-paper > .su-curl,
-.su-paper > .su-art,
-.su-roll,
-.su-rod,
-.su-shadow {
+.su-paper > .su-art {
   display: none;
 }
 
@@ -3924,20 +3922,20 @@ html.motion-static .reveal {
   100% { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes su-unroll-x {
-  from { transform: translateX(0); }
-  to { transform: translateX(103vw); }
+@keyframes su-paper-unfurl {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
 }
 
 /* 卷起的纸卷：绕在木轴中段，随展开向右收拢 */
 .su-roll {
   position: absolute;
-  left: -20px;
+  left: -30px;
   top: 0;
   bottom: 0;
-  width: 62px;
-  z-index: 2;
-  animation: su-rod-x 3s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
+  width: 76px;
+  z-index: 5;
+  animation: su-roll-track 3.6s cubic-bezier(0.52, 0.02, 0.18, 1) forwards;
   will-change: transform;
 }
 
@@ -3968,7 +3966,7 @@ html.motion-static .reveal {
 /* 木轴：上下露出木纹，中段被纸卷遮住 */
 .su-rod {
   position: absolute;
-  left: 0;
+  left: -8px;
   top: 0;
   bottom: 0;
   width: 22px;
@@ -3979,7 +3977,7 @@ html.motion-static .reveal {
     linear-gradient(90deg, #9a6a35, #7a4e22 55%, #5d3a18);
   border-right: 1px solid rgba(20, 12, 4, 0.42);
   box-shadow: 0 3px 14px rgba(25, 16, 6, 0.3);
-  animation: su-rod-x 3s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
+  animation: su-roll-track 3.6s cubic-bezier(0.52, 0.02, 0.18, 1) forwards;
   will-change: transform;
 }
 
@@ -4069,19 +4067,20 @@ html.motion-static .reveal {
 /* 卷轴在纸面上投下的阴影 */
 .su-shadow {
   position: absolute;
-  left: 56px;
+  left: 38px;
   top: 0;
   bottom: 0;
-  width: 30px;
-  z-index: 2;
-  background: linear-gradient(90deg, rgba(30, 18, 6, 0.28), transparent);
-  animation: su-rod-x 3s cubic-bezier(0.65, 0.02, 0.23, 1) forwards;
+  width: 92px;
+  z-index: 4;
+  background: linear-gradient(90deg, rgba(30, 18, 6, 0.36), rgba(30, 18, 6, 0.12) 45%, transparent);
+  filter: blur(2px);
+  animation: su-roll-track 3.6s cubic-bezier(0.52, 0.02, 0.18, 1) forwards;
   will-change: transform;
 }
 
-@keyframes su-rod-x {
-  from { transform: translateX(-24px); }
-  to { transform: translateX(103vw); }
+@keyframes su-roll-track {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(100vw + 12px)); }
 }
 
 /*

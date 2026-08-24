@@ -67,7 +67,7 @@ test('does not persist a skip marker after the three-second overlay completes', 
 
   render(<ScrollUnfold />)
   startAnimationClock()
-  act(() => vi.advanceTimersByTime(3000))
+  act(() => vi.advanceTimersByTime(3600))
 
   expect(localStorage.getItem(UNFOLD_VERSION_KEY)).toBeNull()
   expect(document.querySelector('.scroll-unfold')).not.toBeInTheDocument()

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 
 import { shouldPlayFullUnfold } from '@/lib/motion-policy'
 
-const UNFOLD_DURATION_MS = 3000
+const UNFOLD_DURATION_MS = 3600
 const CONTENT_COMPLETE_MS = 4200
 
 export default function ScrollUnfold() {
