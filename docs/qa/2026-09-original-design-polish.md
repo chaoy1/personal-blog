@@ -75,6 +75,8 @@ CSS 加载顺序保持 `globals.css` → `refinement.css` → `studio.css`。
 | 360×800 | 首页、文章列表、长文；light / dark | 全部通过 |
 | 768×1024 | 首页、文章列表、长文；light / dark | 初测首页右题签使 `body.scrollWidth=790`；将 721–900px 题签收回左右各 8px 后，复测 `body=root=758`，全部通过 |
 | 1280×720 | 首页、长文；light / dark | 全部通过；向下入口未与每日一句叠压 |
+| 1366×900 | 长文 | 目录轨道在安全宽度不足时隐藏；`body=root=1356`，无横向溢出 |
+| 1400×900 | 长文 | 目录轨道恢复显示，右缘 1391px，完整落在 1400px 视口内 |
 | 1440×900 | 首页、长文；light / dark | 全部通过；正文 700px、18px/1.95，目录轨道可见 |
 
 ## 交互与首屏一致性
@@ -91,6 +93,8 @@ CSS 加载顺序保持 `globals.css` → `refinement.css` → `studio.css`。
 | 表单提交 | 未向生产环境提交验收内容；验证、禁用态、失败重试和完成提示由 `public-forms.test.tsx` 覆盖 |
 
 暗色持久化首次暴露了服务端 light 分支与客户端 dark 分支的 hydration mismatch。修复后服务端主题中立标记、客户端挂载后环境层切换，并以根主题 CSS 保持首帧色调；全新标签页的 light 首载和 dark 刷新均无浏览器 warning/error，回归测试同时覆盖 SSR 标记。
+
+合并前代码审查另指出 1366px 目录轨道和桌面超长 URL 风险：目录显示断点已提高到安全边界，`.md-body a` 在所有视口使用 `overflow-wrap: anywhere`。审查提出的触屏 hover 宽度变化经层叠核对不成立：后置规则已将普通、偶数及 hover 卡片统一为 `width: 100%`，细指针媒体查询只恢复 2–3px 位移。
 
 ## 最终自动化门禁
 

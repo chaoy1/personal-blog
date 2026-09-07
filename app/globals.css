@@ -1187,6 +1187,7 @@ button {
   text-decoration: underline;
   text-decoration-color: rgba(178, 58, 43, 0.4);
   text-underline-offset: 4px;
+  overflow-wrap: anywhere;
 }
 
 .md-body blockquote {
@@ -6560,7 +6561,7 @@ html.unfold-returning .wrap {
   box-shadow: 0 12px 22px -19px rgba(7, 6, 4, 0.86), inset 0 0 0 1px rgba(235, 219, 181, 0.12);
 }
 
-@media (max-width: 1320px) {
+@media (max-width: 1399px) {
   .reading-companion-rail {
     display: none;
   }
