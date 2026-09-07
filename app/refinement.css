@@ -704,7 +704,7 @@
   .album-grid,
   .album-grid:has(.album-item:only-child) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 6px;
+    gap: 8px;
   }
 
   .hp-item,
@@ -763,17 +763,18 @@
   }
 
   .album-item figcaption {
-    min-height: 29px;
-    padding: 6px 3px 2px;
+    min-height: 31px;
+    padding: 7px 5px 3px;
     overflow: hidden;
-    font-size: 10px;
+    font-size: 11px;
+    line-height: 1.45;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   .album-item .album-date {
-    padding: 2px 3px 6px;
-    font-size: 7px;
+    padding: 2px 5px 8px;
+    font-size: 9px;
   }
 
   .timeline-unfold {

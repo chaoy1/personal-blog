@@ -748,14 +748,16 @@
 
 .home-post-card,
 .archive-post-card {
-  grid-template-columns: 66px minmax(0, 1fr);
+  grid-template-columns: 64px minmax(0, 1fr);
   width: 97%;
-  min-height: 202px;
+  min-height: 188px;
   border: 0;
   border-top: 1px solid var(--rule-strong);
   border-bottom: 1px solid var(--rule);
-  background-color: rgba(247, 238, 214, 0.91);
-  box-shadow: 0 20px 42px -34px rgba(43, 30, 12, 0.78);
+  background-color: rgba(247, 238, 214, 0.94);
+  box-shadow: 0 17px 36px -31px rgba(43, 30, 12, 0.7);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   transform: rotate(-0.18deg);
 }
 
@@ -808,29 +810,34 @@
 }
 
 .hpc-copy {
-  padding: 30px 35px 27px;
+  padding: 27px 30px 25px;
 }
 
 .hpc-meta {
-  margin-bottom: 11px;
+  width: 100%;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  row-gap: 6px;
+  margin-bottom: 10px;
 }
 
 .home-post-card .post-title,
 .archive-post-card .post-title {
-  font-size: clamp(22px, 2.5vw, 28px);
+  font-size: clamp(21px, 2.3vw, 27px);
+  line-height: 1.48;
 }
 
 .home-post-card .ex,
 .archive-post-card .ex {
-  margin-top: 9px;
+  margin-top: 8px;
   font-size: 14px;
-  line-height: 1.9;
+  line-height: 1.82;
 }
 
 .home-post-card .item-foot,
 .archive-post-card .item-foot {
-  margin-top: 17px;
-  padding-top: 11px;
+  margin-top: 14px;
+  padding-top: 10px;
 }
 
 /* “更多”改成明确纸签，白天与夜间都不会融进背景。 */
@@ -1102,7 +1109,7 @@
   }
 
   .hpc-copy {
-    padding: 21px 16px 19px;
+    padding: 20px 16px 18px;
   }
 
   .home-post-card .post-title,
@@ -1165,7 +1172,7 @@
 /* 文章卡只保留上下呼吸，不再左右错位。 */
 .home-section .list,
 .list {
-  gap: 26px;
+  gap: 20px;
 }
 
 .home-post-card,
@@ -1188,7 +1195,7 @@
 
 .home-post-card + .home-post-card,
 .archive-post-card + .archive-post-card {
-  margin-top: 26px;
+  margin-top: 0;
 }
 
 /* 编辑器背景选项。 */
@@ -1917,8 +1924,8 @@
   isolation: isolate;
   overflow: visible;
   min-height: 0;
-  margin: 4px auto 22px;
-  padding: 34px 30px 32px;
+  margin: 4px auto 18px;
+  padding: 32px 30px 28px;
   border: 0;
   background: transparent;
   box-shadow: none;
@@ -1980,7 +1987,7 @@
 }
 
 .page-intro-mark {
-  opacity: 0.54;
+  opacity: 0.6;
 }
 
 /* 有主内容纸面的页面，让题头与正文真正连成一页。 */
@@ -2025,7 +2032,7 @@
 /* 列表紧随题头进入视线，去掉过去的大段空白。 */
 .page-intro + .list,
 .page-intro + .timeline {
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .article-footer {
@@ -2054,15 +2061,15 @@
 
   .page-intro {
     margin: 0 0 14px;
-    padding: 29px 18px 27px;
+    padding: 26px 18px 24px;
   }
 
   .wrap:has(> .page-intro + .content-sheet) > .page-intro {
-    padding: 32px 24px 19px;
+    padding: 28px 22px 18px;
   }
 
   .wrap > .page-intro + .content-sheet {
-    padding: 9px 24px 38px;
+    padding: 8px 22px 36px;
   }
 
   .page-intro + .list,
