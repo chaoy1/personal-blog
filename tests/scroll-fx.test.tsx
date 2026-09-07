@@ -47,6 +47,7 @@ describe('ScrollFX inactive motion policy', () => {
   afterEach(() => {
     cleanup()
     document.documentElement.classList.remove('motion-static')
+    vi.useRealTimers()
     vi.restoreAllMocks()
     vi.unstubAllGlobals()
   })
@@ -118,5 +119,68 @@ describe('ScrollFX inactive motion policy', () => {
 
     expect(supportsFinePointer()).toBe(true)
     expect(window.matchMedia).toHaveBeenCalledWith('(any-hover: hover) and (any-pointer: fine)')
+  })
+
+  it('caps grouped reveal delay at 210ms using 70ms steps', () => {
+    setActiveMotion()
+    const observe = vi.fn()
+    vi.stubGlobal('IntersectionObserver', vi.fn(() => ({
+      observe,
+      unobserve: vi.fn(),
+      disconnect: vi.fn(),
+    })))
+
+    const { container } = render(
+      <>
+        <div className="item" />
+        <div className="item" />
+        <div className="item" />
+        <div className="item" />
+        <div className="item" />
+        <div className="item" />
+        <ScrollFX />
+      </>
+    )
+
+    const delays = Array.from(container.querySelectorAll<HTMLElement>('.item'), (item) => item.style.transitionDelay)
+    expect(delays).toEqual(['0ms', '70ms', '140ms', '210ms', '210ms', '210ms'])
+    expect(observe).toHaveBeenCalledTimes(6)
+  })
+
+  it('clears a reveal delay only after the delayed transition has ended', () => {
+    setActiveMotion()
+    vi.useFakeTimers()
+    let notify: IntersectionObserverCallback = () => undefined
+    vi.stubGlobal('IntersectionObserver', vi.fn((callback: IntersectionObserverCallback) => {
+      notify = callback
+      return {
+        observe: vi.fn(),
+        unobserve: vi.fn(),
+        disconnect: vi.fn(),
+      }
+    }))
+
+    const { container } = render(
+      <>
+        <div className="item" />
+        <div className="item" />
+        <div className="item" />
+        <div className="item" />
+        <ScrollFX />
+      </>
+    )
+    const item = container.querySelectorAll<HTMLElement>('.item')[3]
+
+    act(() => notify([
+      { isIntersecting: true, target: item } as unknown as IntersectionObserverEntry,
+    ], {} as IntersectionObserver))
+    expect(item.style.transitionDelay).toBe('210ms')
+
+    act(() => vi.advanceTimersByTime(859))
+    expect(item.style.transitionDelay).toBe('210ms')
+
+    act(() => vi.advanceTimersByTime(1))
+    expect(item.style.transitionDelay).toBe('')
+    expect(item).toHaveClass('is-settled')
   })
 })

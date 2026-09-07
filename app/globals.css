@@ -808,12 +808,12 @@ button {
   opacity: 0;
   transform: translateY(30px) rotate(var(--tilt, 0deg));
   transition:
-    opacity 0.7s ease,
-    transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1),
-    border-color 0.35s ease,
-    box-shadow 0.35s ease,
-    background-color 0.5s ease,
-    color 0.5s ease;
+    opacity 650ms ease,
+    transform 600ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    background-color 220ms ease,
+    color 220ms ease;
   content-visibility: auto;
   contain-intrinsic-size: auto 220px;
 }
@@ -832,6 +832,10 @@ button {
 .item.is-in {
   opacity: 1;
   transform: translateY(0) rotate(var(--tilt, 0deg));
+}
+
+.item.is-settled {
+  transition-duration: 220ms;
 }
 
 .item:hover {
@@ -3577,8 +3581,8 @@ html.motion-static .reveal {
   opacity: 0;
   transform: translateY(26px);
   transition:
-    opacity 0.75s ease,
-    transform 0.65s cubic-bezier(0.22, 0.61, 0.36, 1);
+    opacity 650ms ease,
+    transform 600ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .reveal.is-in {

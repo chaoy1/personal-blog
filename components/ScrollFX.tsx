@@ -4,6 +4,9 @@ import { useEffect } from 'react'
 import useAmbientMotion, { supportsFinePointer } from './useAmbientMotion'
 
 const REVEAL_SELECTOR = '.item, .reveal'
+const REVEAL_DELAY_STEP_MS = 70
+const REVEAL_DELAY_MAX_STEPS = 3
+const REVEAL_TRANSITION_MS = 650
 
 /**
  * 滚动与入场动效：
@@ -50,14 +53,15 @@ export default function ScrollFX() {
       seen.add(el)
       if (!io) {
         el.classList.add('is-in')
+        el.classList.add('is-settled')
         return
       }
-      // 按观察顺序给一个轻微错落延迟，成组元素依次浮现（节奏放缓，避免同帧堆叠）
+      // 按观察顺序给一个轻微错落延迟，最多错开三步，避免长列表越等越久。
       const siblings = el.parentElement
         ? Array.from(el.parentElement.querySelectorAll<HTMLElement>(REVEAL_SELECTOR))
         : [el]
       const idx = Math.max(0, siblings.indexOf(el))
-      el.style.transitionDelay = `${Math.min(idx, 5) * 105}ms`
+      el.style.transitionDelay = `${Math.min(idx, REVEAL_DELAY_MAX_STEPS) * REVEAL_DELAY_STEP_MS}ms`
       io.observe(el)
     }
 
@@ -75,10 +79,12 @@ export default function ScrollFX() {
               el.classList.add('is-in')
               io?.unobserve(el)
               // 动画完成后清掉延迟，避免影响后续的 hover 过渡
+              const delayMs = Number.parseFloat(el.style.transitionDelay) || 0
               const timer = window.setTimeout(() => {
                 el.style.transitionDelay = ''
+                el.classList.add('is-settled')
                 transitionTimers.delete(timer)
-              }, 1300)
+              }, REVEAL_TRANSITION_MS + delayMs)
               transitionTimers.add(timer)
             }
           }

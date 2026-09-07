@@ -60,12 +60,19 @@ CSS 加载顺序保持 `globals.css` → `refinement.css` → `studio.css`。
 | `.album-grid`, `.album-item` | `app/globals.css` 与 refinement | `app/globals.css` 后段相纸规则，三列结构由 refinement 保持 |
 | `.timeline`, `.tl-*` | `app/globals.css` 与 refinement | `app/globals.css` 后段馆藏标签规则；照片类型色由 refinement 覆盖 |
 
+## 动效与渲染抽样
+
+- ScrollFX 同组延迟收敛为 `0 / 70 / 140 / 210ms`，长列表不再继续累加等待；延迟在实际 `650ms + delay` 结束后清理，并切换到 `220ms` 悬浮反馈。
+- 位移反馈仅在 `(any-hover: hover) and (any-pointer: fine)` 下启用，卡片抬升控制在 `2–3px`；触屏 hover 状态不再改变卡片位置。
+- reduced-motion、Save-Data、隐藏标签页的静态回退由 motion-policy、ScrollFX、BackgroundStage 测试覆盖。
+- Codex in-app browser 不暴露 DevTools Performance、`requestAnimationFrame` 或 PerformanceObserver。本轮在同一 1440×900 浏览器标签页中改用连续截图响应作为 15 秒代理抽样：light 30 次，平均 195.1ms、P95 218ms；dark 30 次，平均 175.4ms、P95 200ms。两种主题均持续响应，无卡死或明显主题差异；该数据不是 FPS 指标，因此未据此改写 Canvas 渐变绘制。
+
 ## 待完成检查
 
-- [ ] 首页、题签和小字精修后的同尺寸对照
-- [ ] 列表、相册、时间轴、表单纸面精修后的逐页检查
-- [ ] 正文排版与目录桌面/移动端检查
-- [ ] ScrollFX 延迟、结束清理与 reduced-motion 行为检查
+- [x] 首页、题签和小字精修后的同尺寸对照
+- [x] 列表、相册、时间轴、表单纸面精修后的逐页检查
+- [x] 正文排版与目录桌面/移动端检查
+- [x] ScrollFX 延迟、结束清理与 reduced-motion 行为检查
 - [ ] 1440×900、1280×720、768×1024、390×844、360×800 明暗主题终验
 - [ ] 菜单、搜索、灯箱、目录、主题、简繁和表单 focus-visible 终验
 - [ ] 最终测试、typecheck、build、diff-check 与远端/部署状态

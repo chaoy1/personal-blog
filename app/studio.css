@@ -2534,3 +2534,88 @@
     opacity: 1;
   }
 }
+
+/* Fine-pointer cards settle quickly; touch hover states never shift the layout. */
+.item:hover,
+.home-post-card:hover,
+.archive-post-card:hover,
+.home-post-card:nth-child(even):hover,
+.archive-post-card:nth-child(even):hover,
+.hp-item:hover,
+.hg-item:hover,
+.hm-card:hover,
+.hs-item:hover,
+.moment:hover,
+.moment-images img:hover,
+.album-card:hover,
+.album-item:hover,
+.tl-card:hover,
+.comment-list > .comment:hover,
+.timeline-unfold:hover,
+.admin-item:hover {
+  transform: none;
+}
+
+.hp-item,
+.hg-item,
+.hm-card,
+.hs-item,
+.moment,
+.moment-images img,
+.album-card,
+.album-item,
+.tl-card,
+.comment-list > .comment,
+.timeline-unfold,
+.admin-item {
+  transition-duration: 220ms;
+}
+
+.hp-item img,
+.album-cover,
+.album-item img {
+  transition-duration: 240ms;
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+  .item:hover,
+  .home-post-card:hover,
+  .archive-post-card:hover,
+  .home-post-card:nth-child(even):hover,
+  .archive-post-card:nth-child(even):hover {
+    transform: translateY(-3px) rotate(0deg);
+  }
+
+  .hp-item:hover,
+  .album-card:hover,
+  .album-item:hover {
+    transform: translateY(-3px) rotate(0deg);
+  }
+
+  .hg-item:hover {
+    transform: translateY(-3px) rotate(0.08deg);
+  }
+
+  .hm-card:hover {
+    transform: translateY(-3px) rotate(-0.12deg);
+  }
+
+  .moment:hover {
+    transform: translateY(-3px) rotate(-0.08deg);
+  }
+
+  .moment-images img:hover {
+    transform: translateY(-3px) rotate(0deg) scale(1.02);
+  }
+
+  .tl-card:hover {
+    transform: translateY(-3px) rotate(-0.12deg);
+  }
+
+  .comment-list > .comment:hover,
+  .hs-item:hover,
+  .timeline-unfold:hover,
+  .admin-item:hover {
+    transform: translateY(-2px);
+  }
+}
