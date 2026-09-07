@@ -3444,7 +3444,8 @@ html.motion-static .reveal {
   transition: filter 0.9s ease;
 }
 
-.bg-painting.night {
+.bg-painting.night,
+:root[data-theme='dark'] .bg-painting {
   filter: brightness(0.74) saturate(0.76) contrast(1.03);
 }
 
@@ -3465,6 +3466,17 @@ html.motion-static .reveal {
   inset: -3%;
   z-index: 1;
   pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 55% at 72% 18%, rgba(240, 230, 205, 0.08), transparent 62%),
+    radial-gradient(ellipse 80% 52% at 50% 34%, rgba(32, 25, 14, 0.36), rgba(32, 25, 14, 0.12) 56%, rgba(32, 25, 14, 0) 74%),
+    linear-gradient(180deg, rgba(36, 28, 16, 0.32), rgba(36, 28, 16, 0.16) 42%, rgba(26, 19, 10, 0.5) 100%);
+  mix-blend-mode: multiply;
+}
+
+/* The head script sets data-theme before body paint; mirror the night overlay
+   on the hydration-stable daytime node until BackgroundStage mounts. */
+:root[data-theme='dark'] .bg-blend {
+  inset: -3%;
   background:
     radial-gradient(ellipse 90% 55% at 72% 18%, rgba(240, 230, 205, 0.08), transparent 62%),
     radial-gradient(ellipse 80% 52% at 50% 34%, rgba(32, 25, 14, 0.36), rgba(32, 25, 14, 0.12) 56%, rgba(32, 25, 14, 0) 74%),

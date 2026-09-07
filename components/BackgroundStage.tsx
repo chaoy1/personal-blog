@@ -7,9 +7,10 @@ import StarryNight from './StarryNight'
 import useAmbientMotion from './useAmbientMotion'
 
 export default function BackgroundStage() {
-  const [dark, setDark] = useState(() =>
-    typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark'
-  )
+  // Keep the server and hydration render identical. The head script and root-theme
+  // CSS paint the stored theme immediately; this state only selects ambient layers
+  // after React has mounted.
+  const [dark, setDark] = useState(false)
   const active = useAmbientMotion() === true
 
   useEffect(() => {

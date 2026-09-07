@@ -1,4 +1,5 @@
 import { act, cleanup, render } from '@testing-library/react'
+import { renderToString } from 'react-dom/server'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import BackgroundStage from '@/components/BackgroundStage'
 
@@ -79,6 +80,16 @@ describe('BackgroundStage ambient policy', () => {
     const { container } = render(<BackgroundStage />)
 
     expect(container.querySelector('.bg-painting')).toHaveClass('night')
+  })
+
+  it('keeps server markup theme-neutral so the client can hydrate a stored dark theme', () => {
+    document.documentElement.dataset.theme = 'dark'
+    setMotionSettings({ visible: false, reduced: false, saveData: false })
+
+    const markup = renderToString(<BackgroundStage />)
+
+    expect(markup).toContain('class="bg-painting"')
+    expect(markup).not.toContain('class="bg-painting night"')
   })
 
   it('stops ambient particles when the reduced-motion preference changes', () => {

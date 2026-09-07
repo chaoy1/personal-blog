@@ -67,12 +67,48 @@ CSS 加载顺序保持 `globals.css` → `refinement.css` → `studio.css`。
 - reduced-motion、Save-Data、隐藏标签页的静态回退由 motion-policy、ScrollFX、BackgroundStage 测试覆盖。
 - Codex in-app browser 不暴露 DevTools Performance、`requestAnimationFrame` 或 PerformanceObserver。本轮在同一 1440×900 浏览器标签页中改用连续截图响应作为 15 秒代理抽样：light 30 次，平均 195.1ms、P95 218ms；dark 30 次，平均 175.4ms、P95 200ms。两种主题均持续响应，无卡死或明显主题差异；该数据不是 FPS 指标，因此未据此改写 Canvas 渐变绘制。
 
+## 最终响应式验收
+
+| 视口 | 页面与主题 | 实测结果 |
+|---|---|---|
+| 390×844 | `/`、`/posts`、`/posts/hello-world`、`/album`、`/moments`、`/timeline`、`/guestbook`、`/about`、`/login`、`/account`、`/admin/login`；light / dark | 全部 `body/root scrollWidth <= innerWidth` |
+| 360×800 | 首页、文章列表、长文；light / dark | 全部通过 |
+| 768×1024 | 首页、文章列表、长文；light / dark | 初测首页右题签使 `body.scrollWidth=790`；将 721–900px 题签收回左右各 8px 后，复测 `body=root=758`，全部通过 |
+| 1280×720 | 首页、长文；light / dark | 全部通过；向下入口未与每日一句叠压 |
+| 1440×900 | 首页、长文；light / dark | 全部通过；正文 700px、18px/1.95，目录轨道可见 |
+
+## 交互与首屏一致性
+
+| 检查 | 浏览器/测试证据 |
+|---|---|
+| 移动菜单 | 390px 展开后焦点进入首个“首页”链接；Tab 环路、Escape 与焦点返回由 `site-nav.test.tsx` 覆盖 |
+| 搜索 | `Ctrl+K` 打开“寻迹”，输入框获得焦点；Escape 关闭后焦点回到触发按钮 |
+| 文章目录 | “为什么要有自己的地方”锚点写入 URL；目标顶部 89px，高于 65px 导航 |
+| 主题 | light/dark 切换后跨路由及刷新持久化；首次绘制由 head 脚本与根主题 CSS 负责 |
+| 简繁 | `data-lang` 切至 `zh-Hant`，导航、文章标题及正文同步转换；可切回简体 |
+| 表单焦点 | 暗色登录邮箱输入框获得键盘焦点时，朱色边框及 3px 外光可见 |
+| 灯箱 | 本地无 Supabase 照片，未做真实图片点击；Enter/Space、Tab 环路、Escape、关闭按钮及焦点返回由 `reading-ui.test.tsx` 覆盖 |
+| 表单提交 | 未向生产环境提交验收内容；验证、禁用态、失败重试和完成提示由 `public-forms.test.tsx` 覆盖 |
+
+暗色持久化首次暴露了服务端 light 分支与客户端 dark 分支的 hydration mismatch。修复后服务端主题中立标记、客户端挂载后环境层切换，并以根主题 CSS 保持首帧色调；全新标签页的 light 首载和 dark 刷新均无浏览器 warning/error，回归测试同时覆盖 SSR 标记。
+
+## 最终自动化门禁
+
+| 检查 | 结果 |
+|---|---|
+| `npm test` | 22 个文件、104 项测试通过 |
+| `npm run typecheck` | 通过 |
+| `npm run build` | 通过；34 个路由页面完成生成，shared First Load JS 103kB |
+| `git diff --check` | 通过；仅有 Windows 工作树 LF→CRLF 提示，无空白错误 |
+| 构建提示 | Next.js 因仓库根与隔离 worktree 各有 lockfile 继续提示根目录推断；未影响构建 |
+
 ## 待完成检查
 
 - [x] 首页、题签和小字精修后的同尺寸对照
 - [x] 列表、相册、时间轴、表单纸面精修后的逐页检查
 - [x] 正文排版与目录桌面/移动端检查
 - [x] ScrollFX 延迟、结束清理与 reduced-motion 行为检查
-- [ ] 1440×900、1280×720、768×1024、390×844、360×800 明暗主题终验
-- [ ] 菜单、搜索、灯箱、目录、主题、简繁和表单 focus-visible 终验
-- [ ] 最终测试、typecheck、build、diff-check 与远端/部署状态
+- [x] 1440×900、1280×720、768×1024、390×844、360×800 明暗主题终验
+- [x] 菜单、搜索、灯箱、目录、主题、简繁和表单 focus-visible 终验
+- [x] 最终测试、typecheck、build 与 diff-check
+- [ ] 远端提交 SHA、生产分支与 Vercel 部署状态（最终 push 后填写）
