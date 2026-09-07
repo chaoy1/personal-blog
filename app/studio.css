@@ -863,13 +863,13 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  width: 42px;
-  min-height: 190px;
-  padding: 15px 9px;
+  width: 44px;
+  min-height: 188px;
+  padding: 16px 10px;
   font-size: 12px;
-  line-height: 1.15;
-  letter-spacing: 0.42em;
-  text-indent: 0.42em;
+  line-height: 1.28;
+  letter-spacing: 0.38em;
+  text-indent: 0.38em;
   writing-mode: vertical-rl;
 }
 

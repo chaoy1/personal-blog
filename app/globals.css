@@ -631,7 +631,7 @@ button {
 .masthead {
   text-align: center;
   position: relative;
-  padding-top: 22px;
+  padding-top: 16px;
   will-change: transform, opacity;
 }
 
@@ -649,7 +649,7 @@ button {
 .masthead h1 {
   position: relative;
   display: inline-block;
-  margin: 24px 0 0;
+  margin: 16px 0 0;
   line-height: 1;
   animation: rise-b 1.2s ease-out both;
 }
@@ -724,7 +724,7 @@ button {
 
 .stroke {
   display: block;
-  margin: 30px auto 0;
+  margin: 24px auto 0;
   width: 250px;
   height: 28px;
 }
@@ -753,7 +753,7 @@ button {
 }
 
 .lede {
-  margin: 14px auto 0;
+  margin: 12px auto 0;
   color: var(--ink);
   font-family: var(--font-kai);
   font-size: 15px;
@@ -4187,25 +4187,25 @@ html.unfold-returning .wrap {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 40px 0 8px;
+  padding: 32px 0 16px;
   position: relative;
 }
 
 .hero-stats {
   display: inline-flex;
   justify-content: center;
-  gap: 14px 52px;
+  gap: 12px 48px;
   flex-wrap: wrap;
-  margin: 108px auto 0;
-  padding: 9px 32px;
-  background-color: rgba(250, 246, 233, 0.58);
+  margin: 80px auto 0;
+  padding: 10px 30px;
+  background-color: rgba(250, 246, 233, 0.68);
   background-image: var(--card-paper);
   background-size: 180px 180px;
-  border: 1px solid rgba(133, 102, 60, 0.26);
+  border: 1px solid rgba(133, 102, 60, 0.22);
   border-radius: 999px;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  box-shadow: 0 10px 26px -20px rgba(60, 50, 30, 0.35);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 12px 28px -24px rgba(45, 33, 15, 0.5), inset 0 1px rgba(255, 250, 235, 0.35);
   font-family: var(--font-kai);
   animation: rise-c 1.8s ease-out both;
 }
@@ -4233,7 +4233,7 @@ html.unfold-returning .wrap {
 }
 
 :root[data-theme='dark'] .hero-stats {
-  background-color: rgba(40, 31, 18, 0.52);
+  background-color: rgba(40, 31, 18, 0.68);
   border-color: rgba(236, 223, 192, 0.18);
 }
 
@@ -4245,15 +4245,16 @@ html.unfold-returning .wrap {
   justify-content: center;
   gap: 12px;
   flex-wrap: wrap;
-  margin: 78px auto 0;
-  padding: 9px 26px;
-  background-color: rgba(250, 246, 233, 0.52);
+  margin: 48px auto 0;
+  padding: 10px 24px;
+  background-color: rgba(250, 246, 233, 0.66);
   background-image: var(--card-paper);
   background-size: 160px 160px;
-  border: 1px solid rgba(133, 102, 60, 0.24);
+  border: 1px solid rgba(133, 102, 60, 0.2);
   border-radius: 999px;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 12px 28px -25px rgba(45, 33, 15, 0.48), inset 0 1px rgba(255, 250, 235, 0.32);
   font-family: var(--font-kai);
   animation: rise-c 2s ease-out both;
 }
@@ -4261,7 +4262,7 @@ html.unfold-returning .wrap {
 :root[data-theme='dark'] .daily-quote,
 :root[data-theme='dark'] .verse,
 :root[data-theme='dark'] .sigil {
-  background-color: rgba(40, 31, 18, 0.55);
+  background-color: rgba(40, 31, 18, 0.68);
   border-color: rgba(236, 223, 192, 0.18);
 }
 
@@ -4287,10 +4288,10 @@ html.unfold-returning .wrap {
 }
 
 .dq-source {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.2em;
   color: var(--ink);
-  opacity: 0.72;
+  opacity: 0.78;
 }
 
 .dq-shuffle {
@@ -4953,9 +4954,9 @@ html.unfold-returning .wrap {
   }
 
   .hero-stats {
-    margin-top: 54px;
+    margin-top: 48px;
     gap: 12px 24px;
-    padding: 7px 20px;
+    padding: 8px 20px;
   }
 
   .hs-item {
@@ -4971,8 +4972,8 @@ html.unfold-returning .wrap {
   }
 
   .daily-quote {
-    margin-top: 44px;
-    padding: 7px 16px;
+    margin-top: 32px;
+    padding: 8px 16px;
     gap: 8px;
   }
 
@@ -4981,14 +4982,14 @@ html.unfold-returning .wrap {
   }
 
   .dq-source {
-    font-size: 10px;
+    font-size: 12px;
   }
 }
 
 /* 较矮的桌面窗口：压缩首屏间距，避免下滑提示被挤出屏外 */
 @media (max-height: 820px) and (min-width: 721px) {
   .home-hero {
-    padding-top: 24px;
+    padding-top: 16px;
   }
 
   .masthead {
@@ -4996,7 +4997,7 @@ html.unfold-returning .wrap {
   }
 
   .masthead h1 {
-    margin-top: 12px;
+    margin-top: 8px;
   }
 
   .title {
@@ -5004,15 +5005,15 @@ html.unfold-returning .wrap {
   }
 
   .stroke {
-    margin-top: 18px;
+    margin-top: 16px;
   }
 
   .hero-stats {
-    margin-top: 66px;
+    margin-top: 48px;
   }
 
   .daily-quote {
-    margin-top: 48px;
+    margin-top: 32px;
   }
 }
 
@@ -6511,17 +6512,25 @@ html.unfold-returning .wrap {
 /* 首页两枚竖向题签去掉厚重胶囊外观，改为窄幅书签。 */
 .verse,
 .sigil {
-  padding: 15px 8px 14px;
+  padding: 16px 9px;
   border: 0;
   border-top: 1px solid rgba(143, 43, 31, 0.5);
   border-bottom: 1px solid rgba(143, 43, 31, 0.35);
   border-radius: 1px;
-  background: linear-gradient(180deg, rgba(224, 207, 169, 0.82), rgba(224, 207, 169, 0.45));
-  box-shadow: 0 12px 22px -18px rgba(35, 25, 12, 0.8), inset 0 0 0 1px rgba(255, 248, 224, 0.24);
+  background: linear-gradient(180deg, rgba(235, 222, 190, 0.86), rgba(224, 207, 169, 0.58));
+  box-shadow: 0 12px 22px -19px rgba(35, 25, 12, 0.74), inset 0 0 0 1px rgba(255, 248, 224, 0.3);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .sigil {
   border-top-color: rgba(44, 42, 36, 0.45);
+}
+
+:root[data-theme='dark'] .verse,
+:root[data-theme='dark'] .sigil {
+  background: linear-gradient(180deg, rgba(57, 45, 27, 0.86), rgba(39, 31, 19, 0.68));
+  box-shadow: 0 12px 22px -19px rgba(7, 6, 4, 0.86), inset 0 0 0 1px rgba(235, 219, 181, 0.12);
 }
 
 @media (max-width: 1460px) {
