@@ -17,7 +17,7 @@
 
 | 检查 | 结果 |
 |---|---|
-| `npm test` | 22 个文件、101 项测试通过 |
+| `npm test` | 22 个文件、104 项测试通过 |
 | `npm run typecheck` | 通过 |
 | `npm run build` | 通过；生成 34 个路由页面 |
 | 构建提示 | worktree 与仓库根目录各有 lockfile，Next.js 给出根目录推断警告；未影响编译 |
@@ -56,7 +56,7 @@ CSS 加载顺序保持 `globals.css` → `refinement.css` → `studio.css`。
 | `.page-intro` | 三个 CSS 文件均有历史声明 | `app/studio.css` 末段开放式题头及内容纸面连接规则 |
 | `.home-post-card`, `.archive-post-card` | 三个 CSS 文件均有历史声明 | `app/studio.css` 的公开页卡片规则及“只保留上下呼吸”覆盖 |
 | `.md-body`, `.article-header`, `.article-excerpt` | `app/globals.css` | `app/globals.css` 的 article-reading-shell 与小屏断点规则 |
-| `.reading-companion` | `app/globals.css` | `app/globals.css` 的阅读轨道规则；1460px 以下由 studio 隐藏 rail |
+| `.reading-companion` | `app/globals.css` | `app/globals.css` 的阅读轨道规则；1400px 以下由 studio 隐藏 rail |
 | `.album-grid`, `.album-item` | `app/globals.css` 与 refinement | `app/globals.css` 后段相纸规则，三列结构由 refinement 保持 |
 | `.timeline`, `.tl-*` | `app/globals.css` 与 refinement | `app/globals.css` 后段馆藏标签规则；照片类型色由 refinement 覆盖 |
 
@@ -106,6 +106,13 @@ CSS 加载顺序保持 `globals.css` → `refinement.css` → `studio.css`。
 | `git diff --check` | 通过；仅有 Windows 工作树 LF→CRLF 提示，无空白错误 |
 | 构建提示 | Next.js 因仓库根与隔离 worktree 各有 lockfile 继续提示根目录推断；未影响构建 |
 
+## 远端与生产部署
+
+- 功能代码提交：`8f7f30904f24903944bf4514621dc6d04611e757`，已快进合并并推送到 `origin/main`。
+- GitHub 提交检查：`Vercel: success`；Production deployment `6319077502` 与 Preview deployment `6311629268` 均返回 `success`。
+- 生产域名：`https://personal-blog-phi-eosin.vercel.app`；终验请求返回 HTTP 200，页面标题为“似水流年 · 流光容易把人抛，红了樱桃，绿了芭蕉”。
+- QA 文档提交会在上述功能部署完成后单独推送；它只补充验收证据，不改变页面代码。
+
 ## 待完成检查
 
 - [x] 首页、题签和小字精修后的同尺寸对照
@@ -115,4 +122,4 @@ CSS 加载顺序保持 `globals.css` → `refinement.css` → `studio.css`。
 - [x] 1440×900、1280×720、768×1024、390×844、360×800 明暗主题终验
 - [x] 菜单、搜索、灯箱、目录、主题、简繁和表单 focus-visible 终验
 - [x] 最终测试、typecheck、build 与 diff-check
-- [ ] 远端提交 SHA、生产分支与 Vercel 部署状态（最终 push 后填写）
+- [x] 远端提交 SHA、生产分支与 Vercel 部署状态
