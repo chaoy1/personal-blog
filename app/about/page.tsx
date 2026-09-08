@@ -60,10 +60,11 @@ export default async function AboutPage() {
         </div>
 
         {owner ? (
-          <aside className="about-colophon" aria-label="博主落款">
+          <aside className="about-colophon about-colophon-casual" aria-label="博主落款">
             <span className="about-colophon-label" aria-hidden="true">落款</span>
-            <span className="about-colophon-rule" aria-hidden="true" />
-            <Avatar className="about-avatar" src={avatar} alt="博主头像" />
+            <span className="about-avatar-wrap">
+              <Avatar className="about-avatar" src={avatar} alt="博主头像" />
+            </span>
             <div className="about-colophon-info">
               <span className="about-name">{owner.nickname || SITE_NAME}</span>
               <span className="about-role">博主 · {SITE_NAME}</span>

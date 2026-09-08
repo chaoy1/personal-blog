@@ -34,13 +34,14 @@ import AboutPage from '@/app/about/page'
 afterEach(cleanup)
 
 describe('AboutPage', () => {
-  it('renders the owner as a complete labeled colophon with divider and seal', async () => {
+  it('renders the owner as a loose signature without the old rigid divider', async () => {
     render(await AboutPage())
 
     const colophon = screen.getByRole('complementary', { name: '博主落款' })
 
+    expect(colophon).toHaveClass('about-colophon', 'about-colophon-casual')
     expect(within(colophon).getByText('落款')).toHaveClass('about-colophon-label')
-    expect(colophon.querySelector('.about-colophon-rule')).toBeInTheDocument()
+    expect(colophon.querySelector('.about-colophon-rule')).not.toBeInTheDocument()
     expect(within(colophon).getByRole('img', { name: '博主头像' })).toBeInTheDocument()
     expect(within(colophon).getByText('ChoyChou')).toBeInTheDocument()
     expect(within(colophon).getByText('博主 · 似水流年')).toBeInTheDocument()
