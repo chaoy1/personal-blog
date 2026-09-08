@@ -69,6 +69,7 @@ export default async function AboutPage() {
               <span className="about-name">{owner.nickname || SITE_NAME}</span>
               <span className="about-role">博主 · {SITE_NAME}</span>
             </div>
+            <span className="about-colophon-brush" aria-hidden="true" />
             <span className="about-colophon-seal" aria-hidden="true">署</span>
           </aside>
         ) : null}

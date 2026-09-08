@@ -34,7 +34,7 @@ import AboutPage from '@/app/about/page'
 afterEach(cleanup)
 
 describe('AboutPage', () => {
-  it('renders the owner as a loose signature without the old rigid divider', async () => {
+  it('renders the owner signature with a dedicated brush stroke', async () => {
     render(await AboutPage())
 
     const colophon = screen.getByRole('complementary', { name: '博主落款' })
@@ -46,5 +46,6 @@ describe('AboutPage', () => {
     expect(within(colophon).getByText('ChoyChou')).toBeInTheDocument()
     expect(within(colophon).getByText('博主 · 似水流年')).toBeInTheDocument()
     expect(within(colophon).getByText('署')).toHaveClass('about-colophon-seal')
+    expect(colophon.querySelector('.about-colophon-brush')).toBeInTheDocument()
   })
 })
