@@ -2725,26 +2725,64 @@
   box-shadow: none;
 }
 
-.about-scroll .about-colophon::before {
-  content: "";
-  position: absolute;
-  inset: -13px -12px -18px -18px;
-  z-index: -1;
-  border: 0;
-  background:
-    radial-gradient(ellipse 78px 58px at 13% 48%, rgba(188, 76, 48, 0.19), transparent 72%),
-    radial-gradient(ellipse 96px 48px at 88% 76%, rgba(188, 76, 48, 0.14), transparent 74%),
-    radial-gradient(ellipse 150px 54px at 59% 83%, rgba(213, 126, 83, 0.065), transparent 78%);
-  clip-path: polygon(0 18%, 11% 7%, 23% 15%, 38% 5%, 54% 13%, 70% 4%, 87% 11%, 100% 21%, 97% 83%, 84% 94%, 67% 88%, 49% 98%, 31% 90%, 13% 96%, 2% 77%);
-  filter: blur(0.6px);
-  opacity: 0.92;
-}
-
+.about-scroll .about-colophon::before,
 .about-scroll .about-colophon::after {
   display: none;
 }
 
+.about-colophon-wash {
+  position: absolute;
+  inset: -16px -14px -22px -24px;
+  z-index: 0;
+  display: block;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 92px 66px at 14% 47%, rgba(207, 98, 116, 0.26) 0 18%, rgba(221, 133, 145, 0.14) 36%, transparent 72%),
+    radial-gradient(ellipse 178px 62px at 52% 59%, rgba(225, 143, 151, 0.17) 0 21%, rgba(215, 119, 132, 0.08) 44%, transparent 77%),
+    radial-gradient(ellipse 105px 56px at 88% 72%, rgba(199, 83, 102, 0.18) 0 14%, rgba(226, 147, 154, 0.09) 42%, transparent 76%);
+  clip-path: polygon(0 24%, 8% 12%, 18% 20%, 29% 7%, 42% 16%, 55% 5%, 67% 15%, 80% 9%, 92% 18%, 100% 30%, 97% 73%, 88% 88%, 75% 80%, 61% 94%, 47% 84%, 32% 97%, 18% 86%, 6% 93%, 1% 72%);
+  filter: blur(2px) saturate(0.92);
+  mix-blend-mode: multiply;
+  opacity: 0.88;
+}
+
+.about-colophon-wash::before,
+.about-colophon-wash::after {
+  content: "";
+  position: absolute;
+  display: block;
+  border-radius: 48% 52% 46% 54%;
+  mix-blend-mode: multiply;
+}
+
+.about-colophon-wash::before {
+  left: 16px;
+  top: 25px;
+  width: 112px;
+  height: 86px;
+  background:
+    radial-gradient(circle at 38% 34%, rgba(190, 69, 94, 0.2) 0 12%, transparent 31%),
+    radial-gradient(circle at 59% 61%, rgba(231, 155, 163, 0.26) 0 18%, transparent 47%),
+    radial-gradient(circle at 23% 72%, rgba(194, 77, 98, 0.13) 0 8%, transparent 31%);
+  filter: blur(4px);
+  transform: rotate(-8deg);
+}
+
+.about-colophon-wash::after {
+  right: 10px;
+  bottom: 16px;
+  width: 95px;
+  height: 58px;
+  background:
+    radial-gradient(ellipse at 64% 51%, rgba(210, 105, 121, 0.18), transparent 64%),
+    radial-gradient(ellipse at 30% 69%, rgba(231, 164, 165, 0.17), transparent 68%);
+  filter: blur(5px);
+  transform: rotate(5deg);
+}
+
 .about-colophon-label {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2775,6 +2813,7 @@
 
 .about-avatar-wrap {
   position: relative;
+  z-index: 2;
   display: grid;
   place-items: center;
   width: 68px;
@@ -2797,7 +2836,7 @@
 
 .about-scroll .about-colophon-info {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   gap: 7px;
   min-width: 0;
   padding: 0 0 7px 2px;
@@ -2805,6 +2844,7 @@
 }
 
 .about-scroll .about-name {
+  display: block;
   overflow: hidden;
   color: var(--ink);
   font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", var(--font-kai), cursive;
@@ -2812,7 +2852,8 @@
   font-weight: 600;
   font-style: normal;
   letter-spacing: -0.025em;
-  line-height: 1.05;
+  line-height: 1.26;
+  padding: 1px 0 3px;
   text-overflow: ellipsis;
   white-space: nowrap;
   transform: rotate(-1.2deg);
@@ -2825,15 +2866,16 @@
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.045em;
+  line-height: 1.35;
   white-space: nowrap;
 }
 
 .about-colophon-brush {
   position: absolute;
   left: 157px;
-  right: 27px;
-  bottom: 7px;
-  z-index: 0;
+  right: 75px;
+  bottom: 2px;
+  z-index: 1;
   display: block;
   height: 14px;
   background: linear-gradient(90deg, rgba(178, 58, 43, 0.92), rgba(178, 58, 43, 0.7) 62%, rgba(178, 58, 43, 0.16));
@@ -2844,7 +2886,7 @@
 
 .about-colophon-seal {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   display: grid;
   place-items: center;
   width: 29px;
@@ -2858,7 +2900,7 @@
   box-shadow:
     inset 0 0 0 2px rgba(248, 239, 218, 0.38),
     0 3px 7px rgba(62, 31, 18, 0.12);
-  transform: translateY(13px) rotate(-4deg);
+  transform: translate(-44px, 13px) rotate(-4deg);
 }
 
 :root[data-theme='dark'] .about-scroll .page-intro::after {
@@ -2874,12 +2916,12 @@
   box-shadow: none;
 }
 
-:root[data-theme='dark'] .about-scroll .about-colophon::before {
-  border: 0;
+:root[data-theme='dark'] .about-colophon-wash {
   background:
-    radial-gradient(ellipse 78px 58px at 13% 48%, rgba(202, 91, 64, 0.14), transparent 72%),
-    radial-gradient(ellipse 96px 48px at 88% 76%, rgba(202, 91, 64, 0.09), transparent 74%),
-    radial-gradient(ellipse 150px 54px at 59% 83%, rgba(214, 162, 97, 0.05), transparent 78%);
+    radial-gradient(ellipse 92px 66px at 14% 47%, rgba(190, 82, 104, 0.2) 0 18%, rgba(206, 120, 132, 0.1) 36%, transparent 72%),
+    radial-gradient(ellipse 178px 62px at 52% 59%, rgba(205, 126, 139, 0.13) 0 21%, rgba(184, 97, 119, 0.07) 44%, transparent 77%),
+    radial-gradient(ellipse 105px 56px at 88% 72%, rgba(177, 69, 94, 0.15) 0 14%, rgba(211, 132, 142, 0.08) 42%, transparent 76%);
+  opacity: 0.78;
 }
 
 :root[data-theme='dark'] .about-scroll .about-name {
@@ -2950,15 +2992,15 @@
 
   .about-colophon-brush {
     left: 153px;
-    right: 27px;
-    bottom: 7px;
+    right: 71px;
+    bottom: 2px;
   }
 
   .about-colophon-seal {
     width: 29px;
     height: 29px;
     font-size: 12px;
-    transform: translateY(13px) rotate(-4deg);
+    transform: translate(-44px, 13px) rotate(-4deg);
   }
 }
 
@@ -2997,13 +3039,13 @@
 
   .about-colophon-brush {
     left: 106px;
-    right: 18px;
+    right: 40px;
   }
 
   .about-colophon-seal {
     width: 24px;
     height: 24px;
     font-size: 10px;
-    transform: translateY(11px) rotate(-4deg);
+    transform: translate(-22px, 11px) rotate(-4deg);
   }
 }

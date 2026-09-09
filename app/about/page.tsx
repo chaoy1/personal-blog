@@ -61,6 +61,7 @@ export default async function AboutPage() {
 
         {owner ? (
           <aside className="about-colophon about-colophon-casual" aria-label="博主落款">
+            <span className="about-colophon-wash" aria-hidden="true" />
             <span className="about-colophon-label" aria-hidden="true">落款</span>
             <span className="about-avatar-wrap">
               <Avatar className="about-avatar" src={avatar} alt="博主头像" />

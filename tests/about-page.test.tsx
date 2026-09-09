@@ -46,6 +46,7 @@ describe('AboutPage', () => {
     expect(within(colophon).getByText('ChoyChou')).toBeInTheDocument()
     expect(within(colophon).getByText('博主 · 似水流年')).toBeInTheDocument()
     expect(within(colophon).getByText('署')).toHaveClass('about-colophon-seal')
+    expect(colophon.querySelector('.about-colophon-wash')).toBeInTheDocument()
     expect(colophon.querySelector('.about-colophon-brush')).toBeInTheDocument()
   })
 })
