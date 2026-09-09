@@ -1,5 +1,7 @@
 import { cleanup, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 
 const supabase = vi.hoisted(() => ({
   maybeSingle: vi.fn().mockResolvedValue({
@@ -34,6 +36,15 @@ import AboutPage from '@/app/about/page'
 afterEach(cleanup)
 
 describe('AboutPage', () => {
+  it('uses the flowing calligraphy face only for the about heading copy', () => {
+    const layout = readFileSync(resolve(process.cwd(), 'app/layout.tsx'), 'utf8')
+    const studio = readFileSync(resolve(process.cwd(), 'app/studio.css'), 'utf8')
+
+    expect(layout).toContain("import '@fontsource/zhi-mang-xing/400.css'")
+    expect(studio.match(/"Zhi Mang Xing"/g)).toHaveLength(2)
+    expect(studio).not.toContain('"Ma Shan Zheng"')
+  })
+
   it('renders the owner signature with a dedicated brush stroke', async () => {
     render(await AboutPage())
 
