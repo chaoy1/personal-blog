@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
 import '@fontsource/fraunces/600.css'
+import '@fontsource/ma-shan-zheng/400.css'
 import './globals.css'
 import './refinement.css'
 import './studio.css'

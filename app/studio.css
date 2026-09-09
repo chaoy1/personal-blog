@@ -2698,15 +2698,19 @@
 
 .about-scroll .page-intro h1 {
   margin-block: 0;
+  font-family: "Ma Shan Zheng", "STXingkai", var(--font-kai);
+  font-weight: 400;
   font-size: clamp(38px, 4.6vw, 50px);
-  letter-spacing: 0.075em;
+  letter-spacing: 0.045em;
   line-height: 1.2;
 }
 
 .about-scroll .page-intro-description {
   margin-top: 11px;
+  font-family: "Ma Shan Zheng", "STXingkai", var(--font-kai);
+  font-weight: 400;
   font-size: 16px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
 }
 
 .about-scroll .page-intro-mark {
