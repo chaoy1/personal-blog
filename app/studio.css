@@ -2640,39 +2640,46 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: 46px 54px 25px;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 24px;
+  min-height: 206px;
+  padding: 38px 56px 30px 60px;
 }
 
 .about-scroll .page-intro::before {
   content: "";
   position: absolute;
   display: block;
-  left: 39px;
-  top: 44px;
+  left: 41px;
+  top: 35px;
   bottom: auto;
   width: 2px;
-  height: 94px;
+  height: 132px;
   background: linear-gradient(180deg, var(--seal-deep), rgba(178, 58, 43, 0.025));
-  opacity: 0.72;
+  opacity: 0.78;
 }
 
 .about-scroll .page-intro::after {
   content: "";
   position: absolute;
-  inset: 0 0 0 42%;
-  z-index: -1;
+  inset: 0;
+  z-index: 0;
   display: block;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  transform: none;
   pointer-events: none;
-  background-image:
-    linear-gradient(90deg, rgba(241, 230, 202, 1) 0%, rgba(241, 230, 202, 0.72) 26%, rgba(241, 230, 202, 0) 78%),
-    url("/bg/qianli-bridge.jpg");
-  background-position: center, 68% 54%;
-  background-size: 100% 100%, 165% auto;
+  background-image: url("/bg/about-ink-banner.png");
+  background-position: center;
+  background-size: cover;
   background-repeat: no-repeat;
-  opacity: 0.45;
-  filter: saturate(0.66) sepia(0.13);
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 30%, #000 100%);
-  mask-image: linear-gradient(90deg, transparent 0%, #000 30%, #000 100%);
+  opacity: 1;
+  filter: none;
+  -webkit-mask-image: none;
+  mask-image: none;
 }
 
 .about-scroll .page-intro-copy,
@@ -2681,11 +2688,32 @@
   z-index: 1;
 }
 
+.about-scroll .page-intro-copy {
+  max-width: 680px;
+}
+
+.about-scroll .page-intro-meta {
+  margin-bottom: 12px;
+}
+
+.about-scroll .page-intro h1 {
+  margin-block: 0;
+  font-size: clamp(38px, 4.6vw, 50px);
+  letter-spacing: 0.075em;
+  line-height: 1.2;
+}
+
+.about-scroll .page-intro-description {
+  margin-top: 11px;
+  font-size: 16px;
+  letter-spacing: 0.12em;
+}
+
 .about-scroll .page-intro-mark {
-  align-self: start;
+  align-self: center;
   justify-self: end;
-  min-height: 104px;
-  margin: -2px 2px 0 0;
+  min-height: 126px;
+  margin: 0 0 0 0;
   color: var(--ink-soft);
   font-family: var(--font-mono);
   font-size: 6px;
@@ -2905,10 +2933,10 @@
 
 :root[data-theme='dark'] .about-scroll .page-intro::after {
   background-image:
-    linear-gradient(90deg, rgba(54, 43, 26, 1) 0%, rgba(54, 43, 26, 0.74) 26%, rgba(54, 43, 26, 0) 78%),
-    url("/bg/qianli-bridge.jpg");
-  opacity: 0.34;
-  filter: brightness(0.58) saturate(0.58) sepia(0.2);
+    linear-gradient(rgba(38, 31, 22, 0.36), rgba(38, 31, 22, 0.36)),
+    url("/bg/about-ink-banner.png");
+  opacity: 0.78;
+  filter: brightness(0.62) saturate(0.72);
 }
 
 :root[data-theme='dark'] .about-scroll .about-colophon {
@@ -2934,20 +2962,25 @@
   }
 
   .about-scroll .page-intro {
-    padding: 34px 24px 20px 37px;
+    min-height: 176px;
+    padding: 28px 24px 22px 37px;
   }
 
   .about-scroll .page-intro::before {
     left: 23px;
-    top: 34px;
-    height: 82px;
+    top: 26px;
+    height: 116px;
   }
 
   .about-scroll .page-intro::after {
-    left: 34%;
-    background-position: center, 66% 52%;
-    background-size: 100% 100%, 220% auto;
-    opacity: 0.34;
+    left: 0;
+    background-position: 63% center;
+    background-size: cover;
+    opacity: 1;
+  }
+
+  .about-scroll .page-intro h1 {
+    font-size: clamp(29px, 10vw, 36px);
   }
 
   .about-scroll .page-intro-mark {
@@ -3005,6 +3038,11 @@
 }
 
 @media (max-width: 380px) {
+  .about-scroll .page-intro h1 {
+    font-size: 32px;
+    letter-spacing: 0.06em;
+  }
+
   .about-scroll .about-colophon {
     grid-template-columns: 30px 54px minmax(0, 1fr) 24px;
     column-gap: 7px;
