@@ -39,9 +39,12 @@ export default async function AboutPage() {
   return (
     <div className="wrap about-page">
       <ScrollFX />
-      <nav className="article-nav">
-        <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
-        <span>关于</span>
+      <nav className="article-nav" aria-label="关于页导航">
+        <Link href="/" className="article-nav-paper article-nav-home">
+          <span className="nav-back-mark" aria-hidden="true" />
+          返回首页
+        </Link>
+        <span className="article-nav-paper article-nav-current">关于</span>
       </nav>
 
       <main className="about-scroll">

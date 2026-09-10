@@ -36,6 +36,21 @@ import AboutPage from '@/app/about/page'
 afterEach(cleanup)
 
 describe('AboutPage', () => {
+  it('renders distinct paper-label hooks for the home link and current section', async () => {
+    render(await AboutPage())
+
+    const navigation = screen.getByRole('navigation', { name: '关于页导航' })
+
+    expect(within(navigation).getByRole('link', { name: '返回首页' })).toHaveClass(
+      'article-nav-paper',
+      'article-nav-home',
+    )
+    expect(within(navigation).getByText('关于', { exact: true })).toHaveClass(
+      'article-nav-paper',
+      'article-nav-current',
+    )
+  })
+
   it('uses the flowing calligraphy face only for the about heading copy', () => {
     const layout = readFileSync(resolve(process.cwd(), 'app/layout.tsx'), 'utf8')
     const studio = readFileSync(resolve(process.cwd(), 'app/studio.css'), 'utf8')
