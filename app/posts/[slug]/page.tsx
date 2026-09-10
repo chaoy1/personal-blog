@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import MarkdownView from '@/components/MarkdownView'
 import Comments from '@/components/Comments'
 import ScrollFX from '@/components/ScrollFX'
-import BackLink from '@/components/BackLink'
+import ArticleNav from '@/components/ArticleNav'
 import ReadingCompanion from '@/components/ReadingCompanion'
 import { getPostBySlug, formatDate, listPublishedPosts, type Post } from '@/lib/posts'
 import { articleJsonLd, articleMetadata, siteUrl } from '@/lib/seo'
@@ -81,10 +81,12 @@ export default async function PostPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
       <ScrollFX />
-      <nav className="article-nav">
-        <BackLink fallback="/posts" />
-        <span>文章</span>
-      </nav>
+      <ArticleNav
+        current="文章"
+        backMode="history"
+        backFallback="/posts"
+        backLabel="返回上一页"
+      />
 
       <div className="article-reading-shell">
         <article className="article">

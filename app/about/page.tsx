@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import type { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabase'
 import { SITE_NAME } from '@/lib/site'
@@ -7,6 +6,7 @@ import MarkdownView from '@/components/MarkdownView'
 import Avatar from '@/components/Avatar'
 import PageIntro from '@/components/PageIntro'
 import { publicMetadata } from '@/lib/seo'
+import ArticleNav from '@/components/ArticleNav'
 
 export const metadata: Metadata = publicMetadata({
   path: '/about',
@@ -39,13 +39,7 @@ export default async function AboutPage() {
   return (
     <div className="wrap about-page">
       <ScrollFX />
-      <nav className="article-nav" aria-label="关于页导航">
-        <Link href="/" className="article-nav-paper article-nav-home">
-          <span className="nav-back-mark" aria-hidden="true" />
-          返回首页
-        </Link>
-        <span className="article-nav-paper article-nav-current">关于</span>
-      </nav>
+      <ArticleNav current="关于" ariaLabel="关于页导航" />
 
       <main className="about-scroll">
         <PageIntro

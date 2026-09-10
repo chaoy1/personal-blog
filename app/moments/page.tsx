@@ -8,6 +8,7 @@ import { useAppStore } from '@/lib/app-store'
 import Avatar from '@/components/Avatar'
 import CommentThread from '@/components/CommentThread'
 import PageIntro from '@/components/PageIntro'
+import ArticleNav from '@/components/ArticleNav'
 
 export default function MomentsPage() {
   const {
@@ -55,10 +56,7 @@ export default function MomentsPage() {
   return (
     <div className="wrap">
       <ScrollFX />
-      <nav className="article-nav">
-        <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
-        <span>闲语</span>
-      </nav>
+      <ArticleNav current="闲语" />
 
       <PageIntro
         index="02"

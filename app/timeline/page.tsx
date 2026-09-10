@@ -1,10 +1,10 @@
-import Link from 'next/link'
 import type { Metadata } from 'next'
 import { listPublishedPosts, type Post } from '@/lib/posts'
 import { listAllPhotos, listAllMoments, type TimelinePhoto, type TimelineMoment } from '@/lib/timeline'
 import ScrollFX from '@/components/ScrollFX'
 import TimelineReveal, { type TimelineEntry } from '@/components/TimelineReveal'
 import PageIntro from '@/components/PageIntro'
+import ArticleNav from '@/components/ArticleNav'
 import { publicMetadata } from '@/lib/seo'
 
 export const revalidate = 60
@@ -61,10 +61,7 @@ export default async function TimelinePage() {
   return (
     <div className="wrap timeline-page">
       <ScrollFX />
-      <nav className="article-nav">
-        <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
-        <span>时间轴</span>
-      </nav>
+      <ArticleNav current="时间轴" />
 
       <PageIntro
         index="04"

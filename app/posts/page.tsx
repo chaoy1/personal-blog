@@ -4,6 +4,7 @@ import { listPublishedPosts, type Post } from '@/lib/posts'
 import ScrollFX from '@/components/ScrollFX'
 import PostList from '@/components/PostList'
 import PageIntro from '@/components/PageIntro'
+import ArticleNav from '@/components/ArticleNav'
 import { publicMetadata } from '@/lib/seo'
 
 export const revalidate = 60
@@ -25,10 +26,7 @@ export default async function PostsPage() {
   return (
     <div className="wrap">
       <ScrollFX />
-      <nav className="article-nav">
-        <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
-        <span>文章</span>
-      </nav>
+      <ArticleNav current="文章" />
 
       <main className="collection-scroll collection-scroll-posts">
         <PageIntro

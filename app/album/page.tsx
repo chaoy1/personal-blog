@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { formatDate } from '@/lib/blog'
 import { useAppStore, type AlbumItem, type PhotoItem } from '@/lib/app-store'
 import PageIntro from '@/components/PageIntro'
+import ArticleNav from '@/components/ArticleNav'
 
 type View = { mode: 'list' } | { mode: 'album'; album: AlbumItem } | { mode: 'all' }
 
@@ -42,10 +42,7 @@ export default function AlbumPage() {
 
   return (
     <div className="wrap">
-      <nav className="article-nav">
-        <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
-        <span>光影</span>
-      </nav>
+      <ArticleNav current="光影" />
 
       <PageIntro
         index="03"

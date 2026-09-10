@@ -6,6 +6,7 @@ import ScrollFX from '@/components/ScrollFX'
 import { useAppStore } from '@/lib/app-store'
 import CommentThread from '@/components/CommentThread'
 import PageIntro from '@/components/PageIntro'
+import ArticleNav from '@/components/ArticleNav'
 
 const PAGE_SIZE = 20
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
@@ -105,10 +106,7 @@ export default function GuestbookPage() {
   return (
     <div className="wrap">
       <ScrollFX />
-      <nav className="article-nav">
-        <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
-        <span>留言</span>
-      </nav>
+      <ArticleNav current="留言" />
 
       <PageIntro
         index="05"

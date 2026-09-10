@@ -1,11 +1,11 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabaseBrowser, storagePublicUrl } from '@/lib/supabase-browser'
 import { useAppStore } from '@/lib/app-store'
 import Avatar from '@/components/Avatar'
+import ArticleNav from '@/components/ArticleNav'
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
@@ -171,10 +171,7 @@ export default function AccountPage() {
 
   return (
     <div className="account-wrap">
-      <nav className="article-nav">
-        <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
-        <span>个人资料</span>
-      </nav>
+      <ArticleNav current="个人资料" />
 
       <div className="account-card">
         <header className="account-head">

@@ -36,19 +36,15 @@ import AboutPage from '@/app/about/page'
 afterEach(cleanup)
 
 describe('AboutPage', () => {
-  it('renders distinct paper-label hooks for the home link and current section', async () => {
+  it('uses the shared restrained navigation treatment', async () => {
     render(await AboutPage())
 
     const navigation = screen.getByRole('navigation', { name: '关于页导航' })
 
-    expect(within(navigation).getByRole('link', { name: '返回首页' })).toHaveClass(
-      'article-nav-paper',
-      'article-nav-home',
-    )
-    expect(within(navigation).getByText('关于', { exact: true })).toHaveClass(
-      'article-nav-paper',
-      'article-nav-current',
-    )
+    expect(within(navigation).getByRole('link', { name: '返回首页' })).toHaveClass('article-nav-home')
+    expect(within(navigation).getByText('返回首页', { exact: true })).toHaveClass('article-nav-label')
+    expect(within(navigation).getByText('关于', { exact: true })).toHaveClass('article-nav-label')
+    expect(navigation.querySelector('.article-nav-paper')).not.toBeInTheDocument()
   })
 
   it('uses the flowing calligraphy face only for the about heading copy', () => {
