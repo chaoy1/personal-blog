@@ -828,7 +828,7 @@
   border-color: color-mix(in srgb, var(--gb-pine) 40%, var(--rule));
   background:
     url("/bg/guestbook-bamboo.svg") 112% -72px / 210px auto no-repeat,
-    url("/bg/about-ink-banner.png") 57% 112% / 190% auto no-repeat,
+    url("/bg/guestbook-ink-banner.webp") 57% 112% / 190% auto no-repeat,
     radial-gradient(circle at 84% 9%, var(--gb-pine-faint), transparent 24%),
     linear-gradient(150deg, rgba(255, 252, 239, 0.8), rgba(235, 225, 200, 0.82)),
     var(--card-paper);
@@ -994,7 +994,7 @@
   padding: 36px 42px 34px 54px;
   background:
     url("/bg/guestbook-bamboo.svg") -52px 48% / 166px auto no-repeat,
-    url("/bg/about-ink-banner.png") center 116% / 128% auto no-repeat,
+    url("/bg/guestbook-ink-banner.webp") center 116% / 128% auto no-repeat,
     radial-gradient(circle at 92% 18%, rgba(96, 113, 98, 0.07), transparent 23%),
     rgba(249, 245, 232, 0.94);
   background-blend-mode: multiply, multiply, normal, normal;
@@ -1004,7 +1004,7 @@
 .guestbook-page .guestbook-list > .comment:nth-child(even) {
   background:
     url("/bg/guestbook-bamboo.svg") -48px 43% / 170px auto no-repeat,
-    url("/bg/about-ink-banner.png") 48% 116% / 132% auto no-repeat,
+    url("/bg/guestbook-ink-banner.webp") 48% 116% / 132% auto no-repeat,
     radial-gradient(circle at 10% 82%, rgba(146, 113, 77, 0.07), transparent 24%),
     rgba(245, 238, 220, 0.94);
 }
@@ -1075,7 +1075,7 @@
 
 .guestbook-immersive-sheet::after {
   inset: 56% -2% -2%;
-  background: url("/bg/about-ink-banner.png") center bottom / 122% auto no-repeat;
+  background: url("/bg/guestbook-ink-banner.webp") center bottom / 122% auto no-repeat;
   opacity: 0.13;
 }
 
@@ -1096,7 +1096,7 @@
 :root[data-theme='dark'] .guestbook-window-panel {
   background:
     url("/bg/guestbook-bamboo.svg") 112% -72px / 210px auto no-repeat,
-    url("/bg/about-ink-banner.png") 57% 112% / 190% auto no-repeat,
+    url("/bg/guestbook-ink-banner.webp") 57% 112% / 190% auto no-repeat,
     radial-gradient(circle at 84% 9%, rgba(147, 165, 143, 0.08), transparent 24%),
     linear-gradient(150deg, rgba(70, 63, 46, 0.97), rgba(48, 45, 34, 0.97));
   background-blend-mode: screen, luminosity, normal, normal;
@@ -1106,7 +1106,7 @@
 :root[data-theme='dark'] .guestbook-page .guestbook-list > .comment:nth-child(even) {
   background:
     url("/bg/guestbook-bamboo.svg") -50px 48% / 166px auto no-repeat,
-    url("/bg/about-ink-banner.png") center 116% / 128% auto no-repeat,
+    url("/bg/guestbook-ink-banner.webp") center 116% / 128% auto no-repeat,
     rgba(62, 57, 42, 0.97);
   background-blend-mode: screen, luminosity, normal;
 }
@@ -1222,5 +1222,285 @@
 
   .guestbook-immersive-head p {
     font-size: 15px;
+  }
+}
+
+/* Final compact composition: the landscape stays global, while messages keep priority. */
+.wrap.guestbook-page {
+  width: auto;
+  max-width: 1180px;
+  padding-right: 56px;
+  padding-left: 56px;
+}
+
+.wrap.guestbook-page > .article-nav {
+  margin-right: 0;
+  margin-left: 0;
+}
+
+.wrap.guestbook-page > .page-intro,
+.wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro {
+  min-height: 224px;
+  padding: 38px 52px 30px 58px;
+}
+
+.wrap.guestbook-page > .page-intro::before {
+  left: 39px;
+  top: 37px;
+  height: 136px;
+}
+
+.wrap.guestbook-page > .page-intro .page-intro-copy {
+  max-width: 620px;
+}
+
+.wrap.guestbook-page > .page-intro h1 {
+  padding-block: 0.04em 0.1em;
+  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
+  font-size: clamp(46px, 4.6vw, 60px);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 0.98;
+  text-shadow:
+    0.7px 0 0 currentColor,
+    -0.5px 0.7px 0 color-mix(in srgb, currentColor 62%, transparent),
+    3px 5px 8px rgba(48, 39, 25, 0.13);
+  transform: rotate(-0.7deg);
+  transform-origin: left center;
+}
+
+.wrap.guestbook-page > .page-intro .article-seal {
+  margin-left: 16px;
+  transform: translateY(-1px) rotate(-4deg);
+}
+
+.wrap.guestbook-page > .page-intro .page-intro-description {
+  margin-top: 14px;
+  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  line-height: 1.24;
+  text-shadow: 0.35px 0 0 currentColor;
+  transform: rotate(-0.35deg);
+  transform-origin: left center;
+}
+
+.wrap.guestbook-page > .page-intro + .guestbook-sheet {
+  padding: 30px 38px 62px;
+}
+
+.guestbook-layout {
+  grid-template-areas: "messages compose";
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 356px);
+  gap: 24px;
+}
+
+.guestbook-window-panel {
+  min-height: 286px;
+  padding: 0;
+  background:
+    url("/bg/guestbook-bamboo.svg") 115% -58px / 178px auto no-repeat,
+    linear-gradient(150deg, rgba(255, 252, 239, 0.9), rgba(239, 230, 207, 0.84)),
+    url("/bg/guestbook-ink-banner.webp") center 115% / 172% auto no-repeat,
+    var(--card-paper);
+  background-blend-mode: multiply, normal, luminosity, normal;
+}
+
+.guestbook-window-panel::before {
+  right: 16px;
+  bottom: 14px;
+  width: 58px;
+  height: 58px;
+}
+
+.guestbook-window-panel::after {
+  right: 31px;
+  bottom: 27px;
+  font-size: 42px;
+}
+
+.guestbook-window-entry,
+.guestbook-window-panel .guestbook-write {
+  min-height: 286px;
+}
+
+.guestbook-window-entry {
+  padding: 30px 24px 22px;
+}
+
+.guestbook-window-entry .guestbook-write-kicker {
+  font-size: 9px;
+  letter-spacing: 0.25em;
+}
+
+.guestbook-window-entry .guestbook-window-entry-title,
+.guestbook-window-entry .guestbook-window-title {
+  margin-top: 12px;
+  font-size: clamp(32px, 2.6vw, 38px);
+  letter-spacing: 0.08em;
+}
+
+.guestbook-window-entry .guestbook-window-copy {
+  margin-top: 10px;
+  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
+  font-size: 16px;
+  letter-spacing: 0.1em;
+}
+
+.guestbook-window-entry .guestbook-window-space {
+  display: none;
+}
+
+.guestbook-window-entry .guestbook-window-action {
+  min-height: 52px;
+  margin-top: auto;
+  font-size: 17px;
+}
+
+.guestbook-page .guestbook-list {
+  gap: 24px;
+}
+
+.guestbook-page .guestbook-list > .comment,
+.guestbook-page .guestbook-list > .comment:nth-child(even) {
+  min-height: 220px;
+  padding: 30px 34px 30px 46px;
+  background:
+    url("/bg/guestbook-bamboo.svg") -48px 50% / 154px auto no-repeat,
+    linear-gradient(rgba(249, 245, 232, 0.84), rgba(249, 245, 232, 0.74)),
+    url("/bg/guestbook-ink-banner.webp") center 122% / 132% auto no-repeat,
+    rgba(249, 245, 232, 0.96);
+  background-blend-mode: multiply, normal, luminosity, normal;
+}
+
+.guestbook-page .guestbook-list > .comment:nth-child(even) {
+  background-position: -46px 46%, center, 48% 122%, center;
+  background-size: 158px auto, auto, 136% auto, auto;
+}
+
+.guestbook-immersive-layer {
+  padding: clamp(142px, 19vh, 210px) 28px 28px;
+}
+
+.guestbook-immersive-sheet {
+  width: min(920px, calc(100vw - 56px));
+  min-height: min(548px, calc(100dvh - clamp(142px, 19vh, 210px) - 28px));
+  max-height: calc(100dvh - clamp(142px, 19vh, 210px) - 28px);
+  padding: 42px 52px 36px 76px;
+}
+
+:root[data-theme='dark'] .guestbook-window-panel {
+  background:
+    url("/bg/guestbook-bamboo.svg") 115% -58px / 178px auto no-repeat,
+    linear-gradient(150deg, rgba(70, 63, 46, 0.94), rgba(48, 45, 34, 0.96)),
+    url("/bg/guestbook-ink-banner.webp") center 115% / 172% auto no-repeat;
+  background-blend-mode: screen, normal, luminosity;
+}
+
+:root[data-theme='dark'] .guestbook-page .guestbook-list > .comment,
+:root[data-theme='dark'] .guestbook-page .guestbook-list > .comment:nth-child(even) {
+  background:
+    url("/bg/guestbook-bamboo.svg") -48px 50% / 154px auto no-repeat,
+    linear-gradient(rgba(62, 57, 42, 0.9), rgba(62, 57, 42, 0.84)),
+    url("/bg/guestbook-ink-banner.webp") center 122% / 132% auto no-repeat,
+    rgba(62, 57, 42, 0.97);
+  background-blend-mode: screen, normal, luminosity, normal;
+}
+
+@media (min-width: 861px) and (max-width: 1080px) {
+  .guestbook-layout {
+    grid-template-areas: "messages compose";
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
+    gap: 20px;
+  }
+
+  .guestbook-window-panel,
+  .guestbook-window-entry,
+  .guestbook-window-panel .guestbook-write {
+    min-height: 270px;
+  }
+}
+
+@media (max-width: 860px) {
+  .guestbook-layout {
+    grid-template-areas:
+      "compose"
+      "messages";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .guestbook-window-panel,
+  .guestbook-window-entry,
+  .guestbook-window-panel .guestbook-write {
+    min-height: 230px;
+  }
+}
+
+@media (max-width: 720px) {
+  .wrap.guestbook-page {
+    width: auto;
+    padding-right: 22px;
+    padding-left: 22px;
+  }
+
+  .wrap.guestbook-page > .article-nav {
+    margin-right: 0;
+    margin-left: 0;
+  }
+
+  .wrap.guestbook-page > .page-intro,
+  .wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro {
+    min-height: 178px;
+    padding: 28px 22px 22px 37px;
+  }
+
+  .wrap.guestbook-page > .page-intro h1 {
+    font-size: clamp(38px, 12vw, 48px);
+  }
+
+  .wrap.guestbook-page > .page-intro .page-intro-description {
+    margin-top: 11px;
+    font-size: 17px;
+  }
+
+  .wrap.guestbook-page > .page-intro + .guestbook-sheet {
+    padding: 22px 14px 42px;
+  }
+
+  .guestbook-window-panel,
+  .guestbook-window-entry,
+  .guestbook-window-panel .guestbook-write {
+    min-height: 220px;
+  }
+
+  .guestbook-window-entry {
+    padding: 25px 20px 18px;
+  }
+
+  .guestbook-window-entry .guestbook-window-title {
+    font-size: 32px;
+  }
+
+  .guestbook-window-entry .guestbook-window-copy {
+    margin-top: 8px;
+    font-size: 15px;
+  }
+
+  .guestbook-page .guestbook-list > .comment,
+  .guestbook-page .guestbook-list > .comment:nth-child(even) {
+    min-height: 0;
+    padding: 22px 18px 22px 26px;
+  }
+
+  .guestbook-immersive-layer {
+    padding: 58px 8px 8px;
+  }
+
+  .guestbook-immersive-sheet {
+    width: 100%;
+    min-height: calc(100dvh - 66px);
+    max-height: calc(100dvh - 66px);
+    padding: 32px 24px 24px 38px;
   }
 }
