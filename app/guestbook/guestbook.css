@@ -772,3 +772,455 @@
     animation: none;
   }
 }
+
+/* Approved composition: full scroll, decorative note papers, and a full-surface writing entry. */
+.wrap.guestbook-page {
+  width: calc(100vw - 24px);
+  max-width: none;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.wrap.guestbook-page > .article-nav {
+  margin-right: clamp(32px, 4vw, 72px);
+  margin-left: clamp(32px, 4vw, 72px);
+}
+
+.wrap.guestbook-page > .page-intro,
+.wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro {
+  width: 100%;
+  max-width: none;
+  min-height: 292px;
+  padding: 48px clamp(62px, 5vw, 84px) 36px;
+}
+
+.wrap.guestbook-page > .page-intro::before {
+  left: clamp(39px, 3.3vw, 56px);
+  top: 48px;
+  height: 154px;
+}
+
+.wrap.guestbook-page > .page-intro .page-intro-copy {
+  max-width: 760px;
+}
+
+.wrap.guestbook-page > .page-intro h1 {
+  font-size: clamp(62px, 5.4vw, 78px);
+}
+
+.wrap.guestbook-page > .page-intro .page-intro-description {
+  margin-top: 18px;
+  font-size: 20px;
+}
+
+.wrap.guestbook-page > .page-intro + .guestbook-sheet {
+  padding: 34px clamp(40px, 3.5vw, 58px) 72px;
+}
+
+.guestbook-layout {
+  grid-template-columns: minmax(0, 1.58fr) minmax(390px, 1fr);
+  gap: clamp(34px, 3vw, 48px);
+}
+
+.guestbook-window-panel {
+  min-height: 610px;
+  padding: 0;
+  border-color: color-mix(in srgb, var(--gb-pine) 40%, var(--rule));
+  background:
+    url("/bg/guestbook-bamboo.svg") 112% -72px / 210px auto no-repeat,
+    url("/bg/about-ink-banner.png") 57% 112% / 190% auto no-repeat,
+    radial-gradient(circle at 84% 9%, var(--gb-pine-faint), transparent 24%),
+    linear-gradient(150deg, rgba(255, 252, 239, 0.8), rgba(235, 225, 200, 0.82)),
+    var(--card-paper);
+  background-blend-mode: multiply, multiply, normal, normal, normal;
+  box-shadow: 18px 24px 42px -30px rgba(42, 32, 18, 0.5);
+  clip-path: polygon(
+    0.7% 0.5%, 15% 0.9%, 31% 0.25%, 48% 0.8%, 65% 0.3%, 82% 0.75%, 99.3% 0.3%,
+    99.7% 18%, 99.2% 38%, 99.75% 58%, 99.15% 79%, 99.55% 99.4%,
+    78% 99.7%, 57% 99.25%, 36% 99.8%, 16% 99.3%, 0.45% 99.65%
+  );
+}
+
+.guestbook-window-panel::before {
+  content: "";
+  inset: auto 20px 18px auto;
+  width: 74px;
+  height: 74px;
+  border: 1px solid color-mix(in srgb, var(--gb-ochre) 34%, transparent);
+  background: transparent;
+  opacity: 0.16;
+  transform: rotate(-4deg);
+}
+
+.guestbook-window-panel::after {
+  content: "寄";
+  position: absolute;
+  right: 40px;
+  bottom: 36px;
+  color: var(--gb-pine-deep);
+  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
+  font-size: 52px;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.guestbook-window-entry {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  min-height: 610px;
+  padding: 48px 34px 30px;
+  border: 0;
+  color: var(--ink);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.guestbook-window-login {
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.guestbook-window-entry::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1px solid transparent;
+  pointer-events: none;
+  transition: border-color 240ms ease;
+}
+
+.guestbook-window-entry:hover::after,
+.guestbook-window-entry:focus-visible::after {
+  border-color: color-mix(in srgb, var(--gb-pine) 42%, transparent);
+}
+
+.guestbook-window-entry:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--gb-pine) 66%, transparent);
+  outline-offset: -8px;
+}
+
+.guestbook-window-entry .guestbook-write-kicker {
+  font-size: 11px;
+  letter-spacing: 0.28em;
+}
+
+.guestbook-window-entry .guestbook-window-entry-title,
+.guestbook-window-entry .guestbook-window-title {
+  margin-top: 22px;
+  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
+  font-size: clamp(38px, 3vw, 50px);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  line-height: 1.08;
+}
+
+.guestbook-window-entry .guestbook-window-copy {
+  margin-top: 22px;
+  color: color-mix(in srgb, var(--ink) 70%, transparent);
+  font-family: var(--font-kai);
+  font-size: 18px;
+  letter-spacing: 0.14em;
+}
+
+.guestbook-window-entry .guestbook-window-space {
+  position: relative;
+  display: grid;
+  flex: 1;
+  min-height: 270px;
+  place-items: center;
+}
+
+.guestbook-window-entry .guestbook-window-space::before {
+  content: "";
+  width: 1px;
+  height: 76px;
+  background: linear-gradient(transparent, var(--gb-ochre), transparent);
+  opacity: 0.58;
+}
+
+.guestbook-window-entry .guestbook-window-space span {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 54px);
+  color: color-mix(in srgb, var(--gb-pine-deep) 54%, transparent);
+  font-family: var(--font-kai);
+  font-size: 13px;
+  letter-spacing: 0.28em;
+  transform: translateX(-50%);
+}
+
+.guestbook-window-entry .guestbook-window-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  min-height: 58px;
+  border: 1px solid #a9362a;
+  background: linear-gradient(135deg, #bd3d30, #9f2d24);
+  color: #fff8e8;
+  font-family: var(--font-kai);
+  font-size: 18px;
+  letter-spacing: 0.22em;
+  box-shadow: 0 12px 24px -16px rgba(123, 32, 24, 0.9);
+}
+
+.guestbook-window-entry .guestbook-window-action .gb-write-mark {
+  border-color: currentColor;
+}
+
+.guestbook-window-panel .guestbook-write {
+  min-height: 610px;
+  padding: 48px 34px 30px;
+}
+
+.guestbook-window-panel .gb-login-tip {
+  margin-top: 40px;
+}
+
+.guestbook-page .guestbook-list {
+  gap: 28px;
+}
+
+.guestbook-page .guestbook-list > .comment,
+.guestbook-page .guestbook-list > .comment:nth-child(even) {
+  min-height: 260px;
+  margin-left: 0;
+  padding: 36px 42px 34px 54px;
+  background:
+    url("/bg/guestbook-bamboo.svg") -52px 48% / 166px auto no-repeat,
+    url("/bg/about-ink-banner.png") center 116% / 128% auto no-repeat,
+    radial-gradient(circle at 92% 18%, rgba(96, 113, 98, 0.07), transparent 23%),
+    rgba(249, 245, 232, 0.94);
+  background-blend-mode: multiply, multiply, normal, normal;
+  filter: drop-shadow(0 17px 18px rgba(42, 35, 21, 0.15));
+}
+
+.guestbook-page .guestbook-list > .comment:nth-child(even) {
+  background:
+    url("/bg/guestbook-bamboo.svg") -48px 43% / 170px auto no-repeat,
+    url("/bg/about-ink-banner.png") 48% 116% / 132% auto no-repeat,
+    radial-gradient(circle at 10% 82%, rgba(146, 113, 77, 0.07), transparent 24%),
+    rgba(245, 238, 220, 0.94);
+}
+
+.guestbook-page .guestbook-list > .comment::before {
+  width: 8px;
+}
+
+.guestbook-page .comment-replies {
+  margin-top: 26px;
+  padding-left: 72px;
+}
+
+.guestbook-page .comment-replies::before {
+  left: 26px;
+  top: -4px;
+  bottom: 22px;
+}
+
+.guestbook-page .comment-replies .comment.reply {
+  min-height: 106px;
+  margin-bottom: 14px;
+  padding: 19px 24px;
+  background: rgba(238, 230, 210, 0.66);
+}
+
+.guestbook-page .comment-replies .comment.reply::before {
+  left: -46px;
+  width: 46px;
+}
+
+.guestbook-page .comment-replies .comment.reply::after {
+  left: -49px;
+}
+
+.guestbook-immersive-layer {
+  padding: clamp(188px, 25vh, 294px) 32px 32px;
+}
+
+.guestbook-immersive-layer::before {
+  inset: 0;
+  background: rgba(205, 194, 165, 0.58);
+  -webkit-backdrop-filter: blur(5px) saturate(0.72);
+  backdrop-filter: blur(5px) saturate(0.72);
+}
+
+.guestbook-immersive-sheet {
+  width: min(1120px, calc(100vw - 64px));
+  min-height: min(690px, calc(100dvh - clamp(188px, 25vh, 294px) - 32px));
+  max-height: calc(100dvh - clamp(188px, 25vh, 294px) - 32px);
+  padding: 50px 62px 42px 96px;
+  background:
+    url("/bg/guestbook-bamboo.svg") -52px -90px / 210px auto no-repeat,
+    linear-gradient(155deg, rgba(255, 253, 245, 0.98), rgba(246, 240, 222, 0.98)),
+    var(--card-paper);
+  background-blend-mode: multiply, normal, normal;
+}
+
+.guestbook-immersive-sheet::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url("/bg/guestbook-bamboo.svg") -76px -110px / 236px auto no-repeat;
+  opacity: 0.48;
+  pointer-events: none;
+}
+
+.guestbook-immersive-sheet::after {
+  inset: 56% -2% -2%;
+  background: url("/bg/about-ink-banner.png") center bottom / 122% auto no-repeat;
+  opacity: 0.13;
+}
+
+.guestbook-immersive-head h2 {
+  font-size: clamp(46px, 4.2vw, 58px);
+}
+
+.guestbook-immersive-head p {
+  font-size: 19px;
+}
+
+.guestbook-immersive-textarea {
+  margin-top: 34px;
+  padding: 18px 0 24px 24px;
+  font-size: clamp(20px, 1.7vw, 24px);
+}
+
+:root[data-theme='dark'] .guestbook-window-panel {
+  background:
+    url("/bg/guestbook-bamboo.svg") 112% -72px / 210px auto no-repeat,
+    url("/bg/about-ink-banner.png") 57% 112% / 190% auto no-repeat,
+    radial-gradient(circle at 84% 9%, rgba(147, 165, 143, 0.08), transparent 24%),
+    linear-gradient(150deg, rgba(70, 63, 46, 0.97), rgba(48, 45, 34, 0.97));
+  background-blend-mode: screen, luminosity, normal, normal;
+}
+
+:root[data-theme='dark'] .guestbook-page .guestbook-list > .comment,
+:root[data-theme='dark'] .guestbook-page .guestbook-list > .comment:nth-child(even) {
+  background:
+    url("/bg/guestbook-bamboo.svg") -50px 48% / 166px auto no-repeat,
+    url("/bg/about-ink-banner.png") center 116% / 128% auto no-repeat,
+    rgba(62, 57, 42, 0.97);
+  background-blend-mode: screen, luminosity, normal;
+}
+
+@media (max-width: 1080px) {
+  .wrap.guestbook-page {
+    width: calc(100vw - 20px);
+  }
+
+  .guestbook-layout {
+    grid-template-areas:
+      "compose"
+      "messages";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .guestbook-window-panel,
+  .guestbook-window-entry,
+  .guestbook-window-panel .guestbook-write {
+    min-height: 430px;
+  }
+
+  .guestbook-window-entry .guestbook-window-space {
+    min-height: 128px;
+  }
+}
+
+@media (max-width: 720px) {
+  .wrap.guestbook-page {
+    width: calc(100vw - 12px);
+  }
+
+  .wrap.guestbook-page > .article-nav {
+    margin-right: 18px;
+    margin-left: 18px;
+  }
+
+  .wrap.guestbook-page > .page-intro,
+  .wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro {
+    min-height: 190px;
+    padding: 30px 24px 24px 39px;
+  }
+
+  .wrap.guestbook-page > .page-intro h1 {
+    font-size: clamp(46px, 14vw, 58px);
+  }
+
+  .wrap.guestbook-page > .page-intro + .guestbook-sheet {
+    padding: 24px 14px 44px;
+  }
+
+  .guestbook-window-panel,
+  .guestbook-window-entry,
+  .guestbook-window-panel .guestbook-write {
+    min-height: 390px;
+  }
+
+  .guestbook-window-entry {
+    padding: 34px 24px 24px;
+  }
+
+  .guestbook-window-entry .guestbook-window-title {
+    font-size: 38px;
+  }
+
+  .guestbook-window-entry .guestbook-window-copy {
+    margin-top: 16px;
+    font-size: 16px;
+  }
+
+  .guestbook-window-entry .guestbook-window-space {
+    min-height: 112px;
+  }
+
+  .guestbook-page .guestbook-list > .comment,
+  .guestbook-page .guestbook-list > .comment:nth-child(even) {
+    min-height: 0;
+    padding: 24px 20px 24px 28px;
+    background-size: 126px auto, 178% auto, auto, auto;
+  }
+
+  .guestbook-page .comment-replies {
+    padding-left: 44px;
+  }
+
+  .guestbook-page .comment-replies::before {
+    left: 17px;
+  }
+
+  .guestbook-page .comment-replies .comment.reply::before {
+    left: -27px;
+    width: 27px;
+  }
+
+  .guestbook-page .comment-replies .comment.reply::after {
+    left: -30px;
+  }
+
+  .guestbook-immersive-layer {
+    padding: 58px 8px 8px;
+  }
+
+  .guestbook-immersive-sheet {
+    width: 100%;
+    min-height: calc(100dvh - 66px);
+    max-height: calc(100dvh - 66px);
+    padding: 32px 24px 24px 38px;
+  }
+
+  .guestbook-immersive-head h2 {
+    font-size: 40px;
+  }
+
+  .guestbook-immersive-head p {
+    font-size: 15px;
+  }
+}

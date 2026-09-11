@@ -99,13 +99,26 @@ describe('public form feedback', () => {
     expect(screen.getByRole('complementary', { name: '山窗寄语' })).toBeInTheDocument()
   })
 
+  it('turns the full writing card into a login entry for signed-out visitors', () => {
+    Object.assign(store, { user: null })
+    render(<GuestbookPage />)
+
+    const loginEntry = screen.getByRole('link', { name: '登录后写留言' })
+    expect(loginEntry).toHaveAttribute('href', '/login')
+    expect(loginEntry).toHaveTextContent('山窗寄语')
+    expect(loginEntry).toHaveTextContent('窗外有山，纸上有话。')
+    expect(screen.queryByLabelText('留言内容')).not.toBeInTheDocument()
+  })
+
   it('opens an immersive writing sheet and restores focus when it closes', () => {
     render(<GuestbookPage />)
     const trigger = screen.getByRole('button', { name: '写留言' })
 
     fireEvent.click(trigger)
 
-    expect(screen.getByRole('dialog', { name: '山窗寄语' })).toBeInTheDocument()
+    const dialog = screen.getByRole('dialog', { name: '山窗寄语' })
+    expect(dialog).toBeInTheDocument()
+    expect(dialog.parentElement?.parentElement).toBe(document.body)
     expect(screen.getByLabelText('留言内容')).toHaveAttribute('placeholder', '写下此刻想说的话……')
     expect(screen.getByRole('button', { name: '寄出留言' })).toBeDisabled()
 
@@ -113,6 +126,24 @@ describe('public form feedback', () => {
 
     expect(screen.queryByRole('dialog', { name: '山窗寄语' })).not.toBeInTheDocument()
     expect(trigger).toHaveFocus()
+  })
+
+  it('closes the immersive writing sheet from its backdrop and preserves the draft', () => {
+    render(<GuestbookPage />)
+    const trigger = screen.getByRole('button', { name: '写留言' })
+    fireEvent.click(trigger)
+
+    const textarea = screen.getByLabelText('留言内容')
+    fireEvent.change(textarea, { target: { value: '山高水长。' } })
+    const backdrop = screen.getByRole('dialog', { name: '山窗寄语' }).parentElement
+    expect(backdrop).not.toBeNull()
+    fireEvent.click(backdrop!)
+
+    expect(screen.queryByRole('dialog', { name: '山窗寄语' })).not.toBeInTheDocument()
+    expect(trigger).toHaveFocus()
+
+    fireEvent.click(trigger)
+    expect(screen.getByLabelText('留言内容')).toHaveValue('山高水长。')
   })
 
   it('retains a failed comment, announces the error, and retries safely', async () => {

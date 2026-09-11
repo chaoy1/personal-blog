@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import ScrollFX from '@/components/ScrollFX'
 import { useAppStore } from '@/lib/app-store'
@@ -171,34 +172,46 @@ export default function GuestbookPage() {
       <article className="article content-sheet guestbook-sheet">
         <div className="guestbook-layout">
           <aside className="guestbook-window-panel" aria-label="山窗寄语">
-            <section className="guestbook-write" aria-label="写留言">
-              <div className="guestbook-write-head">
-                <div>
-                  <span className="guestbook-write-kicker">BY THE WINDOW</span>
-                  <h2>山窗寄语</h2>
-                  <p>窗外有山，纸上有话。</p>
-                </div>
-                {user ? (
-                  <button
-                    ref={composeTriggerRef}
-                    type="button"
-                    className="gb-compose-open"
-                    onClick={toggleComposer}
-                    aria-expanded={composeOpen}
-                    aria-haspopup="dialog"
-                    aria-controls="guestbook-immersive-sheet"
-                  >
-                    <span className="gb-write-mark" aria-hidden="true" />
-                    写留言
-                  </button>
-                ) : (
-                  <p className="moments-login-tip gb-login-tip">
-                    <Link href="/login">登录后写留言</Link>
-                  </p>
-                )}
-              </div>
-
-            </section>
+            {user ? (
+              <button
+                ref={composeTriggerRef}
+                type="button"
+                className="guestbook-window-entry"
+                onClick={toggleComposer}
+                aria-label="写留言"
+                aria-expanded={composeOpen}
+                aria-haspopup="dialog"
+                aria-controls="guestbook-immersive-sheet"
+              >
+                <span className="guestbook-write-kicker">BY THE WINDOW</span>
+                <span className="guestbook-window-title">山窗寄语</span>
+                <span className="guestbook-window-copy">窗外有山，纸上有话。</span>
+                <span className="guestbook-window-space" aria-hidden="true">
+                  <span>展笺书写</span>
+                </span>
+                <span className="guestbook-window-action">
+                  <span className="gb-write-mark" aria-hidden="true" />
+                  写留言
+                </span>
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="guestbook-window-entry guestbook-window-login"
+                aria-label="登录后写留言"
+              >
+                <span className="guestbook-write-kicker">BY THE WINDOW</span>
+                <span className="guestbook-window-title">山窗寄语</span>
+                <span className="guestbook-window-copy">窗外有山，纸上有话。</span>
+                <span className="guestbook-window-space" aria-hidden="true">
+                  <span>候君展笺</span>
+                </span>
+                <span className="guestbook-window-action">
+                  <span className="gb-write-mark" aria-hidden="true" />
+                  登录后写留言
+                </span>
+              </Link>
+            )}
 
             {success ? <p className="notice-text" role="status">{success}</p> : null}
           </aside>
@@ -235,58 +248,66 @@ export default function GuestbookPage() {
         </div>
       </article>
 
-      {user && composeOpen ? (
-        <div className="guestbook-immersive-layer">
-          <section
-            id="guestbook-immersive-sheet"
-            ref={composeDialogRef}
-            className="guestbook-immersive-sheet"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="guestbook-compose-title"
-            aria-describedby="guestbook-compose-description"
-            aria-busy={busy}
-            data-form-state={formState}
+      {user && composeOpen
+        ? createPortal(
+          <div
+            className="guestbook-immersive-layer"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) closeComposer()
+            }}
           >
-            <header className="guestbook-immersive-head">
-              <div>
-                <span className="guestbook-write-kicker">BY THE WINDOW</span>
-                <h2 id="guestbook-compose-title">山窗寄语</h2>
-                <p id="guestbook-compose-description">窗外有山，纸上有话。</p>
-              </div>
-              <button type="button" className="guestbook-sheet-close" onClick={closeComposer}>
-                <span>收笺</span>
-                <span className="guestbook-sheet-close-mark" aria-hidden="true">×</span>
-              </button>
-            </header>
-
-            <textarea
-              className="guestbook-immersive-textarea"
-              aria-label="留言内容"
-              value={content}
-              onChange={(event) => updateContent(event.target.value)}
-              placeholder="写下此刻想说的话……"
-              maxLength={500}
-              autoFocus
-            />
-
-            <footer className="guestbook-immersive-foot">
-              <span className="moments-counter">{content.length} / 500</span>
-              <div className="guestbook-immersive-actions">
-                {formError ? <p className="error-text" role="alert">{formError}</p> : null}
-                <button
-                  type="button"
-                  className="btn guestbook-submit"
-                  onClick={post}
-                  disabled={busy || !content.trim()}
-                >
-                  {busy ? '寄送中…' : formState === 'error' ? '重试留言' : '寄出留言'}
+            <section
+              id="guestbook-immersive-sheet"
+              ref={composeDialogRef}
+              className="guestbook-immersive-sheet"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="guestbook-compose-title"
+              aria-describedby="guestbook-compose-description"
+              aria-busy={busy}
+              data-form-state={formState}
+            >
+              <header className="guestbook-immersive-head">
+                <div>
+                  <span className="guestbook-write-kicker">BY THE WINDOW</span>
+                  <h2 id="guestbook-compose-title">山窗寄语</h2>
+                  <p id="guestbook-compose-description">窗外有山，纸上有话。</p>
+                </div>
+                <button type="button" className="guestbook-sheet-close" onClick={closeComposer}>
+                  <span>收笺</span>
+                  <span className="guestbook-sheet-close-mark" aria-hidden="true">×</span>
                 </button>
-              </div>
-            </footer>
-          </section>
-        </div>
-      ) : null}
+              </header>
+
+              <textarea
+                className="guestbook-immersive-textarea"
+                aria-label="留言内容"
+                value={content}
+                onChange={(event) => updateContent(event.target.value)}
+                placeholder="写下此刻想说的话……"
+                maxLength={500}
+                autoFocus
+              />
+
+              <footer className="guestbook-immersive-foot">
+                <span className="moments-counter">{content.length} / 500</span>
+                <div className="guestbook-immersive-actions">
+                  {formError ? <p className="error-text" role="alert">{formError}</p> : null}
+                  <button
+                    type="button"
+                    className="btn guestbook-submit"
+                    onClick={post}
+                    disabled={busy || !content.trim()}
+                  >
+                    {busy ? '寄送中…' : formState === 'error' ? '重试留言' : '寄出留言'}
+                  </button>
+                </div>
+              </footer>
+            </section>
+          </div>,
+          document.body,
+        )
+        : null}
     </div>
   )
 }

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 720" fill="none">
+  <defs>
+    <filter id="brush" x="-30%" y="-20%" width="160%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018 0.12" numOctaves="2" seed="11" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.8"/>
+    </filter>
+    <linearGradient id="stem" x1="53" y1="687" x2="188" y2="33" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4b6557" stop-opacity=".48"/>
+      <stop offset="1" stop-color="#6f8073" stop-opacity=".13"/>
+    </linearGradient>
+  </defs>
+  <g filter="url(#brush)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M44 706C62 598 74 503 100 404C121 321 151 226 191 63" stroke="url(#stem)" stroke-width="8"/>
+    <path d="M86 469C135 416 185 385 247 366M116 348C89 300 64 269 31 242M145 247C194 206 233 185 292 170M170 151C144 117 126 83 112 37" stroke="#516b5c" stroke-opacity=".34" stroke-width="4.5"/>
+    <path d="M73 536C104 526 130 523 164 527M95 427C111 432 134 438 154 451M126 323C147 329 168 338 185 354M159 214C172 223 190 230 211 238" stroke="#597163" stroke-opacity=".28" stroke-width="2.6"/>
+  </g>
+  <g fill="#526d5e" opacity=".31" filter="url(#brush)">
+    <path d="M154 399c27-31 52-39 77-35-13 24-37 37-77 35Z"/><path d="M181 390c31 1 53 10 69 29-25 8-49-2-69-29Z"/>
+    <path d="M218 346c30-20 56-22 79-12-18 19-44 25-79 12Z"/><path d="M116 297c-31-8-53-3-71 12 21 13 44 9 71-12Z"/>
+    <path d="M92 269c-27-20-50-24-69-17 15 19 38 25 69 17Z"/><path d="M180 205c29-27 56-34 80-28-15 23-41 33-80 28Z"/>
+    <path d="M213 189c32-10 56-7 75 7-22 15-47 13-75-7Z"/><path d="M145 119c-28-18-50-21-68-12 16 18 39 22 68 12Z"/>
+    <path d="M132 85c-18-24-36-34-54-30 7 22 25 33 54 30Z"/><path d="M114 515c29-17 52-19 70-8-18 17-41 20-70 8Z"/>
+  </g>
+</svg>
