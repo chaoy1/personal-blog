@@ -1,0 +1,399 @@
+.guestbook-page {
+  max-width: 1180px;
+  --gb-pine: #617264;
+  --gb-pine-deep: #3f5145;
+  --gb-pine-faint: rgba(78, 99, 84, 0.14);
+  --gb-ochre: #92714d;
+  --gb-panel: rgba(226, 218, 194, 0.78);
+}
+
+:root[data-theme='dark'] .guestbook-page {
+  --gb-pine: #93a58f;
+  --gb-pine-deep: #b3c0aa;
+  --gb-pine-faint: rgba(140, 161, 137, 0.13);
+  --gb-ochre: #b99a70;
+  --gb-panel: rgba(55, 50, 37, 0.9);
+}
+
+.guestbook-page > .page-intro {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 24px;
+  min-height: 224px;
+  padding: 40px 56px 32px 60px;
+  background-color: #eee5cf;
+  background-image: none;
+}
+
+.guestbook-page > .page-intro::before {
+  content: "";
+  position: absolute;
+  left: 41px;
+  top: 37px;
+  z-index: 1;
+  display: block;
+  width: 2px;
+  height: 136px;
+  background: linear-gradient(180deg, var(--seal-deep), rgba(178, 58, 43, 0.02));
+  opacity: 0.72;
+}
+
+.guestbook-page > .page-intro::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(244, 236, 216, 0.28) 0 25%, rgba(244, 236, 216, 0.07) 48%, transparent 72%),
+    url("/bg/guestbook-ink-banner.webp") center / cover no-repeat;
+  opacity: 1;
+  filter: none;
+  transform: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.guestbook-page > .page-intro .page-intro-copy,
+.guestbook-page > .page-intro .page-intro-mark {
+  position: relative;
+  z-index: 2;
+}
+
+.guestbook-page > .page-intro .page-intro-copy {
+  max-width: 620px;
+}
+
+.guestbook-page > .page-intro .page-intro-meta {
+  margin-bottom: 11px;
+}
+
+.guestbook-page > .page-intro h1 {
+  margin-block: 0;
+  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
+  font-size: clamp(48px, 5.2vw, 62px);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.guestbook-page > .page-intro .article-seal {
+  margin-left: 18px;
+  transform: translateY(-2px) rotate(-3deg);
+}
+
+.guestbook-page > .page-intro .page-intro-description {
+  margin-top: 15px;
+  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+}
+
+.guestbook-page > .page-intro .page-intro-mark {
+  align-self: center;
+  justify-self: end;
+  min-height: 126px;
+  color: var(--gb-pine-deep);
+  font-size: 6px;
+  letter-spacing: 0.18em;
+  line-height: 1.5;
+  opacity: 0.42;
+  writing-mode: vertical-rl;
+}
+
+.guestbook-page > .page-intro .page-intro-mark::before,
+.guestbook-page > .page-intro .page-intro-mark::after {
+  display: none;
+}
+
+:root[data-theme='dark'] .guestbook-page > .page-intro {
+  background-color: #393527;
+}
+
+:root[data-theme='dark'] .guestbook-page > .page-intro::after {
+  background:
+    linear-gradient(90deg, rgba(35, 31, 23, 0.46) 0 24%, rgba(35, 31, 23, 0.2) 52%, rgba(35, 31, 23, 0.32)),
+    url("/bg/guestbook-ink-banner.webp") center / cover no-repeat;
+  opacity: 0.88;
+  filter: brightness(0.56) saturate(0.72);
+}
+
+.guestbook-page > .guestbook-sheet {
+  padding: 38px 46px 56px;
+}
+
+.guestbook-layout {
+  display: grid;
+  grid-template-areas: "messages compose";
+  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.78fr);
+  align-items: start;
+  gap: clamp(28px, 4vw, 46px);
+}
+
+.guestbook-messages {
+  grid-area: messages;
+  min-width: 0;
+}
+
+.guestbook-window-panel {
+  position: sticky;
+  top: 112px;
+  grid-area: compose;
+  align-self: start;
+  overflow: hidden;
+  padding: 28px 24px 24px;
+  border: 1px solid color-mix(in srgb, var(--gb-pine) 46%, var(--rule));
+  background:
+    radial-gradient(circle at 88% 10%, var(--gb-pine-faint), transparent 24%),
+    linear-gradient(145deg, rgba(247, 240, 221, 0.52), transparent 58%),
+    var(--gb-panel);
+  box-shadow: 18px 22px 46px -38px rgba(38, 31, 19, 0.9);
+}
+
+.guestbook-window-panel::before {
+  content: "\5bc4";
+  position: absolute;
+  right: 18px;
+  top: 13px;
+  color: var(--gb-pine-deep);
+  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
+  font-size: 54px;
+  line-height: 1;
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+.guestbook-window-panel .guestbook-write {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.guestbook-window-panel .guestbook-write-head {
+  display: block;
+}
+
+.guestbook-window-panel .guestbook-write-head h2 {
+  margin: 8px 0 0;
+  color: var(--ink);
+  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+}
+
+.guestbook-window-panel .guestbook-write-kicker {
+  color: var(--gb-ochre);
+  font-size: 9px;
+  letter-spacing: 0.25em;
+}
+
+.guestbook-window-panel .guestbook-write-head p {
+  max-width: none;
+  margin-top: 14px;
+  font-size: 15px;
+  letter-spacing: 0.09em;
+}
+
+.guestbook-window-panel .gb-compose-open {
+  justify-content: center;
+  width: 100%;
+  margin-top: 24px;
+  border-color: color-mix(in srgb, var(--gb-pine) 54%, var(--rule));
+  background: color-mix(in srgb, var(--field-bg) 84%, var(--gb-pine-faint));
+}
+
+.guestbook-window-panel .gb-compose-open:hover,
+.guestbook-window-panel .gb-compose-open.active {
+  border-color: var(--gb-pine);
+  color: var(--gb-pine-deep);
+}
+
+.guestbook-window-panel .gb-composer {
+  margin-top: 20px;
+  padding: 16px;
+  border-color: color-mix(in srgb, var(--gb-pine) 40%, var(--rule));
+  background: color-mix(in srgb, var(--field-bg) 91%, var(--gb-pine-faint));
+}
+
+.guestbook-window-panel .gb-composer textarea {
+  min-height: 150px;
+  border-color: transparent;
+  background: transparent;
+}
+
+.guestbook-window-panel .moments-actions {
+  flex-wrap: wrap;
+}
+
+.guestbook-page .guestbook-list {
+  gap: 20px;
+  margin-top: 0;
+}
+
+.guestbook-page .guestbook-list > .comment {
+  padding: 23px 25px 24px;
+  border: 1px solid color-mix(in srgb, var(--gb-pine) 24%, var(--card-border));
+  border-left: 2px solid var(--gb-pine);
+  background-color: rgba(248, 241, 222, 0.76);
+  box-shadow: 0 18px 36px -32px rgba(42, 35, 21, 0.8);
+}
+
+.guestbook-page .guestbook-list > .comment::before {
+  display: none;
+}
+
+.guestbook-page .guestbook-list > .comment::after {
+  color: var(--gb-pine-faint);
+}
+
+.guestbook-page .guestbook-list > .comment:nth-child(even) {
+  margin-left: 26px;
+  border-left-color: var(--gb-ochre);
+  background-color: rgba(235, 226, 202, 0.72);
+}
+
+.guestbook-page .guestbook-list > .comment:hover {
+  border-left-color: var(--seal-deep);
+}
+
+.guestbook-page .comment-list .c-avatar.md {
+  outline-color: color-mix(in srgb, var(--gb-pine) 62%, var(--rule-strong));
+}
+
+.guestbook-page .comment-replies {
+  border-left-color: var(--gb-ochre);
+  background: color-mix(in srgb, var(--field-bg) 88%, var(--gb-pine-faint));
+}
+
+:root[data-theme='dark'] .guestbook-page .guestbook-list > .comment {
+  background-color: rgba(66, 59, 42, 0.9);
+}
+
+:root[data-theme='dark'] .guestbook-page .guestbook-list > .comment:nth-child(even) {
+  background-color: rgba(59, 55, 40, 0.94);
+}
+
+.wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro {
+  min-height: 224px;
+  padding: 40px 56px 32px 60px;
+  overflow: hidden;
+  background-color: #eee5cf;
+  background-image: none;
+}
+
+.wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro::before {
+  display: block;
+}
+
+.wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro::after {
+  inset: 0;
+  display: block;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background:
+    linear-gradient(90deg, rgba(244, 236, 216, 0.28) 0 25%, rgba(244, 236, 216, 0.07) 48%, transparent 72%),
+    url("/bg/guestbook-ink-banner.webp") center / cover no-repeat;
+  opacity: 1;
+  filter: none;
+  transform: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.wrap.guestbook-page > .page-intro + .guestbook-sheet {
+  padding: 38px 46px 56px;
+}
+
+:root[data-theme='dark'] .wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro {
+  background-color: #393527;
+  background-image: none;
+}
+
+:root[data-theme='dark'] .wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro::after {
+  background:
+    linear-gradient(90deg, rgba(35, 31, 23, 0.46) 0 24%, rgba(35, 31, 23, 0.2) 52%, rgba(35, 31, 23, 0.32)),
+    url("/bg/guestbook-ink-banner.webp") center / cover no-repeat;
+  opacity: 0.88;
+  filter: brightness(0.56) saturate(0.72);
+}
+
+@media (max-width: 980px) {
+  .guestbook-layout {
+    grid-template-areas:
+      "compose"
+      "messages";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .guestbook-window-panel {
+    position: relative;
+    top: auto;
+  }
+
+  .guestbook-window-panel .gb-composer textarea {
+    min-height: 120px;
+  }
+}
+
+@media (max-width: 720px) {
+  .guestbook-page > .page-intro,
+  .wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro {
+    min-height: 178px;
+    padding: 28px 24px 22px 37px;
+  }
+
+  .guestbook-page > .page-intro::before {
+    left: 23px;
+    top: 27px;
+    height: 116px;
+  }
+
+  .wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro::after {
+    background-position: 61% center;
+  }
+
+  .guestbook-page > .page-intro h1 {
+    font-size: clamp(38px, 13vw, 50px);
+  }
+
+  .guestbook-page > .page-intro .page-intro-description {
+    margin-top: 12px;
+    font-size: 16px;
+  }
+
+  .guestbook-page > .page-intro .page-intro-mark {
+    display: none;
+  }
+
+  .guestbook-page > .guestbook-sheet,
+  .wrap.guestbook-page > .page-intro + .guestbook-sheet {
+    padding: 26px 20px 42px;
+  }
+
+  .guestbook-layout {
+    gap: 28px;
+  }
+
+  .guestbook-window-panel {
+    padding: 24px 20px 21px;
+  }
+
+  .guestbook-page .guestbook-list > .comment,
+  .guestbook-page .guestbook-list > .comment:nth-child(even) {
+    margin-left: 0;
+    padding: 18px 15px 19px;
+  }
+}

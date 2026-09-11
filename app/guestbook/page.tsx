@@ -7,6 +7,7 @@ import { useAppStore } from '@/lib/app-store'
 import CommentThread from '@/components/CommentThread'
 import PageIntro from '@/components/PageIntro'
 import ArticleNav from '@/components/ArticleNav'
+import './guestbook.css'
 
 const PAGE_SIZE = 20
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
@@ -104,7 +105,7 @@ export default function GuestbookPage() {
   const nickname = profile?.nickname || user?.email?.split('@')[0] || '我'
 
   return (
-    <div className="wrap">
+    <div className="wrap guestbook-page">
       <ScrollFX />
       <ArticleNav current="留言" />
 
@@ -116,92 +117,99 @@ export default function GuestbookPage() {
         description="来者有言，皆收于此。"
       />
 
-      <article className="article content-sheet">
-
-        <section className="guestbook-write" aria-label="写留言">
-          <div className="guestbook-write-head">
-            <div>
-              <span className="guestbook-write-kicker">LEAVE A NOTE</span>
-              <p>若有一句话想留下，就写在这里。</p>
-            </div>
-            {user ? (
-              <button
-                type="button"
-                className={`gb-compose-open${composeOpen ? ' active' : ''}`}
-                onClick={toggleComposer}
-                aria-expanded={composeOpen}
-              >
-                <span className="gb-write-mark" aria-hidden="true" />
-                {composeOpen ? '收起纸笺' : '写留言'}
-              </button>
-            ) : (
-              <p className="moments-login-tip gb-login-tip">
-                <Link href="/login">登录后写留言</Link>
-              </p>
-            )}
-          </div>
-
-          {user && composeOpen ? (
-            <div className="moments-composer gb-composer" aria-busy={busy} data-form-state={formState}>
-              <textarea
-                aria-label="留言内容"
-                value={content}
-                onChange={(e) => updateContent(e.target.value)}
-                placeholder={`以「${nickname}」的身份留下几句话…`}
-                maxLength={500}
-                autoFocus
-              />
-              <div className="moments-actions">
-                <span className="moments-counter">{content.length}/500</span>
-                <button
-                  type="button"
-                  className="btn btn-ghost btn-sm"
-                  onClick={toggleComposer}
-                >
-                  取消
-                </button>
-                <button type="button" className="btn btn-sm" onClick={post} disabled={busy || !content.trim()}>
-                  {busy ? '处理中…' : '留下这句话'}
-                </button>
-                {formState === 'error' ? (
-                  <button type="button" className="btn btn-ghost btn-sm" onClick={post} disabled={busy || !content.trim()}>
-                    重试留言
+      <article className="article content-sheet guestbook-sheet">
+        <div className="guestbook-layout">
+          <aside className="guestbook-window-panel" aria-label="山窗寄语">
+            <section className="guestbook-write" aria-label="写留言">
+              <div className="guestbook-write-head">
+                <div>
+                  <span className="guestbook-write-kicker">BY THE WINDOW</span>
+                  <h2>山窗寄语</h2>
+                  <p>窗外有山，纸上有话。</p>
+                </div>
+                {user ? (
+                  <button
+                    type="button"
+                    className={`gb-compose-open${composeOpen ? ' active' : ''}`}
+                    onClick={toggleComposer}
+                    aria-expanded={composeOpen}
+                  >
+                    <span className="gb-write-mark" aria-hidden="true" />
+                    {composeOpen ? '收起纸笺' : '写留言'}
                   </button>
-                ) : null}
+                ) : (
+                  <p className="moments-login-tip gb-login-tip">
+                    <Link href="/login">登录后写留言</Link>
+                  </p>
+                )}
               </div>
+
+              {user && composeOpen ? (
+                <div className="moments-composer gb-composer" aria-busy={busy} data-form-state={formState}>
+                  <textarea
+                    aria-label="留言内容"
+                    value={content}
+                    onChange={(e) => updateContent(e.target.value)}
+                    placeholder={`以「${nickname}」的身份留下几句话…`}
+                    maxLength={500}
+                    autoFocus
+                  />
+                  <div className="moments-actions">
+                    <span className="moments-counter">{content.length}/500</span>
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm"
+                      onClick={toggleComposer}
+                    >
+                      取消
+                    </button>
+                    <button type="button" className="btn btn-sm" onClick={post} disabled={busy || !content.trim()}>
+                      {busy ? '处理中…' : '留下这句话'}
+                    </button>
+                    {formState === 'error' ? (
+                      <button type="button" className="btn btn-ghost btn-sm" onClick={post} disabled={busy || !content.trim()}>
+                        重试留言
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
+            </section>
+
+            {formError ? <p className="error-text" role="alert">{formError}</p> : null}
+            {success ? <p className="notice-text" role="status">{success}</p> : null}
+          </aside>
+
+          <section className="guestbook-messages" aria-label="已收留言">
+            {error || localError ? <p className="error-text" role="alert">{localError || error}</p> : null}
+            {!ready && !error ? <p className="moments-empty">正在加载留言…</p> : null}
+
+            {/* 留言内容优先展示 */}
+            <div className="comment-list guestbook-list">
+              <CommentThread
+                items={threadItems}
+                userId={user?.id ?? null}
+                emptyText={ready && !error ? '还没有人留言，来写第一句吧。' : undefined}
+                onReply={(parentId, text) => addGuestbook(text, parentId)}
+                onDelete={(id) => remove(id)}
+              />
             </div>
-          ) : null}
-        </section>
 
-        {error || localError || formError ? <p className="error-text" role="alert">{formError || localError || error}</p> : null}
-        {success ? <p className="notice-text" role="status">{success}</p> : null}
-        {!ready && !error ? <p className="moments-empty">正在加载留言…</p> : null}
-
-        {/* 留言内容优先展示 */}
-        <div className="comment-list guestbook-list">
-          <CommentThread
-            items={threadItems}
-            userId={user?.id ?? null}
-            emptyText={ready && !error ? '还没有人留言，来写第一句吧。' : undefined}
-            onReply={(parentId, text) => addGuestbook(text, parentId)}
-            onDelete={(id) => remove(id)}
-          />
+            {totalPages > 1 ? (
+              <div className="pager">
+                <button type="button" disabled={safePage <= 1} onClick={() => setPage(safePage - 1)}>
+                  ← 上一页
+                </button>
+                <span className="pager-info">
+                  第 {safePage} / {totalPages} 页 · 共 {parents.length} 条
+                </span>
+                <button type="button" disabled={safePage >= totalPages} onClick={() => setPage(safePage + 1)}>
+                  下一页 →
+                </button>
+              </div>
+            ) : null}
+          </section>
         </div>
-
-        {totalPages > 1 ? (
-          <div className="pager">
-            <button type="button" disabled={safePage <= 1} onClick={() => setPage(safePage - 1)}>
-              ← 上一页
-            </button>
-            <span className="pager-info">
-              第 {safePage} / {totalPages} 页 · 共 {parents.length} 条
-            </span>
-            <button type="button" disabled={safePage >= totalPages} onClick={() => setPage(safePage + 1)}>
-              下一页 →
-            </button>
-          </div>
-        ) : null}
-
       </article>
     </div>
   )

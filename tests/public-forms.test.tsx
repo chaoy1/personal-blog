@@ -92,6 +92,13 @@ describe('public form feedback', () => {
 
   afterEach(cleanup)
 
+  it('presents received notes beside a named writing panel', () => {
+    render(<GuestbookPage />)
+
+    expect(screen.getByRole('region', { name: '已收留言' })).toBeInTheDocument()
+    expect(screen.getByRole('complementary', { name: '山窗寄语' })).toBeInTheDocument()
+  })
+
   it('retains a failed comment, announces the error, and retries safely', async () => {
     const request = deferred<string | null>()
     mocks.addComment.mockImplementation(() => request.promise)
