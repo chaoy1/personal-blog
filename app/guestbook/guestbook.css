@@ -78,11 +78,12 @@
 
 .guestbook-page > .page-intro h1 {
   margin-block: 0;
-  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
+  padding-block: 0.08em;
+  font-family: "KaiTi", "STKaiti", var(--font-kai);
   font-size: clamp(48px, 5.2vw, 62px);
-  font-weight: 400;
+  font-weight: 700;
   letter-spacing: 0.05em;
-  line-height: 1;
+  line-height: 1.12;
 }
 
 .guestbook-page > .page-intro .article-seal {
@@ -219,38 +220,41 @@
   color: var(--gb-pine-deep);
 }
 
-.guestbook-window-panel .gb-composer {
-  margin-top: 20px;
-  padding: 16px;
-  border-color: color-mix(in srgb, var(--gb-pine) 40%, var(--rule));
-  background: color-mix(in srgb, var(--field-bg) 91%, var(--gb-pine-faint));
-}
-
-.guestbook-window-panel .gb-composer textarea {
-  min-height: 150px;
-  border-color: transparent;
-  background: transparent;
-}
-
-.guestbook-window-panel .moments-actions {
-  flex-wrap: wrap;
-}
-
 .guestbook-page .guestbook-list {
-  gap: 20px;
+  gap: 26px;
   margin-top: 0;
 }
 
 .guestbook-page .guestbook-list > .comment {
-  padding: 23px 25px 24px;
-  border: 1px solid color-mix(in srgb, var(--gb-pine) 24%, var(--card-border));
-  border-left: 2px solid var(--gb-pine);
-  background-color: rgba(248, 241, 222, 0.76);
-  box-shadow: 0 18px 36px -32px rgba(42, 35, 21, 0.8);
+  padding: 28px 30px 28px 36px;
+  overflow: visible;
+  border: 0;
+  background:
+    radial-gradient(circle at 92% 18%, rgba(96, 113, 98, 0.08), transparent 23%),
+    rgba(248, 242, 225, 0.88);
+  box-shadow: none;
+  filter: drop-shadow(0 15px 16px rgba(42, 35, 21, 0.12));
+  transition: filter 0.3s ease, transform 0.3s ease;
+  clip-path: polygon(
+    0.5% 0.7%, 4% 0.2%, 10% 0.8%, 18% 0.1%, 27% 0.6%, 38% 0.2%,
+    49% 0.7%, 61% 0.15%, 72% 0.65%, 83% 0.25%, 94% 0.7%, 99.5% 0.25%,
+    99.2% 10%, 99.7% 24%, 99.25% 38%, 99.7% 52%, 99.3% 68%, 99.65% 84%,
+    99.2% 99.4%, 89% 99.75%, 78% 99.25%, 66% 99.8%, 54% 99.3%,
+    42% 99.75%, 30% 99.2%, 18% 99.7%, 7% 99.2%, 0.45% 99.65%,
+    0.8% 84%, 0.3% 68%, 0.75% 51%, 0.25% 35%, 0.7% 18%
+  );
 }
 
 .guestbook-page .guestbook-list > .comment::before {
-  display: none;
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  display: block;
+  width: 6px;
+  background: linear-gradient(180deg, var(--gb-pine-deep), color-mix(in srgb, var(--gb-pine) 68%, transparent));
+  opacity: 0.88;
 }
 
 .guestbook-page .guestbook-list > .comment::after {
@@ -258,13 +262,19 @@
 }
 
 .guestbook-page .guestbook-list > .comment:nth-child(even) {
-  margin-left: 26px;
-  border-left-color: var(--gb-ochre);
-  background-color: rgba(235, 226, 202, 0.72);
+  margin-left: 34px;
+  background:
+    radial-gradient(circle at 10% 82%, rgba(146, 113, 77, 0.07), transparent 24%),
+    rgba(239, 230, 207, 0.84);
+}
+
+.guestbook-page .guestbook-list > .comment:nth-child(even)::before {
+  background: linear-gradient(180deg, var(--gb-ochre), color-mix(in srgb, var(--gb-ochre) 62%, transparent));
 }
 
 .guestbook-page .guestbook-list > .comment:hover {
-  border-left-color: var(--seal-deep);
+  filter: drop-shadow(0 18px 19px rgba(42, 35, 21, 0.17));
+  transform: translateY(-2px);
 }
 
 .guestbook-page .comment-list .c-avatar.md {
@@ -272,16 +282,294 @@
 }
 
 .guestbook-page .comment-replies {
-  border-left-color: var(--gb-ochre);
-  background: color-mix(in srgb, var(--field-bg) 88%, var(--gb-pine-faint));
+  position: relative;
+  margin-top: 22px;
+  padding: 2px 0 0 50px;
+  border: 0;
+  background: transparent;
+}
+
+.guestbook-page .comment-replies::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: -7px;
+  bottom: 15px;
+  width: 1px;
+  background: color-mix(in srgb, var(--gb-ochre) 72%, var(--rule));
+}
+
+.guestbook-page .comment-replies .comment.reply {
+  position: relative;
+  margin: 0 0 11px;
+  padding: 14px 18px;
+  background: color-mix(in srgb, var(--field-bg) 91%, var(--gb-pine-faint));
+  clip-path: polygon(0.5% 1%, 18% 0.3%, 37% 0.9%, 58% 0.2%, 78% 0.8%, 99.4% 0.2%, 99% 99%, 77% 99.6%, 54% 99%, 32% 99.7%, 0.4% 99%);
+}
+
+.guestbook-page .comment-replies .comment.reply::before {
+  content: "";
+  position: absolute;
+  left: -32px;
+  top: 28px;
+  width: 32px;
+  height: 1px;
+  background: color-mix(in srgb, var(--gb-ochre) 72%, var(--rule));
+}
+
+.guestbook-page .comment-replies .comment.reply::after {
+  content: "";
+  position: absolute;
+  left: -35px;
+  top: 24px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gb-ochre);
 }
 
 :root[data-theme='dark'] .guestbook-page .guestbook-list > .comment {
-  background-color: rgba(66, 59, 42, 0.9);
+  background:
+    radial-gradient(circle at 92% 18%, rgba(147, 165, 143, 0.09), transparent 23%),
+    rgba(66, 59, 42, 0.94);
 }
 
 :root[data-theme='dark'] .guestbook-page .guestbook-list > .comment:nth-child(even) {
-  background-color: rgba(59, 55, 40, 0.94);
+  background:
+    radial-gradient(circle at 10% 82%, rgba(185, 154, 112, 0.08), transparent 24%),
+    rgba(59, 55, 40, 0.96);
+}
+
+.guestbook-immersive-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: start center;
+  overflow-y: auto;
+  padding: clamp(120px, 18vh, 220px) 32px 24px;
+}
+
+.guestbook-immersive-layer::before {
+  content: "";
+  position: fixed;
+  inset: 22vh 0 0;
+  background: rgba(211, 201, 174, 0.54);
+  -webkit-backdrop-filter: blur(4px) saturate(0.78);
+  backdrop-filter: blur(4px) saturate(0.78);
+}
+
+.guestbook-immersive-sheet {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(1088px, calc(100vw - 64px));
+  min-height: min(640px, calc(100dvh - clamp(120px, 18vh, 220px) - 24px));
+  max-height: calc(100dvh - clamp(120px, 18vh, 220px) - 24px);
+  padding: 42px 56px 34px;
+  overflow: hidden;
+  color: #28271f;
+  background:
+    radial-gradient(circle at 14% 12%, rgba(100, 118, 101, 0.08), transparent 22%),
+    linear-gradient(155deg, rgba(255, 253, 244, 0.96), rgba(244, 238, 218, 0.97));
+  filter: drop-shadow(0 28px 34px rgba(48, 38, 21, 0.28));
+  clip-path: polygon(
+    0.6% 0.8%, 5% 0.2%, 12% 0.75%, 21% 0.15%, 31% 0.7%, 43% 0.2%,
+    55% 0.75%, 67% 0.2%, 79% 0.65%, 90% 0.2%, 99.4% 0.75%,
+    99% 14%, 99.6% 31%, 99.15% 49%, 99.65% 68%, 99.1% 86%, 99.45% 99.2%,
+    88% 99.75%, 75% 99.2%, 61% 99.8%, 47% 99.25%, 33% 99.75%, 19% 99.2%,
+    7% 99.7%, 0.55% 99.15%, 0.9% 82%, 0.3% 64%, 0.8% 46%, 0.25% 27%
+  );
+  animation: guestbook-sheet-unfurl 420ms cubic-bezier(0.22, 0.78, 0.24, 1) both;
+}
+
+.guestbook-immersive-sheet::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 46% 0 0;
+  background: url("/bg/guestbook-ink-banner.webp") center bottom / 108% auto no-repeat;
+  opacity: 0.075;
+  filter: grayscale(1) sepia(0.16) saturate(0.5);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 72%);
+  mask-image: linear-gradient(180deg, transparent, #000 72%);
+  pointer-events: none;
+}
+
+.guestbook-immersive-head {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.guestbook-immersive-head h2 {
+  margin: 8px 0 0;
+  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
+  font-size: clamp(38px, 4vw, 52px);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.guestbook-immersive-head p {
+  margin: 14px 0 0;
+  color: rgba(40, 39, 31, 0.68);
+  font-family: var(--font-kai);
+  font-size: 17px;
+  letter-spacing: 0.14em;
+}
+
+.guestbook-sheet-close {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 0 10px;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  color: rgba(40, 39, 31, 0.72);
+  background: transparent;
+  font-family: var(--font-kai);
+  font-size: 16px;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+}
+
+.guestbook-sheet-close:hover,
+.guestbook-sheet-close:focus-visible {
+  border-bottom-color: var(--gb-ochre);
+  color: #28271f;
+}
+
+.guestbook-sheet-close-mark {
+  font-family: var(--font-latin);
+  font-size: 31px;
+  font-weight: 300;
+  line-height: 0.7;
+}
+
+.guestbook-immersive-textarea {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: 0;
+  margin-top: 24px;
+  padding: 18px 0 24px 24px;
+  resize: none;
+  border: 0;
+  border-left: 2px solid color-mix(in srgb, var(--gb-pine) 72%, transparent);
+  outline: 0;
+  color: #28271f;
+  background: transparent;
+  font-family: var(--font-kai);
+  font-size: clamp(18px, 1.6vw, 22px);
+  line-height: 1.9;
+  letter-spacing: 0.05em;
+  caret-color: var(--seal-deep);
+}
+
+.guestbook-immersive-textarea::placeholder {
+  color: rgba(60, 58, 47, 0.5);
+}
+
+.guestbook-immersive-textarea:focus-visible {
+  border-left-color: var(--gb-pine);
+  outline: 1px solid color-mix(in srgb, var(--gb-pine) 44%, transparent);
+  outline-offset: 8px;
+}
+
+.guestbook-immersive-foot {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 20px;
+}
+
+.guestbook-immersive-foot .moments-counter {
+  color: rgba(40, 39, 31, 0.56);
+  font-family: var(--font-latin);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+}
+
+.guestbook-immersive-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+}
+
+.guestbook-immersive-actions .error-text {
+  margin: 0;
+}
+
+.guestbook-submit {
+  min-width: 220px;
+  min-height: 58px;
+  border-color: #a9362a;
+  background: linear-gradient(135deg, #bd3d30, #9f2d24);
+  color: #fff8e8;
+  font-family: var(--font-kai);
+  font-size: 18px;
+  letter-spacing: 0.22em;
+  box-shadow: 0 12px 24px -16px rgba(123, 32, 24, 0.9);
+}
+
+.guestbook-submit:hover:not(:disabled) {
+  border-color: #8e281f;
+  background: linear-gradient(135deg, #c74637, #a93127);
+  transform: translateY(-1px);
+}
+
+.guestbook-submit:disabled {
+  opacity: 0.46;
+}
+
+:root[data-theme='dark'] .guestbook-immersive-layer::before {
+  background: rgba(28, 27, 21, 0.68);
+  -webkit-backdrop-filter: blur(5px) saturate(0.58);
+  backdrop-filter: blur(5px) saturate(0.58);
+}
+
+:root[data-theme='dark'] .guestbook-immersive-sheet {
+  color: #eee2c7;
+  background:
+    radial-gradient(circle at 14% 12%, rgba(147, 165, 143, 0.08), transparent 22%),
+    linear-gradient(155deg, rgba(67, 60, 43, 0.99), rgba(48, 45, 34, 0.99));
+  filter: drop-shadow(0 30px 42px rgba(0, 0, 0, 0.46));
+}
+
+:root[data-theme='dark'] .guestbook-immersive-head p,
+:root[data-theme='dark'] .guestbook-sheet-close,
+:root[data-theme='dark'] .guestbook-immersive-foot .moments-counter {
+  color: rgba(238, 226, 199, 0.68);
+}
+
+:root[data-theme='dark'] .guestbook-sheet-close:hover,
+:root[data-theme='dark'] .guestbook-sheet-close:focus-visible,
+:root[data-theme='dark'] .guestbook-immersive-textarea {
+  color: #f2e7ce;
+}
+
+:root[data-theme='dark'] .guestbook-immersive-textarea::placeholder {
+  color: rgba(238, 226, 199, 0.48);
+}
+
+@keyframes guestbook-sheet-unfurl {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scaleY(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
 }
 
 .wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro {
@@ -343,8 +631,18 @@
     top: auto;
   }
 
-  .guestbook-window-panel .gb-composer textarea {
-    min-height: 120px;
+  .guestbook-immersive-layer {
+    padding: 120px 22px 22px;
+  }
+
+  .guestbook-immersive-layer::before {
+    inset: 0;
+  }
+
+  .guestbook-immersive-sheet {
+    width: min(820px, calc(100vw - 44px));
+    min-height: calc(100dvh - 142px);
+    max-height: calc(100dvh - 142px);
   }
 }
 
@@ -391,9 +689,86 @@
     padding: 24px 20px 21px;
   }
 
+  .guestbook-immersive-layer {
+    place-items: stretch;
+    padding: 72px 10px 10px;
+    background: rgba(42, 39, 29, 0.18);
+  }
+
+  .guestbook-immersive-sheet {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    width: 100%;
+    min-height: calc(100dvh - 82px);
+    max-height: calc(100dvh - 82px);
+    padding: 30px 24px 24px;
+    clip-path: polygon(0.7% 0.4%, 18% 0.8%, 37% 0.3%, 58% 0.75%, 78% 0.25%, 99.3% 0.6%, 99.6% 99.3%, 76% 99.7%, 54% 99.2%, 31% 99.7%, 0.5% 99.3%);
+  }
+
+  .guestbook-immersive-head {
+    gap: 18px;
+  }
+
+  .guestbook-immersive-head h2 {
+    font-size: 38px;
+  }
+
+  .guestbook-immersive-head p {
+    margin-top: 10px;
+    font-size: 14px;
+    letter-spacing: 0.09em;
+  }
+
+  .guestbook-sheet-close {
+    flex: 0 0 auto;
+    gap: 8px;
+    font-size: 14px;
+  }
+
+  .guestbook-sheet-close-mark {
+    font-size: 26px;
+  }
+
+  .guestbook-immersive-textarea {
+    min-height: 0;
+    margin-top: 20px;
+    padding: 15px 0 18px 16px;
+    font-size: 18px;
+    line-height: 1.75;
+  }
+
+  .guestbook-immersive-foot {
+    align-items: center;
+    gap: 14px;
+    padding-top: 14px;
+  }
+
+  .guestbook-immersive-actions {
+    min-width: 0;
+    gap: 10px;
+  }
+
+  .guestbook-immersive-actions .error-text {
+    position: absolute;
+    left: 0;
+    bottom: 66px;
+    max-width: 100%;
+  }
+
+  .guestbook-submit {
+    min-width: 148px;
+    min-height: 50px;
+    font-size: 16px;
+  }
+
   .guestbook-page .guestbook-list > .comment,
   .guestbook-page .guestbook-list > .comment:nth-child(even) {
     margin-left: 0;
     padding: 18px 15px 19px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guestbook-immersive-sheet {
+    animation: none;
   }
 }

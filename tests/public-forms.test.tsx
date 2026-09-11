@@ -99,6 +99,22 @@ describe('public form feedback', () => {
     expect(screen.getByRole('complementary', { name: '山窗寄语' })).toBeInTheDocument()
   })
 
+  it('opens an immersive writing sheet and restores focus when it closes', () => {
+    render(<GuestbookPage />)
+    const trigger = screen.getByRole('button', { name: '写留言' })
+
+    fireEvent.click(trigger)
+
+    expect(screen.getByRole('dialog', { name: '山窗寄语' })).toBeInTheDocument()
+    expect(screen.getByLabelText('留言内容')).toHaveAttribute('placeholder', '写下此刻想说的话……')
+    expect(screen.getByRole('button', { name: '寄出留言' })).toBeDisabled()
+
+    fireEvent.click(screen.getByRole('button', { name: '收笺' }))
+
+    expect(screen.queryByRole('dialog', { name: '山窗寄语' })).not.toBeInTheDocument()
+    expect(trigger).toHaveFocus()
+  })
+
   it('retains a failed comment, announces the error, and retries safely', async () => {
     const request = deferred<string | null>()
     mocks.addComment.mockImplementation(() => request.promise)
@@ -145,7 +161,7 @@ describe('public form feedback', () => {
 
     const textarea = openGuestbookComposer()
     fireEvent.change(textarea, { target: { value: '此处留一言。' } })
-    fireEvent.click(screen.getByRole('button', { name: '留下这句话' }))
+    fireEvent.click(screen.getByRole('button', { name: '寄出留言' }))
 
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('暂时无法保存'))
     expect(textarea).toHaveValue('此处留一言。')
@@ -158,8 +174,8 @@ describe('public form feedback', () => {
     render(<GuestbookPage />)
 
     fireEvent.change(openGuestbookComposer(), { target: { value: '旧留言。' } })
-    fireEvent.click(screen.getByRole('button', { name: '留下这句话' }))
-    fireEvent.click(screen.getByRole('button', { name: '取消' }))
+    fireEvent.click(screen.getByRole('button', { name: '寄出留言' }))
+    fireEvent.click(screen.getByRole('button', { name: '收笺' }))
     const newDraft = openGuestbookComposer()
     fireEvent.change(newDraft, { target: { value: '新的留言草稿。' } })
 

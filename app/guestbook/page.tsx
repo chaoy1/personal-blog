@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import ScrollFX from '@/components/ScrollFX'
 import { useAppStore } from '@/lib/app-store'
@@ -13,7 +13,7 @@ const PAGE_SIZE = 20
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
 export default function GuestbookPage() {
-  const { user, profile, guestbook, ready, error, addGuestbook, deleteGuestbook } = useAppStore()
+  const { user, guestbook, ready, error, addGuestbook, deleteGuestbook } = useAppStore()
   const [page, setPage] = useState(1)
   const [content, setContent] = useState('')
   const [composeOpen, setComposeOpen] = useState(false)
@@ -22,7 +22,55 @@ export default function GuestbookPage() {
   const [formError, setFormError] = useState('')
   const [success, setSuccess] = useState('')
   const submissionId = useRef(0)
+  const composeTriggerRef = useRef<HTMLButtonElement>(null)
+  const composeDialogRef = useRef<HTMLElement>(null)
   const busy = formState === 'submitting'
+
+  const closeComposer = useCallback(() => {
+    submissionId.current += 1
+    setComposeOpen(false)
+    setFormState('idle')
+    setFormError('')
+    setSuccess('')
+    composeTriggerRef.current?.focus()
+  }, [])
+
+  useEffect(() => {
+    if (!composeOpen) return
+
+    const previousOverflow = document.body.style.overflow
+    const dialog = composeDialogRef.current
+    document.body.style.overflow = 'hidden'
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        closeComposer()
+        return
+      }
+
+      if (event.key !== 'Tab' || !dialog) return
+      const focusable = Array.from(dialog.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+      ))
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = previousOverflow
+    }
+  }, [closeComposer, composeOpen])
 
   // 顶层留言（含兼容：父级已不存在的回复按顶层处理），新的在前
   const { parents, rootIdOf } = useMemo(() => {
@@ -77,11 +125,16 @@ export default function GuestbookPage() {
     setPage(1)
     setSuccess('留言已保存')
     setFormState('success')
+    queueMicrotask(() => composeTriggerRef.current?.focus())
   }
 
   function toggleComposer() {
+    if (composeOpen) {
+      closeComposer()
+      return
+    }
     submissionId.current += 1
-    setComposeOpen((value) => !value)
+    setComposeOpen(true)
     setFormState('idle')
     setFormError('')
     setSuccess('')
@@ -101,8 +154,6 @@ export default function GuestbookPage() {
     const err = await deleteGuestbook(id)
     if (err) setLocalError(err)
   }
-
-  const nickname = profile?.nickname || user?.email?.split('@')[0] || '我'
 
   return (
     <div className="wrap guestbook-page">
@@ -129,13 +180,16 @@ export default function GuestbookPage() {
                 </div>
                 {user ? (
                   <button
+                    ref={composeTriggerRef}
                     type="button"
-                    className={`gb-compose-open${composeOpen ? ' active' : ''}`}
+                    className="gb-compose-open"
                     onClick={toggleComposer}
                     aria-expanded={composeOpen}
+                    aria-haspopup="dialog"
+                    aria-controls="guestbook-immersive-sheet"
                   >
                     <span className="gb-write-mark" aria-hidden="true" />
-                    {composeOpen ? '收起纸笺' : '写留言'}
+                    写留言
                   </button>
                 ) : (
                   <p className="moments-login-tip gb-login-tip">
@@ -144,39 +198,8 @@ export default function GuestbookPage() {
                 )}
               </div>
 
-              {user && composeOpen ? (
-                <div className="moments-composer gb-composer" aria-busy={busy} data-form-state={formState}>
-                  <textarea
-                    aria-label="留言内容"
-                    value={content}
-                    onChange={(e) => updateContent(e.target.value)}
-                    placeholder={`以「${nickname}」的身份留下几句话…`}
-                    maxLength={500}
-                    autoFocus
-                  />
-                  <div className="moments-actions">
-                    <span className="moments-counter">{content.length}/500</span>
-                    <button
-                      type="button"
-                      className="btn btn-ghost btn-sm"
-                      onClick={toggleComposer}
-                    >
-                      取消
-                    </button>
-                    <button type="button" className="btn btn-sm" onClick={post} disabled={busy || !content.trim()}>
-                      {busy ? '处理中…' : '留下这句话'}
-                    </button>
-                    {formState === 'error' ? (
-                      <button type="button" className="btn btn-ghost btn-sm" onClick={post} disabled={busy || !content.trim()}>
-                        重试留言
-                      </button>
-                    ) : null}
-                  </div>
-                </div>
-              ) : null}
             </section>
 
-            {formError ? <p className="error-text" role="alert">{formError}</p> : null}
             {success ? <p className="notice-text" role="status">{success}</p> : null}
           </aside>
 
@@ -211,6 +234,59 @@ export default function GuestbookPage() {
           </section>
         </div>
       </article>
+
+      {user && composeOpen ? (
+        <div className="guestbook-immersive-layer">
+          <section
+            id="guestbook-immersive-sheet"
+            ref={composeDialogRef}
+            className="guestbook-immersive-sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="guestbook-compose-title"
+            aria-describedby="guestbook-compose-description"
+            aria-busy={busy}
+            data-form-state={formState}
+          >
+            <header className="guestbook-immersive-head">
+              <div>
+                <span className="guestbook-write-kicker">BY THE WINDOW</span>
+                <h2 id="guestbook-compose-title">山窗寄语</h2>
+                <p id="guestbook-compose-description">窗外有山，纸上有话。</p>
+              </div>
+              <button type="button" className="guestbook-sheet-close" onClick={closeComposer}>
+                <span>收笺</span>
+                <span className="guestbook-sheet-close-mark" aria-hidden="true">×</span>
+              </button>
+            </header>
+
+            <textarea
+              className="guestbook-immersive-textarea"
+              aria-label="留言内容"
+              value={content}
+              onChange={(event) => updateContent(event.target.value)}
+              placeholder="写下此刻想说的话……"
+              maxLength={500}
+              autoFocus
+            />
+
+            <footer className="guestbook-immersive-foot">
+              <span className="moments-counter">{content.length} / 500</span>
+              <div className="guestbook-immersive-actions">
+                {formError ? <p className="error-text" role="alert">{formError}</p> : null}
+                <button
+                  type="button"
+                  className="btn guestbook-submit"
+                  onClick={post}
+                  disabled={busy || !content.trim()}
+                >
+                  {busy ? '寄送中…' : formState === 'error' ? '重试留言' : '寄出留言'}
+                </button>
+              </div>
+            </footer>
+          </section>
+        </div>
+      ) : null}
     </div>
   )
 }
