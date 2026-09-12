@@ -24,6 +24,15 @@ function renderGuestbookShell() {
           </aside>
         </div>
       </article>
+      <div class="guestbook-list">
+        <div class="comment">
+          <div class="comment-body">
+            <div class="comment-replies">
+              <div class="comment reply"><div class="comment-body">回复</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
   `
 
@@ -31,10 +40,14 @@ function renderGuestbookShell() {
     page: document.querySelector<HTMLElement>('.guestbook-page')!,
     title: document.querySelector<HTMLElement>('.page-intro h1')!,
     description: document.querySelector<HTMLElement>('.page-intro-description')!,
+    sheet: document.querySelector<HTMLElement>('.guestbook-sheet')!,
     layout: document.querySelector<HTMLElement>('.guestbook-layout')!,
     panel: document.querySelector<HTMLElement>('.guestbook-window-panel')!,
     entry: document.querySelector<HTMLElement>('.guestbook-window-entry')!,
     spacer: document.querySelector<HTMLElement>('.guestbook-window-space')!,
+    comment: document.querySelector<HTMLElement>('.guestbook-list > .comment')!,
+    replies: document.querySelector<HTMLElement>('.comment-replies')!,
+    reply: document.querySelector<HTMLElement>('.comment.reply')!,
   }
 }
 
@@ -45,25 +58,40 @@ afterEach(() => {
 
 describe('guestbook desktop composition', () => {
   it('keeps the page framed and gives most of the width to received messages', () => {
-    const { page, layout } = renderGuestbookShell()
+    const { page, sheet, layout } = renderGuestbookShell()
 
-    expect(getComputedStyle(page).maxWidth).toBe('1180px')
+    expect(getComputedStyle(page).maxWidth).toBe('none')
     expect(getComputedStyle(page).width).toBe('auto')
-    expect(getComputedStyle(layout).gridTemplateColumns).toBe('minmax(0, 1fr) minmax(320px, 356px)')
+    expect(getComputedStyle(sheet).padding).toBe('30px 29px 62px 52px')
+    expect(getComputedStyle(layout).gridTemplateColumns).toBe('minmax(0, 1.95fr) minmax(390px, 1fr)')
+    expect(getComputedStyle(layout).gap).toBe('14px')
   })
 
   it('uses a compact writing card without an empty spacer', () => {
     const { panel, entry, spacer } = renderGuestbookShell()
 
-    expect(getComputedStyle(panel).minHeight).toBe('286px')
-    expect(getComputedStyle(entry).minHeight).toBe('286px')
+    expect(getComputedStyle(panel).minHeight).toBe('324px')
+    expect(getComputedStyle(entry).minHeight).toBe('324px')
     expect(getComputedStyle(spacer).display).toBe('none')
   })
 
-  it('renders both hero lines with the dedicated flowing calligraphy face', () => {
+  it('keeps note cards and reply branches dense like the approved reference', () => {
+    const { comment, replies, reply } = renderGuestbookShell()
+
+    expect(getComputedStyle(comment).minHeight).toBe('292px')
+    expect(getComputedStyle(comment).padding).toBe('34px 36px 30px 38px')
+    expect(getComputedStyle(replies).marginTop).toBe('18px')
+    expect(getComputedStyle(replies).paddingLeft).toBe('72px')
+    expect(getComputedStyle(reply).minHeight).toBe('0')
+    expect(getComputedStyle(reply).padding).toBe('16px 20px')
+  })
+
+  it('renders both hero lines with the flowing brush face used by the reference', () => {
     const { title, description } = renderGuestbookShell()
 
     expect(getComputedStyle(title).fontFamily).toContain('Zhi Mang Xing')
+    expect(getComputedStyle(title).fontWeight).toBe('400')
     expect(getComputedStyle(description).fontFamily).toContain('Zhi Mang Xing')
+    expect(getComputedStyle(description).fontWeight).toBe('400')
   })
 })

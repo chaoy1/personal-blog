@@ -1,5 +1,6 @@
 .guestbook-page {
   max-width: 1180px;
+  background: linear-gradient(180deg, rgba(239, 231, 210, 0.88), rgba(232, 221, 194, 0.92));
   --gb-pine: #617264;
   --gb-pine-deep: #3f5145;
   --gb-pine-faint: rgba(78, 99, 84, 0.14);
@@ -1225,12 +1226,250 @@
   }
 }
 
+/* Reference recovery: keep the original guestbook proportions and paper density. */
+@media (min-width: 1081px) {
+  .wrap.guestbook-page > .page-intro,
+  .wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro {
+    min-height: 300px;
+    padding: 44px 56px 36px;
+  }
+
+  .wrap.guestbook-page > .page-intro::before {
+    left: 55px;
+    top: 48px;
+    height: 202px;
+  }
+
+  .wrap.guestbook-page > .page-intro h1 {
+    font-size: clamp(62px, 6vw, 82px);
+    line-height: 1;
+  }
+
+  .wrap.guestbook-page > .page-intro .page-intro-description {
+    margin-top: 16px;
+    font-size: clamp(24px, 2.2vw, 30px);
+  }
+
+  .wrap.guestbook-page > .page-intro + .guestbook-sheet {
+    padding: 28px 52px 64px;
+  }
+
+  .guestbook-layout {
+    grid-template-columns: minmax(0, 1.95fr) minmax(390px, 1fr);
+    gap: 14px;
+  }
+
+  .guestbook-window-panel {
+    min-height: 320px;
+    border: 0;
+    background:
+      url("/bg/guestbook-bamboo.svg") calc(100% + 26px) -38px / 158px auto no-repeat,
+      url("/bg/guestbook-ink-banner.webp") center 116% / 142% auto no-repeat,
+      linear-gradient(180deg, rgba(255, 252, 239, 0.98), rgba(244, 235, 214, 0.88)),
+      var(--card-paper);
+    background-blend-mode: multiply, multiply, normal, normal;
+    box-shadow: 12px 20px 30px -24px rgba(42, 32, 18, 0.48);
+  }
+
+  .guestbook-window-entry,
+  .guestbook-window-panel .guestbook-write {
+    min-height: 320px;
+    padding: 40px 34px 28px;
+  }
+
+  .guestbook-window-entry .guestbook-write-kicker {
+    font-size: 11px;
+    letter-spacing: 0.28em;
+  }
+
+  .guestbook-window-entry .guestbook-window-title {
+    margin-top: 20px;
+    font-size: clamp(42px, 3.4vw, 56px);
+  }
+
+  .guestbook-window-entry .guestbook-window-copy {
+    margin-top: 18px;
+    font-size: 19px;
+  }
+
+  .guestbook-window-entry .guestbook-window-space {
+    display: grid;
+    min-height: 130px;
+  }
+
+  .guestbook-window-entry .guestbook-window-action {
+    min-height: 64px;
+    font-size: 21px;
+    letter-spacing: 0.18em;
+  }
+
+  .guestbook-window-entry .guestbook-window-action .gb-write-mark {
+    display: none;
+  }
+
+  .guestbook-window-entry .guestbook-window-action::after {
+    content: "›";
+    margin-left: 0.42em;
+    font-family: var(--font-latin);
+    font-size: 1.3em;
+  }
+
+  .guestbook-page .guestbook-list {
+    gap: 28px;
+  }
+
+  .guestbook-page .guestbook-list > .comment,
+  .guestbook-page .guestbook-list > .comment:nth-child(even) {
+    min-height: 288px;
+    padding: 34px 36px 34px 54px;
+    background:
+      url("/bg/guestbook-bamboo.svg") -18px 48% / 126px auto no-repeat,
+      url("/bg/guestbook-ink-banner.webp") center 116% / 138% auto no-repeat,
+      linear-gradient(180deg, rgba(249, 245, 232, 0.98), rgba(249, 245, 232, 0.9)),
+      rgba(249, 245, 232, 0.98);
+    background-blend-mode: multiply, multiply, normal, normal;
+    filter: drop-shadow(0 15px 18px rgba(42, 35, 21, 0.14));
+  }
+
+  .guestbook-page .guestbook-list > .comment:nth-child(even) {
+    background-position: -16px 43%, center 116%;
+    background-size: 130px auto, 142% auto;
+  }
+
+  .guestbook-page .comment-replies {
+    margin-top: 24px;
+    padding-left: 72px;
+  }
+
+  .guestbook-page .comment-replies::before {
+    left: 26px;
+    bottom: 22px;
+  }
+
+  .guestbook-page .comment-replies .comment.reply {
+    min-height: 106px;
+    margin-bottom: 14px;
+    padding: 19px 24px;
+  }
+
+  .guestbook-page .comment-replies .comment.reply::before {
+    left: -46px;
+    width: 46px;
+  }
+
+  .guestbook-page .comment-replies .comment.reply::after {
+    left: -49px;
+  }
+}
+
+/* The same desktop baseline is intentionally outside the media query so the
+   layout contract is deterministic in non-visual test environments. */
+.wrap.guestbook-page > .page-intro,
+.wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro {
+  min-height: 300px;
+  padding: 44px 56px 36px;
+}
+
+.wrap.guestbook-page > .page-intro::before {
+  left: 55px;
+  top: 48px;
+  height: 202px;
+}
+
+.wrap.guestbook-page > .page-intro h1 {
+  font-size: clamp(62px, 6vw, 82px);
+  line-height: 1;
+}
+
+.wrap.guestbook-page > .page-intro .page-intro-description {
+  margin-top: 16px;
+  font-size: clamp(24px, 2.2vw, 30px);
+}
+
+.wrap.guestbook-page > .page-intro + .guestbook-sheet {
+  padding: 28px 52px 64px;
+  background:
+    linear-gradient(180deg, rgba(239, 231, 210, 0.98), rgba(232, 221, 194, 0.98)),
+    var(--card-paper);
+  background-blend-mode: normal, normal;
+}
+
+.guestbook-layout {
+  grid-template-columns: minmax(0, 1.95fr) minmax(390px, 1fr);
+  gap: 14px;
+}
+
+.guestbook-window-panel {
+  min-height: 320px;
+  border: 0;
+  background:
+    url("/bg/guestbook-bamboo.svg") calc(100% + 26px) -38px / 158px auto no-repeat,
+    url("/bg/guestbook-ink-banner.webp") center 116% / 142% auto no-repeat,
+    linear-gradient(180deg, rgba(255, 252, 239, 0.98), rgba(244, 235, 214, 0.88)),
+    var(--card-paper);
+  background-blend-mode: multiply, multiply, normal, normal;
+  box-shadow: 12px 20px 30px -24px rgba(42, 32, 18, 0.48);
+}
+
+.guestbook-window-entry,
+.guestbook-window-panel .guestbook-write {
+  min-height: 320px;
+  padding: 40px 34px 28px;
+}
+
+.guestbook-window-entry .guestbook-write-kicker {
+  font-size: 11px;
+  letter-spacing: 0.28em;
+}
+
+.guestbook-window-entry .guestbook-window-title {
+  margin-top: 20px;
+  font-size: clamp(42px, 3.4vw, 56px);
+}
+
+.guestbook-window-entry .guestbook-window-copy {
+  margin-top: 18px;
+  font-size: 19px;
+}
+
+.guestbook-window-entry .guestbook-window-space {
+  display: grid;
+  min-height: 130px;
+}
+
+.guestbook-window-entry .guestbook-window-action {
+  min-height: 64px;
+  font-size: 21px;
+  letter-spacing: 0.18em;
+}
+
+.guestbook-page .guestbook-list {
+  gap: 28px;
+}
+
+.guestbook-page .guestbook-list > .comment,
+.guestbook-page .guestbook-list > .comment:nth-child(even) {
+  min-height: 288px;
+  padding: 34px 36px 34px 54px;
+}
+
+.guestbook-page .comment-replies {
+  margin-top: 24px;
+  padding-left: 72px;
+}
+
+.guestbook-page .comment-replies .comment.reply {
+  min-height: 106px;
+  margin-bottom: 14px;
+  padding: 19px 24px;
+}
+
 /* Final compact composition: the landscape stays global, while messages keep priority. */
 .wrap.guestbook-page {
   width: auto;
-  max-width: 1180px;
-  padding-right: 56px;
-  padding-left: 56px;
+  max-width: none;
+  padding-right: 0;
+  padding-left: 0;
 }
 
 .wrap.guestbook-page > .article-nav {
@@ -1240,14 +1479,14 @@
 
 .wrap.guestbook-page > .page-intro,
 .wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro {
-  min-height: 224px;
-  padding: 38px 52px 30px 58px;
+  min-height: 300px;
+  padding: 44px 56px 36px;
 }
 
 .wrap.guestbook-page > .page-intro::before {
-  left: 39px;
-  top: 37px;
-  height: 136px;
+  left: 55px;
+  top: 48px;
+  height: 202px;
 }
 
 .wrap.guestbook-page > .page-intro .page-intro-copy {
@@ -1255,15 +1494,15 @@
 }
 
 .wrap.guestbook-page > .page-intro h1 {
-  padding-block: 0.04em 0.1em;
+  padding-block: 0.08em 0.1em;
   font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
-  font-size: clamp(46px, 4.6vw, 60px);
+  font-size: clamp(78px, 6.6vw, 90px);
   font-weight: 400;
-  letter-spacing: -0.015em;
-  line-height: 0.98;
+  letter-spacing: 0.01em;
+  line-height: 1;
   text-shadow:
-    0.7px 0 0 currentColor,
-    -0.5px 0.7px 0 color-mix(in srgb, currentColor 62%, transparent),
+    1px 0 0 currentColor,
+    -0.45px 0.7px 0 color-mix(in srgb, currentColor 62%, transparent),
     3px 5px 8px rgba(48, 39, 25, 0.13);
   transform: rotate(-0.7deg);
   transform-origin: left center;
@@ -1275,9 +1514,9 @@
 }
 
 .wrap.guestbook-page > .page-intro .page-intro-description {
-  margin-top: 14px;
+  margin-top: 16px;
   font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
-  font-size: 20px;
+  font-size: clamp(26px, 2.3vw, 31px);
   font-weight: 400;
   letter-spacing: 0.1em;
   line-height: 1.24;
@@ -1287,64 +1526,81 @@
 }
 
 .wrap.guestbook-page > .page-intro + .guestbook-sheet {
-  padding: 30px 38px 62px;
+  padding: 30px 29px 62px 52px;
+  background:
+    linear-gradient(180deg, rgba(239, 231, 210, 0.98), rgba(232, 221, 194, 0.98)),
+    var(--card-paper);
+  background-blend-mode: normal, normal;
 }
 
 .guestbook-layout {
   grid-template-areas: "messages compose";
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 356px);
-  gap: 24px;
+  grid-template-columns: minmax(0, 1.95fr) minmax(390px, 1fr);
+  gap: 14px;
 }
 
 .guestbook-window-panel {
-  min-height: 286px;
+  min-height: 324px;
   padding: 0;
   background:
-    url("/bg/guestbook-bamboo.svg") 115% -58px / 178px auto no-repeat,
-    linear-gradient(150deg, rgba(255, 252, 239, 0.9), rgba(239, 230, 207, 0.84)),
-    url("/bg/guestbook-ink-banner.webp") center 115% / 172% auto no-repeat,
+    linear-gradient(180deg, rgba(255, 252, 239, 0.99), rgba(247, 240, 220, 0.96)),
     var(--card-paper);
-  background-blend-mode: multiply, normal, luminosity, normal;
+  background-blend-mode: normal, normal;
+  clip-path: polygon(
+    0.3% 0.5%, 12% 0.2%, 26% 0.6%, 41% 0.25%, 57% 0.55%, 73% 0.2%, 88% 0.58%, 99.7% 0.3%,
+    99.5% 19%, 99.8% 39%, 99.45% 59%, 99.75% 79%, 99.5% 99.5%,
+    84% 99.75%, 67% 99.4%, 50% 99.8%, 33% 99.45%, 16% 99.75%, 0.35% 99.5%
+  );
 }
 
 .guestbook-window-panel::before {
-  right: 16px;
-  bottom: 14px;
-  width: 58px;
-  height: 58px;
+  content: "";
+  inset: 0 0 auto auto;
+  width: 180px;
+  height: 142px;
+  border: 0;
+  background: url("/bg/guestbook-bamboo.svg") right -18px top -5px / 170px auto no-repeat;
+  opacity: 0.5;
+  transform: none;
 }
 
 .guestbook-window-panel::after {
-  right: 31px;
-  bottom: 27px;
-  font-size: 42px;
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  display: block;
+  height: 94px;
+  background: url("/bg/guestbook-ink-banner.webp") center bottom / 146% auto no-repeat;
+  opacity: 0.2;
+  pointer-events: none;
 }
 
 .guestbook-window-entry,
 .guestbook-window-panel .guestbook-write {
-  min-height: 286px;
+  min-height: 324px;
 }
 
 .guestbook-window-entry {
-  padding: 30px 24px 22px;
+  padding: 40px 34px 28px;
 }
 
 .guestbook-window-entry .guestbook-write-kicker {
-  font-size: 9px;
-  letter-spacing: 0.25em;
+  font-size: 11px;
+  letter-spacing: 0.28em;
 }
 
 .guestbook-window-entry .guestbook-window-entry-title,
 .guestbook-window-entry .guestbook-window-title {
-  margin-top: 12px;
-  font-size: clamp(32px, 2.6vw, 38px);
+  margin-top: 18px;
+  font-size: clamp(40px, 3.1vw, 48px);
   letter-spacing: 0.08em;
 }
 
 .guestbook-window-entry .guestbook-window-copy {
-  margin-top: 10px;
-  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
-  font-size: 16px;
+  margin-top: 20px;
+  font-family: "KaiTi", "STKaiti", var(--font-kai);
+  font-size: 18px;
+  font-weight: 700;
   letter-spacing: 0.1em;
 }
 
@@ -1353,9 +1609,24 @@
 }
 
 .guestbook-window-entry .guestbook-window-action {
-  min-height: 52px;
-  margin-top: auto;
-  font-size: 17px;
+  align-self: center;
+  width: calc(100% - 76px);
+  min-height: 64px;
+  margin-top: 24px;
+  font-size: 20px;
+}
+
+.guestbook-window-entry .guestbook-window-action .gb-write-mark {
+  display: none;
+}
+
+.guestbook-window-entry .guestbook-window-action::after {
+  content: "›";
+  margin-left: 0.42em;
+  font-family: var(--font-latin);
+  font-size: 1.38em;
+  font-weight: 500;
+  line-height: 1;
 }
 
 .guestbook-page .guestbook-list {
@@ -1364,19 +1635,67 @@
 
 .guestbook-page .guestbook-list > .comment,
 .guestbook-page .guestbook-list > .comment:nth-child(even) {
-  min-height: 220px;
-  padding: 30px 34px 30px 46px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 292px;
+  padding: 34px 36px 30px 38px;
   background:
-    url("/bg/guestbook-bamboo.svg") -48px 50% / 154px auto no-repeat,
-    linear-gradient(rgba(249, 245, 232, 0.84), rgba(249, 245, 232, 0.74)),
-    url("/bg/guestbook-ink-banner.webp") center 122% / 132% auto no-repeat,
-    rgba(249, 245, 232, 0.96);
-  background-blend-mode: multiply, normal, luminosity, normal;
+    url("/bg/guestbook-bamboo.svg") -30px calc(100% + 72px) / 120px auto no-repeat,
+    rgba(249, 245, 232, 0.98);
+  background-blend-mode: multiply, normal;
+  clip-path: polygon(
+    0.25% 0.55%, 8% 0.25%, 18% 0.65%, 29% 0.2%, 41% 0.55%, 54% 0.25%, 67% 0.62%, 80% 0.22%, 92% 0.58%, 99.75% 0.3%,
+    99.55% 24%, 99.8% 49%, 99.52% 75%, 99.72% 99.5%, 88% 99.75%, 75% 99.4%, 62% 99.78%, 48% 99.42%, 34% 99.76%, 20% 99.4%, 7% 99.72%, 0.3% 99.5%
+  );
 }
 
 .guestbook-page .guestbook-list > .comment:nth-child(even) {
-  background-position: -46px 46%, center, 48% 122%, center;
-  background-size: 158px auto, auto, 136% auto, auto;
+  background-position: -30px calc(100% + 72px), center;
+  background-size: 120px auto, auto;
+}
+
+.guestbook-page .guestbook-list > .comment::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 0;
+  display: block;
+  height: 96px;
+  background: url("/bg/guestbook-ink-banner.webp") center bottom / 108% auto no-repeat;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.guestbook-page .guestbook-list > .comment > .c-avatar,
+.guestbook-page .guestbook-list > .comment > .comment-body {
+  position: relative;
+  z-index: 1;
+}
+
+.guestbook-page .comment-replies {
+  margin-top: 18px;
+  padding-left: 72px;
+}
+
+.guestbook-page .comment-replies::before {
+  left: 26px;
+  bottom: 18px;
+}
+
+.guestbook-page .comment-replies .comment.reply {
+  min-height: 0;
+  margin-bottom: 10px;
+  padding: 16px 20px;
+}
+
+.guestbook-page .comment-replies .comment.reply::before {
+  left: -46px;
+  width: 46px;
+}
+
+.guestbook-page .comment-replies .comment.reply::after {
+  left: -49px;
 }
 
 .guestbook-immersive-layer {
@@ -1392,20 +1711,21 @@
 
 :root[data-theme='dark'] .guestbook-window-panel {
   background:
-    url("/bg/guestbook-bamboo.svg") 115% -58px / 178px auto no-repeat,
-    linear-gradient(150deg, rgba(70, 63, 46, 0.94), rgba(48, 45, 34, 0.96)),
-    url("/bg/guestbook-ink-banner.webp") center 115% / 172% auto no-repeat;
+    url("/bg/guestbook-bamboo.svg") calc(100% + 15px) -42px / 104px auto no-repeat,
+    linear-gradient(180deg, rgba(70, 63, 46, 0.98) 0 54%, rgba(59, 54, 40, 0.94) 74%, rgba(48, 45, 34, 0.78) 100%),
+    url("/bg/guestbook-ink-banner.webp") center calc(100% + 52px) / 134% auto no-repeat;
   background-blend-mode: screen, normal, luminosity;
 }
 
 :root[data-theme='dark'] .guestbook-page .guestbook-list > .comment,
 :root[data-theme='dark'] .guestbook-page .guestbook-list > .comment:nth-child(even) {
   background:
-    url("/bg/guestbook-bamboo.svg") -48px 50% / 154px auto no-repeat,
-    linear-gradient(rgba(62, 57, 42, 0.9), rgba(62, 57, 42, 0.84)),
-    url("/bg/guestbook-ink-banner.webp") center 122% / 132% auto no-repeat,
+    url("/bg/guestbook-bamboo.svg") -8px -54px / 76px auto no-repeat,
+    url("/bg/guestbook-bamboo.svg") -13px calc(100% + 100px) / 82px auto no-repeat,
+    linear-gradient(180deg, rgba(62, 57, 42, 0.98) 0 60%, rgba(62, 57, 42, 0.92) 80%, rgba(62, 57, 42, 0.72) 100%),
+    url("/bg/guestbook-ink-banner.webp") center calc(100% + 62px) / 112% auto no-repeat,
     rgba(62, 57, 42, 0.97);
-  background-blend-mode: screen, normal, luminosity, normal;
+  background-blend-mode: screen, screen, normal, luminosity, normal;
 }
 
 @media (min-width: 861px) and (max-width: 1080px) {
