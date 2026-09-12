@@ -38,6 +38,7 @@ function renderGuestbookShell() {
 
   return {
     page: document.querySelector<HTMLElement>('.guestbook-page')!,
+    intro: document.querySelector<HTMLElement>('.page-intro')!,
     title: document.querySelector<HTMLElement>('.page-intro h1')!,
     description: document.querySelector<HTMLElement>('.page-intro-description')!,
     sheet: document.querySelector<HTMLElement>('.guestbook-sheet')!,
@@ -57,33 +58,47 @@ afterEach(() => {
 })
 
 describe('guestbook desktop composition', () => {
-  it('keeps the page framed and gives most of the width to received messages', () => {
+  it('centres the page column and gives most of the width to received messages', () => {
     const { page, sheet, layout } = renderGuestbookShell()
 
-    expect(getComputedStyle(page).maxWidth).toBe('none')
+    expect(getComputedStyle(page).maxWidth).toBe('1240px')
     expect(getComputedStyle(page).width).toBe('auto')
-    expect(getComputedStyle(sheet).padding).toBe('30px 29px 62px 52px')
-    expect(getComputedStyle(layout).gridTemplateColumns).toBe('minmax(0, 1.95fr) minmax(390px, 1fr)')
-    expect(getComputedStyle(layout).gap).toBe('14px')
+    expect(getComputedStyle(page).marginLeft).toBe('auto')
+    expect(getComputedStyle(page).marginRight).toBe('auto')
+    expect(getComputedStyle(sheet).padding).toBe('28px 0px 0px')
+    expect(getComputedStyle(sheet).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+    expect(getComputedStyle(layout).gridTemplateColumns).toBe('minmax(0, 1fr) minmax(320px, 420px)')
+    expect(getComputedStyle(layout).gap).toBe('24px')
   })
 
-  it('uses a compact writing card without an empty spacer', () => {
+  it('shows the whole landscape banner without cropping it', () => {
+    const { intro } = renderGuestbookShell()
+
+    expect(getComputedStyle(intro).minHeight).toBe('184px')
+    expect(getComputedStyle(intro).backgroundColor).toBe('rgb(236, 228, 208)')
+    expect(guestbookStyles).toMatch(
+      /\.wrap\.guestbook-page > \.page-intro::after \{[\s\S]*?guestbook-ink-banner\.webp"\) center \/ 100% 100% no-repeat;/,
+    )
+  })
+
+  it('gives the writing card a full-height pine spine and no paper spacer', () => {
     const { panel, entry, spacer } = renderGuestbookShell()
 
-    expect(getComputedStyle(panel).minHeight).toBe('324px')
-    expect(getComputedStyle(entry).minHeight).toBe('324px')
+    expect(getComputedStyle(panel).minHeight).toBe('392px')
+    expect(getComputedStyle(entry).minHeight).toBe('392px')
     expect(getComputedStyle(spacer).display).toBe('none')
   })
 
-  it('keeps note cards and reply branches dense like the approved reference', () => {
+  it('renders note cards as ruled paper with a pine spine and a reply branch', () => {
     const { comment, replies, reply } = renderGuestbookShell()
 
-    expect(getComputedStyle(comment).minHeight).toBe('292px')
-    expect(getComputedStyle(comment).padding).toBe('34px 36px 30px 38px')
-    expect(getComputedStyle(replies).marginTop).toBe('18px')
-    expect(getComputedStyle(replies).paddingLeft).toBe('72px')
-    expect(getComputedStyle(reply).minHeight).toBe('0')
-    expect(getComputedStyle(reply).padding).toBe('16px 20px')
+    expect(getComputedStyle(comment).minHeight).toBe('255px')
+    expect(getComputedStyle(comment).padding).toBe('32px 36px 28px 44px')
+    expect(getComputedStyle(comment).borderRadius).toBe('3px')
+    expect(getComputedStyle(replies).marginTop).toBe('20px')
+    expect(getComputedStyle(replies).paddingLeft).toBe('64px')
+    expect(getComputedStyle(reply).minHeight).toBe('76px')
+    expect(getComputedStyle(reply).padding).toBe('14px 20px')
   })
 
   it('renders both hero lines with the flowing brush face used by the reference', () => {

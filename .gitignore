@@ -46,3 +46,6 @@ effect-preview/leaf-design/_dbg*.png
 
 .vercel
 .env*
+
+# 本地视觉比对工作区
+/.compare/
