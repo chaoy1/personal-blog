@@ -8,6 +8,7 @@ function renderGuestbookShell() {
   document.head.innerHTML = `<style>${guestbookStyles}</style>`
   document.body.innerHTML = `
     <main class="wrap guestbook-page">
+      <nav class="article-nav">返回首页</nav>
       <section class="page-intro">
         <div class="page-intro-copy">
           <h1>留言</h1>
@@ -38,6 +39,7 @@ function renderGuestbookShell() {
 
   return {
     page: document.querySelector<HTMLElement>('.guestbook-page')!,
+    nav: document.querySelector<HTMLElement>('.article-nav')!,
     title: document.querySelector<HTMLElement>('.page-intro h1')!,
     description: document.querySelector<HTMLElement>('.page-intro-description')!,
     sheet: document.querySelector<HTMLElement>('.guestbook-sheet')!,
@@ -57,14 +59,34 @@ afterEach(() => {
 })
 
 describe('guestbook desktop composition', () => {
-  it('keeps the page framed and gives most of the width to received messages', () => {
+  it('starts with the landscape instead of a separate secondary-navigation band', () => {
+    const { nav } = renderGuestbookShell()
+
+    expect(getComputedStyle(nav).display).toBe('none')
+  })
+
+  it('keeps the paper field full width with equal content gutters', () => {
     const { page, sheet, layout } = renderGuestbookShell()
 
     expect(getComputedStyle(page).maxWidth).toBe('none')
     expect(getComputedStyle(page).width).toBe('auto')
-    expect(getComputedStyle(sheet).padding).toBe('30px 29px 62px 52px')
-    expect(getComputedStyle(layout).gridTemplateColumns).toBe('minmax(0, 1.95fr) minmax(390px, 1fr)')
-    expect(getComputedStyle(layout).gap).toBe('14px')
+    expect(getComputedStyle(sheet).paddingLeft).toBe('52px')
+    expect(getComputedStyle(sheet).paddingRight).toBe('52px')
+  })
+
+  it('reserves the upper twenty-eight percent for the landscape heading', () => {
+    const { title } = renderGuestbookShell()
+    const hero = title.closest<HTMLElement>('.page-intro')!
+
+    expect(getComputedStyle(hero).minHeight).toBe('clamp(280px, 28vh, 330px)')
+  })
+
+  it('gives the message column twice the weight of the writing column and aligns their tops', () => {
+    const { layout } = renderGuestbookShell()
+
+    expect(getComputedStyle(layout).gridTemplateColumns).toBe('minmax(0, 2fr) minmax(320px, 1fr)')
+    expect(getComputedStyle(layout).gap).toBe('18px')
+    expect(getComputedStyle(layout).alignItems).toBe('start')
   })
 
   it('uses a compact writing card without an empty spacer', () => {
@@ -75,13 +97,14 @@ describe('guestbook desktop composition', () => {
     expect(getComputedStyle(spacer).display).toBe('none')
   })
 
-  it('keeps note cards and reply branches dense like the approved reference', () => {
+  it('lets note-card height follow its content and keeps reply branches indented', () => {
     const { comment, replies, reply } = renderGuestbookShell()
 
-    expect(getComputedStyle(comment).minHeight).toBe('292px')
-    expect(getComputedStyle(comment).padding).toBe('34px 36px 30px 38px')
-    expect(getComputedStyle(replies).marginTop).toBe('18px')
-    expect(getComputedStyle(replies).paddingLeft).toBe('72px')
+    expect(getComputedStyle(comment).minHeight).toBe('0')
+    expect(getComputedStyle(comment).marginLeft).toBe('0px')
+    expect(getComputedStyle(comment).padding).toBe('30px 34px 30px 42px')
+    expect(getComputedStyle(replies).marginTop).toBe('20px')
+    expect(getComputedStyle(replies).paddingLeft).toBe('64px')
     expect(getComputedStyle(reply).minHeight).toBe('0')
     expect(getComputedStyle(reply).padding).toBe('16px 20px')
   })

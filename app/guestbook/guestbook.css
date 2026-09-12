@@ -1466,27 +1466,35 @@
 
 /* Final compact composition: the landscape stays global, while messages keep priority. */
 .wrap.guestbook-page {
+  --gb-page-paper: #e8dec7;
+  --gb-card-paper: #f8f2e3;
+  --gb-card-paper-dark: #3f3a2b;
   width: auto;
   max-width: none;
   padding-right: 0;
   padding-left: 0;
+  background: var(--gb-page-paper);
 }
 
 .wrap.guestbook-page > .article-nav {
-  margin-right: 0;
-  margin-left: 0;
+  display: none;
 }
 
 .wrap.guestbook-page > .page-intro,
 .wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro {
-  min-height: 300px;
-  padding: 44px 56px 36px;
+  min-height: clamp(280px, 28vh, 330px);
+  padding: 42px 56px 34px;
+  background-color: #ece3cd;
 }
 
 .wrap.guestbook-page > .page-intro::before {
   left: 55px;
   top: 48px;
   height: 202px;
+}
+
+.wrap.guestbook-page > .page-intro::after {
+  background: #ece3cd url("/bg/guestbook-ink-banner.webp") center / cover no-repeat;
 }
 
 .wrap.guestbook-page > .page-intro .page-intro-copy {
@@ -1526,26 +1534,24 @@
 }
 
 .wrap.guestbook-page > .page-intro + .guestbook-sheet {
-  padding: 30px 29px 62px 52px;
-  background:
-    linear-gradient(180deg, rgba(239, 231, 210, 0.98), rgba(232, 221, 194, 0.98)),
-    var(--card-paper);
-  background-blend-mode: normal, normal;
+  min-height: 72vh;
+  padding: 30px 52px 62px;
+  background: var(--gb-page-paper);
 }
 
 .guestbook-layout {
   grid-template-areas: "messages compose";
-  grid-template-columns: minmax(0, 1.95fr) minmax(390px, 1fr);
-  gap: 14px;
+  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+  align-items: start;
+  gap: 18px;
 }
 
 .guestbook-window-panel {
   min-height: 324px;
   padding: 0;
-  background:
-    linear-gradient(180deg, rgba(255, 252, 239, 0.99), rgba(247, 240, 220, 0.96)),
-    var(--card-paper);
-  background-blend-mode: normal, normal;
+  border: 0;
+  background: var(--gb-card-paper);
+  box-shadow: 0 16px 28px -22px rgba(49, 39, 22, 0.52);
   clip-path: polygon(
     0.3% 0.5%, 12% 0.2%, 26% 0.6%, 41% 0.25%, 57% 0.55%, 73% 0.2%, 88% 0.58%, 99.7% 0.3%,
     99.5% 19%, 99.8% 39%, 99.45% 59%, 99.75% 79%, 99.5% 99.5%,
@@ -1560,7 +1566,7 @@
   height: 142px;
   border: 0;
   background: url("/bg/guestbook-bamboo.svg") right -18px top -5px / 170px auto no-repeat;
-  opacity: 0.5;
+  opacity: 0.42;
   transform: none;
 }
 
@@ -1571,7 +1577,7 @@
   display: block;
   height: 94px;
   background: url("/bg/guestbook-ink-banner.webp") center bottom / 146% auto no-repeat;
-  opacity: 0.2;
+  opacity: 0.17;
   pointer-events: none;
 }
 
@@ -1638,11 +1644,12 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  min-height: 292px;
-  padding: 34px 36px 30px 38px;
+  min-height: 0;
+  margin-left: 0;
+  padding: 30px 34px 30px 42px;
   background:
     url("/bg/guestbook-bamboo.svg") -30px calc(100% + 72px) / 120px auto no-repeat,
-    rgba(249, 245, 232, 0.98);
+    var(--gb-card-paper);
   background-blend-mode: multiply, normal;
   clip-path: polygon(
     0.25% 0.55%, 8% 0.25%, 18% 0.65%, 29% 0.2%, 41% 0.55%, 54% 0.25%, 67% 0.62%, 80% 0.22%, 92% 0.58%, 99.75% 0.3%,
@@ -1651,8 +1658,15 @@
 }
 
 .guestbook-page .guestbook-list > .comment:nth-child(even) {
+  margin-left: 0;
   background-position: -30px calc(100% + 72px), center;
   background-size: 120px auto, auto;
+}
+
+.guestbook-page .guestbook-list > .comment::before {
+  width: 7px;
+  background: var(--gb-pine-deep);
+  opacity: 0.88;
 }
 
 .guestbook-page .guestbook-list > .comment::after {
@@ -1674,12 +1688,12 @@
 }
 
 .guestbook-page .comment-replies {
-  margin-top: 18px;
-  padding-left: 72px;
+  margin-top: 20px;
+  padding-left: 64px;
 }
 
 .guestbook-page .comment-replies::before {
-  left: 26px;
+  left: 22px;
   bottom: 18px;
 }
 
@@ -1690,12 +1704,12 @@
 }
 
 .guestbook-page .comment-replies .comment.reply::before {
-  left: -46px;
-  width: 46px;
+  left: -42px;
+  width: 42px;
 }
 
 .guestbook-page .comment-replies .comment.reply::after {
-  left: -49px;
+  left: -45px;
 }
 
 .guestbook-immersive-layer {
@@ -1712,9 +1726,9 @@
 :root[data-theme='dark'] .guestbook-window-panel {
   background:
     url("/bg/guestbook-bamboo.svg") calc(100% + 15px) -42px / 104px auto no-repeat,
-    linear-gradient(180deg, rgba(70, 63, 46, 0.98) 0 54%, rgba(59, 54, 40, 0.94) 74%, rgba(48, 45, 34, 0.78) 100%),
-    url("/bg/guestbook-ink-banner.webp") center calc(100% + 52px) / 134% auto no-repeat;
-  background-blend-mode: screen, normal, luminosity;
+    url("/bg/guestbook-ink-banner.webp") center calc(100% + 52px) / 134% auto no-repeat,
+    var(--gb-card-paper-dark);
+  background-blend-mode: screen, luminosity, normal;
 }
 
 :root[data-theme='dark'] .guestbook-page .guestbook-list > .comment,
@@ -1722,10 +1736,20 @@
   background:
     url("/bg/guestbook-bamboo.svg") -8px -54px / 76px auto no-repeat,
     url("/bg/guestbook-bamboo.svg") -13px calc(100% + 100px) / 82px auto no-repeat,
-    linear-gradient(180deg, rgba(62, 57, 42, 0.98) 0 60%, rgba(62, 57, 42, 0.92) 80%, rgba(62, 57, 42, 0.72) 100%),
     url("/bg/guestbook-ink-banner.webp") center calc(100% + 62px) / 112% auto no-repeat,
-    rgba(62, 57, 42, 0.97);
-  background-blend-mode: screen, screen, normal, luminosity, normal;
+    var(--gb-card-paper-dark);
+  background-blend-mode: screen, screen, luminosity, normal;
+}
+
+:root[data-theme='dark'] .wrap.guestbook-page {
+  --gb-page-paper: #302c22;
+  --gb-card-paper: #3f3a2b;
+}
+
+:root[data-theme='dark'] .wrap.guestbook-page > .page-intro::after {
+  background: #302c22 url("/bg/guestbook-ink-banner.webp") center / cover no-repeat;
+  opacity: 0.72;
+  filter: brightness(0.58) saturate(0.7);
 }
 
 @media (min-width: 861px) and (max-width: 1080px) {
@@ -1811,6 +1835,38 @@
   .guestbook-page .guestbook-list > .comment:nth-child(even) {
     min-height: 0;
     padding: 22px 18px 22px 26px;
+  }
+
+  .guestbook-page .comment-replies {
+    margin-left: -4px;
+    padding-left: 38px;
+  }
+
+  .guestbook-page .comment-replies::before {
+    left: 13px;
+  }
+
+  .guestbook-page .comment-replies .comment.reply {
+    padding: 13px 14px;
+  }
+
+  .guestbook-page .comment-replies .comment-meta {
+    flex-wrap: wrap;
+    gap: 2px 10px;
+  }
+
+  .guestbook-page .comment-replies .comment-date {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .guestbook-page .comment-replies .comment.reply::before {
+    left: -25px;
+    width: 25px;
+  }
+
+  .guestbook-page .comment-replies .comment.reply::after {
+    left: -28px;
   }
 
   .guestbook-immersive-layer {
