@@ -195,6 +195,8 @@ describe('guestbook desktop composition', () => {
     const gutterRow = immersiveSheet.querySelector<HTMLElement>('.guestbook-sheet-gutter i')!
     const composerTextarea = immersiveSheet.querySelector<HTMLTextAreaElement>('.guestbook-immersive-textarea')!
     expect(getComputedStyle(gutterRow).lineHeight).toBe(getComputedStyle(composerTextarea).lineHeight)
+    // 正文不能自己滚；滚动只属于外层书写区，否则文字与行号会进入两个坐标系。
+    expect(getComputedStyle(composerTextarea).overflowY).toBe('hidden')
   })
 
   it('places each row number by measured line position instead of a uniform pitch', () => {
@@ -218,8 +220,8 @@ describe('guestbook desktop composition', () => {
     const measure = source.slice(source.indexOf('const measureRows'), source.indexOf('// 打开弹层'))
     expect(measure).toContain('offsetTop')
     expect(measure).not.toContain('getBoundingClientRect')
-    // 行号栏本身要能与滚动同步位移（位移用 transform，不影响 offsetTop）
-    expect(getComputedStyle(gutter).willChange).toBe('transform')
+    // 行号栏已在滚动容器内部，不能再做第二次 transform 位移。
+    expect(getComputedStyle(gutter).willChange).not.toContain('transform')
   })
 
   it('bounds the letter paper and scrolls the writing area instead of growing', () => {
@@ -235,9 +237,9 @@ describe('guestbook desktop composition', () => {
     expect(writeStyle.minHeight).toBe('0')
     // 常驻滚动条槽位：有/无滚动条时正文宽度不跳
     expect(writeStyle.scrollbarGutter).toBe('stable')
-    // 行号栏要能与滚动同步位移
+    // 行号和正文由同一个原生滚动容器一起移动。
     expect(getComputedStyle(immersiveSheet.querySelector<HTMLElement>('.guestbook-sheet-gutter')!).willChange)
-      .toBe('transform')
+      .not.toContain('transform')
   })
 
   it('lets note-card height follow its content and keeps reply branches indented', () => {

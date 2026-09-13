@@ -2369,7 +2369,7 @@
 
 /* ---- 书写区：行号栏 + 格线 ----
    写长了就在这里滚，笺纸本身不再往下长；
-   行号栏由 JS 按 scrollTop 同步位移，滚到哪一行行号都跟着。 */
+   行号栏与正文同处这个滚动容器，由浏览器一起移动。 */
 .guestbook-sheet-write {
   position: relative;
   z-index: 2;
@@ -2433,7 +2433,6 @@
   font-size: 10px;
   line-height: 1;
   text-align: right;
-  will-change: transform;
 }
 
 .guestbook-sheet-gutter i {
@@ -2466,6 +2465,8 @@
   margin: 0;
   padding: 0;
   resize: none;
+  overflow-y: hidden;
+  overflow-x: hidden;
   border: 0;
   outline: 0;
   color: var(--ink);

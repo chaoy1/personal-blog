@@ -16,19 +16,6 @@ const MIN_ROWS = 7
 const MAX_LEN = 500
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
-/** 量行用的镜像元素要注入原文，先转义避免把用户输入当 HTML */
-function escapeHtml(value: string): string {
-  return value.replace(/[&<>"']/g, (char) => {
-    switch (char) {
-      case '&': return '&amp;'
-      case '<': return '&lt;'
-      case '>': return '&gt;'
-      case '"': return '&quot;'
-      default: return '&#39;'
-    }
-  })
-}
-
 export default function GuestbookPage() {
   const { user, guestbook, ready, error, addGuestbook, deleteGuestbook } = useAppStore()
   const [page, setPage] = useState(1)
@@ -40,6 +27,8 @@ export default function GuestbookPage() {
   const [success, setSuccess] = useState('')
   /** 行号栏要显示几行：跟着正文的实际视觉行数走 */
   const [rowCount, setRowCount] = useState(MIN_ROWS)
+  /** 每个行号的实测位置；与行数一起更新，新节点首帧就有定位 */
+  const [rowTops, setRowTops] = useState<number[]>([])
   const submissionId = useRef(0)
   const composeTriggerRef = useRef<HTMLButtonElement>(null)
   const composeDialogRef = useRef<HTMLElement>(null)
@@ -87,11 +76,21 @@ export default function GuestbookPage() {
     const snapped = `${lineHeight}px`
     if (el.style.lineHeight !== snapped) el.style.lineHeight = snapped
 
+    // 先松开旧高度再量，删除内容时行数也能缩回；正文自身不保留滚动偏移。
+    const previousHeight = el.style.height
+    el.style.height = 'auto'
+    el.scrollTop = 0
+    const contentHeight = el.scrollHeight
+    if (!Number.isFinite(contentHeight) || contentHeight <= 0) {
+      el.style.height = previousHeight
+      return
+    }
+    const lines = Math.max(MIN_ROWS, Math.round(contentHeight / lineHeight))
+
     /**
-     * 逐行位置不靠"算"，直接问浏览器：用一个与 textarea 同度量的镜像元素
-     * 把每一行包成 inline 元素，量出每行的真实 top。
-     * 这样无论字体回退、标点压缩还是宽度变化，行号都跟着文字走，
-     * 不会再出现"算出来的行距"与"排版出来的行距"不一致导致的逐行错位。
+     * 用与 textarea 同度量的镜像元素生成足量的单行标记，再向浏览器读取每行 top。
+     * 镜像不再复刻正文：正文里的软换行与手动换行都已经体现在 scrollHeight / lines，
+     * 单行标记则保证每一个视觉行（不只是每个手动换行）都有对应位置。
      */
     const mirror = document.createElement('div')
     mirror.setAttribute('aria-hidden', 'true')
@@ -112,23 +111,23 @@ export default function GuestbookPage() {
       `letter-spacing:${styles.letterSpacing}`,
       'box-sizing:content-box',
     ].join(';')
-    mirror.innerHTML = el.value
-      .split('\n')
-      .map((line) => `<span>${line === '' ? ' ' : escapeHtml(line)}</span>`)
-      .join('<br>')
+    for (let index = 0; index < lines; index += 1) {
+      const marker = document.createElement('span')
+      marker.textContent = 'M'
+      mirror.appendChild(marker)
+      if (index < lines - 1) mirror.appendChild(document.createElement('br'))
+    }
     const placement = el.parentElement
-    if (!placement) return
+    if (!placement) {
+      el.style.height = previousHeight
+      return
+    }
     placement.appendChild(mirror)
     // 镜像用 offsetTop 取值：它是 layout 值，不受祖先 transform 与滚动影响
     const spans = Array.from(mirror.querySelectorAll('span'))
     const lineTops = spans.map((span) => (span as HTMLElement).offsetTop)
-    const mirrorHeight = mirror.offsetHeight
     mirror.remove()
 
-    // 行数：镜像量与 scrollHeight 取大，保证纸条容得下内容
-    const lineCount = Math.max(1, spans.length)
-    const contentHeight = Math.max(mirrorHeight, el.scrollHeight)
-    const lines = Math.max(MIN_ROWS, Math.round(contentHeight / lineHeight))
     const nextHeight = `${lines * lineHeight}px`
     if (el.style.height !== nextHeight) el.style.height = nextHeight
 
@@ -138,19 +137,18 @@ export default function GuestbookPage() {
      * transform 位移不影响 offsetTop，所以这里量与用都在 layout 坐标系里。
      */
     const gutter = gutterRef.current
-    const rows = gutter?.children
-    if (gutter && rows && rows.length > 0) {
+    if (gutter) {
       gutter.style.height = `${lines * lineHeight}px`
-      const fallback = Number.isFinite(lineTops[1] - lineTops[0]) && lineTops[1] > lineTops[0]
-        ? lineTops[1] - lineTops[0]
-        : lineHeight
-      for (let i = 0; i < rows.length; i += 1) {
-        const row = rows[i] as HTMLElement
-        const top = i < lineTops.length ? lineTops[i] : lineTops[lineTops.length - 1] + (i - lineTops.length + 1) * fallback
-        row.style.top = `${top}px`
-      }
     }
 
+    const nextTops = lineTops.map((measuredTop, index) => {
+      if (index === 0) return Number.isFinite(measuredTop) ? measuredTop : 0
+      const previousTop = lineTops[index - 1]
+      return Number.isFinite(measuredTop) && measuredTop > previousTop
+        ? measuredTop
+        : index * lineHeight
+    })
+    setRowTops(nextTops)
     setRowCount(lines)
   }, [])
 
@@ -169,26 +167,33 @@ export default function GuestbookPage() {
     return () => observer.disconnect()
   }, [composeOpen, measureRows])
 
-  /**
-   * 行号栏跟着正文一起滚，并按 scrollTop 取整，
-   * 否则行号会停在半行上、与格线错开。
-   */
-  const handleWriteScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
-    const gutter = gutterRef.current
-    if (!gutter) return
-    const top = event.currentTarget.scrollTop
-    gutter.style.transform = `translateY(${-Math.round(top)}px)`
-  }, [])
+  // 字体加载会改变字宽与软换行，但不一定触发 ResizeObserver。
+  useEffect(() => {
+    if (!composeOpen) return
+    const fonts = document.fonts
+    if (!fonts) return
+
+    let active = true
+    const remeasure = () => {
+      if (active) measureRows()
+    }
+    void fonts.ready.then(remeasure)
+    fonts.addEventListener('loadingdone', remeasure)
+    return () => {
+      active = false
+      fonts.removeEventListener('loadingdone', remeasure)
+    }
+  }, [composeOpen, measureRows])
 
   // 关掉弹层时复位，下次打开是干净的一张笺
   useEffect(() => {
     if (!composeOpen) {
       setRowCount(MIN_ROWS)
+      setRowTops([])
       return
     }
-    // 重新开笺：滚动位置与行号偏移都回到顶端
+    // 重新开笺：原生滚动位置回到顶端；行号与正文同处这个滚动容器。
     if (scrollRef.current) scrollRef.current.scrollTop = 0
-    if (gutterRef.current) gutterRef.current.style.transform = 'translateY(0)'
   }, [composeOpen])
 
   useEffect(() => {
@@ -442,12 +447,16 @@ export default function GuestbookPage() {
               <div
                 className="guestbook-sheet-write"
                 ref={scrollRef}
-                onScroll={handleWriteScroll}
               >
                 <div className="guestbook-sheet-inner">
                   <div className="guestbook-sheet-gutter" aria-hidden="true" ref={gutterRef}>
                     {Array.from({ length: rowCount }, (_, index) => (
-                      <i key={index}>{String(index + 1).padStart(2, '0')}</i>
+                      <i
+                        key={index}
+                        style={{ top: rowTops[index] === undefined ? `calc(${index} * var(--sheet-line))` : `${rowTops[index]}px` }}
+                      >
+                        {String(index + 1).padStart(2, '0')}
+                      </i>
                     ))}
                   </div>
                   <div className="guestbook-sheet-paperline">

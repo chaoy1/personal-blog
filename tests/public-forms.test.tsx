@@ -142,6 +142,74 @@ describe('public form feedback', () => {
     expect(labels[labels.length - 1]).toBe(String(labels.length).padStart(2, '0'))
   })
 
+  it('positions every row marker from measured pixels after one multi-line textarea update', async () => {
+    render(<GuestbookPage />)
+    const textarea = openGuestbookComposer() as HTMLTextAreaElement
+
+    // Reproduce a paste/fast update that grows the sheet from its seven
+    // placeholder rows to twelve rows in a single React render.
+    Object.defineProperty(textarea, 'scrollHeight', {
+      configurable: true,
+      get: () => 12 * 34,
+    })
+    fireEvent.change(textarea, {
+      target: { value: Array.from({ length: 12 }, (_, index) => `第 ${index + 1} 行`).join('\n') },
+    })
+
+    await waitFor(() => {
+      expect(document.querySelectorAll('.guestbook-sheet-gutter i')).toHaveLength(12)
+    })
+
+    const rows = Array.from(document.querySelectorAll<HTMLElement>('.guestbook-sheet-gutter i'))
+    expect(rows.every((row) => /^\d+px$/.test(row.style.top))).toBe(true)
+  })
+
+  it('lets native outer scrolling move text and row numbers together', () => {
+    render(<GuestbookPage />)
+    openGuestbookComposer()
+
+    const write = document.querySelector<HTMLElement>('.guestbook-sheet-write')!
+    const gutter = document.querySelector<HTMLElement>('.guestbook-sheet-gutter')!
+    fireEvent.scroll(write, { target: { scrollTop: 200 } })
+
+    // Both nodes are descendants of `write`, so a second JS translation would
+    // move only the numbers and recreate the accumulating mismatch.
+    expect(gutter.style.transform).toBe('')
+  })
+
+  it('remeasures visual rows when the writing font finishes loading', async () => {
+    const listeners = new Map<string, EventListener>()
+    const originalFonts = Object.getOwnPropertyDescriptor(document, 'fonts')
+    Object.defineProperty(document, 'fonts', {
+      configurable: true,
+      value: {
+        ready: new Promise<void>(() => undefined),
+        addEventListener: vi.fn((name: string, listener: EventListener) => listeners.set(name, listener)),
+        removeEventListener: vi.fn((name: string) => listeners.delete(name)),
+      },
+    })
+
+    try {
+      render(<GuestbookPage />)
+      const textarea = openGuestbookComposer() as HTMLTextAreaElement
+      let measuredRows = 7
+      Object.defineProperty(textarea, 'scrollHeight', {
+        configurable: true,
+        get: () => measuredRows * 34,
+      })
+
+      measuredRows = 10
+      listeners.get('loadingdone')?.(new Event('loadingdone'))
+
+      await waitFor(() => {
+        expect(document.querySelectorAll('.guestbook-sheet-gutter i')).toHaveLength(10)
+      })
+    } finally {
+      if (originalFonts) Object.defineProperty(document, 'fonts', originalFonts)
+      else Reflect.deleteProperty(document, 'fonts')
+    }
+  })
+
   it('measures the textarea into a line count that grows with wrapped and hard-broken text', () => {
     // jsdom 不做排版，textarea.scrollHeight 又是原型上的原生 getter、拦不住，
     // 所以这里用真实 DOM 量出「字号 / 行高 / 内边距」，
