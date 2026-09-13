@@ -2411,14 +2411,23 @@
   min-height: 100%;
 }
 
+/* 行号与正文严格同行。
+   行号栏不靠"每格等高"去凑：JS 会量出每一行的真实位置，
+   再把每个行号绝对定位到那一行的 top —— 误差因此不会逐行累积。
+   --sheet-line 只是首帧与测量前的兜底行高。 */
+.guestbook-sheet-inner,
+.guestbook-sheet-gutter,
+.guestbook-sheet-gutter i,
+.guestbook-immersive-textarea {
+  box-sizing: border-box;
+}
+
 .guestbook-sheet-gutter {
-  display: flex;
+  position: relative;
+  display: block;
   flex: none;
-  flex-direction: column;
   width: 34px;
   margin-right: 16px;
-  padding-top: 0;
-  padding-bottom: 0;
   color: var(--ink-faint);
   font-family: var(--font-latin);
   font-size: 10px;
@@ -2427,18 +2436,10 @@
   will-change: transform;
 }
 
-/* 行号与正文严格同行：单位格高 = 正文行高。
-   行高与字号走 --sheet-line / --sheet-font；JS 会把 --sheet-line 与
-   textarea 的 line-height 一起钉成同一个 px 值，两边同源才不会逐行错位。
-   box-sizing 统一用 border-box，避免行高被取值方式不同的取整拉开。 */
-.guestbook-sheet-inner,
-.guestbook-sheet-gutter,
-.guestbook-sheet-gutter i,
-.guestbook-immersive-textarea {
-  box-sizing: border-box;
-}
-
 .guestbook-sheet-gutter i {
+  position: absolute;
+  left: 0;
+  right: 0;
   display: block;
   height: var(--sheet-line);
   font-size: var(--sheet-font);

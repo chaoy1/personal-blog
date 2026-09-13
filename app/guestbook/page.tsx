@@ -16,6 +16,19 @@ const MIN_ROWS = 7
 const MAX_LEN = 500
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
+/** 量行用的镜像元素要注入原文，先转义避免把用户输入当 HTML */
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (char) => {
+    switch (char) {
+      case '&': return '&amp;'
+      case '<': return '&lt;'
+      case '>': return '&gt;'
+      case '"': return '&quot;'
+      default: return '&#39;'
+    }
+  })
+}
+
 export default function GuestbookPage() {
   const { user, guestbook, ready, error, addGuestbook, deleteGuestbook } = useAppStore()
   const [page, setPage] = useState(1)
@@ -62,41 +75,81 @@ export default function GuestbookPage() {
 
     // line-height 可能是 px、也可能是无单位倍数（CSS 里写的就是 2.1）
     const raw = styles.lineHeight?.trim() ?? ''
-    const lineHeight = raw.endsWith('px')
+    const computedLineHeight = raw.endsWith('px')
       ? Number.parseFloat(raw)
       : /^[\d.]+$/.test(raw)
         ? Number.parseFloat(raw) * fontSize
         : fontSize * 2.1 // 'normal'/空值兜底：按本站设定的 2.1 倍算
-    if (!Number.isFinite(lineHeight) || lineHeight <= 0) return
+    if (!Number.isFinite(computedLineHeight) || computedLineHeight <= 0) return
 
-    /**
-     * 把行高"钉死"成同一个整数 px 值，同时喂给正文的行高与行号的行距。
-     * 这一步是行号对得上的关键：
-     * 只要两边从同一个数出发，就不会因为各自的取整方式不同而逐行积累错位。
-     */
-    const snapped = `${Math.round(lineHeight)}px`
+    // 行高钉成一个整数 px，正文与行号同源，不再各自取整
+    const lineHeight = Math.round(computedLineHeight)
+    const snapped = `${lineHeight}px`
     if (el.style.lineHeight !== snapped) el.style.lineHeight = snapped
-    const host = el.closest<HTMLElement>('.guestbook-sheet-inner')
-    if (host && host.style.getPropertyValue('--sheet-line') !== snapped) {
-      host.style.setProperty('--sheet-line', snapped)
-    }
 
     /**
-     * 量高度一律用 scrollHeight / offsetHeight，不用 getBoundingClientRect：
-     * 开笺动画会给外层加 scaleY，getBoundingClientRect 返回的是缩放过的值，
-     * 据此算出的行高会偏小、行号随之逐行错位（此前 25 行差了十几像素）。
-     * 这两个属性是整数且不受祖先 transform 影响，量与用都在整数域里，最稳。
+     * 逐行位置不靠"算"，直接问浏览器：用一个与 textarea 同度量的镜像元素
+     * 把每一行包成 inline 元素，量出每行的真实 top。
+     * 这样无论字体回退、标点压缩还是宽度变化，行号都跟着文字走，
+     * 不会再出现"算出来的行距"与"排版出来的行距"不一致导致的逐行错位。
      */
-    const previousHeight = el.style.height
-    el.style.height = 'auto' // 先松开，否则 scrollHeight 不会小于当前高度
-    const contentHeight = el.scrollHeight
-    el.style.height = previousHeight
-    if (!Number.isFinite(contentHeight) || contentHeight <= 0) return
+    const mirror = document.createElement('div')
+    mirror.setAttribute('aria-hidden', 'true')
+    mirror.style.cssText = [
+      'position:absolute',
+      'left:0',
+      'top:0',
+      'visibility:hidden',
+      'pointer-events:none',
+      'margin:0',
+      `width:${el.clientWidth}px`,
+      'white-space:pre-wrap',
+      'overflow-wrap:break-word',
+      'word-break:normal',
+      `font-family:${styles.fontFamily}`,
+      `font-size:${styles.fontSize}`,
+      `line-height:${snapped}`,
+      `letter-spacing:${styles.letterSpacing}`,
+      'box-sizing:content-box',
+    ].join(';')
+    mirror.innerHTML = el.value
+      .split('\n')
+      .map((line) => `<span>${line === '' ? ' ' : escapeHtml(line)}</span>`)
+      .join('<br>')
+    const placement = el.parentElement
+    if (!placement) return
+    placement.appendChild(mirror)
+    // 镜像用 offsetTop 取值：它是 layout 值，不受祖先 transform 与滚动影响
+    const spans = Array.from(mirror.querySelectorAll('span'))
+    const lineTops = spans.map((span) => (span as HTMLElement).offsetTop)
+    const mirrorHeight = mirror.offsetHeight
+    mirror.remove()
 
-    // 行数吸附到整数，并把高度也钉成整数行：第 N 个行号才落在第 N 条格线上
+    // 行数：镜像量与 scrollHeight 取大，保证纸条容得下内容
+    const lineCount = Math.max(1, spans.length)
+    const contentHeight = Math.max(mirrorHeight, el.scrollHeight)
     const lines = Math.max(MIN_ROWS, Math.round(contentHeight / lineHeight))
-    const nextHeight = `${lines * Math.round(lineHeight)}px`
+    const nextHeight = `${lines * lineHeight}px`
     if (el.style.height !== nextHeight) el.style.height = nextHeight
+
+    /**
+     * 逐行落位：把每个行号绝对定位到它那一行的真实位置，
+     * 而不是用"每格等高"去凑——等高只要有一点点误差就会逐行累积。
+     * transform 位移不影响 offsetTop，所以这里量与用都在 layout 坐标系里。
+     */
+    const gutter = gutterRef.current
+    const rows = gutter?.children
+    if (gutter && rows && rows.length > 0) {
+      gutter.style.height = `${lines * lineHeight}px`
+      const fallback = Number.isFinite(lineTops[1] - lineTops[0]) && lineTops[1] > lineTops[0]
+        ? lineTops[1] - lineTops[0]
+        : lineHeight
+      for (let i = 0; i < rows.length; i += 1) {
+        const row = rows[i] as HTMLElement
+        const top = i < lineTops.length ? lineTops[i] : lineTops[lineTops.length - 1] + (i - lineTops.length + 1) * fallback
+        row.style.top = `${top}px`
+      }
+    }
 
     setRowCount(lines)
   }, [])

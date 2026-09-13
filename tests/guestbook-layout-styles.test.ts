@@ -197,19 +197,29 @@ describe('guestbook desktop composition', () => {
     expect(getComputedStyle(gutterRow).lineHeight).toBe(getComputedStyle(composerTextarea).lineHeight)
   })
 
-  it('pins the row pitch to one integer so the numbers cannot drift from the lines', () => {
-    // 行号与正文必须从同一个行高出发，否则各自取整会逐行积累错位
-    // （此前 25 行差了十几像素）。组件会把两处的行高钉成同一个整数 px，
-    // 这条断言守住"只有一个来源"这个不变量。
-    const write = renderGuestbookShell().immersiveSheet.querySelector<HTMLElement>('.guestbook-sheet-write')!
+  it('places each row number by measured line position instead of a uniform pitch', () => {
+    // 逐行"等高"去凑必然累积误差（曾 26 行差出 0.4px 且肉眼可见），
+    // 所以行号改为绝对定位、由 JS 量出每一行的真实 top 逐个落位。
+    const { immersiveSheet } = renderGuestbookShell()
+
+    const gutter = immersiveSheet.querySelector<HTMLElement>('.guestbook-sheet-gutter')!
+    expect(getComputedStyle(gutter).position).toBe('relative')
+    const row = immersiveSheet.querySelector<HTMLElement>('.guestbook-sheet-gutter i')!
+    expect(getComputedStyle(row).position).toBe('absolute')
+
+    // 兜底度量仍然存在（首帧用），且与正文同源
+    const write = immersiveSheet.querySelector<HTMLElement>('.guestbook-sheet-write')!
     expect(getComputedStyle(write).getPropertyValue('--sheet-line').trim()).toMatch(/^\d+(\.\d+)?px$/)
     expect(getComputedStyle(write).getPropertyValue('--sheet-font').trim()).toMatch(/^\d+(\.\d+)?px$/)
 
-    // 量高度必须落在整数域：不能用会被祖先 transform 缩放的 getBoundingClientRect
+    // 量行必须用不受祖先 transform 影响的 layout 值：
+    // 弹层开笺动画会留 matrix(1,0,0,0.99431,...)，getBoundingClientRect 会被缩放。
     const source = readFileSync(resolve(process.cwd(), 'app/guestbook/page.tsx'), 'utf8')
-    expect(source).toContain('el.scrollHeight')
-    expect(source).toContain("el.style.height = 'auto'")
-    expect(source).not.toMatch(/measureRows[\s\S]{0,900}getBoundingClientRect/)
+    const measure = source.slice(source.indexOf('const measureRows'), source.indexOf('// 打开弹层'))
+    expect(measure).toContain('offsetTop')
+    expect(measure).not.toContain('getBoundingClientRect')
+    // 行号栏本身要能与滚动同步位移（位移用 transform，不影响 offsetTop）
+    expect(getComputedStyle(gutter).willChange).toBe('transform')
   })
 
   it('bounds the letter paper and scrolls the writing area instead of growing', () => {
