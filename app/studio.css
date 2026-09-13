@@ -2742,10 +2742,11 @@
 .moment:hover,
 .moment-images img:hover,
 .album-card:hover,
+/* 时间轴「续展旧卷」的 hover 形变由它自己的样式表控制（要跟弹簧位移叠加），
+   所以这里不参与统一的 hover 位移。 */
 .album-item:hover,
 .tl-card:hover,
 .comment-list > .comment:hover,
-.timeline-unfold:hover,
 .admin-item:hover {
   transform: none;
 }
@@ -2760,7 +2761,6 @@
 .album-item,
 .tl-card,
 .comment-list > .comment,
-.timeline-unfold,
 .admin-item {
   transition-duration: 220ms;
 }
@@ -2808,7 +2808,6 @@
 
   .comment-list > .comment:hover,
   .hs-item:hover,
-  .timeline-unfold:hover,
   .admin-item:hover {
     transform: translateY(-2px);
   }

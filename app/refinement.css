@@ -442,75 +442,12 @@
   color: #fff3d4;
 }
 
-/* 时间轴续卷按钮：用册签代替大块米色按钮。 */
+/* 时间轴「续展旧卷」的样式已移到 components/TimelineReveal.css。
+   那里跟组件在一起，改动时不容易漏；这里只保留版面位置。 */
 .timeline-more-wrap {
   display: flex;
   justify-content: center;
   margin: 42px 0 16px;
-}
-
-.timeline-unfold {
-  display: grid;
-  grid-template-columns: 34px auto 22px;
-  align-items: center;
-  gap: 13px;
-  min-width: 238px;
-  padding: 11px 14px 11px 11px;
-  border: 0;
-  border-top: 1px solid var(--rule-strong);
-  border-bottom: 1px solid var(--rule-strong);
-  background: linear-gradient(90deg, transparent, var(--floating-paper) 18%, var(--floating-paper) 82%, transparent);
-  color: var(--ink);
-  cursor: pointer;
-  transition: border-color 0.3s ease, transform 0.3s ease;
-}
-
-.timeline-unfold:hover {
-  border-color: var(--seal);
-  transform: translateY(-2px);
-}
-
-.timeline-unfold-seal {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border: 1px solid var(--seal);
-  color: var(--seal-deep);
-  font-family: var(--font-kai);
-  font-size: 12px;
-  transform: rotate(-3deg);
-}
-
-.timeline-unfold-copy {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-}
-
-.timeline-unfold-copy b {
-  font-family: var(--font-kai);
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: 0.22em;
-}
-
-.timeline-unfold-copy small {
-  color: var(--ink-faint);
-  font-family: var(--font-kai);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-}
-
-.timeline-unfold-arrow {
-  color: var(--seal-deep);
-  font-size: 15px;
-  transition: transform 0.3s ease;
-}
-
-.timeline-unfold:hover .timeline-unfold-arrow {
-  transform: translateY(3px);
 }
 
 /* 页脚文字使用轻薄纸签，保证在山水背景上可读。 */
@@ -775,10 +712,6 @@
   .album-item .album-date {
     padding: 2px 5px 8px;
     font-size: 9px;
-  }
-
-  .timeline-unfold {
-    min-width: 220px;
   }
 
   .footer-line {

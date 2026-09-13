@@ -1,0 +1,215 @@
+/* ===========================================================================
+   时间轴「续展旧卷」——滚轮拉拽式续卷
+   不再靠点击：滚到页面底部继续下滑时，纸签被"拉住"并逐级回弹，
+   到达阈值自动展开上一年的记录。点击/回车仍可用（键盘与无滚轮设备兜底）。
+
+   弹性用真实的弹簧时间函数模拟：
+   - 拉拽阶段：位移 = max·(1 − e^(−pull/软度))，越拉越沉，不是线性的
+   - 回弹阶段：把释放时的速度带进弹簧，先冲过头再收回
+   =========================================================================== */
+
+.timeline-more-wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin: 42px 0 16px;
+}
+
+/* 拉拽容器：所有形变都落在这里，不改变文档流高度，避免抖动 */
+.timeline-pull {
+  --pull: 0px;
+  --drag: 0;
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate3d(0, var(--pull), 0);
+  will-change: transform;
+}
+
+/* 拉拽时给一点纵向伸长的错觉：上缘钉住、下缘被拉走 */
+.timeline-pull::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -14px;
+  width: 1px;
+  height: calc(14px + var(--pull));
+  background: linear-gradient(180deg, transparent, var(--rule-strong) 30%, var(--seal) 100%);
+  opacity: calc(0.25 + var(--drag) * 0.6);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.timeline-unfold {
+  display: grid;
+  grid-template-columns: 34px auto 22px;
+  align-items: center;
+  gap: 13px;
+  min-width: 238px;
+  padding: 11px 14px 11px 11px;
+  border: 0;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
+  /* 纸签要"实"一点：页面背景是很满的青绿山水，
+     半透明的纸会让文字和山石糊在一起，拉拽时更难读。 */
+  background:
+    linear-gradient(90deg, rgba(248, 242, 227, 0.72), rgba(252, 248, 236, 0.97) 16%, rgba(252, 248, 236, 0.97) 84%, rgba(248, 242, 227, 0.72)),
+    var(--floating-paper);
+  color: var(--ink);
+  cursor: pointer;
+  /* 拉拽时纸签离纸面更远，投影随之变深 */
+  box-shadow: 0 calc(var(--drag, 0) * 8px) calc(var(--drag, 0) * 16px) rgba(38, 27, 13, calc(var(--drag, 0) * 0.22));
+  /* 回弹走弹簧时间函数，位移由 --pull 驱动 */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timeline-unfold:hover,
+.timeline-unfold:focus-visible {
+  border-color: var(--seal);
+}
+
+/* 拉拽时纸签整体被拽离纸面：位移 + 渐深的投影 */
+.timeline-pull {
+  filter: drop-shadow(0 calc(var(--drag, 0) * 10px) calc(var(--drag, 0) * 18px) rgba(38, 27, 13, calc(var(--drag, 0) * 0.28)));
+}
+
+.timeline-unfold-seal {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--seal);
+  color: var(--seal-deep);
+  font-family: var(--font-kai);
+  font-size: 12px;
+  transform: rotate(calc(-3deg + var(--drag) * 5deg)) scale(calc(1 + var(--drag) * 0.08));
+  transition: border-color 0.3s ease;
+}
+
+.timeline-unfold-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.timeline-unfold-copy b {
+  font-family: var(--font-kai);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+}
+
+.timeline-unfold-copy small {
+  color: var(--ink-faint);
+  font-family: var(--font-kai);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+
+.timeline-unfold-arrow {
+  color: var(--seal-deep);
+  font-size: 15px;
+  /* 箭头被"拽"得更远，且随拉拽淡出，让位给展开 */
+  transform: translateY(calc(var(--drag) * 9px));
+  opacity: calc(1 - var(--drag) * 0.5);
+}
+
+/* 拉到位的瞬间：纸签边缘转朱红，给一次明确的"扣上"反馈 */
+.timeline-pull[data-armed='true'] .timeline-unfold {
+  border-color: var(--seal);
+  box-shadow: 0 0 0 1px rgba(178, 58, 43, 0.14);
+}
+
+/* 提示语：只在拉拽时浮现，平时完全隐藏，不占位 */
+.timeline-pull-hint {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--seal-deep);
+  font-family: var(--font-kai);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  white-space: nowrap;
+  opacity: var(--drag);
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+   回弹：JS 算出位移序列，这里只负责时间与曲线
+   --------------------------------------------------------------------------- */
+.timeline-pull[data-phase='settle'] {
+  transition: transform var(--spring-duration, 520ms) var(--spring-ease, cubic-bezier(0.2, 0.8, 0.24, 1));
+}
+
+/* 展开：旧卷从上缘翻下来，而不是突然出现 */
+.timeline-year-enter {
+  animation: timeline-year-unfold 620ms cubic-bezier(0.22, 0.8, 0.26, 1) both;
+}
+
+@keyframes timeline-year-unfold {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) scaleY(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   无 JS：直接显示可点的纸签，不做任何拉拽态
+   --------------------------------------------------------------------------- */
+html:not(.js) .timeline-pull::before,
+html:not(.js) .timeline-pull-hint {
+  display: none;
+}
+
+/* ---------------------------------------------------------------------------
+   降低动效：去掉弹簧与展开动画，回到"点一下就出来"
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .timeline-pull {
+    transform: none !important;
+    filter: none;
+  }
+
+  .timeline-pull::before,
+  .timeline-pull-hint {
+    display: none;
+  }
+
+  .timeline-unfold-seal,
+  .timeline-unfold-arrow {
+    transform: none;
+    opacity: 1;
+  }
+
+  .timeline-year-enter {
+    animation: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .timeline-unfold {
+    grid-template-columns: 30px auto 18px;
+    gap: 10px;
+    min-width: 0;
+    width: calc(100% - 8px);
+    padding: 10px 12px 10px 10px;
+  }
+
+  .timeline-unfold-seal {
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+  }
+
+  .timeline-unfold-copy b {
+    font-size: 13px;
+    letter-spacing: 0.16em;
+  }
+}
