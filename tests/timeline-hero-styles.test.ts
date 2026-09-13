@@ -50,7 +50,7 @@ afterEach(() => {
 })
 
 describe('timeline hero composition', () => {
-  it('lays the hero on the site ink painting behind a paper fade, bounded like a scroll', () => {
+  it('lays the hero on the site ink painting behind a paper fade', () => {
     renderTimelineShell()
 
     // 用站点已有的真迹山水压成横带作底，再覆一道上实下虚的纸色渐层
@@ -63,12 +63,18 @@ describe('timeline hero composition', () => {
     expect(studioStyles).toMatch(
       /\.timeline-page > \.page-intro \{[\s\S]*?background-position: 0 0, center 72%, 0 0;/,
     )
-    // 题头有纸面边界，并与下方时间轴连成一页（简写属性在 jsdom 里读不到，断言原文）
+    // 题头有自己的纸面边界（简写属性在 jsdom 里读不到，断言原文）
     expect(studioStyles).toMatch(/\.timeline-page > \.page-intro \{[\s\S]*?border-radius: 3px 3px 0 0;/)
-    expect(studioStyles).toMatch(
-      /\.timeline-page > \.page-intro \+ \.timeline \{[\s\S]*?border-radius: 0 0 3px 3px;/,
-    )
     expect(getComputedStyle(renderTimelineShell().intro).overflow).toBe('hidden')
+  })
+
+  it('leaves the timeline content untouched', () => {
+    renderTimelineShell()
+
+    // 只改题头：正文内容区不套纸面、不加内边距、不连接成一张纸
+    expect(studioStyles).not.toMatch(/\.timeline-page > \.page-intro \+ \.timeline/)
+    // .timeline 的基础排版仍来自 globals.css（此处只确认 studio 没再覆盖它）
+    expect(studioStyles).not.toMatch(/\.timeline-page\s*>\s*\.timeline\s*\{/)
   })
 
   it('keeps the hero sized for its copy and keeps the seal marker readable', () => {

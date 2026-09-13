@@ -2314,16 +2314,7 @@
   writing-mode: vertical-rl;
 }
 
-/* 题头与下方时间轴连成一张纸 */
-.timeline-page > .page-intro + .timeline {
-  margin-top: 0;
-  padding: 28px 52px 56px;
-  border-radius: 0 0 3px 3px;
-  background-color: var(--gb-page-paper, #e8dec7);
-  background-image: var(--card-paper);
-  background-size: 190px 190px;
-  background-blend-mode: multiply;
-}
+/* 正文内容区保持原样：题头只做自己的纸面，不再改动下方时间轴 */
 
 /* 夜间：纸面转深、真迹走亮度混合，纸月与刻度改用暗色令牌 */
 :root[data-theme='dark'] .timeline-page > .page-intro {
@@ -2342,10 +2333,6 @@
 :root[data-theme='dark'] .timeline-page > .page-intro::after {
   background: radial-gradient(circle, rgba(226, 216, 178, 0.2), rgba(191, 190, 164, 0.06) 58%, transparent 72%);
   box-shadow: 0 0 34px rgba(214, 206, 171, 0.1), inset 0 0 0 1px rgba(229, 219, 183, 0.1);
-}
-
-:root[data-theme='dark'] .timeline-page > .page-intro + .timeline {
-  background-color: var(--gb-page-paper, #302c22);
 }
 
 @media (max-width: 720px) {
@@ -2379,10 +2366,6 @@
 
   .timeline-page > .page-intro .page-intro-mark {
     display: none;
-  }
-
-  .timeline-page > .page-intro + .timeline {
-    padding: 20px 16px 40px;
   }
 }
 
