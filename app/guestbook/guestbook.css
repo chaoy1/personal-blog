@@ -1945,6 +1945,7 @@
    朱红气息与竹石botanical，让题头山水、来信卡与山窗寄语
    真正落在同一张纸上；页边不再留横向内边距，纸面即正文宽。 */
 .wrap.guestbook-page {
+  padding-bottom: 0;
   background-color: var(--gb-page-paper);
   background-image:
     var(--gb-botanical-art),

@@ -6,7 +6,7 @@ const guestbookStyles = readFileSync(resolve(process.cwd(), 'app/guestbook/guest
 
 function renderGuestbookShell() {
   document.head.innerHTML = `
-    <style>:root { --card-paper: url("/paper-fibers.svg"); }</style>
+    <style>:root { --card-paper: url("/paper-fibers.svg"); } .wrap { padding: 56px 56px 116px; }</style>
     <style>${guestbookStyles}</style>
   `
   document.body.innerHTML = `
@@ -120,6 +120,12 @@ describe('guestbook desktop composition', () => {
     expect(getComputedStyle(sheet).backgroundColor).toBe('rgba(0, 0, 0, 0)')
     expect(getComputedStyle(sheet).paddingLeft).toBe('24px')
     expect(getComputedStyle(sheet).paddingRight).toBe('24px')
+  })
+
+  it('ends the outer paper frame with the content instead of adding a blank lower band', () => {
+    const { page } = renderGuestbookShell()
+
+    expect(getComputedStyle(page).paddingBottom).toBe('0px')
   })
 
   it('opens the composer only from the button, not the whole writing card', () => {
