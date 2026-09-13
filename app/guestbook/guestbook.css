@@ -1929,3 +1929,112 @@
     padding: 32px 24px 24px 38px;
   }
 }
+
+/* Keep these reference-critical rules last in the cascade. */
+.wrap.guestbook-page {
+  --gb-botanical-art: url("/bg/guestbook-botanical.svg");
+  background-color: transparent;
+  background-image: none;
+}
+
+.wrap.guestbook-page > .page-intro + .guestbook-sheet {
+  background-color: transparent;
+  background-image: none;
+}
+
+.wrap.guestbook-page > .page-intro h1,
+.guestbook-window-entry .guestbook-window-entry-title,
+.guestbook-window-entry .guestbook-window-title,
+.guestbook-immersive-head h2 {
+  font-family: "Long Cang", "STXingkai", "KaiTi", var(--font-kai);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap.guestbook-page > .page-intro h1 {
+  letter-spacing: 0.08em;
+  text-shadow: 1px 0 0 currentColor, 2px 4px 8px rgba(48, 39, 25, 0.13);
+}
+
+.guestbook-window-panel {
+  background-color: var(--gb-card-paper);
+  background-image: var(--gb-botanical-art), var(--gb-paper-fibers), var(--card-paper);
+  background-position: right -55px top -20px, 0 0, 0 0;
+  background-size: 180px auto, 220px 220px, 168px 168px;
+  background-repeat: no-repeat, repeat, repeat;
+  background-blend-mode: multiply, multiply, multiply;
+}
+
+.guestbook-window-panel::before {
+  display: none;
+}
+
+.guestbook-page .guestbook-list > .comment,
+.guestbook-page .guestbook-list > .comment:nth-child(even) {
+  background-color: var(--gb-card-paper);
+  background-image: var(--gb-botanical-art), var(--gb-paper-fibers), var(--card-paper);
+  background-position: left -78px bottom -34px, 0 0, 0 0;
+  background-size: 184px auto, 220px 220px, 168px 168px;
+  background-repeat: no-repeat, repeat, repeat;
+  background-blend-mode: multiply, multiply, multiply;
+}
+
+.guestbook-page .guestbook-list > .comment:nth-child(even) {
+  background-position: left -70px bottom -26px, 0 0, 0 0;
+  background-size: 190px auto, 220px 220px, 168px 168px;
+}
+
+.guestbook-page .guestbook-list > .comment:nth-child(even)::after {
+  background-image: url("/bg/about-ink-banner.png");
+  background-position: 52% 93%;
+  background-size: 178% auto;
+}
+
+.guestbook-immersive-sheet {
+  background-color: #f8f3e6;
+  background-image:
+    url("/bg/guestbook-botanical.svg"),
+    var(--gb-paper-fibers),
+    var(--card-paper);
+  background-position: left -62px top -80px, 0 0, 0 0;
+  background-size: 242px auto, 220px 220px, 168px 168px;
+  background-repeat: no-repeat, repeat, repeat;
+  background-blend-mode: multiply, multiply, multiply;
+}
+
+.guestbook-immersive-sheet::after {
+  background-image: url("/bg/about-ink-banner.png");
+  background-position: center bottom;
+  background-size: 112% auto;
+  opacity: 0.1;
+}
+
+:root[data-theme='dark'] .wrap.guestbook-page,
+:root[data-theme='dark'] .wrap.guestbook-page > .page-intro + .guestbook-sheet {
+  background-color: transparent;
+  background-image: none;
+}
+
+:root[data-theme='dark'] .guestbook-window-panel {
+  background-color: var(--gb-card-paper-dark);
+  background-image: var(--gb-botanical-art), var(--gb-paper-fibers), var(--card-paper);
+  background-position: right -55px top -20px, 0 0, 0 0;
+  background-size: 180px auto, 220px 220px, 168px 168px;
+  background-repeat: no-repeat, repeat, repeat;
+  background-blend-mode: screen, soft-light, overlay;
+}
+
+:root[data-theme='dark'] .guestbook-page .guestbook-list > .comment,
+:root[data-theme='dark'] .guestbook-page .guestbook-list > .comment:nth-child(even) {
+  background-color: var(--gb-card-paper-dark);
+  background-image: var(--gb-botanical-art), var(--gb-paper-fibers), var(--card-paper);
+  background-position: left -78px bottom -34px, 0 0, 0 0;
+  background-size: 184px auto, 220px 220px, 168px 168px;
+  background-repeat: no-repeat, repeat, repeat;
+  background-blend-mode: screen, soft-light, overlay;
+}
+
+:root[data-theme='dark'] .guestbook-immersive-sheet {
+  background-color: var(--gb-card-paper-dark);
+  background-blend-mode: screen, soft-light, overlay;
+}

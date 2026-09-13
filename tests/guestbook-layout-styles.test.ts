@@ -23,6 +23,7 @@ function renderGuestbookShell() {
           <section class="guestbook-messages"></section>
           <aside class="guestbook-window-panel">
             <button class="guestbook-window-entry">
+              <span class="guestbook-window-title">山窗寄语</span>
               <span class="guestbook-window-space"></span>
             </button>
           </aside>
@@ -38,6 +39,9 @@ function renderGuestbookShell() {
         </div>
       </div>
     </main>
+    <section class="guestbook-immersive-sheet">
+      <header class="guestbook-immersive-head"><h2>山窗寄语</h2></header>
+    </section>
   `
 
   return {
@@ -49,10 +53,13 @@ function renderGuestbookShell() {
     layout: document.querySelector<HTMLElement>('.guestbook-layout')!,
     panel: document.querySelector<HTMLElement>('.guestbook-window-panel')!,
     entry: document.querySelector<HTMLElement>('.guestbook-window-entry')!,
+    panelTitle: document.querySelector<HTMLElement>('.guestbook-window-title')!,
     spacer: document.querySelector<HTMLElement>('.guestbook-window-space')!,
     comment: document.querySelector<HTMLElement>('.guestbook-list > .comment')!,
     replies: document.querySelector<HTMLElement>('.comment-replies')!,
     reply: document.querySelector<HTMLElement>('.comment.reply')!,
+    immersiveSheet: document.querySelector<HTMLElement>('.guestbook-immersive-sheet')!,
+    immersiveTitle: document.querySelector<HTMLElement>('.guestbook-immersive-head h2')!,
   }
 }
 
@@ -69,11 +76,15 @@ describe('guestbook desktop composition', () => {
     expect(getComputedStyle(nav).display).toBe('none')
   })
 
-  it('uses the same restrained page width as the other public pages', () => {
+  it('uses the same restrained page width without a full-height paper backdrop', () => {
     const { page, sheet } = renderGuestbookShell()
 
     expect(getComputedStyle(page).maxWidth).toBe('1080px')
     expect(getComputedStyle(page).width).toBe('auto')
+    expect(getComputedStyle(page).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+    expect(getComputedStyle(page).backgroundImage).toBe('none')
+    expect(getComputedStyle(sheet).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+    expect(getComputedStyle(sheet).backgroundImage).toBe('none')
     expect(getComputedStyle(sheet).paddingLeft).toBe('24px')
     expect(getComputedStyle(sheet).paddingRight).toBe('24px')
   })
@@ -101,8 +112,8 @@ describe('guestbook desktop composition', () => {
     expect(getComputedStyle(spacer).display).toBe('none')
   })
 
-  it('renders visible xuan-paper grain on message, reply, and writing sheets', () => {
-    const { page, panel, comment, reply } = renderGuestbookShell()
+  it('renders visible xuan-paper grain and painterly botanical art on every writing sheet', () => {
+    const { page, panel, comment, reply, immersiveSheet } = renderGuestbookShell()
     const paperTexture = getComputedStyle(document.documentElement).getPropertyValue('--card-paper')
     const paperFibers = getComputedStyle(page).getPropertyValue('--gb-paper-fibers')
 
@@ -110,10 +121,13 @@ describe('guestbook desktop composition', () => {
     expect(paperFibers).toContain('guestbook-paper-fibers.svg')
     expect(getComputedStyle(panel).backgroundImage).toContain('var(--card-paper)')
     expect(getComputedStyle(panel).backgroundImage).toContain('var(--gb-paper-fibers)')
+    expect(getComputedStyle(panel).backgroundImage).toContain('var(--gb-botanical-art)')
     expect(getComputedStyle(comment).backgroundImage).toContain('var(--card-paper)')
     expect(getComputedStyle(comment).backgroundImage).toContain('var(--gb-paper-fibers)')
+    expect(getComputedStyle(comment).backgroundImage).toContain('var(--gb-botanical-art)')
     expect(getComputedStyle(reply).backgroundImage).toContain('var(--card-paper)')
     expect(getComputedStyle(reply).backgroundImage).toContain('var(--gb-paper-fibers)')
+    expect(getComputedStyle(immersiveSheet).backgroundImage).toContain('guestbook-botanical.svg')
   })
 
   it('lets note-card height follow its content and keeps reply branches indented', () => {
@@ -128,11 +142,13 @@ describe('guestbook desktop composition', () => {
     expect(getComputedStyle(reply).padding).toBe('16px 20px')
   })
 
-  it('uses a stable regular-script face for the main title and a lighter hand for the subtitle', () => {
-    const { title, description } = renderGuestbookShell()
+  it('uses the self-hosted artistic brush face for both guestbook titles', () => {
+    const { title, panelTitle, immersiveTitle, description } = renderGuestbookShell()
 
-    expect(getComputedStyle(title).fontFamily).toContain('KaiTi')
-    expect(getComputedStyle(title).fontWeight).toBe('700')
+    expect(getComputedStyle(title).fontFamily).toContain('Long Cang')
+    expect(getComputedStyle(title).fontWeight).toBe('400')
+    expect(getComputedStyle(panelTitle).fontFamily).toContain('Long Cang')
+    expect(getComputedStyle(immersiveTitle).fontFamily).toContain('Long Cang')
     expect(getComputedStyle(description).fontFamily).toContain('Zhi Mang Xing')
     expect(getComputedStyle(description).fontWeight).toBe('400')
   })
