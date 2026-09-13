@@ -174,10 +174,10 @@ describe('guestbook desktop composition', () => {
   it('uses the self-hosted artistic brush face for both guestbook titles', () => {
     const { title, panelTitle, immersiveTitle, description } = renderGuestbookShell()
 
-    expect(getComputedStyle(title).fontFamily).toContain('Long Cang')
+    expect(getComputedStyle(title).fontFamily).toContain('Zhi Mang Xing')
     expect(getComputedStyle(title).fontWeight).toBe('400')
-    expect(getComputedStyle(panelTitle).fontFamily).toContain('Long Cang')
-    expect(getComputedStyle(immersiveTitle).fontFamily).toContain('Long Cang')
+    expect(getComputedStyle(panelTitle).fontFamily).toContain('Zhi Mang Xing')
+    expect(getComputedStyle(immersiveTitle).fontFamily).toContain('Zhi Mang Xing')
     expect(getComputedStyle(description).fontFamily).toContain('Zhi Mang Xing')
     expect(getComputedStyle(description).fontWeight).toBe('400')
   })

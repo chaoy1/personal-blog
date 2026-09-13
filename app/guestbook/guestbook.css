@@ -2060,18 +2060,28 @@
   }
 }
 
+/* 飘逸洒脱的毛笔题字：留言、山窗寄语与写留言弹层题头统一换用行草味的 Zhi Mang Xing。
+   笔画连贯、有枯笔飞白，比原先的楷体题字更放得开。 */
 .wrap.guestbook-page .page-intro h1,
 .guestbook-window-entry .guestbook-window-entry-title,
 .guestbook-window-entry .guestbook-window-title,
 .guestbook-immersive-head h2 {
-  font-family: "Long Cang", "STXingkai", "KaiTi", var(--font-kai);
+  font-family: "Zhi Mang Xing", "STXingkai", "KaiTi", var(--font-kai);
   font-weight: 400;
+  letter-spacing: 0.04em;
   -webkit-font-smoothing: antialiased;
 }
 
 .wrap.guestbook-page .page-intro h1 {
-  letter-spacing: 0.08em;
-  text-shadow: 1px 0 0 currentColor, 2px 4px 8px rgba(48, 39, 25, 0.13);
+  letter-spacing: 0.05em;
+  text-shadow: 0.6px 0 0 currentColor, 2px 4px 9px rgba(48, 39, 25, 0.16);
+}
+
+/* 面板题字略提字距，让小字号的连贯笔画不挤在一起。 */
+.guestbook-window-entry .guestbook-window-entry-title,
+.guestbook-window-entry .guestbook-window-title,
+.guestbook-immersive-head h2 {
+  letter-spacing: 0.07em;
 }
 
 .guestbook-window-panel {
