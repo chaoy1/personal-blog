@@ -2060,36 +2060,34 @@
   }
 }
 
-/* 飘逸洒脱的毛笔题字：留言、山窗寄语与写留言弹层题头统一换用行草味的 Zhi Mang Xing。
-   笔画连贯、有枯笔飞白。
-   注意：这个字体的笔画细、边缘本就带飞白，
-   不要再用 1px 级的 text-shadow 描边去"加粗"，
-   否则笔画会糊成一圈毛边，字反而更难认。
-   需要一点分量时用极细的 text-stroke + 柔和投影。 */
+/* 题字改用现代写法的思源宋体：字形标准、笔画清晰，一眼就能认出，
+   同时保留宋体的衬线骨架，和宣纸、水墨底子不冲突。
+   之前那版行草（Zhi Mang Xing）飘逸但辨识度太低，已弃用。
+   Noto Serif SC 的简体子集只装了 700，需要更多字重时再补 400。 */
 .wrap.guestbook-page .page-intro h1,
 .guestbook-window-entry .guestbook-window-entry-title,
 .guestbook-window-entry .guestbook-window-title,
 .guestbook-immersive-head h2 {
-  font-family: "Zhi Mang Xing", "STXingkai", "KaiTi", var(--font-kai);
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  text-shadow: none;
-  -webkit-text-stroke: 0.3px currentColor;
-  paint-order: stroke fill;
+  font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", var(--font-cn);
+  font-weight: 700;
+  /* 现代字面本就规整，收紧字距更见精神，也避免标题散开。 */
+  letter-spacing: 0.01em;
+  /* 笔画是实心的，不需要描边补分量；只留一层落纸投影。 */
+  text-shadow: 0 2px 6px rgba(48, 39, 25, 0.13);
+  -webkit-text-stroke: 0;
   -webkit-font-smoothing: antialiased;
 }
 
 .wrap.guestbook-page .page-intro h1 {
-  letter-spacing: 0.06em;
-  text-shadow: 0 2px 6px rgba(48, 39, 25, 0.14);
+  letter-spacing: 0.02em;
 }
 
-/* 面板题字略提字距，让小字号的连贯笔画不挤在一起。 */
+/* 面板题字字号小，字距略放松一点，避免笔画挨得太紧。 */
 .guestbook-window-entry .guestbook-window-entry-title,
 .guestbook-window-entry .guestbook-window-title,
 .guestbook-immersive-head h2 {
-  letter-spacing: 0.08em;
-  text-shadow: 0 1px 4px rgba(48, 39, 25, 0.12);
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 4px rgba(48, 39, 25, 0.11);
 }
 
 .guestbook-window-panel {

@@ -171,13 +171,20 @@ describe('guestbook desktop composition', () => {
     expect(getComputedStyle(reply).padding).toBe('16px 20px')
   })
 
-  it('uses the self-hosted artistic brush face for both guestbook titles', () => {
+  it('sets the guestbook titles in a modern, legible serif face', () => {
     const { title, panelTitle, immersiveTitle, description } = renderGuestbookShell()
 
-    expect(getComputedStyle(title).fontFamily).toContain('Zhi Mang Xing')
-    expect(getComputedStyle(title).fontWeight).toBe('400')
-    expect(getComputedStyle(panelTitle).fontFamily).toContain('Zhi Mang Xing')
-    expect(getComputedStyle(immersiveTitle).fontFamily).toContain('Zhi Mang Xing')
+    // 现代写法：思源宋体 700，字形标准、辨识度高。
+    expect(getComputedStyle(title).fontFamily).toContain('Noto Serif SC')
+    expect(getComputedStyle(title).fontWeight).toBe('700')
+    expect(getComputedStyle(panelTitle).fontFamily).toContain('Noto Serif SC')
+    expect(getComputedStyle(immersiveTitle).fontFamily).toContain('Noto Serif SC')
+    // 题字不再用行草，也不靠描边凑分量。
+    expect(getComputedStyle(title).fontFamily).not.toContain('Zhi Mang Xing')
+    expect(guestbookStyles).not.toMatch(
+      /\.wrap\.guestbook-page \.page-intro h1,[\s\S]{0,400}?-webkit-text-stroke: 0\.3px/,
+    )
+    // 引文仍保留手写笔意。
     expect(getComputedStyle(description).fontFamily).toContain('Zhi Mang Xing')
     expect(getComputedStyle(description).fontWeight).toBe('400')
   })
