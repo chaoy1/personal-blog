@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import ScrollFX from '@/components/ScrollFX'
@@ -11,6 +11,9 @@ import ArticleNav from '@/components/ArticleNav'
 import './guestbook.css'
 
 const PAGE_SIZE = 20
+/** 信笺最少保留的行数：写几行都不会让笺纸塌下去 */
+const MIN_ROWS = 7
+const MAX_LEN = 500
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
 export default function GuestbookPage() {
@@ -22,9 +25,12 @@ export default function GuestbookPage() {
   const [localError, setLocalError] = useState('')
   const [formError, setFormError] = useState('')
   const [success, setSuccess] = useState('')
+  /** 行号栏要显示几行：跟着正文的实际视觉行数走 */
+  const [rowCount, setRowCount] = useState(MIN_ROWS)
   const submissionId = useRef(0)
   const composeTriggerRef = useRef<HTMLButtonElement>(null)
   const composeDialogRef = useRef<HTMLElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const busy = formState === 'submitting'
 
   const closeComposer = useCallback(() => {
@@ -35,6 +41,74 @@ export default function GuestbookPage() {
     setSuccess('')
     composeTriggerRef.current?.focus()
   }, [])
+
+  /**
+   * 行号跟着正文的实际视觉行数走。
+   * 用 scrollHeight 量：默认的 soft wrap 只在视觉上折行、不在 value 里插换行，
+   * 所以只有量渲染高度才能同时算对「手动换行」和「自动折行」。
+   * 再把 textarea 的高度顶到内容高度，行号栏与格线才是同一套行。
+   */
+  const measureRows = useCallback(() => {
+    const el = textareaRef.current
+    if (!el) return
+    const styles = window.getComputedStyle(el)
+
+    // getComputedStyle 在某些环境（jsdom、未挂样式时）会给出空字符串，
+    // 所以每个值都要有兜底，别让 NaN 把整条测量打断。
+    const parsedFont = Number.parseFloat(styles.fontSize)
+    const fontSize = Number.isFinite(parsedFont) && parsedFont > 0 ? parsedFont : 16
+
+    // line-height 可能是 px、也可能是无单位倍数（CSS 里写的就是 2.1）
+    const raw = styles.lineHeight?.trim() ?? ''
+    const lineHeight = raw.endsWith('px')
+      ? Number.parseFloat(raw)
+      : /^[\d.]+$/.test(raw)
+        ? Number.parseFloat(raw) * fontSize
+        : fontSize * 2.1 // 'normal'/空值兜底：按本站设定的 2.1 倍算
+    if (!Number.isFinite(lineHeight) || lineHeight <= 0) return
+
+    const n = (value: string) => {
+      const parsed = Number.parseFloat(value)
+      return Number.isFinite(parsed) ? parsed : 0
+    }
+    const chrome = n(styles.paddingTop) + n(styles.paddingBottom) + n(styles.borderTopWidth) + n(styles.borderBottomWidth)
+
+    // 关键：先把高度松开再量。scrollHeight 永远不会小于当前高度，
+    // 留着上一次的高度就会把「折行变多」测成没变化。
+    const previousHeight = el.style.height
+    el.style.height = 'auto'
+    const measured = el.scrollHeight
+    el.style.height = previousHeight
+
+    if (!Number.isFinite(measured) || measured <= 0) return
+
+    // scrollHeight 含内边距；把行数吸附到整数，行号才与格线严格同行
+    const lines = Math.max(MIN_ROWS, Math.round((measured - chrome) / lineHeight))
+    const nextHeight = `${lines * lineHeight + chrome}px`
+    if (el.style.height !== nextHeight) el.style.height = nextHeight
+
+    setRowCount(lines)
+  }, [])
+
+  // 打开弹层、或正文变化时重新量（useLayoutEffect：避免先画错再跳一下）
+  useLayoutEffect(() => {
+    if (!composeOpen) return
+    measureRows()
+  }, [composeOpen, content, measureRows])
+
+  // 视口变化、字体加载完成等会改变折行，用 ResizeObserver 兜住
+  useEffect(() => {
+    const el = textareaRef.current
+    if (!composeOpen || !el || typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(() => measureRows())
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [composeOpen, measureRows])
+
+  // 关掉弹层时复位，下次打开是干净的一张笺
+  useEffect(() => {
+    if (!composeOpen) setRowCount(MIN_ROWS)
+  }, [composeOpen])
 
   useEffect(() => {
     if (!composeOpen) return
@@ -160,7 +234,6 @@ export default function GuestbookPage() {
     <div className="wrap guestbook-page">
       <ScrollFX />
       <ArticleNav current="留言" />
-
       <PageIntro
         index="05"
         eyebrow="GUESTBOOK"
@@ -287,25 +360,26 @@ export default function GuestbookPage() {
 
               <div className="guestbook-sheet-write">
                 <div className="guestbook-sheet-gutter" aria-hidden="true">
-                  {['01', '02', '03', '04', '05', '06', '07'].map((row) => (
-                    <i key={row}>{row}</i>
+                  {Array.from({ length: rowCount }, (_, index) => (
+                    <i key={index}>{String(index + 1).padStart(2, '0')}</i>
                   ))}
                 </div>
                 <div className="guestbook-sheet-paperline">
                   <textarea
+                    ref={textareaRef}
                     className="guestbook-immersive-textarea"
                     aria-label="留言内容"
                     value={content}
                     onChange={(event) => updateContent(event.target.value)}
                     placeholder="写下此刻想说的话……"
-                    maxLength={500}
+                    maxLength={MAX_LEN}
                     autoFocus
                   />
                 </div>
               </div>
 
               <footer className="guestbook-immersive-foot">
-                <span className="moments-counter">{content.length} / 500</span>
+                <span className="moments-counter">{content.length} / {MAX_LEN}</span>
                 <div className="guestbook-immersive-actions">
                   {formError ? <p className="error-text" role="alert">{formError}</p> : null}
                   <button

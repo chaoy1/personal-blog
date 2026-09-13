@@ -2373,6 +2373,9 @@
   flex: 1;
   min-height: 300px;
   margin-top: 18px;
+  /* 正文与行号共用的一组度量：JS 按同一组值算行数 */
+  --sheet-font: 18px;
+  --sheet-line: 37.8px;
 }
 
 .guestbook-sheet-gutter {
@@ -2389,11 +2392,13 @@
   text-align: right;
 }
 
-/* 行号与正文严格同行：单位格高 = 正文行高 */
+/* 行号与正文严格同行：单位格高 = 正文行高。
+   行高与字号走 --sheet-line / --sheet-font，与 JS 量行用的是同一组值，
+   这样第 N 个行号永远落在第 N 条格线上。 */
 .guestbook-sheet-gutter i {
   display: block;
-  height: 2.1em;
-  font-size: clamp(18px, 1.5vw, 21px);
+  height: var(--sheet-line);
+  font-size: var(--sheet-font);
   font-style: normal;
   line-height: 2.1;
   letter-spacing: 0.04em;
@@ -2412,7 +2417,8 @@
   display: block;
   width: 100%;
   height: 100%;
-  min-height: 300px;
+  /* 7 行 × 2.1 × 18px，和 JS 的初始行数对齐，开笺不会跳一下 */
+  min-height: calc(7 * var(--sheet-line));
   margin: 0;
   padding: 0;
   resize: none;
@@ -2427,7 +2433,7 @@
     color-mix(in srgb, var(--ink) 12%, transparent) calc(2.1em - 1px) 2.1em
   );
   font-family: "KaiTi", "STKaiti", var(--font-kai);
-  font-size: clamp(18px, 1.5vw, 21px);
+  font-size: var(--sheet-font);
   line-height: 2.1;
   letter-spacing: 0.05em;
   caret-color: var(--seal-deep);
@@ -2632,6 +2638,8 @@
   .guestbook-sheet-write {
     min-height: 280px;
     margin-top: 14px;
+    --sheet-font: 17px;
+    --sheet-line: 35.7px;
   }
 
   .guestbook-sheet-gutter {
@@ -2639,17 +2647,8 @@
     margin-right: 10px;
   }
 
-  .guestbook-sheet-gutter i,
-  .guestbook-immersive-textarea {
-    font-size: 17px;
-  }
-
   .guestbook-sheet-paperline {
     padding-left: 11px;
-  }
-
-  .guestbook-immersive-textarea {
-    min-height: 280px;
   }
 
   .guestbook-immersive-foot {

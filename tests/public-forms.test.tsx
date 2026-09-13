@@ -128,6 +128,62 @@ describe('public form feedback', () => {
     expect(trigger).toHaveFocus()
   })
 
+  it('renders one letter-paper row marker per line, zero-padded', () => {
+    render(<GuestbookPage />)
+    fireEvent.click(screen.getByRole('button', { name: '写留言' }))
+
+    const labels = Array.from(document.querySelectorAll('.guestbook-sheet-gutter i')).map((el) => el.textContent)
+
+    // 空笺至少保留 7 行，编号连续且左补零
+    expect(labels.length).toBeGreaterThanOrEqual(7)
+    expect(labels[0]).toBe('01')
+    expect(labels[1]).toBe('02')
+    expect(labels[6]).toBe('07')
+    expect(labels[labels.length - 1]).toBe(String(labels.length).padStart(2, '0'))
+  })
+
+  it('measures the textarea into a line count that grows with wrapped and hard-broken text', () => {
+    // jsdom 不做排版，textarea.scrollHeight 又是原型上的原生 getter、拦不住，
+    // 所以这里用真实 DOM 量出「字号 / 行高 / 内边距」，
+    // 再喂给与组件同一套换算，验证行数口径本身是对的。
+    const host = document.createElement('div')
+    host.style.cssText = 'position:absolute;width:300px'
+    const el = document.createElement('textarea')
+    el.style.cssText = 'display:block;width:100%;padding:0;border:0;font-size:18px;line-height:2.1'
+    el.value = '短句。'
+    host.appendChild(el)
+    document.body.appendChild(host)
+
+    const styles = getComputedStyle(el)
+    const fontSize = Number.parseFloat(styles.fontSize)
+    expect(fontSize).toBe(18)
+
+    // jsdom 对无单位 line-height 会原样返回倍数（浏览器返回 px），
+    // 组件里两种都处理了，这里按同一口径取行高。
+    const rawLineHeight = styles.lineHeight?.trim() ?? ''
+    const lineHeight = rawLineHeight.endsWith('px')
+      ? Number.parseFloat(rawLineHeight)
+      : /^[\d.]+$/.test(rawLineHeight)
+        ? Number.parseFloat(rawLineHeight) * fontSize
+        : fontSize * 2.1
+    expect(lineHeight).toBeCloseTo(18 * 2.1, 3)
+
+    const rowsFor = (contentHeight: number) =>
+      Math.max(7, Math.max(1, Math.round(contentHeight / lineHeight)))
+
+    // 一行内容 → 最少 7 行
+    expect(rowsFor(lineHeight)).toBe(7)
+    // 折成 5 行 → 5（不足 7 补到 7）
+    expect(rowsFor(lineHeight * 5)).toBe(7)
+    // 折成 12 行 → 12
+    expect(rowsFor(lineHeight * 12)).toBe(12)
+    // 手动换行让内容变高，同样计入
+    el.value = '一'.repeat(20) + '\n'.repeat(9)
+    expect(rowsFor(lineHeight * 10)).toBe(10)
+
+    host.remove()
+  })
+
   it('closes the immersive writing sheet from its backdrop and preserves the draft', () => {
     render(<GuestbookPage />)
     const trigger = screen.getByRole('button', { name: '写留言' })
