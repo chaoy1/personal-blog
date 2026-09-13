@@ -52,8 +52,15 @@ describe('AboutPage', () => {
     const studio = readFileSync(resolve(process.cwd(), 'app/studio.css'), 'utf8')
 
     expect(layout).toContain("import '@fontsource/zhi-mang-xing/400.css'")
-    expect(studio.match(/"Zhi Mang Xing"/g)).toHaveLength(2)
+    // 手写体只用于「手写题字」这一类：文章页卷首、关于页题头、时间轴题头，
+    // 正文一律走 var(--font-kai)，不整页上毛笔字。
+    const calligraphy = studio.match(/"Zhi Mang Xing"/g) ?? []
+    expect(calligraphy.length).toBeGreaterThanOrEqual(2)
     expect(studio).not.toContain('"Ma Shan Zheng"')
+    // 每次使用都必须带楷体兜底
+    for (const rule of studio.match(/[^{}]*\{[^}]*"Zhi Mang Xing"[^}]*\}/g) ?? []) {
+      expect(rule).toContain('var(--font-kai)')
+    }
   })
 
   it('renders the owner signature with a dedicated brush stroke', async () => {

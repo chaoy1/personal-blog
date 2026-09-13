@@ -2410,6 +2410,7 @@
   display: flex;
   align-items: flex-start;
   min-height: 100%;
+  padding-bottom: 16px;
 }
 
 /* 行号与正文严格同行。

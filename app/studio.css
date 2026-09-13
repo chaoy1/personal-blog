@@ -2193,17 +2193,196 @@
 }
 
 @media (max-width: 720px) {
-  :root[data-theme='dark'] .collection-scroll-posts > .page-intro::after,
-  :root[data-theme='dark'] .timeline-page > .page-intro::after {
+  :root[data-theme='dark'] .collection-scroll-posts > .page-intro::after {
     right: 17px;
     top: 24px;
     width: 76px;
     height: 76px;
   }
+}
 
-  :root[data-theme='dark'] .timeline-page > .page-intro::before {
-    left: 0;
-    width: 100%;
+/* ---------------------------------------------------------------------------
+   时间轴题头 · 岁华叠嶂
+   用站点已有的真迹山水 guestbook-ink-banner.webp 压成一条横带作底，
+   上面覆一道上实下虚的纸色渐层：标题落在干净的纸面上，
+   往下让远山、孤舟、坡石露出来；右上留一枚纸月。
+   只作用于 .timeline-page，不影响其他内页。
+   --------------------------------------------------------------------------- */
+.timeline-page > .page-intro {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  align-items: center;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  gap: 24px;
+  min-height: 248px;
+  padding: 44px 56px 40px 60px;
+  border-radius: 3px 3px 0 0;
+  background-color: #ece3cd;
+  background-image:
+    linear-gradient(180deg, rgba(236, 227, 205, 0.94) 0 26%, rgba(236, 227, 205, 0.46) 58%, rgba(236, 227, 205, 0.1) 100%),
+    url("/bg/guestbook-ink-banner.webp"),
+    var(--card-paper);
+  background-position: 0 0, center 72%, 0 0;
+  background-size: auto, cover, 168px 168px;
+  background-repeat: no-repeat, no-repeat, repeat;
+  background-blend-mode: normal, multiply, multiply;
+  box-shadow: 0 20px 44px -38px rgba(38, 27, 13, 0.72);
+}
+
+/* 左侧朱红起笔，和站内其它内页同一记号 */
+.timeline-page > .page-intro::before {
+  content: "";
+  position: absolute;
+  left: 44px;
+  top: 46px;
+  z-index: 1;
+  display: block;
+  width: 2px;
+  height: 158px;
+  border: 0;
+  background: linear-gradient(180deg, var(--seal-deep), rgba(178, 58, 43, 0.04));
+  opacity: 0.74;
+  transform: none;
+}
+
+/* 右上纸月：与文章页同一套夜间识别，白天作为一枚淡印 */
+.timeline-page > .page-intro::after {
+  content: "";
+  position: absolute;
+  right: 52px;
+  top: 34px;
+  z-index: 0;
+  display: block;
+  width: 96px;
+  height: 96px;
+  border: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(226, 216, 178, 0.5), rgba(191, 190, 164, 0.14) 58%, transparent 72%);
+  box-shadow: 0 0 30px rgba(214, 206, 171, 0.2), inset 0 0 0 1px rgba(229, 219, 183, 0.3);
+  pointer-events: none;
+}
+
+.timeline-page > .page-intro .page-intro-copy,
+.timeline-page > .page-intro .page-intro-mark {
+  position: relative;
+  z-index: 1;
+}
+
+.timeline-page > .page-intro .page-intro-copy {
+  max-width: 620px;
+}
+
+.timeline-page > .page-intro .page-intro-meta {
+  margin-bottom: 11px;
+}
+
+.timeline-page > .page-intro h1 {
+  margin-block: 0;
+  padding-block: 0.06em 0.1em;
+  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
+  font-size: clamp(64px, 5.6vw, 82px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-shadow: 0 1px 1px rgba(252, 247, 232, 0.9), 3px 5px 9px rgba(48, 39, 25, 0.14);
+}
+
+.timeline-page > .page-intro .article-seal {
+  margin-left: 18px;
+  transform: translateY(-4px) rotate(-3deg);
+}
+
+.timeline-page > .page-intro .page-intro-description {
+  margin-top: 16px;
+  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
+  font-size: clamp(24px, 2.2vw, 29px);
+  letter-spacing: 0.1em;
+  line-height: 1.24;
+}
+
+.timeline-page > .page-intro .page-intro-mark {
+  align-self: center;
+  justify-self: end;
+  min-height: 126px;
+  color: var(--gb-pine-deep, #3f5145);
+  font-size: 6px;
+  letter-spacing: 0.18em;
+  line-height: 1.5;
+  opacity: 0.42;
+  writing-mode: vertical-rl;
+}
+
+/* 题头与下方时间轴连成一张纸 */
+.timeline-page > .page-intro + .timeline {
+  margin-top: 0;
+  padding: 28px 52px 56px;
+  border-radius: 0 0 3px 3px;
+  background-color: var(--gb-page-paper, #e8dec7);
+  background-image: var(--card-paper);
+  background-size: 190px 190px;
+  background-blend-mode: multiply;
+}
+
+/* 夜间：纸面转深、真迹走亮度混合，纸月与刻度改用暗色令牌 */
+:root[data-theme='dark'] .timeline-page > .page-intro {
+  background-color: #35301f;
+  background-image:
+    linear-gradient(180deg, rgba(53, 48, 31, 0.94) 0 26%, rgba(53, 48, 31, 0.55) 62%, rgba(53, 48, 31, 0.24) 100%),
+    url("/bg/guestbook-ink-banner.webp"),
+    var(--card-paper);
+  background-position: 0 0, center 72%, 0 0;
+  background-size: auto, cover, 168px 168px;
+  background-repeat: no-repeat, no-repeat, repeat;
+  background-blend-mode: normal, luminosity, soft-light;
+  box-shadow: 0 20px 44px -38px rgba(0, 0, 0, 0.7);
+}
+
+:root[data-theme='dark'] .timeline-page > .page-intro::after {
+  background: radial-gradient(circle, rgba(226, 216, 178, 0.2), rgba(191, 190, 164, 0.06) 58%, transparent 72%);
+  box-shadow: 0 0 34px rgba(214, 206, 171, 0.1), inset 0 0 0 1px rgba(229, 219, 183, 0.1);
+}
+
+:root[data-theme='dark'] .timeline-page > .page-intro + .timeline {
+  background-color: var(--gb-page-paper, #302c22);
+}
+
+@media (max-width: 720px) {
+  .timeline-page > .page-intro {
+    min-height: 208px;
+    padding: 28px 24px 26px 37px;
+    background-position: 0 0, 68% 78%, 0 0;
+  }
+
+  .timeline-page > .page-intro::before {
+    left: 22px;
+    top: 30px;
+    height: 118px;
+  }
+
+  .timeline-page > .page-intro::after {
+    right: 20px;
+    top: 22px;
+    width: 70px;
+    height: 70px;
+  }
+
+  .timeline-page > .page-intro h1 {
+    font-size: clamp(44px, 12vw, 58px);
+  }
+
+  .timeline-page > .page-intro .page-intro-description {
+    margin-top: 11px;
+    font-size: clamp(18px, 5vw, 22px);
+  }
+
+  .timeline-page > .page-intro .page-intro-mark {
+    display: none;
+  }
+
+  .timeline-page > .page-intro + .timeline {
+    padding: 20px 16px 40px;
   }
 }
 

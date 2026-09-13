@@ -51,11 +51,13 @@ function renderGuestbookShell() {
         <p>窗外有山，纸上有话。</p>
       </div>
       <div class="guestbook-sheet-write">
-        <div class="guestbook-sheet-gutter" aria-hidden="true">
-          <i>01</i><i>02</i><i>03</i><i>04</i><i>05</i><i>06</i><i>07</i>
-        </div>
-        <div class="guestbook-sheet-paperline">
-          <textarea class="guestbook-immersive-textarea" aria-label="留言内容"></textarea>
+        <div class="guestbook-sheet-inner">
+          <div class="guestbook-sheet-gutter" aria-hidden="true">
+            <i>01</i><i>02</i><i>03</i><i>04</i><i>05</i><i>06</i><i>07</i>
+          </div>
+          <div class="guestbook-sheet-paperline">
+            <textarea class="guestbook-immersive-textarea" aria-label="留言内容"></textarea>
+          </div>
         </div>
       </div>
       <footer class="guestbook-immersive-foot">
@@ -237,12 +239,15 @@ describe('guestbook desktop composition', () => {
     expect(getComputedStyle(immersiveSheet).display).toBe('grid')
 
     const write = immersiveSheet.querySelector<HTMLElement>('.guestbook-sheet-write')!
+    const inner = immersiveSheet.querySelector<HTMLElement>('.guestbook-sheet-inner')!
     const writeStyle = getComputedStyle(write)
     expect(writeStyle.overflowY).toBe('auto')
     // 网格行必须允许收缩到 0，否则内容会把行顶高、永远滚不起来
     expect(writeStyle.minHeight).toBe('0')
     // 常驻滚动条槽位：有/无滚动条时正文宽度不跳
     expect(writeStyle.scrollbarGutter).toBe('stable')
+    // 留少量可滚动余量，让最后一行完整越过视口裁切边界。
+    expect(getComputedStyle(inner).paddingBottom).toBe('16px')
     // 行号和正文由同一个原生滚动容器一起移动。
     expect(getComputedStyle(immersiveSheet.querySelector<HTMLElement>('.guestbook-sheet-gutter')!).willChange)
       .not.toContain('transform')
