@@ -1469,11 +1469,18 @@
   --gb-page-paper: #e8dec7;
   --gb-card-paper: #f8f2e3;
   --gb-card-paper-dark: #3f3a2b;
+  --gb-paper-fibers: url("/bg/guestbook-paper-fibers.svg");
+  --gb-landscape-tone: none;
   width: auto;
-  max-width: none;
+  max-width: 1080px;
+  margin-right: auto;
+  margin-left: auto;
   padding-right: 0;
   padding-left: 0;
-  background: var(--gb-page-paper);
+  background-color: var(--gb-page-paper);
+  background-image: var(--card-paper);
+  background-size: 190px 190px;
+  background-blend-mode: multiply;
 }
 
 .wrap.guestbook-page > .article-nav {
@@ -1482,15 +1489,15 @@
 
 .wrap.guestbook-page > .page-intro,
 .wrap.guestbook-page:has(> .page-intro + .content-sheet) > .page-intro {
-  min-height: clamp(280px, 28vh, 330px);
-  padding: 42px 56px 34px;
+  min-height: 228px;
+  padding: 32px 42px 28px;
   background-color: #ece3cd;
 }
 
 .wrap.guestbook-page > .page-intro::before {
-  left: 55px;
-  top: 48px;
-  height: 202px;
+  left: 38px;
+  top: 31px;
+  height: 160px;
 }
 
 .wrap.guestbook-page > .page-intro::after {
@@ -1502,18 +1509,16 @@
 }
 
 .wrap.guestbook-page > .page-intro h1 {
-  padding-block: 0.08em 0.1em;
-  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
-  font-size: clamp(78px, 6.6vw, 90px);
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  line-height: 1;
+  padding-block: 0.04em 0.08em;
+  font-family: "KaiTi", "STKaiti", "楷体", var(--font-kai);
+  font-size: clamp(54px, 5.2vw, 64px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.05;
   text-shadow:
-    1px 0 0 currentColor,
-    -0.45px 0.7px 0 color-mix(in srgb, currentColor 62%, transparent),
-    3px 5px 8px rgba(48, 39, 25, 0.13);
-  transform: rotate(-0.7deg);
-  transform-origin: left center;
+    0.5px 0 0 currentColor,
+    2px 4px 7px rgba(48, 39, 25, 0.14);
+  transform: none;
 }
 
 .wrap.guestbook-page > .page-intro .article-seal {
@@ -1522,9 +1527,9 @@
 }
 
 .wrap.guestbook-page > .page-intro .page-intro-description {
-  margin-top: 16px;
+  margin-top: 10px;
   font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
-  font-size: clamp(26px, 2.3vw, 31px);
+  font-size: clamp(19px, 1.9vw, 23px);
   font-weight: 400;
   letter-spacing: 0.1em;
   line-height: 1.24;
@@ -1534,24 +1539,30 @@
 }
 
 .wrap.guestbook-page > .page-intro + .guestbook-sheet {
-  min-height: 72vh;
-  padding: 30px 52px 62px;
-  background: var(--gb-page-paper);
+  min-height: 0;
+  padding: 24px 24px 52px;
+  background-color: var(--gb-page-paper);
+  background-image: var(--card-paper);
+  background-size: 190px 190px;
+  background-blend-mode: multiply;
 }
 
 .guestbook-layout {
   grid-template-areas: "messages compose";
-  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+  grid-template-columns: minmax(0, 2fr) minmax(290px, 1fr);
   align-items: start;
-  gap: 18px;
+  gap: 20px;
 }
 
 .guestbook-window-panel {
-  min-height: 324px;
+  min-height: 314px;
   padding: 0;
   border: 0;
-  background: var(--gb-card-paper);
-  box-shadow: 0 16px 28px -22px rgba(49, 39, 22, 0.52);
+  background-color: var(--gb-card-paper);
+  background-image: var(--gb-paper-fibers), var(--card-paper);
+  background-size: 220px 220px, 168px 168px;
+  background-blend-mode: multiply, multiply;
+  box-shadow: 0 14px 28px -20px rgba(49, 39, 22, 0.48);
   clip-path: polygon(
     0.3% 0.5%, 12% 0.2%, 26% 0.6%, 41% 0.25%, 57% 0.55%, 73% 0.2%, 88% 0.58%, 99.7% 0.3%,
     99.5% 19%, 99.8% 39%, 99.45% 59%, 99.75% 79%, 99.5% 99.5%,
@@ -1562,11 +1573,11 @@
 .guestbook-window-panel::before {
   content: "";
   inset: 0 0 auto auto;
-  width: 180px;
-  height: 142px;
+  width: 158px;
+  height: 264px;
   border: 0;
-  background: url("/bg/guestbook-bamboo.svg") right -18px top -5px / 170px auto no-repeat;
-  opacity: 0.42;
+  background: url("/bg/guestbook-bamboo.svg") right -22px top -22px / 150px auto no-repeat;
+  opacity: 0.38;
   transform: none;
 }
 
@@ -1575,19 +1586,20 @@
   position: absolute;
   inset: auto 0 0;
   display: block;
-  height: 94px;
-  background: url("/bg/guestbook-ink-banner.webp") center bottom / 146% auto no-repeat;
-  opacity: 0.17;
+  height: 112px;
+  background: url("/bg/guestbook-ink-banner.webp") 58% 100% / 164% auto no-repeat;
+  opacity: 0.38;
+  filter: var(--gb-landscape-tone);
   pointer-events: none;
 }
 
 .guestbook-window-entry,
 .guestbook-window-panel .guestbook-write {
-  min-height: 324px;
+  min-height: 314px;
 }
 
 .guestbook-window-entry {
-  padding: 40px 34px 28px;
+  padding: 32px 28px 24px;
 }
 
 .guestbook-window-entry .guestbook-write-kicker {
@@ -1597,15 +1609,17 @@
 
 .guestbook-window-entry .guestbook-window-entry-title,
 .guestbook-window-entry .guestbook-window-title {
-  margin-top: 18px;
-  font-size: clamp(40px, 3.1vw, 48px);
+  margin-top: 16px;
+  font-family: "KaiTi", "STKaiti", "楷体", var(--font-kai);
+  font-size: clamp(34px, 3vw, 42px);
+  font-weight: 700;
   letter-spacing: 0.08em;
 }
 
 .guestbook-window-entry .guestbook-window-copy {
-  margin-top: 20px;
+  margin-top: 14px;
   font-family: "KaiTi", "STKaiti", var(--font-kai);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.1em;
 }
@@ -1616,10 +1630,10 @@
 
 .guestbook-window-entry .guestbook-window-action {
   align-self: center;
-  width: calc(100% - 76px);
-  min-height: 64px;
-  margin-top: 24px;
-  font-size: 20px;
+  width: 100%;
+  min-height: 58px;
+  margin-top: 22px;
+  font-size: 19px;
 }
 
 .guestbook-window-entry .guestbook-window-action .gb-write-mark {
@@ -1636,7 +1650,7 @@
 }
 
 .guestbook-page .guestbook-list {
-  gap: 24px;
+  gap: 20px;
 }
 
 .guestbook-page .guestbook-list > .comment,
@@ -1644,13 +1658,25 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  min-height: 0;
+  min-height: 232px;
   margin-left: 0;
-  padding: 30px 34px 30px 42px;
-  background:
-    url("/bg/guestbook-bamboo.svg") -30px calc(100% + 72px) / 120px auto no-repeat,
-    var(--gb-card-paper);
-  background-blend-mode: multiply, normal;
+  padding: 28px 30px 28px 40px;
+  background-color: var(--gb-card-paper);
+  background-image:
+    url("/bg/guestbook-bamboo.svg"),
+    var(--gb-paper-fibers),
+    var(--card-paper);
+  background-position:
+    left -42px bottom -180px,
+    0 0,
+    0 0;
+  background-size:
+    168px auto,
+    220px 220px,
+    168px 168px;
+  background-repeat: no-repeat, repeat, repeat;
+  background-blend-mode: multiply, multiply, multiply;
+  filter: drop-shadow(0 11px 13px rgba(42, 35, 21, 0.13));
   clip-path: polygon(
     0.25% 0.55%, 8% 0.25%, 18% 0.65%, 29% 0.2%, 41% 0.55%, 54% 0.25%, 67% 0.62%, 80% 0.22%, 92% 0.58%, 99.75% 0.3%,
     99.55% 24%, 99.8% 49%, 99.52% 75%, 99.72% 99.5%, 88% 99.75%, 75% 99.4%, 62% 99.78%, 48% 99.42%, 34% 99.76%, 20% 99.4%, 7% 99.72%, 0.3% 99.5%
@@ -1659,8 +1685,14 @@
 
 .guestbook-page .guestbook-list > .comment:nth-child(even) {
   margin-left: 0;
-  background-position: -30px calc(100% + 72px), center;
-  background-size: 120px auto, auto;
+  background-position:
+    left -38px bottom -174px,
+    0 0,
+    0 0;
+  background-size:
+    164px auto,
+    220px 220px,
+    168px 168px;
 }
 
 .guestbook-page .guestbook-list > .comment::before {
@@ -1672,12 +1704,14 @@
 .guestbook-page .guestbook-list > .comment::after {
   content: "";
   position: absolute;
-  inset: auto 0 0;
+  inset: auto 0 0 auto;
   z-index: 0;
   display: block;
-  height: 96px;
-  background: url("/bg/guestbook-ink-banner.webp") center bottom / 108% auto no-repeat;
-  opacity: 0.2;
+  width: 62%;
+  height: 110px;
+  background: url("/bg/guestbook-ink-banner.webp") 66% 100% / 188% auto no-repeat;
+  opacity: 0.34;
+  filter: var(--gb-landscape-tone);
   pointer-events: none;
 }
 
@@ -1701,6 +1735,11 @@
   min-height: 0;
   margin-bottom: 10px;
   padding: 16px 20px;
+  background-color: rgba(242, 233, 211, 0.82);
+  background-image: var(--gb-paper-fibers), var(--card-paper);
+  background-size: 220px 220px, 152px 152px;
+  background-blend-mode: multiply, multiply;
+  box-shadow: 0 8px 18px -17px rgba(42, 35, 21, 0.52);
 }
 
 .guestbook-page .comment-replies .comment.reply::before {
@@ -1726,9 +1765,10 @@
 :root[data-theme='dark'] .guestbook-window-panel {
   background:
     url("/bg/guestbook-bamboo.svg") calc(100% + 15px) -42px / 104px auto no-repeat,
-    url("/bg/guestbook-ink-banner.webp") center calc(100% + 52px) / 134% auto no-repeat,
+    var(--gb-paper-fibers) 0 0 / 220px 220px repeat,
+    var(--card-paper) 0 0 / 168px 168px repeat,
     var(--gb-card-paper-dark);
-  background-blend-mode: screen, luminosity, normal;
+  background-blend-mode: screen, soft-light, overlay, normal;
 }
 
 :root[data-theme='dark'] .guestbook-page .guestbook-list > .comment,
@@ -1736,14 +1776,23 @@
   background:
     url("/bg/guestbook-bamboo.svg") -8px -54px / 76px auto no-repeat,
     url("/bg/guestbook-bamboo.svg") -13px calc(100% + 100px) / 82px auto no-repeat,
-    url("/bg/guestbook-ink-banner.webp") center calc(100% + 62px) / 112% auto no-repeat,
+    var(--gb-paper-fibers) 0 0 / 220px 220px repeat,
+    var(--card-paper) 0 0 / 168px 168px repeat,
     var(--gb-card-paper-dark);
-  background-blend-mode: screen, screen, luminosity, normal;
+  background-blend-mode: screen, screen, soft-light, overlay, normal;
+}
+
+:root[data-theme='dark'] .guestbook-page .comment-replies .comment.reply {
+  background-color: rgba(58, 53, 40, 0.92);
+  background-image: var(--gb-paper-fibers), var(--card-paper);
+  background-size: 220px 220px, 152px 152px;
+  background-blend-mode: soft-light, overlay;
 }
 
 :root[data-theme='dark'] .wrap.guestbook-page {
   --gb-page-paper: #302c22;
   --gb-card-paper: #3f3a2b;
+  --gb-landscape-tone: brightness(0.42) sepia(0.34) saturate(0.7);
 }
 
 :root[data-theme='dark'] .wrap.guestbook-page > .page-intro::after {
