@@ -49,3 +49,6 @@ effect-preview/leaf-design/_dbg*.png
 
 # 本地视觉比对工作区
 /.compare/
+
+# 留言页写留言弹层的设计稿（可复现渲染）
+/.design/
