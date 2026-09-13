@@ -35,6 +35,7 @@ export default function GuestbookPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const gutterRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const followComposerTailRef = useRef(false)
   const busy = formState === 'submitting'
 
   const closeComposer = useCallback(() => {
@@ -141,6 +142,14 @@ export default function GuestbookPage() {
       gutter.style.height = `${lines * lineHeight}px`
     }
 
+    // textarea 自身被撑高后，浏览器不会替外层滚动容器追随光标。
+    // 仅在用户从正文末尾继续书写时跟到底部，避免编辑中间内容时被强行拉走。
+    const scroll = scrollRef.current
+    if (followComposerTailRef.current && scroll) {
+      scroll.scrollTop = scroll.scrollHeight
+      followComposerTailRef.current = false
+    }
+
     const nextTops = lineTops.map((measuredTop, index) => {
       if (index === 0) return Number.isFinite(measuredTop) ? measuredTop : 0
       const previousTop = lineTops[index - 1]
@@ -188,6 +197,7 @@ export default function GuestbookPage() {
   // 关掉弹层时复位，下次打开是干净的一张笺
   useEffect(() => {
     if (!composeOpen) {
+      followComposerTailRef.current = false
       setRowCount(MIN_ROWS)
       setRowTops([])
       return
@@ -301,11 +311,12 @@ export default function GuestbookPage() {
     setSuccess('')
   }
 
-  function updateContent(value: string) {
+  function updateContent(value: string, caretAtEnd: boolean) {
     if (busy) {
       submissionId.current += 1
       setFormState('idle')
     }
+    followComposerTailRef.current = value.length > content.length && caretAtEnd
     setContent(value)
   }
 
@@ -465,7 +476,10 @@ export default function GuestbookPage() {
                       className="guestbook-immersive-textarea"
                       aria-label="留言内容"
                       value={content}
-                      onChange={(event) => updateContent(event.target.value)}
+                      onChange={(event) => updateContent(
+                        event.target.value,
+                        event.target.selectionStart === event.target.value.length,
+                      )}
                       placeholder="写下此刻想说的话……"
                       maxLength={MAX_LEN}
                       autoFocus

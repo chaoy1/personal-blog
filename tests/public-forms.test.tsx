@@ -164,6 +164,30 @@ describe('public form feedback', () => {
     expect(rows.every((row) => /^\d+px$/.test(row.style.top))).toBe(true)
   })
 
+  it('keeps the newest line visible when writing grows past the viewport', async () => {
+    render(<GuestbookPage />)
+    const textarea = openGuestbookComposer() as HTMLTextAreaElement
+    const write = document.querySelector<HTMLElement>('.guestbook-sheet-write')!
+    const value = Array.from({ length: 12 }, (_, index) => `第 ${index + 1} 行`).join('\n')
+
+    Object.defineProperty(textarea, 'scrollHeight', {
+      configurable: true,
+      get: () => 12 * 34,
+    })
+    Object.defineProperty(write, 'scrollHeight', {
+      configurable: true,
+      get: () => 520,
+    })
+
+    fireEvent.change(textarea, {
+      target: { value, selectionStart: value.length, selectionEnd: value.length },
+    })
+
+    await waitFor(() => {
+      expect(write.scrollTop).toBe(520)
+    })
+  })
+
   it('lets native outer scrolling move text and row numbers together', () => {
     render(<GuestbookPage />)
     openGuestbookComposer()
