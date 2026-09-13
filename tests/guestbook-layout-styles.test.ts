@@ -22,10 +22,11 @@ function renderGuestbookShell() {
         <div class="guestbook-layout">
           <section class="guestbook-messages"></section>
           <aside class="guestbook-window-panel">
-            <button class="guestbook-window-entry">
+            <div class="guestbook-window-entry">
               <span class="guestbook-window-title">山窗寄语</span>
               <span class="guestbook-window-space"></span>
-            </button>
+              <button class="guestbook-window-action">写留言</button>
+            </div>
           </aside>
         </div>
       </article>
@@ -53,6 +54,7 @@ function renderGuestbookShell() {
     layout: document.querySelector<HTMLElement>('.guestbook-layout')!,
     panel: document.querySelector<HTMLElement>('.guestbook-window-panel')!,
     entry: document.querySelector<HTMLElement>('.guestbook-window-entry')!,
+    action: document.querySelector<HTMLElement>('.guestbook-window-action')!,
     panelTitle: document.querySelector<HTMLElement>('.guestbook-window-title')!,
     spacer: document.querySelector<HTMLElement>('.guestbook-window-space')!,
     comment: document.querySelector<HTMLElement>('.guestbook-list > .comment')!,
@@ -76,17 +78,44 @@ describe('guestbook desktop composition', () => {
     expect(getComputedStyle(nav).display).toBe('none')
   })
 
-  it('uses the same restrained page width without a full-height paper backdrop', () => {
+  it('lays the whole page on one sheet of xuan paper like the other inner pages', () => {
     const { page, sheet } = renderGuestbookShell()
+    const pageStyle = getComputedStyle(page)
 
-    expect(getComputedStyle(page).maxWidth).toBe('1080px')
-    expect(getComputedStyle(page).width).toBe('auto')
-    expect(getComputedStyle(page).backgroundColor).toBe('rgba(0, 0, 0, 0)')
-    expect(getComputedStyle(page).backgroundImage).toBe('none')
-    expect(getComputedStyle(sheet).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+    expect(pageStyle.maxWidth).toBe('1080px')
+    expect(pageStyle.width).toBe('auto')
+    // 底纸直接铺在页面容器上：纸面宽度与正文宽度一致，不再多出一层。
+    expect(pageStyle.backgroundImage).toContain('var(--gb-botanical-art)')
+    expect(pageStyle.backgroundImage).toContain('var(--gb-paper-fibers)')
+    expect(pageStyle.backgroundImage).toContain('var(--card-paper)')
+    expect(pageStyle.backgroundBlendMode).toContain('multiply')
+    expect(pageStyle.overflow).toBe('hidden')
+    expect(pageStyle.paddingLeft).toBe('0px')
+    expect(pageStyle.paddingRight).toBe('0px')
+    // 卷纸的圆角与投影写在源码里（jsdom 不解析 border-radius 长写属性）。
+    expect(guestbookStyles).toMatch(/\.wrap\.guestbook-page \{[\s\S]*?border-radius: 3px;/)
+    expect(guestbookStyles).toMatch(/\.wrap\.guestbook-page \{[\s\S]*?box-shadow: 0 30px 68px -42px/)
+    // 题头与正文交回给纸面，不再各自铺一层。
     expect(getComputedStyle(sheet).backgroundImage).toBe('none')
+    expect(getComputedStyle(sheet).backgroundColor).toBe('rgba(0, 0, 0, 0)')
     expect(getComputedStyle(sheet).paddingLeft).toBe('24px')
     expect(getComputedStyle(sheet).paddingRight).toBe('24px')
+  })
+
+  it('opens the composer only from the button, not the whole writing card', () => {
+    const { entry, action } = renderGuestbookShell()
+
+    // 面板本身不接收指针事件，只有按钮可以点。
+    expect(getComputedStyle(entry).pointerEvents).toBe('none')
+    expect(getComputedStyle(action).pointerEvents).toBe('auto')
+    expect(getComputedStyle(action).cursor).toBe('pointer')
+    // 按钮上的按动反馈。
+    expect(guestbookStyles).toMatch(
+      /\.guestbook-window-panel \.guestbook-window-action:active \{[\s\S]*?transform: translateY\(2px\) scale\(0\.985\);/,
+    )
+    expect(guestbookStyles).toMatch(
+      /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*?\.guestbook-window-panel \.guestbook-window-action:active \{[\s\S]*?transform: none;/,
+    )
   })
 
   it('keeps the landscape heading compact inside the restrained page', () => {

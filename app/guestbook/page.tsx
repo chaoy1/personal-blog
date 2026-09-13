@@ -173,27 +173,27 @@ export default function GuestbookPage() {
         <div className="guestbook-layout">
           <aside className="guestbook-window-panel" aria-label="山窗寄语">
             {user ? (
-              <button
-                ref={composeTriggerRef}
-                type="button"
-                className="guestbook-window-entry"
-                onClick={toggleComposer}
-                aria-label="写留言"
-                aria-expanded={composeOpen}
-                aria-haspopup="dialog"
-                aria-controls="guestbook-immersive-sheet"
-              >
+              <div className="guestbook-window-entry">
                 <span className="guestbook-write-kicker">BY THE WINDOW</span>
                 <span className="guestbook-window-title">山窗寄语</span>
                 <span className="guestbook-window-copy">窗外有山，纸上有话。</span>
                 <span className="guestbook-window-space" aria-hidden="true">
                   <span>展笺书写</span>
                 </span>
-                <span className="guestbook-window-action">
+                <button
+                  ref={composeTriggerRef}
+                  type="button"
+                  className="guestbook-window-action"
+                  onClick={toggleComposer}
+                  aria-label="写留言"
+                  aria-expanded={composeOpen}
+                  aria-haspopup="dialog"
+                  aria-controls="guestbook-immersive-sheet"
+                >
                   <span className="gb-write-mark" aria-hidden="true" />
                   写留言
-                </span>
-              </button>
+                </button>
+              </div>
             ) : (
               <Link
                 href="/login"

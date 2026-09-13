@@ -1933,16 +1933,134 @@
 /* Keep these reference-critical rules last in the cascade. */
 .wrap.guestbook-page {
   --gb-botanical-art: url("/bg/guestbook-botanical.svg");
-  background-color: transparent;
-  background-image: none;
 }
 
+/* 一页宣纸：纸底已在上面定下（--gb-page-paper + 纸纹），
+   这里按「关于」「文章」等内页的卷纸做法，补上斜向高光、
+   朱红气息与竹石botanical，让题头山水、来信卡与山窗寄语
+   真正落在同一张纸上；页边不再留横向内边距，纸面即正文宽。 */
+.wrap.guestbook-page {
+  background-color: var(--gb-page-paper);
+  background-image:
+    var(--gb-botanical-art),
+    linear-gradient(112deg, rgba(255, 250, 232, 0.42), transparent 40%),
+    radial-gradient(circle at 88% 6%, rgba(178, 58, 43, 0.05), transparent 20%),
+    var(--gb-paper-fibers),
+    var(--card-paper);
+  background-position: right -70px top 18px, 0 0, 0 0, 0 0, 0 0;
+  background-size: 220px auto, auto, auto, 220px 220px, 190px 190px;
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat, repeat;
+  background-blend-mode: multiply, normal, normal, multiply, multiply;
+  border-radius: 3px;
+  box-shadow: 0 30px 68px -42px rgba(38, 27, 13, 0.8);
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* 贴边落在纸面上的朱红起笔与压角闲章。 */
+.wrap.guestbook-page::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 118px;
+  z-index: 1;
+  display: block;
+  width: 3px;
+  height: 84px;
+  background: linear-gradient(180deg, var(--seal), rgba(178, 58, 43, 0));
+  opacity: 0.86;
+}
+
+.wrap.guestbook-page::after {
+  content: "笺";
+  position: absolute;
+  right: 40px;
+  bottom: 34px;
+  z-index: 0;
+  color: var(--seal);
+  font-family: var(--font-kai);
+  font-size: 92px;
+  line-height: 1;
+  opacity: 0.035;
+  transform: rotate(-8deg);
+  pointer-events: none;
+}
+
+/* 正文不要再叠一层纸纹：整页已经是一张纸，重复叠加会把纹理压深。 */
 .wrap.guestbook-page > .page-intro + .guestbook-sheet {
   background-color: transparent;
   background-image: none;
 }
 
-.wrap.guestbook-page > .page-intro h1,
+/* 写留言只由按钮触发：题头与文案不再吞掉点击，
+   面板也不再响应指针，按动反馈全部集中在按钮上。 */
+.guestbook-window-panel .guestbook-window-entry {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  color: var(--ink);
+  text-align: left;
+  pointer-events: none;
+}
+
+.guestbook-window-panel .guestbook-window-action {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--gb-seal-edge, #8e281f);
+  color: #fff8e8;
+  background: linear-gradient(135deg, #bd3d30, #9f2d24);
+  font-family: var(--font-kai);
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow:
+    0 12px 24px -16px rgba(123, 32, 24, 0.9),
+    inset 0 1px 0 rgba(255, 240, 220, 0.28);
+  transition:
+    transform 130ms cubic-bezier(0.2, 0.7, 0.3, 1),
+    box-shadow 130ms ease,
+    background-color 130ms ease,
+    filter 130ms ease;
+}
+
+.guestbook-window-panel .guestbook-window-action:hover {
+  background: linear-gradient(135deg, #c74637, #a93127);
+}
+
+.guestbook-window-panel .guestbook-window-action:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--seal) 78%, transparent);
+  outline-offset: 3px;
+}
+
+/* 按动：整体下沉并压掉投影，像真按下了一枚印章。 */
+.guestbook-window-panel .guestbook-window-action:active {
+  transform: translateY(2px) scale(0.985);
+  filter: saturate(1.06) brightness(0.97);
+  box-shadow:
+    0 4px 10px -8px rgba(123, 32, 24, 0.85),
+    inset 0 2px 5px rgba(94, 20, 14, 0.42);
+  transition-duration: 60ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guestbook-window-panel .guestbook-window-action {
+    transition: none;
+  }
+
+  .guestbook-window-panel .guestbook-window-action:active {
+    transform: none;
+  }
+}
+
+.wrap.guestbook-page .page-intro h1,
 .guestbook-window-entry .guestbook-window-entry-title,
 .guestbook-window-entry .guestbook-window-title,
 .guestbook-immersive-head h2 {
@@ -1951,7 +2069,7 @@
   -webkit-font-smoothing: antialiased;
 }
 
-.wrap.guestbook-page > .page-intro h1 {
+.wrap.guestbook-page .page-intro h1 {
   letter-spacing: 0.08em;
   text-shadow: 1px 0 0 currentColor, 2px 4px 8px rgba(48, 39, 25, 0.13);
 }
