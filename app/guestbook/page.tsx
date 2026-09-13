@@ -31,6 +31,8 @@ export default function GuestbookPage() {
   const composeTriggerRef = useRef<HTMLButtonElement>(null)
   const composeDialogRef = useRef<HTMLElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const gutterRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
   const busy = formState === 'submitting'
 
   const closeComposer = useCallback(() => {
@@ -105,9 +107,26 @@ export default function GuestbookPage() {
     return () => observer.disconnect()
   }, [composeOpen, measureRows])
 
+  /**
+   * 行号栏跟着正文一起滚，并按 scrollTop 取整，
+   * 否则行号会停在半行上、与格线错开。
+   */
+  const handleWriteScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
+    const gutter = gutterRef.current
+    if (!gutter) return
+    const top = event.currentTarget.scrollTop
+    gutter.style.transform = `translateY(${-Math.round(top)}px)`
+  }, [])
+
   // 关掉弹层时复位，下次打开是干净的一张笺
   useEffect(() => {
-    if (!composeOpen) setRowCount(MIN_ROWS)
+    if (!composeOpen) {
+      setRowCount(MIN_ROWS)
+      return
+    }
+    // 重新开笺：滚动位置与行号偏移都回到顶端
+    if (scrollRef.current) scrollRef.current.scrollTop = 0
+    if (gutterRef.current) gutterRef.current.style.transform = 'translateY(0)'
   }, [composeOpen])
 
   useEffect(() => {
@@ -358,23 +377,29 @@ export default function GuestbookPage() {
                 <p id="guestbook-compose-description">窗外有山，纸上有话。</p>
               </div>
 
-              <div className="guestbook-sheet-write">
-                <div className="guestbook-sheet-gutter" aria-hidden="true">
-                  {Array.from({ length: rowCount }, (_, index) => (
-                    <i key={index}>{String(index + 1).padStart(2, '0')}</i>
-                  ))}
-                </div>
-                <div className="guestbook-sheet-paperline">
-                  <textarea
-                    ref={textareaRef}
-                    className="guestbook-immersive-textarea"
-                    aria-label="留言内容"
-                    value={content}
-                    onChange={(event) => updateContent(event.target.value)}
-                    placeholder="写下此刻想说的话……"
-                    maxLength={MAX_LEN}
-                    autoFocus
-                  />
+              <div
+                className="guestbook-sheet-write"
+                ref={scrollRef}
+                onScroll={handleWriteScroll}
+              >
+                <div className="guestbook-sheet-inner">
+                  <div className="guestbook-sheet-gutter" aria-hidden="true" ref={gutterRef}>
+                    {Array.from({ length: rowCount }, (_, index) => (
+                      <i key={index}>{String(index + 1).padStart(2, '0')}</i>
+                    ))}
+                  </div>
+                  <div className="guestbook-sheet-paperline">
+                    <textarea
+                      ref={textareaRef}
+                      className="guestbook-immersive-textarea"
+                      aria-label="留言内容"
+                      value={content}
+                      onChange={(event) => updateContent(event.target.value)}
+                      placeholder="写下此刻想说的话……"
+                      maxLength={MAX_LEN}
+                      autoFocus
+                    />
+                  </div>
                 </div>
               </div>
 

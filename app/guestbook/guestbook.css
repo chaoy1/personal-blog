@@ -2194,8 +2194,10 @@
 }
 
 .guestbook-immersive-sheet {
-  display: flex;
-  flex-direction: column;
+  /* 用网格把书写区夹住：眉批栏/标题/页脚各自固定，
+     中间那行吃掉剩余高度并允许收缩到 0，写长了只滚动、笺纸不再变高。 */
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
   width: min(920px, 100%);
   min-height: min(600px, calc(100dvh - clamp(40px, 6vh, 68px) - 60px));
   max-height: calc(100dvh - clamp(40px, 6vh, 68px) - 60px);
@@ -2365,17 +2367,48 @@
   letter-spacing: 0.12em;
 }
 
-/* ---- 书写区：行号栏 + 格线 ---- */
+/* ---- 书写区：行号栏 + 格线 ----
+   写长了就在这里滚，笺纸本身不再往下长；
+   行号栏由 JS 按 scrollTop 同步位移，滚到哪一行行号都跟着。 */
 .guestbook-sheet-write {
   position: relative;
   z-index: 2;
-  display: flex;
-  flex: 1;
-  min-height: 300px;
+  /* 网格行：吃掉剩余高度，且允许收缩到 0——写长了只滚动，笺纸不再变高 */
+  min-height: 0;
   margin-top: 18px;
   /* 正文与行号共用的一组度量：JS 按同一组值算行数 */
   --sheet-font: 18px;
   --sheet-line: 37.8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  /* 常驻滚动条槽位，有/无滚动条时正文宽度不跳 */
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ink) 22%, transparent) transparent;
+}
+
+.guestbook-sheet-write::-webkit-scrollbar {
+  width: 8px;
+}
+
+.guestbook-sheet-write::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+.guestbook-sheet-write::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--ink) 32%, transparent);
+}
+
+.guestbook-sheet-write::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.guestbook-sheet-inner {
+  display: flex;
+  align-items: flex-start;
+  min-height: 100%;
 }
 
 .guestbook-sheet-gutter {
@@ -2384,12 +2417,14 @@
   flex-direction: column;
   width: 34px;
   margin-right: 16px;
-  padding-top: 3px;
+  padding-top: 0;
+  padding-bottom: 0;
   color: var(--ink-faint);
   font-family: var(--font-latin);
   font-size: 10px;
   line-height: 1;
   text-align: right;
+  will-change: transform;
 }
 
 /* 行号与正文严格同行：单位格高 = 正文行高。
@@ -2414,10 +2449,10 @@
 }
 
 .guestbook-immersive-textarea {
+  /* 高度由 JS 设成「整数行」，行号栏与格线才是同一套行 */
   display: block;
+  flex: none;
   width: 100%;
-  height: 100%;
-  /* 7 行 × 2.1 × 18px，和 JS 的初始行数对齐，开笺不会跳一下 */
   min-height: calc(7 * var(--sheet-line));
   margin: 0;
   padding: 0;
@@ -2636,7 +2671,7 @@
   }
 
   .guestbook-sheet-write {
-    min-height: 280px;
+    /* 窄屏同样让网格行决定高度，不写死 min-height，否则会把笺纸顶高 */
     margin-top: 14px;
     --sheet-font: 17px;
     --sheet-line: 35.7px;

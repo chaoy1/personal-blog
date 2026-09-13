@@ -197,6 +197,24 @@ describe('guestbook desktop composition', () => {
     expect(getComputedStyle(gutterRow).lineHeight).toBe(getComputedStyle(composerTextarea).lineHeight)
   })
 
+  it('bounds the letter paper and scrolls the writing area instead of growing', () => {
+    const { immersiveSheet } = renderGuestbookShell()
+
+    // 笺纸用网格夹住：写长了由书写区滚动，而不是把纸撑高
+    expect(getComputedStyle(immersiveSheet).display).toBe('grid')
+
+    const write = immersiveSheet.querySelector<HTMLElement>('.guestbook-sheet-write')!
+    const writeStyle = getComputedStyle(write)
+    expect(writeStyle.overflowY).toBe('auto')
+    // 网格行必须允许收缩到 0，否则内容会把行顶高、永远滚不起来
+    expect(writeStyle.minHeight).toBe('0')
+    // 常驻滚动条槽位：有/无滚动条时正文宽度不跳
+    expect(writeStyle.scrollbarGutter).toBe('stable')
+    // 行号栏要能与滚动同步位移
+    expect(getComputedStyle(immersiveSheet.querySelector<HTMLElement>('.guestbook-sheet-gutter')!).willChange)
+      .toBe('transform')
+  })
+
   it('lets note-card height follow its content and keeps reply branches indented', () => {
     const { comment, replies, reply } = renderGuestbookShell()
 
