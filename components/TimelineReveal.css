@@ -19,6 +19,8 @@
 .timeline-pull {
   --pull: 0px;
   --drag: 0;
+  --tension: 0;
+  --step: 0;
   position: relative;
   display: inline-flex;
   flex-direction: column;
@@ -27,16 +29,35 @@
   will-change: transform;
 }
 
-/* 拉拽时给一点纵向伸长的错觉：上缘钉住、下缘被拉走 */
+/*
+  台阶感：位移本身是跳变的（JS 量化），这里再补两件事——
+  1) 跳变时不要补间，否则又变回平滑的了
+  2) 顶住下一格的过程中，纸签轻微"绷紧"（横向微收 + 亮度变化），
+     到格线上瞬间松开。这就是节奏的来源。
+*/
+.timeline-pull:not([data-phase='settle']) {
+  transition: none;
+}
+
+.timeline-pull {
+  --tighten: calc(var(--tension) * var(--tension));
+}
+
+/* 上缘张力线：随"顶住"程度变亮变粗，到格线瞬间回落 */
 .timeline-pull::before {
   content: "";
   position: absolute;
   left: 50%;
   top: -14px;
-  width: 1px;
+  width: calc(1px + var(--tighten) * 1.5px);
   height: calc(14px + var(--pull));
-  background: linear-gradient(180deg, transparent, var(--rule-strong) 30%, var(--seal) 100%);
-  opacity: calc(0.25 + var(--drag) * 0.6);
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--rule-strong) 26%,
+    color-mix(in srgb, var(--seal) calc(30% + var(--tighten) * 70%), transparent) 100%
+  );
+  opacity: calc(0.22 + var(--drag) * 0.5 + var(--tighten) * 0.28);
   transform: translateX(-50%);
   pointer-events: none;
 }
@@ -69,9 +90,17 @@
   border-color: var(--seal);
 }
 
-/* 拉拽时纸签整体被拽离纸面：位移 + 渐深的投影 */
+/* 拉拽时纸签整体被拽离纸面：位移 + 渐深的投影。
+   横向额外按"顶住"程度微收，做出被绷住的错觉。 */
 .timeline-pull {
   filter: drop-shadow(0 calc(var(--drag, 0) * 10px) calc(var(--drag, 0) * 18px) rgba(38, 27, 13, calc(var(--drag, 0) * 0.28)));
+}
+
+.timeline-unfold {
+  /* 绷紧：越接近下一格，纸签越"收"，跳格瞬间回弹到原宽。
+     用 transform 而不是 scale 简写属性，避免与既有属性撞车。 */
+  transform: scaleX(calc(1 - var(--tighten, 0) * 0.012));
+  filter: brightness(calc(1 - var(--tighten, 0) * 0.05));
 }
 
 .timeline-unfold-seal {
@@ -83,7 +112,8 @@
   color: var(--seal-deep);
   font-family: var(--font-kai);
   font-size: 12px;
-  transform: rotate(calc(-3deg + var(--drag) * 5deg)) scale(calc(1 + var(--drag) * 0.08));
+  /* 朱印跟着台阶转一点，跳格时像被"咔"了一下 */
+  transform: rotate(calc(-3deg + var(--drag) * 5deg + var(--step) * 2.5deg)) scale(calc(1 + var(--drag) * 0.08));
   transition: border-color 0.3s ease;
 }
 

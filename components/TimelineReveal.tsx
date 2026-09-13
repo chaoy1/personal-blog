@@ -5,10 +5,14 @@ import Link from 'next/link'
 import { formatDate } from '@/lib/blog'
 import {
   PULL,
-  displacedBy,
+  advance,
   dragRatio,
   isArmed,
+  quantize,
   settleDuration,
+  stepIndex,
+  settleEase,
+  tensionToNextStep,
 } from '@/lib/timeline-pull'
 import './TimelineReveal.css'
 
@@ -50,12 +54,22 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
 
   const hasMore = remaining > 0
 
-  /** 把拉拽量写进 CSS 变量；形变全部由样式表按 --drag / --pull 组合 */
-  const paint = useCallback((value: number) => {
+  /**
+   * 把当前手感写进 CSS 变量。
+   * --pull    : 台阶量化后的位移，形变主体
+   * --drag    : 归一化程度 0–1，驱动投影/旋转/透明度
+   * --tension : 顶住下一格的紧绷程度 0–1，到位前先拉紧再跳，节奏就出来了
+   * --step    : 当前第几格，供样式做顿挫相关的微调
+   */
+  const paint = useCallback((displacement: number, tension: number, steps: number) => {
     const node = pullRef.current
     if (!node) return
-    node.style.setProperty('--pull', `${value.toFixed(2)}px`)
-    node.style.setProperty('--drag', dragRatio(value).toFixed(3))
+    node.style.setProperty('--pull', `${displacement.toFixed(2)}px`)
+    node.style.setProperty('--drag', dragRatio(displacement).toFixed(3))
+    node.style.setProperty('--tension', Math.min(1, Math.max(0, tension)).toFixed(3))
+    // 台阶序号要与 tension 同一口径（用 stepIndex，不是位移除步长），
+    // 否则张力已经归零进入下一格、序号还停在上一格。
+    node.style.setProperty('--step', String(steps))
   }, [])
 
   const clearSettle = useCallback(() => {
@@ -65,23 +79,24 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
     }
   }, [])
 
-  /** 回弹：把当前位移弹回零。释放时的速度直接换成弹簧时长——拽得越狠，回得越久 */
+  /** 回弹：把当前台阶弹回零。节奏由"拉了几格 + 松手快慢"共同决定 */
   const springBack = useCallback(
-    (velocity: number) => {
+    (velocity: number, releasing = false) => {
       const node = pullRef.current
       if (!node) return
       clearSettle()
-      // 用位移（而非原始输入量）决定回弹节奏，这样手感与看到的距离一致
-      const distance = displacedBy(pull.current)
+      // 用当前台阶位置（而非原始输入量）决定回弹节奏，手感才与看到的距离一致
+      const distance = quantize(pull.current)
       pull.current = 0
       armed.current = false
       node.dataset.armed = 'false'
 
-      const duration = settleDuration(distance, velocity)
+      const duration = settleDuration(distance, velocity, releasing)
       node.style.setProperty('--spring-duration', `${duration}ms`)
-      node.style.setProperty('--spring-ease', PULL.settleEase)
+      node.style.setProperty('--spring-ease', settleEase(releasing))
       node.dataset.phase = 'settle'
-      paint(0)
+      node.dataset.releasing = releasing ? 'true' : 'false'
+      paint(0, 0, 0)
 
       settleTimer.current = window.setTimeout(() => {
         if (pullRef.current) pullRef.current.dataset.phase = ''
@@ -100,7 +115,7 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
       if (released.current) return
       released.current = true
       setRevealing(true)
-      springBack(velocity)
+      springBack(velocity, true)
       // 归零在这里显式做一次（不要用"跟着 shown 变化再归零"的 effect，
       // 那会在连续下拉的过程中清掉已积累的量）。
       pull.current = 0
@@ -135,6 +150,7 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
 
     let lastDelta = 0
+    let lastTime = 0
     let idleTimer: number | null = null
 
     const atBottom = () => {
@@ -170,26 +186,32 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
       node.dataset.phase = ''
       lastDelta = event.deltaY
 
-      // 输入量线性累加；位移走曲线——所以越拉越沉，但 p 仍会涨到阈值以上
-      pull.current += event.deltaY
-      const displacement = displacedBy(pull.current)
+      // 速度阻尼：间隔越短（甩得越猛），这一下推进得越少
+      const now = typeof event.timeStamp === 'number' && event.timeStamp > 0 ? event.timeStamp : performance.now()
+      const deltaMs = lastTime > 0 ? now - lastTime : 16
+      lastTime = now
+
+      pull.current = advance(pull.current, event.deltaY, deltaMs)
+      // 台阶量化：位移一格一格跳，中间靠 --tension 表现"顶住"的张力
+      const displacement = quantize(pull.current)
       const nextArmed = isArmed(displacement)
       if (nextArmed !== armed.current) {
         armed.current = nextArmed
         node.dataset.armed = String(nextArmed)
       }
-      paint(displacement)
+      paint(displacement, tensionToNextStep(pull.current), stepIndex(pull.current))
 
       if (nextArmed) {
         release(lastDelta)
         return
       }
 
-      // 停手才回弹：计时器已经在上一步取消过，这里重新挂一个
+      // 停手才回弹。这个停顿本身就是节奏的一部分：
+      // 拉 → 顿一下 → 弹回 → 再拉，所以间隔给得比"帧级"长一点。
       idleTimer = window.setTimeout(() => {
         idleTimer = null
         springBack(lastDelta)
-      }, 140)
+      }, 260)
     }
 
     window.addEventListener('wheel', onWheel, { passive: false })
