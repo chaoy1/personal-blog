@@ -122,7 +122,7 @@ describe('timeline pull damping', () => {
       inputs.push(input)
     }
     expect(isArmed(quantize(input))).toBe(true)
-    expect(inputs.length).toBeLessThanOrEqual(6)
+    expect(inputs.length).toBeLessThanOrEqual(8)
   })
 
   it('arms exactly at the arm displacement', () => {
@@ -149,7 +149,7 @@ describe('timeline pull damping', () => {
     // 阻尼感要求回弹本身是可感的慢动作，不能一瞬归位
     expect(settleDuration(0, 0)).toBeGreaterThan(500)
     // 但也不能拖到像卡住
-    expect(settleDuration(PULL.max, 99999)).toBeLessThan(1200)
+    expect(settleDuration(PULL.max, 99999)).toBeLessThan(1250)
     // 每深一格的时长差要能看出来（>15ms），否则节奏被抹平
     expect(settleDuration(PULL.max, 100) - settleDuration(PULL.max - PULL.step, 100)).toBeGreaterThan(15)
   })

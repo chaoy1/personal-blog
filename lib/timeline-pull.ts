@@ -15,20 +15,20 @@ export const PULL = {
   max: 116,
   /** 阻尼台阶：位移按这个步长量化，形成一格一格的顿挫 */
   step: 22,
-  /** 把台阶推上去所需的输入量（px）：这就是"阻尼"本体 */
-  stepInput: 72,
+  /** 把台阶推上去所需的输入量（px）：这就是"阻尼"本体，越大越沉 */
+  stepInput: 92,
   /**
    * 输入上限。台阶是 floor 出来的，所以输入略超过下一格线就够；
    * 留一点余量保证最后一格一定推得动。
    */
-  maxInput: 72 * 5 + 20,
+  maxInput: 92 * 5 + 20,
   /** 到位位移（px）：拉过这么多格就展开 */
-  armDisplacement: 54,
+  armDisplacement: 44,
   /** 最慢回弹（ms）：慢慢松手时的"阻尼感" */
-  settleMs: 760,
+  settleMs: 820,
   settleEase: 'cubic-bezier(0.22, 0.9, 0.24, 1)',
   /** 释放展开时的回弹（ms）：更利落，像卡榫松开 */
-  releaseMs: 330,
+  releaseMs: 360,
   releaseEase: 'cubic-bezier(0.16, 0.9, 0.28, 1)',
   /** 展开动画时长（ms） */
   unfoldMs: 620,
@@ -37,9 +37,9 @@ export const PULL = {
    * 取值要让"有意图的慢拉"几乎不打折（否则会显得推不动、发木），
    * 只压住真正的猛甩。
    */
-  velocityDamping: 0.08,
+  velocityDamping: 0.075,
   /** 速度阻尼上限：再快也不会完全推不动 */
-  maxVelocityDamping: 0.72,
+  maxVelocityDamping: 0.76,
 } as const
 
 /** 归一化的"拉拽程度"，0–1，喂给 CSS 的 --drag */
@@ -106,7 +106,8 @@ export function advance(input: number, deltaY: number, deltaMs: number): number 
  * 两种情况都随拉得深、松得快而变长。
  */
 export function settleDuration(distance: number, velocity: number, releasing = false): number {
-  const speed = Math.min(1.2, Math.abs(velocity) / 900)
+  // 速度系数上限 0.8：再快也不该把回弹拖成"卡住不动"
+  const speed = Math.min(0.8, Math.abs(velocity) / 900)
   const depth = Math.min(1, Math.max(0, distance) / PULL.max)
   const base = releasing ? PULL.releaseMs : PULL.settleMs
   const spread = releasing ? 0.24 : 0.5

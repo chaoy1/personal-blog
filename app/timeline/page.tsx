@@ -59,7 +59,7 @@ export default async function TimelinePage() {
   ].sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
 
   return (
-    <div className="wrap timeline-page">
+    <div className="wrap timeline-page timeline-page-body">
       <ScrollFX />
       <ArticleNav current="时间轴" />
 

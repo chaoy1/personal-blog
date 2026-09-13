@@ -44,6 +44,7 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
   const remaining = groups.length - shown
 
   const pullRef = useRef<HTMLDivElement>(null)
+  const pageRef = useRef<HTMLElement | null>(null)
   const pull = useRef(0)
   const armed = useRef(false)
   /** 一次展开只触发一次：置位后到新内容渲染完成前不再响应下拉 */
@@ -55,22 +56,55 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
   const hasMore = remaining > 0
 
   /**
+   * 向上拉起的形变变量直接写在 .timeline 上（它既是要被拉起的元素，
+   * 也是 springBack 里记回弹阶段的锚点）。
+   *
+   * 可用空间要按"文档坐标里的上方余量"算，不能用 getBoundingClientRect().top：
+   * 滚到页面底部时时间轴早已高过屏幕上沿，那个值是负的，
+   * 算出来 --lift-max 会是 0，拉起效果直接消失（踩过这个坑）。
+   */
+  const liftRoomFor = (node: HTMLElement) => {
+    const docTop = node.getBoundingClientRect().top + window.scrollY
+    return Math.min(56, Math.max(0, Math.round(docTop * 0.4)))
+  }
+
+  const bindTimeline = useCallback((node: HTMLElement | null) => {
+    pageRef.current = node
+    if (!node) return
+    node.style.setProperty('--lift-max', `${liftRoomFor(node)}px`)
+  }, [])
+
+  /** 拉起的可用空间可能随布局变化（新内容展开、窗口尺寸），重新量一次 */
+  const measureLiftRoom = useCallback(() => {
+    const timeline = pageRef.current
+    if (!timeline) return
+    timeline.style.setProperty('--lift-max', `${liftRoomFor(timeline)}px`)
+  }, [])
+
+  /**
    * 把当前手感写进 CSS 变量。
    * --pull    : 台阶量化后的位移，形变主体
-   * --drag    : 归一化程度 0–1，驱动投影/旋转/透明度
+   * --drag    : 归一化程度 0–1，驱动投影/箭头
    * --tension : 顶住下一格的紧绷程度 0–1，到位前先拉紧再跳，节奏就出来了
    * --step    : 当前第几格，供样式做顿挫相关的微调
+   * --lift    : 整段时间轴被向上提起的程度 0–1
    */
-  const paint = useCallback((displacement: number, tension: number, steps: number) => {
-    const node = pullRef.current
-    if (!node) return
-    node.style.setProperty('--pull', `${displacement.toFixed(2)}px`)
-    node.style.setProperty('--drag', dragRatio(displacement).toFixed(3))
-    node.style.setProperty('--tension', Math.min(1, Math.max(0, tension)).toFixed(3))
-    // 台阶序号要与 tension 同一口径（用 stepIndex，不是位移除步长），
-    // 否则张力已经归零进入下一格、序号还停在上一格。
-    node.style.setProperty('--step', String(steps))
-  }, [])
+  const paint = useCallback(
+    (displacement: number, tension: number, steps: number, lift: number) => {
+      const node = pullRef.current
+      if (!node) return
+      node.style.setProperty('--pull', `${displacement.toFixed(2)}px`)
+      node.style.setProperty('--drag', dragRatio(displacement).toFixed(3))
+      node.style.setProperty('--tension', Math.min(1, Math.max(0, tension)).toFixed(3))
+      // 台阶序号要与 tension 同一口径（用 stepIndex，不是位移除步长），
+      // 否则张力已经归零进入下一格、序号还停在上一格。
+      node.style.setProperty('--step', String(steps))
+      // 拉起幅度略微滞后于纸签位移：纸签先被拉动，整卷才跟着被提起
+      const eased = Math.min(1, Math.max(0, lift * 0.82 + dragRatio(displacement) * 0.18))
+      pageRef.current?.style.setProperty('--lift', eased.toFixed(3))
+    },
+    [],
+  )
 
   const clearSettle = useCallback(() => {
     if (settleTimer.current !== null) {
@@ -96,10 +130,13 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
       node.style.setProperty('--spring-ease', settleEase(releasing))
       node.dataset.phase = 'settle'
       node.dataset.releasing = releasing ? 'true' : 'false'
-      paint(0, 0, 0)
+      // 页面级同步：让 .timeline 也用同一套弹簧时长回弹
+      if (pageRef.current) pageRef.current.dataset.pullPhase = 'settle'
+      paint(0, 0, 0, 0)
 
       settleTimer.current = window.setTimeout(() => {
         if (pullRef.current) pullRef.current.dataset.phase = ''
+        if (pageRef.current) delete pageRef.current.dataset.pullPhase
         settleTimer.current = null
       }, duration + 40)
     },
@@ -199,7 +236,10 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
         armed.current = nextArmed
         node.dataset.armed = String(nextArmed)
       }
-      paint(displacement, tensionToNextStep(pull.current), stepIndex(pull.current))
+      // 拉起程度用未量化的进度：量化只用于纸签的顿挫，
+      // 整卷被提起应该是连续的，否则画面会一格一格地抖。
+      const progress = Math.min(1, pull.current / PULL.maxInput)
+      paint(displacement, tensionToNextStep(pull.current), stepIndex(pull.current), progress)
 
       if (nextArmed) {
         release(lastDelta)
@@ -221,6 +261,20 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
     }
   }, [clearSettle, hasMore, paint, release, springBack, shown])
 
+  // 拉起的可用空间随滚动位置变化，滚到底后再量一次
+  useEffect(() => {
+    if (!hasMore) return
+    measureLiftRoom()
+    const onScroll = () => measureLiftRoom()
+    const onResize = () => measureLiftRoom()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onResize)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onResize)
+    }
+  }, [hasMore, measureLiftRoom, shown])
+
   useEffect(
     () => () => {
       if (settleTimer.current !== null) window.clearTimeout(settleTimer.current)
@@ -233,7 +287,7 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
 
   return (
     <>
-      <section className="timeline">
+      <section className="timeline" ref={bindTimeline}>
         {visible.map((g) => (
           <div key={g.year} className="tl-year-group">
             {/* 新展出的那一卷从上方翻下来；首帧的 2026 不参与动画 */}

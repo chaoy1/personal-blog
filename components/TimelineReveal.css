@@ -43,6 +43,37 @@
   --tighten: calc(var(--tension) * var(--tension));
 }
 
+/*
+  向上拉起：拉拽时整段时间轴被往上"提"，而不是只有纸签在动。
+  位移与缩放都按 --lift（0–1）插值。
+  --lift-max 由组件按"上方还有多少可视空间"算出来，避免把内容顶出上沿。
+  回弹阶段套用与纸签同一套弹簧时长/曲线，两者同步，看起来才是一件东西被拉。
+*/
+/*
+  向上拉起：拉拽时整段时间轴被往上"提"，而不是只有纸签在动。
+  位移与缩放都按 --lift（0–1）插值。
+  --lift-max 由组件按"上方还有多少可视空间"算出来，避免把内容顶出上沿。
+  回弹阶段套用与纸签同一套弹簧时长/曲线，两者同步，看起来才是一件东西被拉。
+
+  选择器带 .timeline-page-body 前缀是为了有明确的特异性，
+  不依赖样式表谁先谁后（.timeline 的基础排版在 globals.css 里）。
+*/
+.timeline-page-body .timeline {
+  --lift-max: 34px;
+  /* 以顶边为原点：向上平移就是真的向上，缩放也不会把内容往下挤
+     （用 bottom 作原点时，缩小会让内容整体下沉，方向正好相反）。 */
+  transform-origin: 50% 0;
+  /* 拉起要看得出来：位移最多 --lift-max，同时轻微缩小，
+     形成"整卷被提起来、离光更近"的透视感。 */
+  transform: translate3d(0, calc(var(--lift, 0) * var(--lift-max) * -1), 0)
+    scale(calc(1 - var(--lift, 0) * 0.03));
+  will-change: transform;
+}
+
+.timeline-page-body[data-pull-phase='settle'] .timeline {
+  transition: transform var(--spring-duration, 520ms) var(--spring-ease, cubic-bezier(0.2, 0.8, 0.24, 1));
+}
+
 /* 上缘张力线：随"顶住"程度变亮变粗，到格线瞬间回落 */
 .timeline-pull::before {
   content: "";
@@ -72,35 +103,21 @@
   border: 0;
   border-top: 1px solid var(--rule-strong);
   border-bottom: 1px solid var(--rule-strong);
-  /* 纸签要"实"一点：页面背景是很满的青绿山水，
-     半透明的纸会让文字和山石糊在一起，拉拽时更难读。 */
-  background:
-    linear-gradient(90deg, rgba(248, 242, 227, 0.72), rgba(252, 248, 236, 0.97) 16%, rgba(252, 248, 236, 0.97) 84%, rgba(248, 242, 227, 0.72)),
-    var(--floating-paper);
+  /* 恢复改动前的册签样式：两端渐隐的纸色带，不是一整块实心卡片 */
+  background: linear-gradient(90deg, transparent, var(--floating-paper) 18%, var(--floating-paper) 82%, transparent);
   color: var(--ink);
   cursor: pointer;
-  /* 拉拽时纸签离纸面更远，投影随之变深 */
-  box-shadow: 0 calc(var(--drag, 0) * 8px) calc(var(--drag, 0) * 16px) rgba(38, 27, 13, calc(var(--drag, 0) * 0.22));
-  /* 回弹走弹簧时间函数，位移由 --pull 驱动 */
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: border-color 0.3s ease, transform 0.3s ease;
 }
 
-.timeline-unfold:hover,
-.timeline-unfold:focus-visible {
+.timeline-unfold:hover {
   border-color: var(--seal);
+  transform: translateY(-2px);
 }
 
-/* 拉拽时纸签整体被拽离纸面：位移 + 渐深的投影。
-   横向额外按"顶住"程度微收，做出被绷住的错觉。 */
-.timeline-pull {
-  filter: drop-shadow(0 calc(var(--drag, 0) * 10px) calc(var(--drag, 0) * 18px) rgba(38, 27, 13, calc(var(--drag, 0) * 0.28)));
-}
-
+/* 拉拽时纸签离纸面更远，投影随之变深（叠加在 hover 位移之上） */
 .timeline-unfold {
-  /* 绷紧：越接近下一格，纸签越"收"，跳格瞬间回弹到原宽。
-     用 transform 而不是 scale 简写属性，避免与既有属性撞车。 */
-  transform: scaleX(calc(1 - var(--tighten, 0) * 0.012));
-  filter: brightness(calc(1 - var(--tighten, 0) * 0.05));
+  box-shadow: 0 calc(var(--drag, 0) * 8px) calc(var(--drag, 0) * 16px) rgba(38, 27, 13, calc(var(--drag, 0) * 0.2));
 }
 
 .timeline-unfold-seal {
@@ -112,9 +129,8 @@
   color: var(--seal-deep);
   font-family: var(--font-kai);
   font-size: 12px;
-  /* 朱印跟着台阶转一点，跳格时像被"咔"了一下 */
-  transform: rotate(calc(-3deg + var(--drag) * 5deg + var(--step) * 2.5deg)) scale(calc(1 + var(--drag) * 0.08));
-  transition: border-color 0.3s ease;
+  /* 原样式是 rotate(-3deg)；拉拽时随台阶递增再转一点，跳格时像被"咔"了一下 */
+  transform: rotate(calc(-3deg + var(--step, 0) * 2.5deg));
 }
 
 .timeline-unfold-copy {
@@ -141,9 +157,13 @@
 .timeline-unfold-arrow {
   color: var(--seal-deep);
   font-size: 15px;
-  /* 箭头被"拽"得更远，且随拉拽淡出，让位给展开 */
-  transform: translateY(calc(var(--drag) * 9px));
-  opacity: calc(1 - var(--drag) * 0.5);
+  /* 原样式是 hover 时下沉 3px；拉拽时按张力再多沉一点 */
+  transform: translateY(calc(var(--drag, 0) * 5px + var(--tighten, 0) * 4px));
+  transition: transform 0.3s ease;
+}
+
+.timeline-unfold:hover .timeline-unfold-arrow {
+  transform: translateY(3px);
 }
 
 /* 拉到位的瞬间：纸签边缘转朱红，给一次明确的"扣上"反馈 */
