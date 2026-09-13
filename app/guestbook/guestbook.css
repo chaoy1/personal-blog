@@ -1,3 +1,8 @@
+/* 红雷行书：题头「留言」用的行书字面。
+   字体按 unicode-range 切成 67 个分片，浏览器只取页面真正用到的那几片，
+   整包放在 public/fonts/hongleixingshu/ 下按绝对路径取用。 */
+@import url("/fonts/hongleixingshu/font.css");
+
 .guestbook-page {
   max-width: 1180px;
   background: linear-gradient(180deg, rgba(239, 231, 210, 0.88), rgba(232, 221, 194, 0.92));
@@ -2060,14 +2065,14 @@
   }
 }
 
-/* 题头「留言」用霞鹜文楷（LXGW WenKai）：真正的行楷字面，
-   起收笔自然连带，但字形是标准现代简体，一眼可认。
+/* 题头「留言」用红雷行书（hongleixingshu）：真正的行书字面，
+   牵丝连带、笔画简省，比行楷更流动，但仍是可认的规范写法。
    面板「山窗寄语」用行草味的 Zhi Mang Xing，小字更显飘逸。
    两者都是手写体系，和宣纸、水墨底子同气。 */
 .wrap.guestbook-page .page-intro h1 {
-  font-family: "LXGW WenKai", "LXGW WenKai TC", "STXingkai", "KaiTi", var(--font-kai);
-  font-weight: 700;
-  /* 行楷笔画有连带，字距放开一点才不挤。 */
+  font-family: "hongleixingshu", "LXGW WenKai", "STXingkai", "KaiTi", var(--font-kai);
+  font-weight: 400;
+  /* 行书有牵丝，字距放开一点才不挤。 */
   letter-spacing: 0.06em;
   text-shadow: 0 2px 6px rgba(48, 39, 25, 0.14);
   -webkit-text-stroke: 0;

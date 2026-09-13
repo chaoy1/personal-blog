@@ -171,12 +171,12 @@ describe('guestbook desktop composition', () => {
     expect(getComputedStyle(reply).padding).toBe('16px 20px')
   })
 
-  it('sets 留言 in a flowing xingkai face and 山窗寄语 in a brush face', () => {
+  it('sets 留言 in a running-script face and 山窗寄语 in a brush face', () => {
     const { title, panelTitle, immersiveTitle, description } = renderGuestbookShell()
 
-    // 题头「留言」：霞鹜文楷（行楷），字形标准、笔意连带。
-    expect(getComputedStyle(title).fontFamily).toContain('LXGW WenKai')
-    expect(getComputedStyle(title).fontWeight).toBe('700')
+    // 题头「留言」：红雷行书（行书），牵丝连带。
+    expect(getComputedStyle(title).fontFamily).toContain('hongleixingshu')
+    expect(getComputedStyle(title).fontWeight).toBe('400')
     // 面板与弹层题头：行草味的 Zhi Mang Xing。
     expect(getComputedStyle(panelTitle).fontFamily).toContain('Zhi Mang Xing')
     expect(getComputedStyle(immersiveTitle).fontFamily).toContain('Zhi Mang Xing')
@@ -186,6 +186,17 @@ describe('guestbook desktop composition', () => {
     // 引文仍保留手写笔意。
     expect(getComputedStyle(description).fontFamily).toContain('Zhi Mang Xing')
     expect(getComputedStyle(description).fontWeight).toBe('400')
+  })
+
+  it('自托管行书字体并按 unicode-range 分片，不整包加载', () => {
+    // 字体不进 JS 包，走 public 绝对路径；分片由浏览器按用到的字按需取。
+    expect(guestbookStyles).toContain('@import url("/fonts/hongleixingshu/font.css")')
+    const fontCss = readFileSync(
+      resolve(process.cwd(), 'public/fonts/hongleixingshu/font.css'),
+      'utf8',
+    )
+    expect(fontCss).toContain("font-family: 'hongleixingshu'")
+    expect(fontCss.match(/unicode-range:/g)?.length ?? 0).toBeGreaterThan(50)
   })
 
   it('keeps nested reply paper dark and textured in night mode', () => {
