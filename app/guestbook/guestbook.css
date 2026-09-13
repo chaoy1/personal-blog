@@ -2428,8 +2428,16 @@
 }
 
 /* 行号与正文严格同行：单位格高 = 正文行高。
-   行高与字号走 --sheet-line / --sheet-font，与 JS 量行用的是同一组值，
-   这样第 N 个行号永远落在第 N 条格线上。 */
+   行高与字号走 --sheet-line / --sheet-font；JS 会把 --sheet-line 与
+   textarea 的 line-height 一起钉成同一个 px 值，两边同源才不会逐行错位。
+   box-sizing 统一用 border-box，避免行高被取值方式不同的取整拉开。 */
+.guestbook-sheet-inner,
+.guestbook-sheet-gutter,
+.guestbook-sheet-gutter i,
+.guestbook-immersive-textarea {
+  box-sizing: border-box;
+}
+
 .guestbook-sheet-gutter i {
   display: block;
   height: var(--sheet-line);

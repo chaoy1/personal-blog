@@ -197,6 +197,21 @@ describe('guestbook desktop composition', () => {
     expect(getComputedStyle(gutterRow).lineHeight).toBe(getComputedStyle(composerTextarea).lineHeight)
   })
 
+  it('pins the row pitch to one integer so the numbers cannot drift from the lines', () => {
+    // 行号与正文必须从同一个行高出发，否则各自取整会逐行积累错位
+    // （此前 25 行差了十几像素）。组件会把两处的行高钉成同一个整数 px，
+    // 这条断言守住"只有一个来源"这个不变量。
+    const write = renderGuestbookShell().immersiveSheet.querySelector<HTMLElement>('.guestbook-sheet-write')!
+    expect(getComputedStyle(write).getPropertyValue('--sheet-line').trim()).toMatch(/^\d+(\.\d+)?px$/)
+    expect(getComputedStyle(write).getPropertyValue('--sheet-font').trim()).toMatch(/^\d+(\.\d+)?px$/)
+
+    // 量高度必须落在整数域：不能用会被祖先 transform 缩放的 getBoundingClientRect
+    const source = readFileSync(resolve(process.cwd(), 'app/guestbook/page.tsx'), 'utf8')
+    expect(source).toContain('el.scrollHeight')
+    expect(source).toContain("el.style.height = 'auto'")
+    expect(source).not.toMatch(/measureRows[\s\S]{0,900}getBoundingClientRect/)
+  })
+
   it('bounds the letter paper and scrolls the writing area instead of growing', () => {
     const { immersiveSheet } = renderGuestbookShell()
 

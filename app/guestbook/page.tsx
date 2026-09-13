@@ -69,24 +69,33 @@ export default function GuestbookPage() {
         : fontSize * 2.1 // 'normal'/空值兜底：按本站设定的 2.1 倍算
     if (!Number.isFinite(lineHeight) || lineHeight <= 0) return
 
-    const n = (value: string) => {
-      const parsed = Number.parseFloat(value)
-      return Number.isFinite(parsed) ? parsed : 0
+    /**
+     * 把行高"钉死"成同一个整数 px 值，同时喂给正文的行高与行号的行距。
+     * 这一步是行号对得上的关键：
+     * 只要两边从同一个数出发，就不会因为各自的取整方式不同而逐行积累错位。
+     */
+    const snapped = `${Math.round(lineHeight)}px`
+    if (el.style.lineHeight !== snapped) el.style.lineHeight = snapped
+    const host = el.closest<HTMLElement>('.guestbook-sheet-inner')
+    if (host && host.style.getPropertyValue('--sheet-line') !== snapped) {
+      host.style.setProperty('--sheet-line', snapped)
     }
-    const chrome = n(styles.paddingTop) + n(styles.paddingBottom) + n(styles.borderTopWidth) + n(styles.borderBottomWidth)
 
-    // 关键：先把高度松开再量。scrollHeight 永远不会小于当前高度，
-    // 留着上一次的高度就会把「折行变多」测成没变化。
+    /**
+     * 量高度一律用 scrollHeight / offsetHeight，不用 getBoundingClientRect：
+     * 开笺动画会给外层加 scaleY，getBoundingClientRect 返回的是缩放过的值，
+     * 据此算出的行高会偏小、行号随之逐行错位（此前 25 行差了十几像素）。
+     * 这两个属性是整数且不受祖先 transform 影响，量与用都在整数域里，最稳。
+     */
     const previousHeight = el.style.height
-    el.style.height = 'auto'
-    const measured = el.scrollHeight
+    el.style.height = 'auto' // 先松开，否则 scrollHeight 不会小于当前高度
+    const contentHeight = el.scrollHeight
     el.style.height = previousHeight
+    if (!Number.isFinite(contentHeight) || contentHeight <= 0) return
 
-    if (!Number.isFinite(measured) || measured <= 0) return
-
-    // scrollHeight 含内边距；把行数吸附到整数，行号才与格线严格同行
-    const lines = Math.max(MIN_ROWS, Math.round((measured - chrome) / lineHeight))
-    const nextHeight = `${lines * lineHeight + chrome}px`
+    // 行数吸附到整数，并把高度也钉成整数行：第 N 个行号才落在第 N 条格线上
+    const lines = Math.max(MIN_ROWS, Math.round(contentHeight / lineHeight))
+    const nextHeight = `${lines * Math.round(lineHeight)}px`
     if (el.style.height !== nextHeight) el.style.height = nextHeight
 
     setRowCount(lines)
