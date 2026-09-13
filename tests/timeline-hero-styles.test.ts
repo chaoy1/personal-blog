@@ -5,11 +5,28 @@ import { resolve } from 'node:path'
 const studioStyles = readFileSync(resolve(process.cwd(), 'app/studio.css'), 'utf8')
 
 /**
- * 时间轴题头（岁华叠嶂）的版面契约。
- * 关键点：这版题头只在 .timeline-page 上生效，不能外溢到其他内页。
+ * 取出时间轴题头这一段规则的范围。
+ * 该选择器在文件里出现三次（旧的夜间基线、本稿桌面、本稿窄屏），
+ * 所以用「最后一次桌面出现」到「窄屏出现」之间切片，别用 indexOf 找第一处。
+ */
+function timelineHeroBlock(): string {
+  const hits = Array.from(studioStyles.matchAll(/\.timeline-page > \.page-intro \{/g), (m) => m.index!)
+  const desktop = hits[hits.length - 2]
+  const mobile = hits[hits.length - 1]
+  return studioStyles.slice(desktop, mobile)
+}
+
+/**
+ * 时间轴题头 · 提亮留白的版面契约。
  *
- * 注意：jsdom 对简写属性（border-radius / background）与 ::after 的支持不完整，
- * 所以凡是简写或伪元素，都改为断言样式表原文；能拿到的长写属性才走计算样式。
+ * 设计约束（踩过的坑，逐条固化成断言）：
+ * - 题头里不能贴任何底图：真迹偏亮，压在深橄榄背景上仍是一块发光的卡片，
+ *   色差与"块感"都来自这里。改为在背景画上直接提亮，露出的就是同一张画。
+ * - 提亮层必须向外扩出题头、且父级不能裁切；一旦 overflow:hidden，
+ *   渐变会被裁成直角，边立刻显形。
+ * - 只作用于 .timeline-page，正文内容区一律不动。
+ *
+ * 注意：jsdom 对简写属性与伪元素支持不完整，这类断言一律查样式表原文。
  */
 function renderTimelineShell() {
   document.head.innerHTML = `
@@ -50,22 +67,39 @@ afterEach(() => {
 })
 
 describe('timeline hero composition', () => {
-  it('lays the hero on the site ink painting behind a paper fade', () => {
+  it('lifts light out of the page painting instead of laying an image on top', () => {
     renderTimelineShell()
 
-    // 用站点已有的真迹山水压成横带作底，再覆一道上实下虚的纸色渐层
+    // 题头基础规则自己不铺底图，也不留底色
+    const introBlock = timelineHeroBlock()
+    expect(introBlock).toMatch(/background: none;/)
+    expect(introBlock).not.toMatch(/background-image:/)
+    expect(introBlock).not.toContain('guestbook-ink-banner')
+    // 提亮来自多层椭圆渐变
+    expect(introBlock).toMatch(/::before \{[\s\S]*?radial-gradient\(ellipse/)
+  })
+
+  it('lets the lift fade out past the hero edge so no rectangle can show', () => {
+    renderTimelineShell()
+
+    // 父级不裁切，提亮层向外扩出，渐变在到边前已全透明
+    expect(getComputedStyle(renderTimelineShell().intro).overflow).toBe('visible')
     expect(studioStyles).toMatch(
-      /\.timeline-page > \.page-intro \{[\s\S]*?url\("\/bg\/guestbook-ink-banner\.webp"\)/,
+      /\.timeline-page > \.page-intro::before \{[\s\S]*?inset: -30% -12%;/,
     )
+  })
+
+  it('keeps the hero sized for its copy and keeps the vermilion rule', () => {
+    const { intro, title, description } = renderTimelineShell()
+
+    expect(getComputedStyle(intro).minHeight).toBe('288px')
+    expect(getComputedStyle(intro).display).toBe('grid')
+    expect(getComputedStyle(title).fontFamily).toContain('Zhi Mang Xing')
+    expect(getComputedStyle(description).fontFamily).toContain('Zhi Mang Xing')
+    // 朱红起笔跟着文字走，仍是 2px
     expect(studioStyles).toMatch(
-      /\.timeline-page > \.page-intro \{[\s\S]*?rgba\(236, 227, 205, 0\.94\) 0 26%/,
+      /\.timeline-page > \.page-intro \.page-intro-copy::before \{[\s\S]*?width: 2px;/,
     )
-    expect(studioStyles).toMatch(
-      /\.timeline-page > \.page-intro \{[\s\S]*?background-position: 0 0, center 72%, 0 0;/,
-    )
-    // 题头有自己的纸面边界（简写属性在 jsdom 里读不到，断言原文）
-    expect(studioStyles).toMatch(/\.timeline-page > \.page-intro \{[\s\S]*?border-radius: 3px 3px 0 0;/)
-    expect(getComputedStyle(renderTimelineShell().intro).overflow).toBe('hidden')
   })
 
   it('leaves the timeline content untouched', () => {
@@ -73,61 +107,54 @@ describe('timeline hero composition', () => {
 
     // 只改题头：正文内容区不套纸面、不加内边距、不连接成一张纸
     expect(studioStyles).not.toMatch(/\.timeline-page > \.page-intro \+ \.timeline/)
-    // .timeline 的基础排版仍来自 globals.css（此处只确认 studio 没再覆盖它）
     expect(studioStyles).not.toMatch(/\.timeline-page\s*>\s*\.timeline\s*\{/)
-  })
-
-  it('keeps the hero sized for its copy and keeps the seal marker readable', () => {
-    const { intro, title, description } = renderTimelineShell()
-
-    expect(getComputedStyle(intro).minHeight).toBe('248px')
-    expect(getComputedStyle(intro).display).toBe('grid')
-    expect(getComputedStyle(title).fontFamily).toContain('Zhi Mang Xing')
-    expect(getComputedStyle(description).fontFamily).toContain('Zhi Mang Xing')
-    // 右上纸月（伪元素，断言原文）
-    expect(studioStyles).toMatch(
-      /\.timeline-page > \.page-intro::after \{[\s\S]*?border-radius: 50%;/,
-    )
-    // 左侧朱红起笔（伪元素在 jsdom 里读不到，断言原文）
-    expect(studioStyles).toMatch(/\.timeline-page > \.page-intro::before \{[\s\S]*?width: 2px;/)
   })
 
   it('does not leak the timeline hero treatment onto other pages', () => {
     const { otherIntro } = renderTimelineShell()
-    const style = getComputedStyle(otherIntro)
 
-    // 其他页面的题头仍是开放式的，不带纸面边界与最小高度
-    expect(style.minHeight).toBe('0')
-    // 真迹山水只出现在 timeline 专属规则里，不会外溢到其他内页
-    const paintingRules = studioStyles.match(/[^{}]*\{[^}]*guestbook-ink-banner[^}]*\}/g) ?? []
-    expect(paintingRules.length).toBeGreaterThan(0)
-    for (const rule of paintingRules) {
-      expect(rule).toContain('.timeline-page')
+    // 其他页面的题头仍是开放式的，不带最小高度
+    expect(getComputedStyle(otherIntro).minHeight).toBe('0')
+
+    // 提亮层只写在 timeline 专属的 ::before 里，别处不得出现椭圆提亮
+    const beforeBlocks = Array.from(
+      timelineHeroBlock().matchAll(/([^{}]*::before\s*)\{([^}]*)\}/g),
+      (m) => ({ selector: m[1], body: m[2] }),
+    ).filter((rule) => rule.body.includes('radial-gradient(ellipse'))
+    expect(beforeBlocks.length).toBeGreaterThan(0)
+    for (const rule of beforeBlocks) {
+      expect(rule.selector).toContain('.timeline-page')
     }
-    // 不应命中任何 timeline 专属规则
-    expect(studioStyles).toMatch(/:root\[data-theme='dark'\] \.timeline-page > \.page-intro \{/)
-    expect(studioStyles).not.toMatch(/(^|\n)\.page-intro::after \{[^}]*border-radius: 50%;/)
+    // 通用 .page-intro 规则里不得挂提亮（只有具体页面可以）
+    const allBefore = Array.from(
+      studioStyles.matchAll(/([^{}]*::before\s*)\{([^}]*)\}/g),
+      (m) => ({ selector: m[1].trim(), body: m[2] }),
+    ).filter((rule) => rule.body.includes('radial-gradient(ellipse'))
+    const bareIntroLift = allBefore.filter((rule) =>
+      /(^|,\s*)\.page-intro::before\s*$/.test(rule.selector),
+    )
+    expect(bareIntroLift).toHaveLength(0)
   })
 
-  it('switches the painting to a night treatment in dark mode', () => {
+  it('swaps the lift to a faint moonlight wash in dark mode', () => {
     document.documentElement.setAttribute('data-theme', 'dark')
     renderTimelineShell()
 
-    // 夜间纸面转深，真迹改走亮度混合，避免浅调原图在暗底上糊成灰白
+    // 夜间背景画本身已转暗，提亮改为极淡月色，避免在暗底上泛白
     expect(studioStyles).toMatch(
-      /:root\[data-theme='dark'\] \.timeline-page > \.page-intro \{[\s\S]*?rgba\(53, 48, 31, 0\.94\)/,
+      /:root\[data-theme='dark'\] \.timeline-page > \.page-intro::before \{[\s\S]*?rgba\(226, 216, 178, 0\.14\)/,
     )
     expect(studioStyles).toMatch(
-      /:root\[data-theme='dark'\] \.timeline-page > \.page-intro \{[\s\S]*?background-blend-mode: normal, luminosity, soft-light;/,
+      /:root\[data-theme='dark'\] \.timeline-page > \.page-intro h1 \{[\s\S]*?color: #f2e8cd;/,
     )
   })
 
-  it('narrows the hero on small screens without dropping the painting', () => {
+  it('narrows the hero on small screens while keeping the lift', () => {
     expect(studioStyles).toMatch(
-      /@media \(max-width: 720px\) \{[\s\S]*?\.timeline-page > \.page-intro \{[\s\S]*?min-height: 208px;/,
+      /@media \(max-width: 720px\) \{[\s\S]*?\.timeline-page > \.page-intro \{[\s\S]*?min-height: 228px;/,
     )
     expect(studioStyles).toMatch(
-      /@media \(max-width: 720px\) \{[\s\S]*?\.timeline-page > \.page-intro \{[\s\S]*?68% 78%/,
+      /@media \(max-width: 720px\) \{[\s\S]*?\.timeline-page > \.page-intro::before \{[\s\S]*?inset: -24% -10%;/,
     )
   })
 })

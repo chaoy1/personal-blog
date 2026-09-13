@@ -2202,66 +2202,69 @@
 }
 
 /* ---------------------------------------------------------------------------
-   时间轴题头 · 岁华叠嶂
-   用站点已有的真迹山水 guestbook-ink-banner.webp 压成一条横带作底，
-   上面覆一道上实下虚的纸色渐层：标题落在干净的纸面上，
-   往下让远山、孤舟、坡石露出来；右上留一枚纸月。
-   只作用于 .timeline-page，不影响其他内页。
+   时间轴题头 · 提亮留白
+   不在题头里贴任何图：直接用多层大范围椭圆渐变"掀开一片光"，
+   露出的是页面同一张背景画，因此既没有色差，也没有矩形边界。
+   （曾试过铺真迹山水作底，但真迹偏亮，在深橄榄背景上仍是一块发光的卡片。）
+   左侧朱红起笔保留，作为与站内其它内页同源的记号。
    --------------------------------------------------------------------------- */
 .timeline-page > .page-intro {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  /* 不裁切：提亮层要往外扩出去自然淡出，
+     一旦 overflow:hidden，渐变会被裁成直角，立刻显出一条白边。 */
+  overflow: visible;
   display: grid;
   align-items: center;
   grid-template-columns: minmax(0, 1fr) 44px;
   gap: 24px;
-  min-height: 248px;
-  padding: 44px 56px 40px 60px;
-  border-radius: 3px 3px 0 0;
-  background-color: #ece3cd;
-  background-image:
-    linear-gradient(180deg, rgba(236, 227, 205, 0.94) 0 26%, rgba(236, 227, 205, 0.46) 58%, rgba(236, 227, 205, 0.1) 100%),
-    url("/bg/guestbook-ink-banner.webp"),
-    var(--card-paper);
-  background-position: 0 0, center 72%, 0 0;
-  background-size: auto, cover, 168px 168px;
-  background-repeat: no-repeat, no-repeat, repeat;
-  background-blend-mode: normal, multiply, multiply;
-  box-shadow: 0 20px 44px -38px rgba(38, 27, 13, 0.72);
+  min-height: 288px;
+  padding: 44px 44px 40px 56px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
 }
 
-/* 左侧朱红起笔，和站内其它内页同一记号 */
+/* 提亮留白：不贴任何图，直接在页面背景画上"掀开一片光"。
+   多层椭圆渐变向外扩出题头之外，在到边之前就已全透明——
+   因此既没有色差（提亮的仍是同一张背景画），也不存在矩形边界。
+   左侧朱红起笔保留，作为与站内其它内页同源的记号。 */
 .timeline-page > .page-intro::before {
   content: "";
   position: absolute;
-  left: 44px;
-  top: 46px;
+  z-index: 0;
+  inset: -30% -12%;
+  display: block;
+  border: 0;
+  background:
+    radial-gradient(ellipse 56% 58% at 38% 48%, rgba(250, 245, 230, 0.6), rgba(249, 244, 228, 0.36) 40%, rgba(248, 242, 224, 0.12) 64%, transparent 80%),
+    radial-gradient(ellipse 82% 86% at 46% 50%, rgba(248, 242, 224, 0.24), rgba(247, 241, 222, 0.08) 58%, transparent 82%);
+  opacity: 1;
+  filter: none;
+  transform: none;
+  pointer-events: none;
+}
+
+/* 朱红起笔：与提亮层分开，单独一条细线 */
+.timeline-page > .page-intro .page-intro-copy::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 2px;
   z-index: 1;
   display: block;
   width: 2px;
   height: 158px;
-  border: 0;
   background: linear-gradient(180deg, var(--seal-deep), rgba(178, 58, 43, 0.04));
   opacity: 0.74;
-  transform: none;
+  pointer-events: none;
 }
 
-/* 右上纸月：与文章页同一套夜间识别，白天作为一枚淡印 */
+/* 不再使用纸月与整层底图 */
 .timeline-page > .page-intro::after {
-  content: "";
-  position: absolute;
-  right: 52px;
-  top: 34px;
-  z-index: 0;
-  display: block;
-  width: 96px;
-  height: 96px;
-  border: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(226, 216, 178, 0.5), rgba(191, 190, 164, 0.14) 58%, transparent 72%);
-  box-shadow: 0 0 30px rgba(214, 206, 171, 0.2), inset 0 0 0 1px rgba(229, 219, 183, 0.3);
-  pointer-events: none;
+  content: none;
+  display: none;
 }
 
 .timeline-page > .page-intro .page-intro-copy,
@@ -2278,6 +2281,7 @@
   margin-bottom: 11px;
 }
 
+/* 题字落在提亮区中心，靠多层浅色描边＋落纸影辨识，不依赖底纸 */
 .timeline-page > .page-intro h1 {
   margin-block: 0;
   padding-block: 0.06em 0.1em;
@@ -2286,7 +2290,13 @@
   font-weight: 400;
   letter-spacing: 0.02em;
   line-height: 1;
-  text-shadow: 0 1px 1px rgba(252, 247, 232, 0.9), 3px 5px 9px rgba(48, 39, 25, 0.14);
+  color: #241d12;
+  text-shadow:
+    0 1px 0 rgba(255, 253, 246, 0.55),
+    0 0 12px rgba(250, 244, 228, 0.75),
+    0 0 28px rgba(248, 241, 222, 0.5),
+    0 0 48px rgba(246, 238, 216, 0.3),
+    3px 6px 12px rgba(32, 24, 10, 0.28);
 }
 
 .timeline-page > .page-intro .article-seal {
@@ -2300,59 +2310,71 @@
   font-size: clamp(24px, 2.2vw, 29px);
   letter-spacing: 0.1em;
   line-height: 1.24;
+  color: #3a2f1e;
+  text-shadow:
+    0 1px 0 rgba(255, 253, 246, 0.5),
+    0 0 14px rgba(250, 244, 228, 0.7),
+    0 0 30px rgba(248, 241, 222, 0.42);
 }
 
 .timeline-page > .page-intro .page-intro-mark {
   align-self: center;
   justify-self: end;
   min-height: 126px;
-  color: var(--gb-pine-deep, #3f5145);
+  color: #4c442f;
   font-size: 6px;
   letter-spacing: 0.18em;
   line-height: 1.5;
-  opacity: 0.42;
+  opacity: 0.55;
   writing-mode: vertical-rl;
+  text-shadow: 0 0 14px rgba(250, 244, 228, 0.6);
 }
 
-/* 正文内容区保持原样：题头只做自己的纸面，不再改动下方时间轴 */
+/* 正文内容区保持原样：题头只做提亮留白，不改动下方时间轴 */
 
-/* 夜间：纸面转深、真迹走亮度混合，纸月与刻度改用暗色令牌 */
-:root[data-theme='dark'] .timeline-page > .page-intro {
-  background-color: #35301f;
-  background-image:
-    linear-gradient(180deg, rgba(53, 48, 31, 0.94) 0 26%, rgba(53, 48, 31, 0.55) 62%, rgba(53, 48, 31, 0.24) 100%),
-    url("/bg/guestbook-ink-banner.webp"),
-    var(--card-paper);
-  background-position: 0 0, center 72%, 0 0;
-  background-size: auto, cover, 168px 168px;
-  background-repeat: no-repeat, no-repeat, repeat;
-  background-blend-mode: normal, luminosity, soft-light;
-  box-shadow: 0 20px 44px -38px rgba(0, 0, 0, 0.7);
+/* 夜间：背景画本身已转暗，提亮改为极淡的月色，避免在暗底上泛白 */
+:root[data-theme='dark'] .timeline-page > .page-intro::before {
+  background:
+    radial-gradient(ellipse 56% 58% at 38% 48%, rgba(226, 216, 178, 0.14), rgba(216, 206, 170, 0.08) 42%, transparent 76%),
+    radial-gradient(ellipse 82% 86% at 46% 50%, rgba(214, 206, 171, 0.06), transparent 78%);
 }
 
-:root[data-theme='dark'] .timeline-page > .page-intro::after {
-  background: radial-gradient(circle, rgba(226, 216, 178, 0.2), rgba(191, 190, 164, 0.06) 58%, transparent 72%);
-  box-shadow: 0 0 34px rgba(214, 206, 171, 0.1), inset 0 0 0 1px rgba(229, 219, 183, 0.1);
+:root[data-theme='dark'] .timeline-page > .page-intro h1 {
+  color: #f2e8cd;
+  text-shadow:
+    0 1px 0 rgba(12, 14, 10, 0.5),
+    0 0 16px rgba(210, 198, 160, 0.32),
+    0 0 40px rgba(200, 188, 150, 0.22),
+    2px 5px 12px rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme='dark'] .timeline-page > .page-intro .page-intro-description {
+  color: #ddd0ad;
+  text-shadow: 0 1px 0 rgba(12, 14, 10, 0.45), 0 0 18px rgba(200, 188, 150, 0.24);
+}
+
+:root[data-theme='dark'] .timeline-page > .page-intro .page-intro-mark {
+  color: #b6a67d;
+}
+
+:root[data-theme='dark'] .timeline-page > .page-intro .page-intro-copy::before {
+  opacity: 0.6;
 }
 
 @media (max-width: 720px) {
   .timeline-page > .page-intro {
-    min-height: 208px;
-    padding: 28px 24px 26px 37px;
-    background-position: 0 0, 68% 78%, 0 0;
+    min-height: 228px;
+    padding: 30px 22px 28px 42px;
   }
 
   .timeline-page > .page-intro::before {
-    left: 22px;
-    top: 30px;
-    height: 118px;
+    inset: -24% -10%;
   }
 
-  .timeline-page > .page-intro::after {
-    right: 20px;
-    top: 22px;
-    width: 70px;
-    height: 70px;
+  .timeline-page > .page-intro .page-intro-copy::before {
+    left: -10px;
+    top: 0;
+    height: 118px;
   }
 
   .timeline-page > .page-intro h1 {
