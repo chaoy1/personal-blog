@@ -2061,27 +2061,35 @@
 }
 
 /* 飘逸洒脱的毛笔题字：留言、山窗寄语与写留言弹层题头统一换用行草味的 Zhi Mang Xing。
-   笔画连贯、有枯笔飞白，比原先的楷体题字更放得开。 */
+   笔画连贯、有枯笔飞白。
+   注意：这个字体的笔画细、边缘本就带飞白，
+   不要再用 1px 级的 text-shadow 描边去"加粗"，
+   否则笔画会糊成一圈毛边，字反而更难认。
+   需要一点分量时用极细的 text-stroke + 柔和投影。 */
 .wrap.guestbook-page .page-intro h1,
 .guestbook-window-entry .guestbook-window-entry-title,
 .guestbook-window-entry .guestbook-window-title,
 .guestbook-immersive-head h2 {
   font-family: "Zhi Mang Xing", "STXingkai", "KaiTi", var(--font-kai);
   font-weight: 400;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
+  text-shadow: none;
+  -webkit-text-stroke: 0.3px currentColor;
+  paint-order: stroke fill;
   -webkit-font-smoothing: antialiased;
 }
 
 .wrap.guestbook-page .page-intro h1 {
-  letter-spacing: 0.05em;
-  text-shadow: 0.6px 0 0 currentColor, 2px 4px 9px rgba(48, 39, 25, 0.16);
+  letter-spacing: 0.06em;
+  text-shadow: 0 2px 6px rgba(48, 39, 25, 0.14);
 }
 
 /* 面板题字略提字距，让小字号的连贯笔画不挤在一起。 */
 .guestbook-window-entry .guestbook-window-entry-title,
 .guestbook-window-entry .guestbook-window-title,
 .guestbook-immersive-head h2 {
-  letter-spacing: 0.07em;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 4px rgba(48, 39, 25, 0.12);
 }
 
 .guestbook-window-panel {
