@@ -171,19 +171,18 @@ describe('guestbook desktop composition', () => {
     expect(getComputedStyle(reply).padding).toBe('16px 20px')
   })
 
-  it('sets the guestbook titles in a modern, legible serif face', () => {
+  it('sets 留言 in a flowing xingkai face and 山窗寄语 in a brush face', () => {
     const { title, panelTitle, immersiveTitle, description } = renderGuestbookShell()
 
-    // 现代写法：思源宋体 700，字形标准、辨识度高。
-    expect(getComputedStyle(title).fontFamily).toContain('Noto Serif SC')
+    // 题头「留言」：霞鹜文楷（行楷），字形标准、笔意连带。
+    expect(getComputedStyle(title).fontFamily).toContain('LXGW WenKai')
     expect(getComputedStyle(title).fontWeight).toBe('700')
-    expect(getComputedStyle(panelTitle).fontFamily).toContain('Noto Serif SC')
-    expect(getComputedStyle(immersiveTitle).fontFamily).toContain('Noto Serif SC')
-    // 题字不再用行草，也不靠描边凑分量。
-    expect(getComputedStyle(title).fontFamily).not.toContain('Zhi Mang Xing')
-    expect(guestbookStyles).not.toMatch(
-      /\.wrap\.guestbook-page \.page-intro h1,[\s\S]{0,400}?-webkit-text-stroke: 0\.3px/,
-    )
+    // 面板与弹层题头：行草味的 Zhi Mang Xing。
+    expect(getComputedStyle(panelTitle).fontFamily).toContain('Zhi Mang Xing')
+    expect(getComputedStyle(immersiveTitle).fontFamily).toContain('Zhi Mang Xing')
+    expect(getComputedStyle(panelTitle).fontWeight).toBe('400')
+    // 两处题字分属不同字体族，不再共用一个字体栈。
+    expect(getComputedStyle(title).fontFamily).not.toBe(getComputedStyle(panelTitle).fontFamily)
     // 引文仍保留手写笔意。
     expect(getComputedStyle(description).fontFamily).toContain('Zhi Mang Xing')
     expect(getComputedStyle(description).fontWeight).toBe('400')

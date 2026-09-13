@@ -2060,34 +2060,30 @@
   }
 }
 
-/* 题字改用现代写法的思源宋体：字形标准、笔画清晰，一眼就能认出，
-   同时保留宋体的衬线骨架，和宣纸、水墨底子不冲突。
-   之前那版行草（Zhi Mang Xing）飘逸但辨识度太低，已弃用。
-   Noto Serif SC 的简体子集只装了 700，需要更多字重时再补 400。 */
-.wrap.guestbook-page .page-intro h1,
-.guestbook-window-entry .guestbook-window-entry-title,
-.guestbook-window-entry .guestbook-window-title,
-.guestbook-immersive-head h2 {
-  font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", var(--font-cn);
+/* 题头「留言」用霞鹜文楷（LXGW WenKai）：真正的行楷字面，
+   起收笔自然连带，但字形是标准现代简体，一眼可认。
+   面板「山窗寄语」用行草味的 Zhi Mang Xing，小字更显飘逸。
+   两者都是手写体系，和宣纸、水墨底子同气。 */
+.wrap.guestbook-page .page-intro h1 {
+  font-family: "LXGW WenKai", "LXGW WenKai TC", "STXingkai", "KaiTi", var(--font-kai);
   font-weight: 700;
-  /* 现代字面本就规整，收紧字距更见精神，也避免标题散开。 */
-  letter-spacing: 0.01em;
-  /* 笔画是实心的，不需要描边补分量；只留一层落纸投影。 */
-  text-shadow: 0 2px 6px rgba(48, 39, 25, 0.13);
+  /* 行楷笔画有连带，字距放开一点才不挤。 */
+  letter-spacing: 0.06em;
+  text-shadow: 0 2px 6px rgba(48, 39, 25, 0.14);
   -webkit-text-stroke: 0;
   -webkit-font-smoothing: antialiased;
 }
 
-.wrap.guestbook-page .page-intro h1 {
-  letter-spacing: 0.02em;
-}
-
-/* 面板题字字号小，字距略放松一点，避免笔画挨得太紧。 */
 .guestbook-window-entry .guestbook-window-entry-title,
 .guestbook-window-entry .guestbook-window-title,
 .guestbook-immersive-head h2 {
-  letter-spacing: 0.04em;
-  text-shadow: 0 1px 4px rgba(48, 39, 25, 0.11);
+  font-family: "Zhi Mang Xing", "STXingkai", "KaiTi", var(--font-kai);
+  font-weight: 400;
+  /* 行草细笔，字距再松一点避免笔画糊在一起。 */
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 4px rgba(48, 39, 25, 0.12);
+  -webkit-text-stroke: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
 .guestbook-window-panel {
