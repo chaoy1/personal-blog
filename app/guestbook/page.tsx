@@ -267,27 +267,42 @@ export default function GuestbookPage() {
               aria-busy={busy}
               data-form-state={formState}
             >
-              <header className="guestbook-immersive-head">
-                <div>
-                  <span className="guestbook-write-kicker">BY THE WINDOW</span>
-                  <h2 id="guestbook-compose-title">山窗寄语</h2>
-                  <p id="guestbook-compose-description">窗外有山，纸上有话。</p>
-                </div>
+              <div className="guestbook-sheet-scenery" aria-hidden="true" />
+
+              <header className="guestbook-sheet-head">
+                <span className="guestbook-sheet-mark">
+                  <b aria-hidden="true">05</b>
+                  <span className="guestbook-sheet-eyebrow">BY THE WINDOW</span>
+                </span>
                 <button type="button" className="guestbook-sheet-close" onClick={closeComposer}>
                   <span>收笺</span>
                   <span className="guestbook-sheet-close-mark" aria-hidden="true">×</span>
                 </button>
               </header>
 
-              <textarea
-                className="guestbook-immersive-textarea"
-                aria-label="留言内容"
-                value={content}
-                onChange={(event) => updateContent(event.target.value)}
-                placeholder="写下此刻想说的话……"
-                maxLength={500}
-                autoFocus
-              />
+              <div className="guestbook-sheet-title">
+                <h2 id="guestbook-compose-title">山窗寄语</h2>
+                <p id="guestbook-compose-description">窗外有山，纸上有话。</p>
+              </div>
+
+              <div className="guestbook-sheet-write">
+                <div className="guestbook-sheet-gutter" aria-hidden="true">
+                  {['01', '02', '03', '04', '05', '06', '07'].map((row) => (
+                    <i key={row}>{row}</i>
+                  ))}
+                </div>
+                <div className="guestbook-sheet-paperline">
+                  <textarea
+                    className="guestbook-immersive-textarea"
+                    aria-label="留言内容"
+                    value={content}
+                    onChange={(event) => updateContent(event.target.value)}
+                    placeholder="写下此刻想说的话……"
+                    maxLength={500}
+                    autoFocus
+                  />
+                </div>
+              </div>
 
               <footer className="guestbook-immersive-foot">
                 <span className="moments-counter">{content.length} / 500</span>
@@ -299,10 +314,12 @@ export default function GuestbookPage() {
                     onClick={post}
                     disabled={busy || !content.trim()}
                   >
-                    {busy ? '寄送中…' : formState === 'error' ? '重试留言' : '寄出留言'}
+                    {busy ? '寄送中…' : formState === 'error' ? '重试寄出' : '寄出留言'}
                   </button>
                 </div>
               </footer>
+
+              <span className="guestbook-sheet-seal" aria-hidden="true">寄</span>
             </section>
           </div>,
           document.body,

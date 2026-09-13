@@ -196,7 +196,7 @@ describe('public form feedback', () => {
 
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('暂时无法保存'))
     expect(textarea).toHaveValue('此处留一言。')
-    expect(screen.getByRole('button', { name: '重试留言' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: '重试寄出' })).toBeEnabled()
   })
 
   it('ignores an old guestbook completion after the composer is reopened for a new draft', async () => {

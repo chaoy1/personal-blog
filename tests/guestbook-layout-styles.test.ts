@@ -41,7 +41,27 @@ function renderGuestbookShell() {
       </div>
     </main>
     <section class="guestbook-immersive-sheet">
-      <header class="guestbook-immersive-head"><h2>山窗寄语</h2></header>
+      <div class="guestbook-sheet-scenery" aria-hidden="true"></div>
+      <header class="guestbook-sheet-head">
+        <span class="guestbook-sheet-mark"><b>05</b><span class="guestbook-sheet-eyebrow">BY THE WINDOW</span></span>
+        <button class="guestbook-sheet-close" type="button">收笺</button>
+      </header>
+      <div class="guestbook-sheet-title">
+        <h2>山窗寄语</h2>
+        <p>窗外有山，纸上有话。</p>
+      </div>
+      <div class="guestbook-sheet-write">
+        <div class="guestbook-sheet-gutter" aria-hidden="true">
+          <i>01</i><i>02</i><i>03</i><i>04</i><i>05</i><i>06</i><i>07</i>
+        </div>
+        <div class="guestbook-sheet-paperline">
+          <textarea class="guestbook-immersive-textarea" aria-label="留言内容"></textarea>
+        </div>
+      </div>
+      <footer class="guestbook-immersive-foot">
+        <span class="moments-counter">0 / 500</span>
+      </footer>
+      <span class="guestbook-sheet-seal" aria-hidden="true">寄</span>
     </section>
   `
 
@@ -61,7 +81,7 @@ function renderGuestbookShell() {
     replies: document.querySelector<HTMLElement>('.comment-replies')!,
     reply: document.querySelector<HTMLElement>('.comment.reply')!,
     immersiveSheet: document.querySelector<HTMLElement>('.guestbook-immersive-sheet')!,
-    immersiveTitle: document.querySelector<HTMLElement>('.guestbook-immersive-head h2')!,
+    immersiveTitle: document.querySelector<HTMLElement>('.guestbook-sheet-title h2')!,
   }
 }
 
@@ -156,7 +176,25 @@ describe('guestbook desktop composition', () => {
     expect(getComputedStyle(comment).backgroundImage).toContain('var(--gb-botanical-art)')
     expect(getComputedStyle(reply).backgroundImage).toContain('var(--card-paper)')
     expect(getComputedStyle(reply).backgroundImage).toContain('var(--gb-paper-fibers)')
-    expect(getComputedStyle(immersiveSheet).backgroundImage).toContain('guestbook-botanical.svg')
+    // 写留言弹层改用真迹山水做底，纸纹仍压在下面。
+    expect(getComputedStyle(immersiveSheet).backgroundImage).toContain('var(--card-paper)')
+    expect(getComputedStyle(immersiveSheet).backgroundImage).toContain('var(--gb-paper-fibers)')
+  })
+
+  it('lays the compose sheet on the real ink painting with a paper letter-paper structure', () => {
+    const { immersiveSheet } = renderGuestbookShell()
+
+    // 真迹山水 + 护字层 + 行号栏 + 压角闲章
+    expect(immersiveSheet.querySelector('.guestbook-sheet-scenery')).not.toBeNull()
+    expect(immersiveSheet.querySelectorAll('.guestbook-sheet-gutter i')).toHaveLength(7)
+    expect(immersiveSheet.querySelector('.guestbook-sheet-seal')).not.toBeNull()
+    expect(guestbookStyles).toMatch(
+      /\.guestbook-sheet-scenery::before \{[\s\S]*?guestbook-ink-banner\.webp"\) center bottom \/ cover no-repeat;/,
+    )
+    // 行号与正文同行：两者行高一致
+    const gutterRow = immersiveSheet.querySelector<HTMLElement>('.guestbook-sheet-gutter i')!
+    const composerTextarea = immersiveSheet.querySelector<HTMLTextAreaElement>('.guestbook-immersive-textarea')!
+    expect(getComputedStyle(gutterRow).lineHeight).toBe(getComputedStyle(composerTextarea).lineHeight)
   })
 
   it('lets note-card height follow its content and keeps reply branches indented', () => {
