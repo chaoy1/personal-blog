@@ -97,4 +97,12 @@ describe('shared dialog behavior', () => {
     expect(readFileSync(resolve(process.cwd(), 'app/moments/page.tsx'), 'utf8')).not.toContain('window.confirm')
     expect(readFileSync(resolve(process.cwd(), 'app/guestbook/page.tsx'), 'utf8')).not.toContain('window.confirm')
   })
+
+  it('keeps the Phase 3 shared contracts discoverable at their boundaries', () => {
+    expect(readFileSync(resolve(process.cwd(), 'components/DialogBehavior.tsx'), 'utf8')).toContain('useDialogBehavior')
+    expect(readFileSync(resolve(process.cwd(), 'components/ConfirmDialog.tsx'), 'utf8')).toContain('role="alertdialog"')
+    expect(readFileSync(resolve(process.cwd(), 'components/Pagination.tsx'), 'utf8')).toContain('className="pager"')
+    expect(readFileSync(resolve(process.cwd(), 'app/moments/page.tsx'), 'utf8')).toContain('useConfirmDialog')
+    expect(readFileSync(resolve(process.cwd(), 'app/guestbook/page.tsx'), 'utf8')).toContain('useConfirmDialog')
+  })
 })
