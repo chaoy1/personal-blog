@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabaseBrowser, storagePublicUrl } from '@/lib/supabase-browser'
-import { useAppStore } from '@/lib/app-store'
+import { useAuth } from '@/lib/auth-context'
 import Avatar from '@/components/Avatar'
 import ArticleNav from '@/components/ArticleNav'
 
@@ -11,7 +11,7 @@ type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
 export default function AccountPage() {
   const router = useRouter()
-  const { ready, user, profile, updateProfile } = useAppStore()
+  const { ready, user, profile, updateProfile } = useAuth()
   const [nickname, setNickname] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [profileState, setProfileState] = useState<FormState>('idle')

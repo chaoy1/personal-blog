@@ -13,8 +13,8 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ refresh: vi.fn() }),
 }))
 
-vi.mock('@/lib/app-store', () => ({
-  useAppStore: () => ({ user: null, profile: null, signOut: vi.fn() }),
+vi.mock('@/lib/auth-context', () => ({
+  useAuth: () => ({ user: null, profile: null, signOut: vi.fn() }),
 }))
 
 vi.mock('@/components/SearchPalette', () => ({ default: () => null }))

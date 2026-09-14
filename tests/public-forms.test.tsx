@@ -33,7 +33,34 @@ vi.mock('next/link', () => ({
 }))
 
 vi.mock('next/navigation', () => ({ useRouter: () => mocks.router }))
-vi.mock('@/lib/app-store', () => ({ useAppStore: () => store }))
+vi.mock('@/lib/auth-context', () => ({
+  useAuth: () => ({
+    ready: store.ready,
+    error: store.error,
+    user: store.user,
+    profile: store.profile,
+    isOwner: false,
+    signOut: vi.fn(),
+    updateProfile: store.updateProfile,
+  }),
+}))
+vi.mock('@/lib/guestbook-context', () => ({
+  useGuestbook: () => ({
+    ready: store.ready,
+    error: store.error,
+    guestbook: store.guestbook,
+    addGuestbook: store.addGuestbook,
+    deleteGuestbook: store.deleteGuestbook,
+  }),
+}))
+vi.mock('@/lib/comments-context', () => ({
+  useComments: () => ({
+    ready: store.ready,
+    error: store.error,
+    comments: store.comments,
+    addComment: store.addComment,
+  }),
+}))
 vi.mock('@/lib/supabase-browser', () => ({
   supabaseBrowser: () => ({
     auth: { signInWithPassword: mocks.signInWithPassword, updateUser: mocks.updateUser },

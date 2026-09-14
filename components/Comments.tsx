@@ -2,13 +2,15 @@
 
 import { useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { useAppStore } from '@/lib/app-store'
+import { useAuth } from '@/lib/auth-context'
+import { useComments } from '@/lib/comments-context'
 import CommentThread from '@/components/CommentThread'
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
 export default function Comments({ slug }: { slug: string }) {
-  const { user, comments, error, addComment } = useAppStore()
+  const { user } = useAuth()
+  const { comments, error, addComment } = useComments()
   const [content, setContent] = useState('')
   const [composeOpen, setComposeOpen] = useState(false)
   const [formState, setFormState] = useState<FormState>('idle')

@@ -16,6 +16,7 @@ import type { MomentCommentItem, MomentItem, MomentLikeItem } from '@/lib/store-
 export type MomentsContextValue = {
   ready: boolean
   error: string
+  isOwner: boolean
   moments: MomentItem[]
   momentComments: MomentCommentItem[]
   momentLikes: MomentLikeItem[]
@@ -34,7 +35,7 @@ function errMsg(prefix: string, e: unknown): string {
 }
 
 export function MomentsProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth()
+  const { user, isOwner } = useAuth()
   const [ready, setReady] = useState(false)
   const [error, setError] = useState('')
   const [moments, setMoments] = useState<MomentItem[]>([])
@@ -187,6 +188,7 @@ export function MomentsProvider({ children }: { children: ReactNode }) {
     () => ({
       ready,
       error,
+      isOwner,
       moments,
       momentComments,
       momentLikes,
@@ -199,6 +201,7 @@ export function MomentsProvider({ children }: { children: ReactNode }) {
     [
       ready,
       error,
+      isOwner,
       moments,
       momentComments,
       momentLikes,

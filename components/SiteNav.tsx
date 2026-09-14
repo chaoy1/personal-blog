@@ -6,7 +6,7 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import { SITE_NAME } from '@/lib/site'
 import ThemeToggle from '@/components/ThemeToggle'
 import LangToggle from '@/components/LangToggle'
-import { useAppStore } from '@/lib/app-store'
+import { useAuth } from '@/lib/auth-context'
 import SearchPalette from '@/components/SearchPalette'
 
 type NavLink = {
@@ -28,7 +28,7 @@ const LINKS: NavLink[] = [
 export default function SiteNav() {
   const pathname = usePathname()
   const router = useRouter()
-  const { user, profile, signOut } = useAppStore()
+  const { user, profile, signOut } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   const toggleRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)

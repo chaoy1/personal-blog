@@ -4,7 +4,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import ScrollFX from '@/components/ScrollFX'
-import { useAppStore } from '@/lib/app-store'
+import { useAuth } from '@/lib/auth-context'
+import { useGuestbook } from '@/lib/guestbook-context'
 import CommentThread from '@/components/CommentThread'
 import PageIntro from '@/components/PageIntro'
 import ArticleNav from '@/components/ArticleNav'
@@ -17,7 +18,8 @@ const MAX_LEN = 500
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
 export default function GuestbookPage() {
-  const { user, guestbook, ready, error, addGuestbook, deleteGuestbook } = useAppStore()
+  const { user } = useAuth()
+  const { guestbook, ready, error, addGuestbook, deleteGuestbook } = useGuestbook()
   const [page, setPage] = useState(1)
   const [content, setContent] = useState('')
   const [composeOpen, setComposeOpen] = useState(false)

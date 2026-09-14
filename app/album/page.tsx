@@ -2,14 +2,15 @@
 
 import { useState } from 'react'
 import { formatDate } from '@/lib/blog'
-import { useAppStore, type AlbumItem, type PhotoItem } from '@/lib/app-store'
+import { useAlbums } from '@/lib/albums-context'
+import type { AlbumItem, PhotoItem } from '@/lib/store-types'
 import PageIntro from '@/components/PageIntro'
 import ArticleNav from '@/components/ArticleNav'
 
 type View = { mode: 'list' } | { mode: 'album'; album: AlbumItem } | { mode: 'all' }
 
 export default function AlbumPage() {
-  const { albums, photos, error, ready } = useAppStore()
+  const { albums, photos, error, ready } = useAlbums()
   const [view, setView] = useState<View>({ mode: 'list' })
 
   const photosOf = (albumId: string) => photos.filter((p) => p.album_id === albumId)

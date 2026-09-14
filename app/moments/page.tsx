@@ -4,15 +4,16 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { formatDate } from '@/lib/blog'
 import ScrollFX from '@/components/ScrollFX'
-import { useAppStore } from '@/lib/app-store'
+import { useAuth } from '@/lib/auth-context'
+import { useMoments } from '@/lib/moments-context'
 import Avatar from '@/components/Avatar'
 import CommentThread from '@/components/CommentThread'
 import PageIntro from '@/components/PageIntro'
 import ArticleNav from '@/components/ArticleNav'
 
 export default function MomentsPage() {
+  const { user } = useAuth()
   const {
-    user,
     isOwner,
     moments,
     momentComments,
@@ -22,7 +23,7 @@ export default function MomentsPage() {
     deleteMoment,
     addMomentComment,
     toggleMomentLike,
-  } = useAppStore()
+  } = useMoments()
   const [commentText, setCommentText] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
   const [localError, setLocalError] = useState('')
