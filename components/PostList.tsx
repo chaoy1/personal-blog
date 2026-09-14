@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { formatDate, type Post } from '@/lib/blog'
 import CnNum from '@/components/CnNum'
-import Button from '@/components/Button'
+import Pagination from '@/components/Pagination'
 
 const CN_WM = ['壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖', '拾']
 const PAGE_SIZE = 10
@@ -52,19 +52,13 @@ export default function PostList({ posts }: { posts: Post[] }) {
         })}
       </section>
 
-      {totalPages > 1 ? (
-        <div className="pager">
-          <Button variant="ghost" type="button" disabled={safePage <= 1} onClick={() => setPage(safePage - 1)}>
-            ← 上一页
-          </Button>
-          <span className="pager-info">
-            第 {safePage} / {totalPages} 页 · 共 {posts.length} 篇
-          </span>
-          <Button variant="ghost" type="button" disabled={safePage >= totalPages} onClick={() => setPage(safePage + 1)}>
-            下一页 →
-          </Button>
-        </div>
-      ) : null}
+      <Pagination
+        page={safePage}
+        totalPages={totalPages}
+        totalItems={posts.length}
+        onPageChange={setPage}
+        summary={`第 ${safePage} / ${totalPages} 页 · 共 ${posts.length} 篇`}
+      />
     </>
   )
 }

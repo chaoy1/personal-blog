@@ -66,10 +66,11 @@ describe('foundation feedback components', () => {
     expect(onClick).toHaveBeenCalledOnce()
   })
 
-  it('keeps PostList pagination labels while using the shared Button', () => {
+  it('keeps PostList pagination labels while using the shared Pagination', () => {
     const source = readFileSync(resolve(process.cwd(), 'components/PostList.tsx'), 'utf8')
-    expect(source).toContain("import Button from '@/components/Button'")
-    expect(source).toContain('← 上一页')
-    expect(source).toContain('下一页 →')
+    expect(source).toContain("import Pagination from '@/components/Pagination'")
+    const paginationSource = readFileSync(resolve(process.cwd(), 'components/Pagination.tsx'), 'utf8')
+    expect(paginationSource).toContain("previousLabel = '← 上一页'")
+    expect(paginationSource).toContain("nextLabel = '下一页 →'")
   })
 })

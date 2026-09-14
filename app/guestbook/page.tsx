@@ -9,6 +9,7 @@ import { useGuestbook } from '@/lib/guestbook-context'
 import CommentThread from '@/components/CommentThread'
 import PageIntro from '@/components/PageIntro'
 import ArticleNav from '@/components/ArticleNav'
+import Pagination from '@/components/Pagination'
 import { useConfirmDialog } from '@/components/ConfirmDialog'
 import './guestbook.css'
 
@@ -410,19 +411,13 @@ export default function GuestbookPage() {
               />
             </div>
 
-            {totalPages > 1 ? (
-              <div className="pager">
-                <button type="button" disabled={safePage <= 1} onClick={() => setPage(safePage - 1)}>
-                  ← 上一页
-                </button>
-                <span className="pager-info">
-                  第 {safePage} / {totalPages} 页 · 共 {parents.length} 条
-                </span>
-                <button type="button" disabled={safePage >= totalPages} onClick={() => setPage(safePage + 1)}>
-                  下一页 →
-                </button>
-              </div>
-            ) : null}
+            <Pagination
+              page={safePage}
+              totalPages={totalPages}
+              totalItems={parents.length}
+              onPageChange={setPage}
+              summary={`第 ${safePage} / ${totalPages} 页 · 共 ${parents.length} 条`}
+            />
           </section>
         </div>
       </article>
