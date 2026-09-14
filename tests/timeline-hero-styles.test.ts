@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const studioStyles = readFileSync(resolve(process.cwd(), 'app/studio.css'), 'utf8')
+const refinementStyles = readFileSync(resolve(process.cwd(), 'app/refinement.css'), 'utf8')
 
 /**
  * 取出时间轴题头这一段规则的范围。
@@ -31,6 +32,7 @@ function timelineHeroBlock(): string {
 function renderTimelineShell() {
   document.head.innerHTML = `
     <style>:root { --card-paper: url("/paper.svg"); --gb-page-paper: #e8dec7; }</style>
+    <style>${refinementStyles}</style>
     <style>${studioStyles}</style>
   `
   document.body.innerHTML = `

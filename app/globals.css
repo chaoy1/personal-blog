@@ -1,4 +1,48 @@
 :root {
+  /* ---------- Design system foundation ---------- */
+  --color-primary: #b23a2b;
+  --color-primary-strong: #8f2b1f;
+  --color-secondary: #58738b;
+  --color-background: #f2edde;
+  --color-surface: rgba(248, 242, 227, 0.92);
+  --color-surface-soft: rgba(248, 242, 227, 0.72);
+  --color-border: rgba(73, 62, 42, 0.22);
+  --color-text-primary: #2c2a24;
+  --color-text-secondary: #6f685a;
+  --color-text-muted: #817968;
+  --color-success: #4e6655;
+  --color-warning: #92714d;
+  --color-error: #8f2b1f;
+  --font-body: var(--font-cn);
+  --font-heading: var(--font-kai);
+  --font-display: "Zhi Mang Xing", "STXingkai", var(--font-kai);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 4px 14px rgba(42, 30, 12, 0.12);
+  --shadow-md: 0 16px 38px -35px rgba(39, 27, 12, 0.72);
+  --shadow-lg: 0 24px 72px rgba(24, 17, 8, 0.28);
+  --container-readable: 680px;
+  --container-article: 780px;
+  --container-default: 900px;
+  --container-wide: 1080px;
+  --gutter-wide: 56px;
+  --gutter-compact: 40px;
+  --gutter-tablet: 32px;
+  --gutter-mobile: 22px;
+  --gutter-current: var(--gutter-mobile);
+
+  /* ---------- Legacy compatibility variables ---------- */
   --paper: #f2edde;
   --paper-2: #eae3d0;
   --ink: #2c2a24;
@@ -76,6 +120,23 @@
 }
 
 :root[data-theme='dark'] {
+  --color-primary: #c64b31;
+  --color-primary-strong: #d96b4a;
+  --color-secondary: #8fa6b8;
+  --color-background: #241c10;
+  --color-surface: rgba(52, 41, 25, 0.92);
+  --color-surface-soft: rgba(52, 41, 25, 0.72);
+  --color-border: rgba(225, 207, 166, 0.22);
+  --color-text-primary: #ecdfc0;
+  --color-text-secondary: #b6a67d;
+  --color-text-muted: #91815b;
+  --color-success: #9bb29a;
+  --color-warning: #c4a071;
+  --color-error: #d96b4a;
+  --shadow-sm: 0 4px 14px rgba(12, 8, 2, 0.28);
+  --shadow-md: 0 16px 38px -35px rgba(12, 8, 2, 0.86);
+  --shadow-lg: 0 24px 72px rgba(12, 8, 2, 0.48);
+
   --paper: #241c10;
   --paper-2: #2e2415;
   --ink: #ecdfc0;
@@ -144,6 +205,22 @@
   --splash: rgba(236, 223, 192, 0.05);
 }
 
+@media (min-width: 1200px) {
+  :root { --gutter-current: var(--gutter-wide); }
+}
+
+@media (min-width: 900px) and (max-width: 1199px) {
+  :root { --gutter-current: var(--gutter-compact); }
+}
+
+@media (min-width: 640px) and (max-width: 899px) {
+  :root { --gutter-current: var(--gutter-tablet); }
+}
+
+@media (max-width: 639px) {
+  :root { --gutter-current: var(--gutter-mobile); }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -178,11 +255,6 @@ button {
 
 ::selection {
   background: rgba(178, 58, 43, 0.18);
-}
-
-:focus-visible {
-  outline: 2px solid var(--seal);
-  outline-offset: 3px;
 }
 
 /* ---------- 氛围层 ---------- */

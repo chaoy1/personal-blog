@@ -30,6 +30,7 @@ describe('ArticleNav', () => {
     const navigation = screen.getByRole('navigation', { name: '关于页导航' })
     const home = within(navigation).getByRole('link', { name: '返回首页' })
 
+    expect(navigation).toHaveAttribute('data-hit-area', '44px')
     expect(home).toHaveClass('article-nav-home')
     expect(within(home).getByText('返回首页')).toHaveClass('article-nav-label')
     expect(within(navigation).getByText('关于')).toHaveClass('article-nav-label')

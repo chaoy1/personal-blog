@@ -21,7 +21,7 @@ export default function ArticleNav({
   const label = <span className="article-nav-label">{backLabel}</span>
 
   return (
-    <nav className="article-nav" aria-label={ariaLabel}>
+    <nav className="article-nav" aria-label={ariaLabel} data-hit-area="44px">
       {backMode === 'history' ? (
         <BackLink fallback={backFallback}>{label}</BackLink>
       ) : (

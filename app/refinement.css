@@ -1,5 +1,12 @@
 /* ---------- 2026-08 · 版式收束：轻卷首、书目卡与三联光影 ---------- */
 
+/* ---------- Shared focus contract ---------- */
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
 /* 主导航以小菱形分隔路径，去掉包围文字的横线。 */
 .nav-brand::after {
   content: "JOURNAL";
@@ -51,96 +58,182 @@
   display: none;
 }
 
-/* 次导航只保留方向感，不再使用醒目的“卷”印和 PATH 横幅。 */
+/* ---------- 全站次导航：贴字留痕，不遮山水 ---------- */
+
 .article-nav {
-  min-height: 74px;
+  min-height: var(--space-12);
+  margin: var(--space-1) auto var(--space-4);
+  padding: 5px 3px;
   overflow: visible;
-  padding: 22px 16px;
-  border-bottom: 1px solid var(--rule);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  color: var(--color-text-primary);
+  text-shadow: none;
 }
 
-.article-nav::before {
-  left: 50%;
-  top: auto;
-  bottom: -3px;
-  width: 5px;
-  height: 5px;
-  border: 1px solid var(--seal);
-  background: var(--paper);
-  transform: translateX(-50%) rotate(45deg);
-}
-
+.article-nav::before,
 .article-nav::after {
   display: none;
 }
 
-.article-nav > span:last-child::before {
+.article-nav > a.article-nav-home,
+.article-nav > .article-nav-back,
+.article-nav > span.article-nav-current {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 6px 4px;
+  color: var(--color-text-primary);
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.15em;
+}
+
+.article-nav-label {
+  position: relative;
+  z-index: 0;
+  display: inline-block;
+  padding: 4px 5px 5px;
+}
+
+.article-nav-label::before {
   content: "";
-  width: 6px;
-  height: 6px;
-  border: 1px solid var(--seal);
+  position: absolute;
+  inset: 1px -4px 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 18% 58%, rgba(250, 241, 216, 0.36) 0 28%, transparent 58%),
+    radial-gradient(ellipse at 52% 42%, rgba(244, 231, 199, 0.28) 0 32%, transparent 64%),
+    radial-gradient(ellipse at 84% 55%, rgba(250, 241, 216, 0.32) 0 26%, transparent 58%);
+  opacity: 0.54;
+  transform: rotate(-0.35deg);
+  pointer-events: none;
+}
+
+.article-nav > .article-nav-current {
+  gap: 9px;
+}
+
+.article-nav > .article-nav-current::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border: 1px solid currentColor;
   background: transparent;
   box-shadow: none;
+  opacity: 0.72;
   transform: rotate(45deg);
+}
+
+.article-nav-home,
+.article-nav-back {
+  transition: color 180ms ease, transform 180ms ease;
+}
+
+.article-nav-home:hover,
+.article-nav-back:hover {
+  color: var(--color-primary-strong);
+  transform: translateY(-1px);
+}
+
+.article-nav-home:focus-visible,
+.article-nav-back:focus-visible {
+  color: var(--color-primary-strong);
+  outline: 1px solid var(--color-border);
+  outline-offset: 4px;
+}
+
+.article-nav-home:hover .nav-back-mark,
+.article-nav-home:focus-visible .nav-back-mark,
+.article-nav-back:hover .nav-back-mark,
+.article-nav-back:focus-visible .nav-back-mark {
+  color: currentColor;
+  transform: translateX(-2px);
+}
+
+:root[data-theme='dark'] .article-nav-label::before {
+  background:
+    radial-gradient(ellipse at 18% 58%, rgba(226, 207, 165, 0.2) 0 28%, transparent 58%),
+    radial-gradient(ellipse at 52% 42%, rgba(205, 181, 133, 0.16) 0 32%, transparent 64%),
+    radial-gradient(ellipse at 84% 55%, rgba(226, 207, 165, 0.18) 0 26%, transparent 58%);
+  opacity: 0.42;
+}
+
+:root[data-theme='dark'] .article-nav {
+  text-shadow: none;
+}
+
+@media (max-width: 720px) {
+  .article-nav {
+    min-height: 50px;
+    padding: 3px 1px;
+  }
+
+  .article-nav > a.article-nav-home,
+  .article-nav > .article-nav-back,
+  .article-nav > span.article-nav-current {
+    gap: 8px;
+    min-height: 44px;
+    padding: 5px 2px;
+    font-size: 15px;
+    letter-spacing: 0.12em;
+  }
+
+  .article-nav-label {
+    padding-inline: 3px;
+  }
+
+  .article-nav-label::before {
+    inset-inline: -2px;
+  }
 }
 
 /* 所有列表页共用的卷首题签。 */
 .page-intro {
+  isolation: isolate;
   position: relative;
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) 116px;
   align-items: center;
-  gap: 30px;
-  max-width: 1080px;
-  min-height: 190px;
-  margin: 34px auto 26px;
-  padding: 30px 36px 30px 24px;
-  overflow: hidden;
-  border: 1px solid var(--card-border);
-  border-top-color: var(--rule-strong);
-  background-color: rgba(246, 237, 213, 0.89);
-  background-image:
-    linear-gradient(90deg, rgba(178, 58, 43, 0.055), transparent 31%),
-    var(--card-paper);
-  background-size: auto, 220px 220px;
-  box-shadow: 0 20px 48px -38px rgba(42, 30, 12, 0.7);
-  animation: rise-b 0.9s ease-out both;
+  gap: 32px;
+  max-width: var(--container-default);
+  min-height: 0;
+  margin: var(--space-1) auto var(--space-4);
+  padding: var(--space-8) 30px 28px;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 :root[data-theme='dark'] .page-intro {
-  background-color: rgba(67, 52, 30, 0.93);
+  background: transparent;
 }
 
 .page-intro::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--seal-deep);
+  display: none;
 }
 
 .page-intro::after {
-  content: "";
-  position: absolute;
-  right: -24px;
-  bottom: -42px;
-  width: 160px;
-  height: 160px;
-  border: 1px solid var(--rule);
-  border-radius: 50%;
-  opacity: 0.5;
+  display: none;
 }
 
 .page-intro-index {
-  align-self: stretch;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 4px 20px 4px 0;
-  border-right: 1px solid var(--rule);
+  align-self: auto;
+  display: inline-flex;
+  gap: 10px;
+  padding: 0;
+  border-right: 0;
+  writing-mode: initial;
 }
 
 .page-intro-index b {
@@ -163,14 +256,21 @@
 .page-intro-copy {
   position: relative;
   z-index: 1;
+  min-width: 0;
+}
+
+.page-intro-copy,
+.page-intro-mark {
+  position: relative;
+  z-index: 1;
 }
 
 .page-intro .eyebrow {
-  margin: 0 0 11px;
+  margin: 0;
   color: var(--seal-deep);
   font-family: var(--font-latin);
-  font-size: 9px;
-  letter-spacing: 0.36em;
+  font-size: 8px;
+  letter-spacing: 0.3em;
   opacity: 0.92;
   text-shadow: none;
 }
@@ -179,9 +279,9 @@
   margin: 0;
   color: var(--ink);
   font-family: var(--font-kai);
-  font-size: clamp(31px, 4vw, 45px);
+  font-size: clamp(32px, 4vw, 43px);
   font-weight: 400;
-  line-height: 1.35;
+  line-height: 1.3;
   letter-spacing: 0.11em;
 }
 
@@ -194,7 +294,7 @@
 }
 
 .page-intro-description {
-  margin: 12px 0 0;
+  margin: 9px 0 0;
   color: var(--ink-soft);
   font-family: var(--font-kai);
   font-size: 13px;
@@ -204,19 +304,54 @@
 
 .page-intro-mark {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
   z-index: 1;
   color: var(--ink-faint);
   font-family: var(--font-latin);
-  font-size: 7px;
-  letter-spacing: 0.3em;
-  writing-mode: vertical-rl;
-  opacity: 0.68;
+  font-size: 6px;
+  letter-spacing: 0.2em;
+  writing-mode: initial;
+  opacity: 0.6;
+}
+
+.page-intro-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 11px;
+}
+
+.page-intro-index::after {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border: 1px solid var(--seal);
+  transform: rotate(45deg);
+  opacity: 0.7;
 }
 
 .content-sheet {
   max-width: 1080px;
   margin-top: 0;
   padding-top: 30px;
+}
+
+.page-intro--standard {
+  max-width: var(--container-default);
+}
+
+.page-intro--display h1 {
+  font-size: clamp(40px, 5vw, 56px);
+  line-height: 1.1;
+}
+
+.page-intro--compact {
+  min-height: 0;
+  padding-block: var(--space-6);
 }
 
 /* 首页各分区用同一套小题签，不再用横线包围导航文字。 */
