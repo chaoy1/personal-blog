@@ -481,23 +481,48 @@ document.documentElement.scrollWidth <= window.innerWidth
 - 破坏性：低至中；先提供兼容调用，再逐个迁移。
 - 依赖：Phase 1–2。
 
-### Phase 4：首页与列表页面
+### Phase 4：页面实施基线
 
-- 目标：统一首页、文章列表、闲语、相册和时间线的层级、Surface、状态和间距。
-- 破坏性：中；不改变数据结构和页面构图。
+- 目标：冻结公共页面、账户页面和后台页面的逐页设计边界，建立同尺寸截图、状态样例、响应式和可访问性验收模板。
+- 页面索引：`docs/superpowers/specs/pages/2026-09-15-page-design-index.md`。
+- 涉及：页面测试夹具、截图约定、公共 Mock/状态数据；不批量修改页面视觉。
+- 破坏性：低；本阶段只准备证据和实施顺序。
 - 依赖：Phase 1–3。
 
-### Phase 5：文章详情
+### Phase 5：公共页面逐页实施
 
-- 目标：整理阅读宽度、Metadata、Markdown、Reading Companion 和评论反馈。
-- 破坏性：中；Markdown 输出和锚点契约保持不变。
-- 依赖：Phase 1–3。
+Phase 5 不再作为一次全站页面改造执行。以下八个页面分别设计、实现、验证、提交和回滚：
 
-### Phase 6：留言簿、关于、账户和后台
+| 子阶段 | 路由 | 设计重点 | 主要文件 | 风险 | 依赖 |
+|---|---|---|---|---|---|
+| P01 | `/` | 沉浸式首屏、内容导览、Section 节奏 | `app/page.tsx`、首页区块组件 | 中 | Phase 4 |
+| P02 | `/posts` | 书目式文章索引、筛选与空态 | `app/posts/page.tsx`、`PostList` | 中 | P01 的公共题头规则 |
+| P03 | `/posts/[slug]` | 阅读宽度、Markdown、阅读伴侣与评论 | `app/posts/[slug]/page.tsx`、文章阅读组件 | 中至高 | P02、评论基础行为 |
+| P04 | `/moments` | 连续札记、图片、点赞和回复层级 | `app/moments/page.tsx`、`CommentThread` | 中 | Phase 4 |
+| P05 | `/album` | 相册索引、册内网格与灯箱 | `app/album/page.tsx`、`Lightbox` | 中 | Dialog/媒体基础行为 |
+| P06 | `/timeline` | 混合内容时间叙事与渐进加载 | `app/timeline/page.tsx`、`TimelineReveal` | 中 | P02、P04、P05 的内容语言 |
+| P07 | `/guestbook` | 宽宣纸、留言树、书写面板与分页 | `app/guestbook/page.tsx`、评论/分页组件 | 高 | 评论、Dialog、分页基础行为 |
+| P08 | `/about` | 自序正文、专属书法题头与落款 | `app/about/page.tsx`、`PageIntro` | 低至中 | 公共 Typography |
 
-- 目标：拆分留言簿职责，统一特殊页面、认证页和后台基础交互。
-- 破坏性：中至高；留言簿 CSS 必须小批迁移。
-- 依赖：Phase 1–3。
+完整设计分别见页面索引。P01–P08 可以按依赖顺序推进，但每个页面必须通过自身状态与视口验收后再提交；不得以“Phase 5 完成”为由合并未经验证的跨页视觉改动。
+
+### Phase 6：认证与后台页面逐页实施
+
+Phase 6 同样拆为九个独立工作单元。账户页先确定表单语言，后台再复用行为基础，不把公共内容页的沉浸式布局机械搬入管理界面。
+
+| 子阶段 | 路由 | 设计重点 | 主要文件 | 风险 | 依赖 |
+|---|---|---|---|---|---|
+| A01 | `/login` | 登录/注册模式、表单反馈与安全跳转 | `app/login/page.tsx` | 中 | Phase 3–4 |
+| A02 | `/account` | 头像、资料、密码与分区脏状态 | `app/account/page.tsx` | 中 | A01、Form/Dialog 行为 |
+| M01 | `/admin/login` | 管理身份识别、权限反馈与返回路径 | `app/admin/login/page.tsx` | 中 | A01 |
+| M02 | `/admin` | 文章搜索、筛选、状态和行级操作 | `app/admin/page.tsx`、`app/admin/layout.tsx` | 中 | M01、后台 Shell |
+| M03 | `/admin/editor` | 写作主区、元数据、草稿恢复、冲突和发布 | `app/admin/editor/page.tsx`、编辑器子组件 | 高 | M02、Dirty State/Dialog |
+| M04 | `/admin/moments` | 发布编辑区与既有闲语管理 | `app/admin/moments/page.tsx` | 中 | M02、上传/确认行为 |
+| M05 | `/admin/photos` | 相册、上传队列和照片管理三段工作流 | `app/admin/photos/page.tsx` | 高 | M02、上传/确认行为 |
+| M06 | `/admin/profile` | 公开身份、长文介绍与头像保存 | `app/admin/profile/page.tsx` | 中 | A02、P08 的数据契约 |
+| M07 | `/admin/preview/[id]` | 公开文章拟真、预览身份和返回编辑 | `app/admin/preview/[id]/page.tsx`、`ArticlePreview` | 中 | P03、M03 |
+
+每个子阶段保留现有权限、API、Supabase schema 和业务流程。M03、M05 属于高风险工作区，必须单独提交，不能与后台 Shell 或其他管理页同时迁移。
 
 ### Phase 7：响应式、交互与无障碍
 
