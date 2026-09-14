@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createPortal } from 'react-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useDialogBehavior } from '@/components/DialogBehavior'
 
 type SearchPost = {
   title: string
@@ -38,8 +39,6 @@ export default function SearchPalette() {
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
-  const dialogRef = useRef<HTMLElement>(null)
-  const openerRef = useRef<HTMLElement | null>(null)
   const [mounted, setMounted] = useState(false)
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -47,24 +46,20 @@ export default function SearchPalette() {
   const [loaded, setLoaded] = useState(false)
   const [active, setActive] = useState(0)
 
+  const { dialogRef, onKeyDown } = useDialogBehavior({
+    open,
+    onClose: closeSearch,
+    initialFocusRef: inputRef,
+  })
+
   useEffect(() => setMounted(true), [])
 
   function openSearch() {
-    openerRef.current = document.activeElement instanceof HTMLElement
-      ? document.activeElement
-      : triggerRef.current
     setOpen(true)
   }
 
-  function closeSearch(restoreFocus = true) {
-    const opener = openerRef.current
+  function closeSearch() {
     setOpen(false)
-    openerRef.current = null
-    if (restoreFocus) {
-      requestAnimationFrame(() => {
-        if (opener?.isConnected) opener.focus()
-      })
-    }
   }
 
   useEffect(() => {
@@ -73,10 +68,6 @@ export default function SearchPalette() {
         event.preventDefault()
         if (open) closeSearch()
         else openSearch()
-      }
-      if (event.key === 'Escape' && open) {
-        event.preventDefault()
-        closeSearch()
       }
     }
     window.addEventListener('keydown', onKey)
@@ -91,14 +82,6 @@ export default function SearchPalette() {
     if (!open) return
     setQuery('')
     setActive(0)
-    const frame = requestAnimationFrame(() => inputRef.current?.focus())
-    const previous = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-
-    return () => {
-      cancelAnimationFrame(frame)
-      document.body.style.overflow = previous
-    }
   }, [open])
 
   useEffect(() => {
@@ -138,28 +121,10 @@ export default function SearchPalette() {
   useEffect(() => setActive(0), [query])
 
   function choose(item: SearchItem) {
-    closeSearch(false)
+    closeSearch()
     router.push(item.href)
   }
 
-  function trapFocus(event: React.KeyboardEvent<HTMLElement>) {
-    if (event.key !== 'Tab') return
-    const focusable = Array.from(
-      dialogRef.current?.querySelectorAll<HTMLElement>(
-        'input:not([disabled]), a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      ) ?? [],
-    )
-    const first = focusable[0]
-    const last = focusable[focusable.length - 1]
-    if (!first || !last) return
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault()
-      last.focus()
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault()
-      first.focus()
-    }
-  }
 
   const dialog = open ? (
     <div className="search-layer" role="presentation" onMouseDown={() => closeSearch()}>
@@ -170,7 +135,7 @@ export default function SearchPalette() {
         aria-modal="true"
         aria-label="寻迹"
         onMouseDown={(event) => event.stopPropagation()}
-        onKeyDown={trapFocus}
+        onKeyDown={onKeyDown}
       >
         <header className="search-head">
           <span className="search-seal" aria-hidden="true">寻</span>
@@ -208,7 +173,7 @@ export default function SearchPalette() {
               role="option"
               aria-selected={index === active}
               onMouseEnter={() => setActive(index)}
-              onClick={() => closeSearch(false)}
+              onClick={closeSearch}
             >
               <span className="search-kind" aria-hidden="true">{item.kind}</span>
               <span className="search-copy">

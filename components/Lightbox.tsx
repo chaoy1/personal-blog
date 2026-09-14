@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useDialogBehavior } from '@/components/DialogBehavior'
 
 const ZOOMABLE =
   '.md-body img, .album-item img, .moment-images img, .moments-images img, .tl-thumb'
@@ -8,28 +9,24 @@ const ZOOMABLE =
 export default function Lightbox() {
   const [src, setSrc] = useState<string | null>(null)
   const [alt, setAlt] = useState('')
-  const openerRef = useRef<HTMLElement | null>(null)
-  const dialogRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
 
   const openImage = useCallback((img: HTMLImageElement) => {
-    openerRef.current = img
+    img.focus()
     setSrc(img.currentSrc || img.src)
     setAlt(img.alt || '')
   }, [])
 
   const close = useCallback(() => {
-    if (!src) return
-    const opener = openerRef.current
     setSrc(null)
-    requestAnimationFrame(() => {
-      if (opener?.isConnected) {
-        if (!opener.hasAttribute('tabindex')) opener.tabIndex = -1
-        opener.focus()
-      }
-      if (openerRef.current === opener) openerRef.current = null
-    })
-  }, [src])
+    setAlt('')
+  }, [])
+
+  const { dialogRef, onKeyDown } = useDialogBehavior<HTMLDivElement>({
+    open: Boolean(src),
+    onClose: close,
+    initialFocusRef: closeRef,
+  })
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
@@ -46,29 +43,6 @@ export default function Lightbox() {
         e.preventDefault()
         openImage(img)
         return
-      }
-      if (!src) return
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        close()
-        return
-      }
-      if (e.key !== 'Tab') return
-      const focusable = Array.from(
-        dialogRef.current?.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        ) ?? [],
-      )
-      const first = focusable[0]
-      const last = focusable[focusable.length - 1]
-      if (!first || !last) return
-      const active = document.activeElement
-      if (e.shiftKey && (active === first || !dialogRef.current?.contains(active))) {
-        e.preventDefault()
-        last.focus()
-      } else if (!e.shiftKey && (active === last || !dialogRef.current?.contains(active))) {
-        e.preventDefault()
-        first.focus()
       }
     }
     const prepareImages = (root: ParentNode) => {
@@ -102,18 +76,7 @@ export default function Lightbox() {
         img.removeAttribute('aria-haspopup')
       })
     }
-  }, [close, openImage, src])
-
-  useEffect(() => {
-    if (!src) return
-    const frame = requestAnimationFrame(() => closeRef.current?.focus())
-    const previous = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      cancelAnimationFrame(frame)
-      document.body.style.overflow = previous
-    }
-  }, [src])
+  }, [openImage])
 
   if (!src) return null
 
@@ -121,6 +84,7 @@ export default function Lightbox() {
     <div
       ref={dialogRef}
       className="lightbox"
+      onKeyDown={onKeyDown}
       onClick={(event) => {
         if (event.target === event.currentTarget) close()
       }}

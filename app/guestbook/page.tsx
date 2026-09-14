@@ -9,6 +9,7 @@ import { useGuestbook } from '@/lib/guestbook-context'
 import CommentThread from '@/components/CommentThread'
 import PageIntro from '@/components/PageIntro'
 import ArticleNav from '@/components/ArticleNav'
+import { useConfirmDialog } from '@/components/ConfirmDialog'
 import './guestbook.css'
 
 const PAGE_SIZE = 20
@@ -39,6 +40,7 @@ export default function GuestbookPage() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const followComposerTailRef = useRef(false)
   const busy = formState === 'submitting'
+  const { confirm, dialog } = useConfirmDialog()
 
   const closeComposer = useCallback(() => {
     submissionId.current += 1
@@ -323,7 +325,12 @@ export default function GuestbookPage() {
   }
 
   async function remove(id: string) {
-    if (!window.confirm('确定删除这条留言？')) return
+    const confirmed = await confirm({
+      title: '删除这条留言？',
+      description: '此操作无法撤销。',
+      confirmLabel: '确认删除',
+    })
+    if (!confirmed) return
     setLocalError('')
     const err = await deleteGuestbook(id)
     if (err) setLocalError(err)
@@ -511,6 +518,7 @@ export default function GuestbookPage() {
           document.body,
         )
         : null}
+      {dialog}
     </div>
   )
 }

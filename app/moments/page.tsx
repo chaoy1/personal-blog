@@ -10,6 +10,7 @@ import Avatar from '@/components/Avatar'
 import CommentThread from '@/components/CommentThread'
 import PageIntro from '@/components/PageIntro'
 import ArticleNav from '@/components/ArticleNav'
+import { useConfirmDialog } from '@/components/ConfirmDialog'
 
 export default function MomentsPage() {
   const { user } = useAuth()
@@ -27,9 +28,15 @@ export default function MomentsPage() {
   const [commentText, setCommentText] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
   const [localError, setLocalError] = useState('')
+  const { confirm, dialog } = useConfirmDialog()
 
   async function remove(id: string) {
-    if (!window.confirm('确定删除这条闲语？')) return
+    const confirmed = await confirm({
+      title: '删除这条闲语？',
+      description: '此操作无法撤销。',
+      confirmLabel: '确认删除',
+    })
+    if (!confirmed) return
     setLocalError('')
     const err = await deleteMoment(id)
     if (err) setLocalError(err)
@@ -164,6 +171,7 @@ export default function MomentsPage() {
           </p>
         ) : null}
       </article>
+      {dialog}
     </div>
   )
 }
