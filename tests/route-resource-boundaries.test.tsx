@@ -3,6 +3,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { getShellKind } from '@/components/AppShell'
 
 const queryLog = vi.hoisted(() => [] as Array<{ table: string; filters: Array<[string, unknown]> }>)
 
@@ -75,5 +76,22 @@ describe('route-scoped resource boundaries', () => {
     expect(read('app/album/layout.tsx')).toContain('AlbumsProvider')
     expect(read('app/guestbook/layout.tsx')).toContain('GuestbookProvider')
     expect(read('app/posts/[slug]/layout.tsx')).toContain('CommentsProvider')
+    expect(read('lib/app-store.tsx')).toContain('export function AppStoreProvider')
+    expect(read('lib/app-store.tsx')).toContain('export function useAppStore')
+  })
+
+  it('keeps every target route in one explicit shell category', () => {
+    expect(getShellKind('/')).toBe('public')
+    expect(getShellKind('/posts')).toBe('public')
+    expect(getShellKind('/moments')).toBe('public')
+    expect(getShellKind('/album')).toBe('public')
+    expect(getShellKind('/timeline')).toBe('public')
+    expect(getShellKind('/guestbook')).toBe('public')
+    expect(getShellKind('/about')).toBe('public')
+    expect(getShellKind('/posts/phase-two')).toBe('public')
+    expect(getShellKind('/login')).toBe('auth')
+    expect(getShellKind('/account')).toBe('auth')
+    expect(getShellKind('/admin')).toBe('admin')
+    expect(getShellKind('/admin/editor')).toBe('admin')
   })
 })

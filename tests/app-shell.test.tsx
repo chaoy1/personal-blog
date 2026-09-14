@@ -1,5 +1,7 @@
 import React from 'react'
 import { cleanup, render, screen } from '@testing-library/react'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const pathnameState = vi.hoisted(() => ({ value: '/' }))
@@ -29,6 +31,22 @@ describe('AppShell route boundaries', () => {
     expect(getShellKind('/account/settings')).toBe('auth')
     expect(getShellKind('/admin')).toBe('admin')
     expect(getShellKind('/admin/posts')).toBe('admin')
+  })
+
+  it('covers the Phase 2 route matrix and removes the legacy root provider', () => {
+    const matrix: Record<'public' | 'auth' | 'admin', string[]> = {
+      public: ['/', '/posts', '/moments', '/album', '/timeline', '/guestbook', '/about', '/posts/example'],
+      auth: ['/login', '/account'],
+      admin: ['/admin', '/admin/editor'],
+    }
+    for (const [kind, routes] of Object.entries(matrix)) {
+      for (const route of routes) expect(getShellKind(route)).toBe(kind)
+    }
+
+    const rootLayout = readFileSync(resolve(process.cwd(), 'app/layout.tsx'), 'utf8')
+    expect(rootLayout).not.toContain('AppStoreProvider')
+    expect(rootLayout).toContain('AuthProvider')
+    expect(rootLayout).toContain('AppShell')
   })
 
   it('keeps public ambient layers only on public routes', () => {
