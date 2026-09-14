@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import { publicMetadata } from '@/lib/seo'
+import { AlbumsProvider } from '@/lib/albums-context'
 
 export const metadata: Metadata = publicMetadata({
   path: '/album',
@@ -7,6 +9,6 @@ export const metadata: Metadata = publicMetadata({
   description: '收存沿途光影与未题之景的相册。',
 })
 
-export default function AlbumLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return children
+export default function AlbumLayout({ children }: Readonly<{ children: ReactNode }>) {
+  return <AlbumsProvider>{children}</AlbumsProvider>
 }
