@@ -879,3 +879,35 @@
     overflow-wrap: anywhere;
   }
 }
+/* ---------- 基础控件行为 ---------- */
+
+.button-hit-area {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.inline-feedback {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.inline-feedback-retry {
+  border: 0;
+  background: transparent;
+  color: var(--seal-deep);
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.form-field-description,
+.empty-state-description {
+  color: var(--ink-soft);
+}
+
+.empty-state-title,
+.empty-state-description {
+  margin: 0 0 12px;
+}

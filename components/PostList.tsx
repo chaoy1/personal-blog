@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { formatDate, type Post } from '@/lib/blog'
 import CnNum from '@/components/CnNum'
+import Button from '@/components/Button'
 
 const CN_WM = ['壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖', '拾']
 const PAGE_SIZE = 10
@@ -53,15 +54,15 @@ export default function PostList({ posts }: { posts: Post[] }) {
 
       {totalPages > 1 ? (
         <div className="pager">
-          <button type="button" disabled={safePage <= 1} onClick={() => setPage(safePage - 1)}>
+          <Button variant="ghost" type="button" disabled={safePage <= 1} onClick={() => setPage(safePage - 1)}>
             ← 上一页
-          </button>
+          </Button>
           <span className="pager-info">
             第 {safePage} / {totalPages} 页 · 共 {posts.length} 篇
           </span>
-          <button type="button" disabled={safePage >= totalPages} onClick={() => setPage(safePage + 1)}>
+          <Button variant="ghost" type="button" disabled={safePage >= totalPages} onClick={() => setPage(safePage + 1)}>
             下一页 →
-          </button>
+          </Button>
         </div>
       ) : null}
     </>
