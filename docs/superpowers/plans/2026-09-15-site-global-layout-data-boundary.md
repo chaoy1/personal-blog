@@ -1,5 +1,7 @@
 # Site Global Layout and Data Boundary Implementation Plan
 
+> **历史状态：** 本计划记录已经完成的第一版 Phase 2，不再作为后续数据生命周期实现依据。Shell 分离与路由级消费边界继续保留；缓存、预加载和刷新策略已由 `docs/superpowers/specs/2026-09-15-site-phase-2-prefetch-cache-design.md` 重新设计。新实施计划须在该修订规格获得用户确认后另行生成。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 将根布局拆成 Public、Auth、Admin shell，并把留言、闲语、相册和文章评论的数据请求限制在各自路由范围内，同时保留现有 URL、业务动作和 `useAppStore` 兼容导出。
