@@ -7,11 +7,8 @@ import './globals.css'
 import './refinement.css'
 import './studio.css'
 import { SITE_NAME, SITE_DESC } from '@/lib/site'
-import SiteNav from '@/components/SiteNav'
-import ScrollTop from '@/components/ScrollTop'
-import Lightbox from '@/components/Lightbox'
-import BackgroundStage from '@/components/BackgroundStage'
-import { AppStoreProvider } from '@/lib/app-store'
+import AppShell from '@/components/AppShell'
+import { AuthProvider } from '@/lib/auth-context'
 import { DEFAULT_SHARE_IMAGE, absoluteUrl, siteUrl } from '@/lib/seo'
 
 export const metadata: Metadata = {
@@ -49,15 +46,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body>
-        <AppStoreProvider>
-          <BackgroundStage />
-          <div className="vignette" aria-hidden="true" />
-          <div className="grain" aria-hidden="true" />
-          <ScrollTop />
-          <SiteNav />
-          {children}
-          <Lightbox />
-        </AppStoreProvider>
+        <AuthProvider>
+          <AppShell>{children}</AppShell>
+        </AuthProvider>
       </body>
     </html>
   )
