@@ -47,4 +47,19 @@ describe('design system foundation', () => {
     expect(studio).toContain('background: var(--color-secondary)')
     expect(refinement).toContain('outline: 2px solid var(--color-primary)')
   })
+
+  it('uses a smaller Xingkai index and keeps the About seal at its shared size', () => {
+    expect(refinement).toMatch(
+      /\.page-intro-index\s*\{[\s\S]*?font-family:\s*"STXingkai"[\s\S]*?font-size:\s*14px;/,
+    )
+    const aboutSealRule = studio.match(
+      /\.about-page \.article-nav > span:last-child::before\s*\{([^{}]*)\}/,
+    )?.[1] ?? ''
+    expect(aboutSealRule).toMatch(/width:\s*22px;/)
+    expect(aboutSealRule).toMatch(/height:\s*22px;/)
+    expect(aboutSealRule).not.toMatch(/(?:width|height):\s*(?:7|5)px;/)
+    expect(globals).toMatch(
+      /\.article-nav > span:last-child::before\s*\{[\s\S]*?width:\s*22px;[\s\S]*?height:\s*22px;/,
+    )
+  })
 })

@@ -233,6 +233,12 @@
   gap: 10px;
   padding: 0;
   border-right: 0;
+  color: var(--ink-soft);
+  font-family: "STXingkai", "KaiTi", "STKaiti", var(--font-kai);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: 0.08em;
   writing-mode: initial;
 }
 

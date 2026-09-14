@@ -1455,11 +1455,10 @@
   gap: 9px;
 }
 
+/* 关于页的卷印在窄屏也保持完整尺寸，不被全站移动端菱形规则压缩。 */
 .about-page .article-nav > span:last-child::before {
-  width: 7px;
-  height: 7px;
-  border-color: var(--seal);
-  background: rgba(247, 238, 214, 0.5);
+  width: 22px;
+  height: 22px;
 }
 
 .about-scroll {
@@ -1882,34 +1881,15 @@
     linear-gradient(96deg, rgba(16, 27, 31, 0.2), transparent 68%);
 }
 
-/* 时间轴恢复开放式页首，只让墨色和月光在背景上自然散开。 */
+/* 时间轴保持开放式页首，让原始山水底图直接承托题字。 */
 :root[data-theme='dark'] .timeline-page > .page-intro {
   position: relative;
   isolation: isolate;
   background: transparent;
 }
 
-:root[data-theme='dark'] .timeline-page > .page-intro::before {
-  content: "";
-  position: absolute;
-  left: -10%;
-  top: -28%;
-  z-index: -1;
-  display: block;
-  width: 112%;
-  height: 156%;
-  border: 0;
-  background:
-    radial-gradient(ellipse at 28% 52%, rgba(21, 30, 32, 0.82), rgba(27, 31, 29, 0.46) 47%, transparent 77%),
-    radial-gradient(circle at 83% 44%, rgba(220, 209, 167, 0.1), transparent 20%);
-  opacity: 1;
-  transform: none;
-  pointer-events: none;
-}
-
-/* 一轮不刺眼的纸月，同时承担页首夜间识别。 */
-:root[data-theme='dark'] .collection-scroll-posts > .page-intro::after,
-:root[data-theme='dark'] .timeline-page > .page-intro::after {
+/* 一轮不刺眼的纸月，仅用于文章集合页的夜间识别。 */
+:root[data-theme='dark'] .collection-scroll-posts > .page-intro::after {
   content: "";
   position: absolute;
   right: 64px;
@@ -1960,8 +1940,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root[data-theme='dark'] .collection-scroll-posts > .page-intro::after,
-  :root[data-theme='dark'] .timeline-page > .page-intro::after {
+  :root[data-theme='dark'] .collection-scroll-posts > .page-intro::after {
     animation: none;
   }
 }
@@ -1976,17 +1955,13 @@
 }
 
 /* ---------------------------------------------------------------------------
-   时间轴题头 · 提亮留白
-   不在题头里贴任何图：直接用多层大范围椭圆渐变"掀开一片光"，
-   露出的是页面同一张背景画，因此既没有色差，也没有矩形边界。
-   （曾试过铺真迹山水作底，但真迹偏亮，在深橄榄背景上仍是一块发光的卡片。）
-   左侧朱红起笔保留，作为与站内其它内页同源的记号。
+   时间轴题头 · 原始山水底图
+   题头不叠加背景光影，保留左侧朱红起笔作为与站内其它内页同源的记号。
    --------------------------------------------------------------------------- */
 .timeline-page > .page-intro {
   position: relative;
   isolation: isolate;
-  /* 不裁切：提亮层要往外扩出去自然淡出，
-     一旦 overflow:hidden，渐变会被裁成直角，立刻显出一条白边。 */
+  /* 不裁切，避免题头形成独立的卡片边界。 */
   overflow: visible;
   display: grid;
   align-items: center;
@@ -2000,27 +1975,13 @@
   box-shadow: none;
 }
 
-/* 提亮留白：不贴任何图，直接在页面背景画上"掀开一片光"。
-   多层椭圆渐变向外扩出题头之外，在到边之前就已全透明——
-   因此既没有色差（提亮的仍是同一张背景画），也不存在矩形边界。
-   左侧朱红起笔保留，作为与站内其它内页同源的记号。 */
+/* 不使用题头背景层，避免标题区域出现发光色块。 */
 .timeline-page > .page-intro::before {
-  content: "";
-  position: absolute;
-  z-index: 0;
-  inset: -30% -12%;
-  display: block;
-  border: 0;
-  background:
-    radial-gradient(ellipse 56% 58% at 38% 48%, rgba(250, 245, 230, 0.6), rgba(249, 244, 228, 0.36) 40%, rgba(248, 242, 224, 0.12) 64%, transparent 80%),
-    radial-gradient(ellipse 82% 86% at 46% 50%, rgba(248, 242, 224, 0.24), rgba(247, 241, 222, 0.08) 58%, transparent 82%);
-  opacity: 1;
-  filter: none;
-  transform: none;
-  pointer-events: none;
+  content: none;
+  display: none;
 }
 
-/* 朱红起笔：与提亮层分开，单独一条细线 */
+/* 朱红起笔：单独一条细线 */
 .timeline-page > .page-intro .page-intro-copy::before {
   content: "";
   position: absolute;
@@ -2055,7 +2016,7 @@
   margin-bottom: 11px;
 }
 
-/* 题字落在提亮区中心，靠多层浅色描边＋落纸影辨识，不依赖底纸 */
+/* 题字保持独立层级，不依赖题头背景光影辨识 */
 .timeline-page > .page-intro h1 {
   margin-block: 0;
   padding-block: 0.06em 0.1em;
@@ -2104,14 +2065,7 @@
   text-shadow: 0 0 14px rgba(250, 244, 228, 0.6);
 }
 
-/* 正文内容区保持原样：题头只做提亮留白，不改动下方时间轴 */
-
-/* 夜间：背景画本身已转暗，提亮改为极淡的月色，避免在暗底上泛白 */
-:root[data-theme='dark'] .timeline-page > .page-intro::before {
-  background:
-    radial-gradient(ellipse 56% 58% at 38% 48%, rgba(226, 216, 178, 0.14), rgba(216, 206, 170, 0.08) 42%, transparent 76%),
-    radial-gradient(ellipse 82% 86% at 46% 50%, rgba(214, 206, 171, 0.06), transparent 78%);
-}
+/* 正文内容区保持原样，不连接成一张题头卡片。 */
 
 :root[data-theme='dark'] .timeline-page > .page-intro h1 {
   color: #f2e8cd;
@@ -2139,10 +2093,6 @@
   .timeline-page > .page-intro {
     min-height: 228px;
     padding: 30px 22px 28px 42px;
-  }
-
-  .timeline-page > .page-intro::before {
-    inset: -24% -10%;
   }
 
   .timeline-page > .page-intro .page-intro-copy::before {

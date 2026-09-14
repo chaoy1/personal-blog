@@ -17,14 +17,31 @@ function timelineHeroBlock(): string {
   return studioStyles.slice(desktop, mobile)
 }
 
+function timelineHeroBeforeRules() {
+  return Array.from(
+    studioStyles.matchAll(
+      /([^{}]*\.timeline-page\s*>\s*\.page-intro::before\s*)\{([^{}]*)\}/g,
+    ),
+    (m) => ({ selector: m[1].trim(), body: m[2] }),
+  )
+}
+
+function timelineHeroAfterRules() {
+  return Array.from(
+    studioStyles.matchAll(
+      /([^{}]*\.timeline-page\s*>\s*\.page-intro::after\s*)\{([^{}]*)\}/g,
+    ),
+    (m) => ({ selector: m[1].trim(), body: m[2] }),
+  )
+}
+
 /**
- * 时间轴题头 · 提亮留白的版面契约。
+ * 时间轴题头 · 保持原始山水底图的版面契约。
  *
- * 设计约束（踩过的坑，逐条固化成断言）：
- * - 题头里不能贴任何底图：真迹偏亮，压在深橄榄背景上仍是一块发光的卡片，
- *   色差与"块感"都来自这里。改为在背景画上直接提亮，露出的就是同一张画。
- * - 提亮层必须向外扩出题头、且父级不能裁切；一旦 overflow:hidden，
- *   渐变会被裁成直角，边立刻显形。
+ * 设计约束：
+ * - 题头只保留原始山水底图，避免额外的色差与块感。
+ * - 题头不再叠加任何背景光影，避免标题区域形成发光色块。
+ * - 伪元素保持禁用状态，原始背景画和题头文字直接共存。
  * - 只作用于 .timeline-page，正文内容区一律不动。
  *
  * 注意：jsdom 对简写属性与伪元素支持不完整，这类断言一律查样式表原文。
@@ -69,7 +86,7 @@ afterEach(() => {
 })
 
 describe('timeline hero composition', () => {
-  it('lifts light out of the page painting instead of laying an image on top', () => {
+  it('removes the timeline background light layer', () => {
     renderTimelineShell()
 
     // 题头基础规则自己不铺底图，也不留底色
@@ -77,18 +94,29 @@ describe('timeline hero composition', () => {
     expect(introBlock).toMatch(/background: none;/)
     expect(introBlock).not.toMatch(/background-image:/)
     expect(introBlock).not.toContain('guestbook-ink-banner')
-    // 提亮来自多层椭圆渐变
-    expect(introBlock).toMatch(/::before \{[\s\S]*?radial-gradient\(ellipse/)
+    const beforeRules = timelineHeroBeforeRules()
+    expect(beforeRules.length).toBeGreaterThan(0)
+    for (const rule of beforeRules) {
+      expect(rule.body).toMatch(/content:\s*none;/)
+      expect(rule.body).toMatch(/display:\s*none;/)
+      expect(rule.body).not.toContain('radial-gradient')
+      expect(rule.body).not.toMatch(/inset:\s*-/)
+    }
+    for (const rule of timelineHeroAfterRules()) {
+      expect(rule.body).toMatch(/content:\s*none;/)
+      expect(rule.body).toMatch(/display:\s*none;/)
+      expect(rule.body).not.toContain('radial-gradient')
+    }
   })
 
-  it('lets the lift fade out past the hero edge so no rectangle can show', () => {
+  it('does not restore a pseudo-element inset on the hero edge', () => {
     renderTimelineShell()
 
-    // 父级不裁切，提亮层向外扩出，渐变在到边前已全透明
+    // 父级仍保持开放布局，不需要为光影层预留外扩范围
     expect(getComputedStyle(renderTimelineShell().intro).overflow).toBe('visible')
-    expect(studioStyles).toMatch(
-      /\.timeline-page > \.page-intro::before \{[\s\S]*?inset: -30% -12%;/,
-    )
+    for (const rule of timelineHeroBeforeRules()) {
+      expect(rule.body).not.toMatch(/inset:\s*-/)
+    }
   })
 
   it('keeps the hero sized for its copy and keeps the vermilion rule', () => {
@@ -118,45 +146,39 @@ describe('timeline hero composition', () => {
     // 其他页面的题头仍是开放式的，不带最小高度
     expect(getComputedStyle(otherIntro).minHeight).toBe('0')
 
-    // 提亮层只写在 timeline 专属的 ::before 里，别处不得出现椭圆提亮
-    const beforeBlocks = Array.from(
-      timelineHeroBlock().matchAll(/([^{}]*::before\s*)\{([^}]*)\}/g),
-      (m) => ({ selector: m[1], body: m[2] }),
-    ).filter((rule) => rule.body.includes('radial-gradient(ellipse'))
-    expect(beforeBlocks.length).toBeGreaterThan(0)
-    for (const rule of beforeBlocks) {
-      expect(rule.selector).toContain('.timeline-page')
-    }
-    // 通用 .page-intro 规则里不得挂提亮（只有具体页面可以）
+    // 时间轴专属伪元素也不得留下椭圆提亮
     const allBefore = Array.from(
       studioStyles.matchAll(/([^{}]*::before\s*)\{([^}]*)\}/g),
       (m) => ({ selector: m[1].trim(), body: m[2] }),
     ).filter((rule) => rule.body.includes('radial-gradient(ellipse'))
+    expect(allBefore).toHaveLength(0)
+    // 通用 .page-intro 规则里不得挂新的背景层
     const bareIntroLift = allBefore.filter((rule) =>
       /(^|,\s*)\.page-intro::before\s*$/.test(rule.selector),
     )
     expect(bareIntroLift).toHaveLength(0)
   })
 
-  it('swaps the lift to a faint moonlight wash in dark mode', () => {
+  it('keeps the no-light treatment in dark mode', () => {
     document.documentElement.setAttribute('data-theme', 'dark')
     renderTimelineShell()
 
-    // 夜间背景画本身已转暗，提亮改为极淡月色，避免在暗底上泛白
-    expect(studioStyles).toMatch(
-      /:root\[data-theme='dark'\] \.timeline-page > \.page-intro::before \{[\s\S]*?rgba\(226, 216, 178, 0\.14\)/,
-    )
+    for (const rule of timelineHeroBeforeRules()) {
+      expect(rule.body).toMatch(/content:\s*none;/)
+      expect(rule.body).toMatch(/display:\s*none;/)
+      expect(rule.body).not.toContain('radial-gradient')
+    }
     expect(studioStyles).toMatch(
       /:root\[data-theme='dark'\] \.timeline-page > \.page-intro h1 \{[\s\S]*?color: #f2e8cd;/,
     )
   })
 
-  it('narrows the hero on small screens while keeping the lift', () => {
+  it('narrows the hero on small screens without restoring the light layer', () => {
     expect(studioStyles).toMatch(
       /@media \(max-width: 720px\) \{[\s\S]*?\.timeline-page > \.page-intro \{[\s\S]*?min-height: 228px;/,
     )
-    expect(studioStyles).toMatch(
-      /@media \(max-width: 720px\) \{[\s\S]*?\.timeline-page > \.page-intro::before \{[\s\S]*?inset: -24% -10%;/,
-    )
+    for (const rule of timelineHeroBeforeRules()) {
+      expect(rule.body).not.toMatch(/inset:/)
+    }
   })
 })
