@@ -49,7 +49,7 @@ describe('AppShell route boundaries', () => {
     expect(rootLayout).toContain('AppShell')
   })
 
-  it('restores public ambient layers for both login routes', () => {
+  it('keeps public ambient layers separate from the writing studio login', () => {
     const { rerender } = render(
       <AppShell>
         <main data-testid="content">content</main>
@@ -71,8 +71,8 @@ describe('AppShell route boundaries', () => {
     pathnameState.value = '/admin/login'
     rerender(<AppShell><main data-testid="content">content</main></AppShell>)
 
-    expect(screen.getByTestId('background-stage')).toBeInTheDocument()
-    expect(screen.getByTestId('site-nav')).toBeInTheDocument()
+    expect(screen.queryByTestId('background-stage')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('site-nav')).not.toBeInTheDocument()
 
     pathnameState.value = '/account'
     rerender(<AppShell><main data-testid="content">content</main></AppShell>)

@@ -8210,6 +8210,85 @@ body {
   outline: none;
 }
 
+/* ---------- 后台登录：聚焦写作入口，不复用访客登录的环境层 ---------- */
+
+.admin-login-page {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-height: calc(100vh - 80px);
+  padding: 44px 20px 96px;
+}
+
+.admin-login-page .admin-login-card {
+  width: min(100%, 380px);
+  margin: 0 auto;
+  padding: 38px 36px 32px;
+}
+
+.admin-login-brand {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: -4px 0 24px;
+  color: var(--seal-deep);
+  font-family: var(--font-kai);
+  font-size: 14px;
+  letter-spacing: 0.2em;
+}
+
+.admin-login-code {
+  color: var(--ink-soft);
+  font-family: var(--font-latin);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  opacity: 0.7;
+}
+
+.admin-login-page .sub {
+  margin-bottom: 28px;
+}
+
+.admin-login-page form {
+  margin-top: 0;
+}
+
+.admin-login-page input[aria-invalid='true'] {
+  border-color: var(--seal-deep);
+}
+
+.admin-login-page .error-text {
+  outline: none;
+}
+
+.admin-login-retry {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 12px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.admin-login-retry:hover {
+  border-color: var(--seal);
+  color: var(--seal-deep);
+}
+
+.admin-login-page .admin-login-retry:focus-visible,
+.admin-login-page .back-link:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 4px;
+}
+
 /* ---------- 账户页：资料与安全分区 ---------- */
 
 .account-page {
@@ -8286,6 +8365,15 @@ body {
   }
 
   .auth-login-page .auth-login-card {
+    padding: 34px 24px 30px;
+  }
+
+  .admin-login-page {
+    min-height: calc(100vh - 62px);
+    padding: 24px 14px 72px;
+  }
+
+  .admin-login-page .admin-login-card {
     padding: 34px 24px 30px;
   }
 
