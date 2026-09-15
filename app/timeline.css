@@ -1,0 +1,373 @@
+/* P06：时间轴是一条开放的编年纸带，节点不再组成厚重卡片墙。 */
+
+.timeline-page-body {
+  width: min(var(--container-wide), 100%);
+  margin-inline: auto;
+}
+
+.timeline-page-body > [aria-label='时间轴记录'] {
+  width: min(100%, 960px);
+  margin-inline: auto;
+}
+
+.timeline-page-body .timeline {
+  width: min(100%, 960px);
+  max-width: 960px;
+  margin: 36px auto 8px;
+}
+
+.timeline-page-body .timeline::before {
+  width: 1px;
+  background: repeating-linear-gradient(180deg, var(--rule-strong) 0 7px, transparent 7px 14px);
+}
+
+.timeline-page-body .tl-year-group {
+  position: relative;
+}
+
+.timeline-page-body .tl-year {
+  display: flex;
+  justify-content: center;
+  margin: 46px 0 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--font-kai);
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  line-height: 1.4;
+  text-indent: 0.3em;
+}
+
+.timeline-page-body .tl-year::before {
+  background: var(--rule);
+}
+
+.timeline-page-body .tl-year span {
+  padding: 4px 18px;
+  border: 0;
+  border-bottom: 1px solid var(--rule-strong);
+  border-radius: 0;
+  background: var(--paper-2);
+  color: var(--ink-soft);
+}
+
+.timeline-page-body .tl-item {
+  width: 50%;
+  min-width: 0;
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+
+.timeline-page-body .tl-item:nth-of-type(odd) {
+  margin-left: 0;
+  padding-right: 48px;
+  padding-left: 0;
+  text-align: left;
+}
+
+.timeline-page-body .tl-item:nth-of-type(even) {
+  margin-left: 50%;
+  padding-right: 0;
+  padding-left: 48px;
+  text-align: left;
+}
+
+.timeline-page-body .tl-item:nth-of-type(odd) .tl-dot {
+  right: -6px;
+  left: auto;
+}
+
+.timeline-page-body .tl-item:nth-of-type(even) .tl-dot {
+  right: auto;
+  left: -6px;
+}
+
+.timeline-page-body .tl-date {
+  display: block;
+  width: fit-content;
+  margin-bottom: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink-faint);
+  font-family: var(--font-latin);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.timeline-page-body .tl-card {
+  min-width: 0;
+  padding: 12px 0 14px 18px;
+  overflow: visible;
+  border: 0;
+  border-left: 2px solid var(--rule-strong);
+  border-radius: 0px;
+  background-color: transparent;
+  background-image: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.timeline-page-body .tl-card::after {
+  display: none;
+}
+
+.timeline-page-body .tl-card:hover {
+  border-left-color: var(--seal);
+  box-shadow: none;
+  transform: translateX(3px);
+}
+
+.timeline-page-body .tl-body {
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.timeline-page-body .tl-thumb {
+  width: 132px;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  transform: none;
+}
+
+.timeline-page-body .tl-item:hover .tl-thumb {
+  transform: none;
+}
+
+.timeline-page-body .tl-text {
+  max-width: 560px;
+}
+
+.timeline-page-body .tl-title {
+  display: block;
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+
+.timeline-page-body .tl-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.timeline-page-body .tl-title a:hover {
+  color: var(--seal);
+}
+
+.timeline-page-body .tl-excerpt {
+  max-width: 520px;
+  margin-top: 7px;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.85;
+}
+
+.timeline-page-body .tl-more {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 4px;
+  color: var(--seal-deep);
+  font-size: 12px;
+}
+
+.timeline-page-body .timeline-more-wrap {
+  min-height: 44px;
+  margin: 34px auto 16px;
+}
+
+.timeline-page-body .timeline-unfold {
+  min-height: 44px;
+  border-top-color: var(--rule-strong);
+  border-bottom-color: var(--rule-strong);
+  box-shadow: none;
+}
+
+.timeline-page-body .timeline-unfold:hover,
+.timeline-page-body .timeline-unfold:focus-visible {
+  border-color: var(--seal);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(178, 58, 43, 0.15);
+}
+
+.timeline-page-body .timeline-unfold:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.timeline-end {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 44px;
+  margin: 34px auto 22px;
+  padding: 10px 14px;
+  border-top: 1px dashed var(--rule-strong);
+  border-bottom: 1px dashed var(--rule-strong);
+  color: var(--ink-faint);
+  font-family: var(--font-kai);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+}
+
+.timeline-end-seal {
+  color: var(--seal-deep);
+  font-size: 14px;
+}
+
+.timeline-state {
+  width: min(100%, 680px);
+  margin: 28px auto 58px;
+  padding: 22px 18px;
+  border-top: 1px dashed var(--rule-strong);
+  border-bottom: 1px dashed var(--rule-strong);
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.timeline-state p {
+  margin: 0;
+}
+
+.timeline-state-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 12px;
+  color: var(--seal-deep);
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.timeline-empty {
+  width: min(100%, 680px);
+  margin: 28px auto 58px;
+}
+
+@media (max-width: 900px) {
+  .timeline-page-body .timeline {
+    width: min(100%, 760px);
+    padding-left: 30px;
+  }
+
+  .timeline-page-body .timeline::before {
+    left: 12px;
+    transform: none;
+  }
+
+  .timeline-page-body .tl-item,
+  .timeline-page-body .tl-item:nth-of-type(odd),
+  .timeline-page-body .tl-item:nth-of-type(even) {
+    width: 100%;
+    margin-left: 0;
+    padding-right: 0;
+    padding-left: 28px;
+    text-align: left;
+  }
+
+  .timeline-page-body .tl-item:nth-of-type(odd) .tl-dot,
+  .timeline-page-body .tl-item:nth-of-type(even) .tl-dot {
+    right: auto;
+    left: -24px;
+  }
+}
+
+@media (max-width: 720px) {
+  .timeline-page-body > [aria-label='时间轴记录'] {
+    width: 100%;
+  }
+
+  .timeline-page-body .timeline {
+    margin-top: 24px;
+    padding-left: 22px;
+  }
+
+  .timeline-page-body .timeline::before {
+    left: 10px;
+  }
+
+  .timeline-page-body .tl-item,
+  .timeline-page-body .tl-item:nth-of-type(odd),
+  .timeline-page-body .tl-item:nth-of-type(even) {
+    padding-left: 24px;
+  }
+
+  .timeline-page-body .tl-item:nth-of-type(odd) .tl-dot,
+  .timeline-page-body .tl-item:nth-of-type(even) .tl-dot {
+    left: -18px;
+  }
+
+  .timeline-page-body .tl-card {
+    padding-left: 14px;
+  }
+
+  .timeline-page-body .tl-body {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .timeline-page-body .tl-thumb {
+    width: min(100%, 360px);
+    height: auto;
+  }
+
+  .timeline-end {
+    margin-top: 24px;
+  }
+}
+
+@media (max-width: 375px) {
+  .timeline-page-body .timeline {
+    padding-left: 18px;
+  }
+
+  .timeline-page-body .timeline::before {
+    left: 8px;
+  }
+
+  .timeline-page-body .tl-item,
+  .timeline-page-body .tl-item:nth-of-type(odd),
+  .timeline-page-body .tl-item:nth-of-type(even) {
+    padding-left: 20px;
+  }
+
+  .timeline-page-body .tl-item:nth-of-type(odd) .tl-dot,
+  .timeline-page-body .tl-item:nth-of-type(even) .tl-dot {
+    left: -15px;
+  }
+
+  .timeline-page-body .tl-date {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .timeline-page-body .tl-title {
+    font-size: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline-page-body .tl-card,
+  .timeline-page-body .timeline-unfold,
+  .timeline-page-body .tl-thumb {
+    transition: none;
+  }
+
+  .timeline-page-body .timeline-year-enter {
+    animation: none;
+  }
+}

@@ -55,6 +55,46 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
 
   const hasMore = remaining > 0
 
+  useEffect(() => {
+    try {
+      const savedShown = Number(sessionStorage.getItem('timeline:shown'))
+      if (Number.isFinite(savedShown) && savedShown > 1) {
+        setShown(Math.min(groups.length, savedShown))
+      }
+      const savedScroll = Number(sessionStorage.getItem('timeline:scroll-y'))
+      if (Number.isFinite(savedScroll) && savedScroll > 0) {
+        window.requestAnimationFrame(() => {
+          try {
+            window.scrollTo({ top: savedScroll, behavior: 'auto' })
+          } catch {
+            window.scrollTo(0, savedScroll)
+          }
+        })
+      }
+    } catch {
+      // sessionStorage may be unavailable in privacy-restricted browsers.
+    }
+  }, [groups.length])
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('timeline:shown', String(shown))
+    } catch {
+      // sessionStorage may be unavailable in privacy-restricted browsers.
+    }
+  }, [shown])
+
+  useEffect(
+    () => () => {
+      try {
+        sessionStorage.setItem('timeline:scroll-y', String(window.scrollY))
+      } catch {
+        // sessionStorage may be unavailable in privacy-restricted browsers.
+      }
+    },
+    [],
+  )
+
   /**
    * 向上拉起的形变变量直接写在 .timeline 上（它既是要被拉起的元素，
    * 也是 springBack 里记回弹阶段的锚点）。
@@ -289,13 +329,16 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
     <>
       <section className="timeline" ref={bindTimeline}>
         {visible.map((g) => (
-          <div key={g.year} className="tl-year-group">
+          <section key={g.year} className="tl-year-group" aria-labelledby={`timeline-year-${g.year}`}>
             {/* 新展出的那一卷从上方翻下来；首帧的 2026 不参与动画 */}
-            <div className={`tl-year${g.year === visible[visible.length - 1]?.year && shown > 1 ? ' timeline-year-enter' : ''}`}>
+            <h2
+              id={`timeline-year-${g.year}`}
+              className={`tl-year${g.year === visible[visible.length - 1]?.year && shown > 1 ? ' timeline-year-enter' : ''}`}
+            >
               <span>{g.year}</span>
-            </div>
+            </h2>
             {g.list.map((e) => (
-              <article className={`tl-item tl-${e.type} reveal`} key={e.key}>
+              <article className={`tl-item tl-${e.type} reveal`} data-entry-key={e.key} data-entry-type={e.type} key={e.key}>
                 <div className="tl-date">{formatDate(e.created_at)}</div>
                 <div className="tl-track">
                   <span className="tl-dot" aria-hidden="true" />
@@ -312,13 +355,9 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
                         <span className="tl-kicker">
                           {e.type === 'post' ? 'ARTICLE · 文章' : e.type === 'photo' ? 'FRAME · 光影' : 'MOMENT · 闲语'}
                         </span>
-                        {e.type === 'post' ? (
-                          <Link className="tl-title" href={e.href}>
-                            {e.title}
-                          </Link>
-                        ) : (
-                          <span className="tl-title">{e.title}</span>
-                        )}
+                        <h3 className="tl-title">
+                          <Link href={e.href}>{e.title}</Link>
+                        </h3>
                         {e.excerpt ? <p className="tl-excerpt">{e.excerpt}</p> : null}
                         <Link className="tl-more" href={e.href}>
                           {e.type === 'post' ? '阅读全文 →' : '查看全部 →'}
@@ -329,7 +368,7 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
                 </div>
               </article>
             ))}
-          </div>
+          </section>
         ))}
       </section>
 
@@ -341,8 +380,16 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
             data-phase=""
             data-armed="false"
             data-revealing={revealing ? 'true' : 'false'}
+            data-load-state={revealing ? 'loading' : 'ready'}
           >
-            <button type="button" className="timeline-unfold" onClick={click}>
+            <button
+              type="button"
+              className="timeline-unfold"
+              aria-label="续展旧卷"
+              aria-busy={revealing}
+              disabled={revealing}
+              onClick={click}
+            >
               <span className="timeline-unfold-seal" aria-hidden="true">续</span>
               <span className="timeline-unfold-copy">
                 <b>续展旧卷</b>
@@ -353,7 +400,12 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
             <span className="timeline-pull-hint" aria-hidden="true">继续下拉，旧卷自展</span>
           </div>
         </div>
-      ) : null}
+      ) : (
+        <div className="timeline-end" role="status" aria-label="时间轴已到卷尾">
+          <span className="timeline-end-seal" aria-hidden="true">卷尾</span>
+          <span>已阅尽这一卷的旧时光。</span>
+        </div>
+      )}
     </>
   )
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { listPublishedPosts, type Post } from '@/lib/posts'
 import { listAllPhotos, listAllMoments, type TimelinePhoto, type TimelineMoment } from '@/lib/timeline'
 import ScrollFX from '@/components/ScrollFX'
@@ -6,6 +7,7 @@ import TimelineReveal, { type TimelineEntry } from '@/components/TimelineReveal'
 import PageIntro from '@/components/PageIntro'
 import ArticleNav from '@/components/ArticleNav'
 import { publicMetadata } from '@/lib/seo'
+import '../timeline.css'
 
 export const revalidate = 60
 
@@ -19,6 +21,7 @@ export default async function TimelinePage() {
   let posts: Post[] = []
   let photos: TimelinePhoto[] = []
   let moments: TimelineMoment[] = []
+  let loadError = ''
   try {
     ;[posts, photos, moments] = await Promise.all([
       listPublishedPosts(),
@@ -26,7 +29,7 @@ export default async function TimelinePage() {
       listAllMoments(),
     ])
   } catch {
-    // 数据库未配置等情况，页面仍可渲染
+    loadError = '时间轴暂时未能载入。'
   }
 
   const entries: TimelineEntry[] = [
@@ -58,8 +61,15 @@ export default async function TimelinePage() {
     })),
   ].sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
 
+  const pageState = loadError ? 'error' : entries.length > 0 ? 'ready' : 'empty'
+
   return (
-    <div className="wrap timeline-page timeline-page-body">
+    <main
+      className="wrap timeline-page timeline-page-body"
+      aria-label="时间轴"
+      data-page-state={pageState}
+      data-entry-count={entries.length}
+    >
       <ScrollFX />
       <ArticleNav current="时间轴" />
 
@@ -71,14 +81,21 @@ export default async function TimelinePage() {
         description={`凡 ${entries.length} 事，按时而录。`}
       />
 
-      {entries.length === 0 ? (
-        <div className="empty-state">
-          <div className="big">空</div>
+      {loadError ? (
+        <div className="timeline-state timeline-state-error" role="alert">
+          <p>{loadError}</p>
+          <Link className="timeline-state-link" href="/timeline" aria-label="重试时间轴">重试时间轴</Link>
+        </div>
+      ) : entries.length === 0 ? (
+        <div className="empty-state timeline-empty">
+          <div className="big" aria-hidden="true">空</div>
           还没有任何记录。
         </div>
       ) : (
-        <TimelineReveal entries={entries} />
+        <section aria-label="时间轴记录">
+          <TimelineReveal entries={entries} />
+        </section>
       )}
-    </div>
+    </main>
   )
 }
