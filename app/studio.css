@@ -3919,3 +3919,191 @@
     padding-inline: 4px;
   }
 }
+
+/* ---------- M06 后台博主资料：身份与长文各自成区 ---------- */
+
+.admin-profile-page {
+  min-width: 0;
+}
+
+.admin-profile-page .admin-page-head {
+  margin-bottom: 30px;
+}
+
+.admin-profile-identity,
+.admin-profile-bio {
+  max-width: 900px;
+}
+
+.admin-profile-identity {
+  display: grid;
+  grid-template-columns: minmax(190px, 240px) minmax(0, 1fr);
+  align-items: start;
+  gap: 28px;
+  margin-bottom: 30px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.admin-profile-identity > .account-avatar {
+  width: 100%;
+  margin: 0;
+}
+
+.admin-profile-identity > .field,
+.admin-profile-page > .admin-profile-identity .field {
+  width: 100%;
+  margin: 0;
+}
+
+.admin-profile-page .account-avatar {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+}
+
+.admin-profile-page .account-avatar img,
+.admin-profile-page .account-avatar .placeholder {
+  width: 168px;
+  height: 168px;
+  object-fit: cover;
+}
+
+.admin-profile-page .account-avatar .placeholder {
+  display: grid;
+  place-items: center;
+}
+
+.admin-profile-page .account-avatar input[type='file'] {
+  width: 1px;
+  height: 1px;
+}
+
+.admin-profile-bio {
+  margin-bottom: 22px;
+}
+
+.admin-profile-bio .field {
+  margin: 0;
+}
+
+.admin-profile-bio textarea {
+  min-height: 300px !important;
+  line-height: 2;
+}
+
+.admin-profile-save-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: min(100%, 900px);
+  min-height: 48px;
+  margin-top: 18px;
+  padding: 10px 0;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.admin-profile-save-bar .profile-dirty-state {
+  margin: 0;
+}
+
+.profile-save-state,
+.profile-upload-state {
+  color: var(--ink-faint);
+  font-family: var(--font-kai);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.profile-save-state[data-save-state='dirty'],
+.profile-save-state[data-save-state='saving'],
+.profile-save-state[data-save-state='error'] {
+  color: var(--seal-deep);
+}
+
+.admin-profile-page > .editor-actions {
+  width: min(100%, 900px);
+  margin-top: 0;
+}
+
+.admin-profile-page .editor-actions .btn {
+  min-height: 46px;
+}
+
+.profile-upload-state {
+  margin: 10px 0 0;
+}
+
+.admin-profile-skeleton {
+  display: grid;
+  gap: 14px;
+  width: min(100%, 900px);
+  margin-top: 24px;
+}
+
+.admin-profile-skeleton div {
+  min-height: 56px;
+  border-bottom: 1px solid var(--rule);
+  background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--ink-faint) 9%, transparent) 48%, transparent 100%);
+  background-size: 220% 100%;
+  animation: admin-row-shimmer 1.8s ease-in-out infinite;
+}
+
+.admin-profile-load-error {
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+  width: min(100%, 900px);
+  padding: 30px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.admin-profile-load-error p {
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-profile-skeleton div {
+    animation: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .admin-profile-identity {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .admin-profile-page .account-avatar img,
+  .admin-profile-page .account-avatar .placeholder {
+    width: 144px;
+    height: 144px;
+  }
+}
+
+@media (max-width: 380px) {
+  .admin-profile-page .admin-page-head {
+    margin-bottom: 22px;
+  }
+
+  .admin-profile-identity,
+  .admin-profile-bio {
+    width: 100%;
+  }
+
+  .admin-profile-bio textarea {
+    min-height: 260px !important;
+  }
+
+  .admin-profile-save-bar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .admin-profile-page > .editor-actions .btn {
+    width: 100%;
+  }
+}
