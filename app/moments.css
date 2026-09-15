@@ -1,0 +1,257 @@
+/* Phase 5 / P04：闲语页的 Paper Collection 配方，只在 .moments-page 内生效。 */
+
+.moments-page {
+  width: min(var(--container-wide), 100%);
+  margin-inline: auto;
+}
+
+.moments-page .page-intro {
+  width: min(var(--container-default), 100%);
+  margin-inline: auto;
+}
+
+.moments-page .moments-sheet {
+  width: min(100%, 900px);
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-4) clamp(20px, 4.5vw, 44px) var(--space-8);
+  background: transparent;
+  box-shadow: none;
+}
+
+.moments-page .moments-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.moments-page .moment {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  padding: 28px 0 30px 72px;
+  overflow: visible;
+  border: 0;
+  border-left: 2px solid var(--rule-strong);
+  border-radius: 0px;
+  background: transparent;
+  background-image: none;
+  box-shadow: none;
+  transform: none;
+  transition: border-color 0.25s ease;
+}
+
+.moments-page .moment + .moment {
+  border-top: 1px solid var(--rule);
+}
+
+.moments-page .moment::after {
+  display: none;
+}
+
+.moments-page .moment:hover {
+  border-color: var(--rule-strong);
+  box-shadow: none;
+  transform: none;
+}
+
+.moments-page .moment-index {
+  position: absolute;
+  left: -1px;
+  top: 30px;
+  bottom: auto;
+  width: 44px;
+  padding: 0 0 8px;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-faint);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+
+.moments-page .moment-index::after {
+  display: none;
+}
+
+.moments-page .moment-head {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.moments-page .moment-head > div {
+  min-width: 0;
+}
+
+.moments-page .moment-avatar {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+}
+
+.moments-page .moment-content,
+.moments-page .moment-images,
+.moments-page .moment-actions,
+.moments-page .moment-comments {
+  width: 100%;
+  max-width: 680px;
+  margin-left: 0;
+}
+
+.moments-page .moment-content {
+  margin-top: 18px;
+  margin-bottom: 0;
+  color: var(--ink);
+  font-family: var(--font-kai);
+  font-size: 17px;
+  line-height: 1.95;
+  letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
+}
+
+.moments-page .moment-images {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.moments-page .moment-images:has(img:only-child) {
+  grid-template-columns: minmax(0, 420px);
+}
+
+.moments-page .moment-images img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 1px solid var(--rule);
+  border-radius: 0px;
+  box-shadow: none;
+  transform: none;
+  transition: opacity 0.25s ease;
+}
+
+.moments-page .moment-images img:hover {
+  transform: none;
+  opacity: 0.88;
+}
+
+.moments-page .moment-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+}
+
+.moments-page .moment-like,
+.moments-page .moment-del,
+.moments-page .moment-comment-form .btn {
+  min-height: 44px;
+}
+
+.moments-page .moment-like {
+  padding-inline: 10px;
+  border: 0;
+  border-bottom: 1px solid var(--rule-strong);
+  border-radius: 0;
+  background: transparent;
+}
+
+.moments-page .moment-like:hover,
+.moments-page .moment-like.liked {
+  border-color: var(--seal);
+  color: var(--seal-deep);
+}
+
+.moments-page .moment-comments {
+  margin-top: 18px;
+  padding-top: 2px;
+  border-top: 1px solid color-mix(in srgb, var(--rule) 68%, transparent);
+}
+
+.moments-page .moment-comment-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.moments-page .moment-comment-form input {
+  min-width: 0;
+  min-height: 44px;
+  background: var(--field-bg);
+}
+
+.moments-page .moments-login-tip,
+.moments-page .moments-empty,
+.moments-page .moments-state {
+  width: min(100%, 680px);
+  margin: var(--space-6) auto 0;
+}
+
+.moments-page .moments-login-tip {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--rule);
+}
+
+.moments-page .error-text[role='alert'],
+.moments-page .error-text[role='status'] {
+  width: min(100%, 680px);
+  margin: var(--space-4) auto 0;
+}
+
+@media (max-width: 720px) {
+  .moments-page .moments-sheet {
+    padding-inline: 12px;
+  }
+
+  .moments-page .moment {
+    padding: 22px 0 24px 52px;
+  }
+
+  .moments-page .moment-index {
+    top: 24px;
+    width: 36px;
+  }
+
+  .moments-page .moment-avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .moments-page .moment-content {
+    font-size: 15px;
+    line-height: 1.9;
+  }
+
+  .moments-page .moment-images {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .moments-page .moment-images:has(img:only-child) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .moments-page .moment-comment-form {
+    align-items: stretch;
+  }
+
+  .moments-page .moment-comment-form input {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moments-page .moment,
+  .moments-page .moment:hover,
+  .moments-page .moment-images img {
+    transform: none;
+    transition: none;
+  }
+}

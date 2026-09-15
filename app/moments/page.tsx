@@ -11,6 +11,7 @@ import CommentThread from '@/components/CommentThread'
 import PageIntro from '@/components/PageIntro'
 import ArticleNav from '@/components/ArticleNav'
 import { useConfirmDialog } from '@/components/ConfirmDialog'
+import '../moments.css'
 
 export default function MomentsPage() {
   const { user } = useAuth()
@@ -33,6 +34,14 @@ export default function MomentsPage() {
   const [busy, setBusy] = useState(false)
   const [localError, setLocalError] = useState('')
   const { confirm, dialog } = useConfirmDialog()
+
+  const pageState = !hasData && isInitialLoading
+    ? 'loading'
+    : !hasData && error
+      ? 'error'
+      : hasData && moments.length === 0 && !error
+        ? 'empty'
+        : 'ready'
 
   async function remove(id: string) {
     const confirmed = await confirm({
@@ -70,15 +79,16 @@ export default function MomentsPage() {
       <ScrollFX />
       <ArticleNav current="闲语" />
 
-      <PageIntro
-        index="02"
-        eyebrow="MUSINGS"
-        title="闲语"
-        seal="言"
-        description="片言只语，也是一日光景。"
-      />
+      <main className="moments-page">
+        <PageIntro
+          index="02"
+          eyebrow="MUSINGS"
+          title="闲语"
+          seal="言"
+          description="片言只语，也是一日光景。"
+        />
 
-      <article className="article content-sheet">
+        <section className="article content-sheet moments-sheet" aria-label="闲语列表" data-page-state={pageState}>
 
         {!hasData && isInitialLoading ? <p className="moments-empty">正在加载闲语…</p> : null}
         {!hasData && error ? (
@@ -103,7 +113,7 @@ export default function MomentsPage() {
             const mComments = momentComments.filter((c) => c.moment_id === m.id)
 
             return (
-              <div key={m.id} className="moment reveal">
+              <article key={m.id} className="moment reveal" data-moment-id={m.id}>
                 <span className="moment-index" aria-hidden="true">
                   {String(index + 1).padStart(2, '0')}
                 </span>
@@ -152,13 +162,16 @@ export default function MomentsPage() {
                     <div className="moment-comment-form">
                       <input
                         type="text"
+                        aria-label="评论"
                         value={commentText[m.id] ?? ''}
                         onChange={(e) =>
                           setCommentText((prev) => ({ ...prev, [m.id]: e.target.value }))
                         }
                         placeholder="评论一下…"
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter') sendComment(m.id)
+                          if (e.key === 'Enter' && !e.nativeEvent.isComposing && e.nativeEvent.keyCode !== 229) {
+                            void sendComment(m.id)
+                          }
                         }}
                       />
                       <button
@@ -172,7 +185,7 @@ export default function MomentsPage() {
                     </div>
                   ) : null}
                 </div>
-              </div>
+              </article>
             )
           })}
           {hasData && moments.length === 0 && !error ? (
@@ -185,7 +198,8 @@ export default function MomentsPage() {
             <Link href="/login">登录</Link> 后可以点赞和评论。
           </p>
         ) : null}
-      </article>
+        </section>
+      </main>
       {dialog}
     </div>
   )
