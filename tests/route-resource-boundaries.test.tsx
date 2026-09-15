@@ -44,6 +44,8 @@ vi.mock('@/lib/supabase-browser', () => ({
 
 import { CommentsProvider, useComments } from '@/lib/comments-context'
 import { MomentsProvider, useMoments } from '@/lib/moments-context'
+import { AlbumsProvider, useAlbums } from '@/lib/albums-context'
+import { GuestbookProvider, useGuestbook } from '@/lib/guestbook-context'
 
 function CommentsProbe() {
   const { ready, comments } = useComments()
@@ -53,6 +55,16 @@ function CommentsProbe() {
 function MomentsProbe() {
   const { ready, moments, hasData, isInitialLoading } = useMoments()
   return <output data-testid="moments-state">{JSON.stringify({ ready, count: moments.length, hasData, isInitialLoading })}</output>
+}
+
+function AlbumGuestbookProbe() {
+  const albums = useAlbums()
+  const guestbook = useGuestbook()
+  return (
+    <output data-testid="album-guestbook-state">
+      {JSON.stringify({ albums: albums.albums.length, photos: albums.photos.length, guestbook: guestbook.guestbook.length })}
+    </output>
+  )
 }
 
 describe('route-scoped resource boundaries', () => {
@@ -106,6 +118,39 @@ describe('route-scoped resource boundaries', () => {
     expect(screen.getByTestId('moments-state')).toHaveTextContent('"count":1')
     expect(screen.getByTestId('moments-state')).toHaveTextContent('"hasData":true')
     expect(screen.getByTestId('moments-state')).toHaveTextContent('"isInitialLoading":false')
+    expect(queryLog).toEqual([])
+  })
+
+  it('uses album and guestbook snapshots without starting browser requests', () => {
+    const store = createPublicResourceStore({ now: () => 1000 })
+    render(
+      <PublicResourceCacheProvider store={store}>
+        <AlbumsProvider
+          initialSnapshot={{
+            generatedAt: 900,
+            data: {
+              albums: [{ id: 'album-1', user_id: 'user-1', title: '山行', description: '', cover_url: '', created_at: '2026-09-15' }],
+              photos: [{ id: 'photo-1', user_id: 'user-1', url: '/photo.jpg', caption: '', album_id: 'album-1', created_at: '2026-09-15' }],
+            },
+          }}
+        >
+          <GuestbookProvider
+            initialSnapshot={{
+              generatedAt: 900,
+              data: {
+                guestbook: [{ id: 'note-1', user_id: 'user-2', content: '你好', parent_id: null, created_at: '2026-09-15', profiles: null }],
+              },
+            }}
+          >
+            <AlbumGuestbookProbe />
+          </GuestbookProvider>
+        </AlbumsProvider>
+      </PublicResourceCacheProvider>,
+    )
+
+    expect(screen.getByTestId('album-guestbook-state')).toHaveTextContent('"albums":1')
+    expect(screen.getByTestId('album-guestbook-state')).toHaveTextContent('"photos":1')
+    expect(screen.getByTestId('album-guestbook-state')).toHaveTextContent('"guestbook":1')
     expect(queryLog).toEqual([])
   })
 

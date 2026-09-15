@@ -6,15 +6,21 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useState,
+  useRef,
   type ReactNode,
 } from 'react'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 import { useAuth } from '@/lib/auth-context'
+import { loadGuestbook } from '@/lib/public-resource-loaders.browser'
+import { usePublicResourceCache, useResourceEntry } from '@/lib/public-resource-cache'
+import type { GuestbookSnapshot, ServerSnapshot } from '@/lib/public-resource-types'
 import type { GuestbookItem } from '@/lib/store-types'
 
 export type GuestbookContextValue = {
   ready: boolean
+  hasData: boolean
+  isInitialLoading: boolean
+  isRefreshing: boolean
   error: string
   guestbook: GuestbookItem[]
   refreshGuestbook: () => Promise<void>
@@ -24,40 +30,41 @@ export type GuestbookContextValue = {
 
 export const GuestbookContext = createContext<GuestbookContextValue | null>(null)
 
+const EMPTY_SNAPSHOT: GuestbookSnapshot = { guestbook: [] }
+const GUESTBOOK_KEY = 'guestbook' as const
+
 function errMsg(prefix: string, e: unknown): string {
   const m = e && typeof e === 'object' && 'message' in e ? String((e as { message: unknown }).message) : ''
   return `${prefix}：${m}`
 }
 
-export function GuestbookProvider({ children }: { children: ReactNode }) {
+export function GuestbookProvider({
+  children,
+  initialSnapshot,
+  initialError = '',
+}: {
+  children: ReactNode
+  initialSnapshot?: ServerSnapshot<GuestbookSnapshot> | null
+  initialError?: string
+}) {
   const { user } = useAuth()
-  const [ready, setReady] = useState(false)
-  const [error, setError] = useState('')
-  const [guestbook, setGuestbook] = useState<GuestbookItem[]>([])
+  const cache = usePublicResourceCache()
+  const seededRef = useRef<ServerSnapshot<GuestbookSnapshot> | null>(null)
+
+  if (initialSnapshot && seededRef.current !== initialSnapshot) {
+    cache.seed(GUESTBOOK_KEY, initialSnapshot)
+    seededRef.current = initialSnapshot
+  }
+
+  const entry = useResourceEntry<GuestbookSnapshot>(GUESTBOOK_KEY)
 
   const refreshGuestbook = useCallback(async () => {
-    try {
-      const { data } = await supabaseBrowser()
-        .from('guestbook')
-        .select('*, profiles!guestbook_user_id_fkey(nickname, avatar_url)')
-        .order('created_at', { ascending: false })
-        .limit(1000)
-      setGuestbook((data ?? []) as unknown as GuestbookItem[])
-    } catch (e) {
-      setError(errMsg('读取留言失败', e))
-    }
-  }, [])
+    await cache.revalidate(GUESTBOOK_KEY, loadGuestbook).catch(() => undefined)
+  }, [cache])
 
   useEffect(() => {
-    let cancelled = false
-    setError('')
-    void refreshGuestbook().finally(() => {
-      if (!cancelled) setReady(true)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [refreshGuestbook])
+    void cache.preload(GUESTBOOK_KEY, loadGuestbook).catch(() => undefined)
+  }, [cache])
 
   const addGuestbook = useCallback(
     async (content: string, parentId?: string | null) => {
@@ -84,18 +91,37 @@ export function GuestbookProvider({ children }: { children: ReactNode }) {
       try {
         const { error: err } = await supabaseBrowser().from('guestbook').delete().eq('id', id)
         if (err) return err.message
-        await refreshGuestbook()
+        cache.setData<GuestbookSnapshot>(GUESTBOOK_KEY, (current) => ({
+          guestbook: current.guestbook.filter((item) => item.id !== id),
+        }))
         return null
       } catch (e) {
         return errMsg('删除失败', e)
       }
     },
-    [user, refreshGuestbook],
+    [user, cache],
   )
 
+  const data = entry.data ?? EMPTY_SNAPSHOT
+  const hasData = entry.data !== null
+  const isInitialLoading = !hasData && (entry.status === 'idle' || entry.status === 'loading')
+  const isRefreshing = hasData && entry.status === 'loading'
+  const error = entry.error || (!hasData ? initialError : '')
+  const ready = hasData || (!isInitialLoading && !error)
+
   const value = useMemo<GuestbookContextValue>(
-    () => ({ ready, error, guestbook, refreshGuestbook, addGuestbook, deleteGuestbook }),
-    [ready, error, guestbook, refreshGuestbook, addGuestbook, deleteGuestbook],
+    () => ({
+      ready,
+      hasData,
+      isInitialLoading,
+      isRefreshing,
+      error,
+      guestbook: data.guestbook,
+      refreshGuestbook,
+      addGuestbook,
+      deleteGuestbook,
+    }),
+    [ready, hasData, isInitialLoading, isRefreshing, error, data, refreshGuestbook, addGuestbook, deleteGuestbook],
   )
 
   return <GuestbookContext.Provider value={value}>{children}</GuestbookContext.Provider>

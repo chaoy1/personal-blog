@@ -21,7 +21,19 @@ type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
 export default function GuestbookPage() {
   const { user } = useAuth()
-  const { guestbook, ready, error, addGuestbook, deleteGuestbook } = useGuestbook()
+  const {
+    guestbook,
+    ready,
+    error,
+    hasData,
+    isInitialLoading,
+    isRefreshing,
+    refreshGuestbook,
+    addGuestbook,
+    deleteGuestbook,
+  } = useGuestbook()
+  const resourceHasData = hasData ?? ready
+  const resourceIsInitialLoading = isInitialLoading ?? !ready
   const [page, setPage] = useState(1)
   const [content, setContent] = useState('')
   const [composeOpen, setComposeOpen] = useState(false)
@@ -397,15 +409,26 @@ export default function GuestbookPage() {
           </aside>
 
           <section className="guestbook-messages" aria-label="已收留言">
-            {error || localError ? <p className="error-text" role="alert">{localError || error}</p> : null}
-            {!ready && !error ? <p className="moments-empty">正在加载留言…</p> : null}
+            {!resourceHasData && resourceIsInitialLoading ? <p className="moments-empty">正在加载留言…</p> : null}
+            {!resourceHasData && (error || localError) ? (
+              <p className="error-text" role="alert">
+                {localError || error}{' '}
+                <button type="button" className="link-btn" onClick={refreshGuestbook}>重试</button>
+              </p>
+            ) : null}
+            {resourceHasData && (error || localError || isRefreshing) ? (
+              <p className="error-text" role="status">
+                {localError || error || '正在同步留言…'}
+                {error ? <button type="button" className="link-btn" onClick={refreshGuestbook}>重试同步</button> : null}
+              </p>
+            ) : null}
 
             {/* 留言内容优先展示 */}
             <div className="comment-list guestbook-list">
               <CommentThread
                 items={threadItems}
                 userId={user?.id ?? null}
-                emptyText={ready && !error ? '还没有人留言，来写第一句吧。' : undefined}
+                emptyText={resourceHasData && !error ? '还没有人留言，来写第一句吧。' : undefined}
                 onReply={(parentId, text) => addGuestbook(text, parentId)}
                 onDelete={(id) => remove(id)}
               />

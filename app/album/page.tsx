@@ -10,7 +10,7 @@ import ArticleNav from '@/components/ArticleNav'
 type View = { mode: 'list' } | { mode: 'album'; album: AlbumItem } | { mode: 'all' }
 
 export default function AlbumPage() {
-  const { albums, photos, error, ready } = useAlbums()
+  const { albums, photos, error, ready, hasData, isInitialLoading, isRefreshing, refreshAlbums } = useAlbums()
   const [view, setView] = useState<View>({ mode: 'list' })
 
   const photosOf = (albumId: string) => photos.filter((p) => p.album_id === albumId)
@@ -55,8 +55,19 @@ export default function AlbumPage() {
 
       <article className="article content-sheet" style={{ maxWidth: 1080 }}>
 
-        {error ? <p className="error-text">{error}</p> : null}
-        {!ready && !error ? <p className="moments-empty">正在加载相册…</p> : null}
+        {!hasData && isInitialLoading ? <p className="moments-empty">正在加载相册…</p> : null}
+        {!hasData && error ? (
+          <p className="error-text" role="alert">
+            {error}{' '}
+            <button type="button" className="link-btn" onClick={refreshAlbums}>重试</button>
+          </p>
+        ) : null}
+        {hasData && (error || isRefreshing) ? (
+          <p className="error-text" role="status">
+            {error || '正在同步相册…'}
+            {error ? <button type="button" className="link-btn" onClick={refreshAlbums}>重试同步</button> : null}
+          </p>
+        ) : null}
 
         {view.mode === 'list' ? (
           <>
@@ -109,7 +120,7 @@ export default function AlbumPage() {
                 </button>
               ) : null}
             </div>
-            {ready && albums.length === 0 && orphanPhotos.length === 0 && !error ? (
+            {hasData && albums.length === 0 && orphanPhotos.length === 0 && !error ? (
               <p className="moments-empty">相册还空着。</p>
             ) : null}
           </>
@@ -133,9 +144,9 @@ export default function AlbumPage() {
 
             {currentPhotos.length > 0 ? (
               photoGrid(currentPhotos)
-            ) : (
+            ) : hasData ? (
               <p className="moments-empty">这本相册还没有照片。</p>
-            )}
+            ) : null}
           </>
         )}
       </article>
