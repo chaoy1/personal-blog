@@ -38,6 +38,10 @@ function Editor() {
   const [editorTone, setEditorTone] = useState<'paper' | 'plain' | 'warm' | 'night'>('paper')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState<'draft' | 'publish' | null>(null)
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>(id ? 'loading' : 'ready')
+  const [loadError, setLoadError] = useState('')
+  const [loadAttempt, setLoadAttempt] = useState(0)
   const contentRef = useRef<HTMLTextAreaElement>(null)
   const snapshot: ArticleDraftSnapshot = {
     version: 2,
@@ -63,19 +67,30 @@ function Editor() {
 
   function touchDraft() {
     setUpdatedAt(new Date().toISOString())
+    setSaveState('idle')
   }
 
 
   useEffect(() => {
-    if (!id) return
+    if (!id) {
+      setLoadState('ready')
+      return
+    }
     let cancelled = false
+    setLoadState('loading')
+    setLoadError('')
     fetch(`/api/admin/posts/${id}`)
       .then(async (res) => {
         if (res.status === 401) {
-          router.replace('/admin/login')
+          router.replace(`/admin/login?next=${encodeURIComponent(`/admin/editor?id=${id}`)}`)
+          if (!cancelled) {
+            setLoadError('登录已过期，请重新登录')
+            setLoadState('error')
+          }
           return null
         }
-        return res.ok ? res.json() : null
+        if (!res.ok) throw new Error('加载文章失败')
+        return res.json()
       })
       .then((post) => {
         if (!post || cancelled) return
@@ -87,14 +102,18 @@ function Editor() {
         setPublished(post.published)
         setPostId(post.id)
         setUpdatedAt(post.updated_at)
+        setLoadState('ready')
       })
-      .catch(() => {
-        if (!cancelled) setError('加载文章失败')
+      .catch((cause) => {
+        if (!cancelled) {
+          setLoadError(cause instanceof Error ? cause.message : '加载文章失败')
+          setLoadState('error')
+        }
       })
     return () => {
       cancelled = true
     }
-  }, [id, router])
+  }, [id, loadAttempt, router])
 
   // 沉浸模式按 Esc 退出
   useEffect(() => {
@@ -197,23 +216,37 @@ function Editor() {
         : draftSync.status === 'conflict'
           ? '发现版本冲突'
           : title.trim() || excerpt.trim() || content.trim() ? '已备份到本地' : 'Markdown'
+  const editorSaveState = saving || draftSync.status === 'server-saving' ? 'saving' : saveState
+  const editorSaveText = saving === 'publish'
+    ? '发布中…'
+    : saving === 'draft'
+      ? '保存中…'
+      : saveState === 'saved'
+        ? '已保存'
+        : saveState === 'error'
+          ? '保存失败，本地内容仍保留'
+          : saveStatusText
 
 
   async function save(nextPublished: boolean) {
     setError('')
     if (!title.trim()) {
       setError('标题不能为空')
+      setSaveState('error')
       return null
     }
     setSaving(nextPublished ? 'publish' : 'draft')
+    setSaveState('saving')
     try {
       const result = await draftSync.flush(nextPublished)
       setPublished(nextPublished)
       setUpdatedAt(result.updatedAt)
+      setSaveState('saved')
       notify({ kind: 'success', message: nextPublished ? '文章已发布' : '草稿已保存' })
       return result
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : '保存失败')
+      setSaveState('error')
       return null
     } finally {
       setSaving(null)
@@ -224,18 +257,68 @@ function Editor() {
     setError('')
     if (!title.trim()) {
       setError('标题不能为空')
+      setSaveState('error')
       return
     }
     setSaving('draft')
+    setSaveState('saving')
     try {
       const result = await draftSync.flush(false)
       setUpdatedAt(result.updatedAt)
+      setSaveState('saved')
       router.push(`/admin/preview/${result.postId}`)
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : '预览准备失败')
+      setSaveState('error')
     } finally {
       setSaving(null)
     }
+  }
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 's') return
+      event.preventDefault()
+      if (!saving) void save(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [saving, title, slug, excerpt, content, published])
+
+  if (loadState !== 'ready') {
+    return (
+      <section
+        className="admin-editor-page editor-shell-state"
+        role="region"
+        aria-label="文章编辑器"
+        data-page-state={loadState}
+      >
+        <div className="editor-topbar editor-topbar-state">
+          <Link href="/admin" className="back-link">← 文章列表</Link>
+          <div className="editor-top-title">
+            <span>WRITING ROOM</span>
+            <h1>{isEdit ? '编辑文章' : '写新文章'}</h1>
+          </div>
+          <p className="editor-load-status" role="status">
+            {loadState === 'loading' ? '正在加载文章…' : '文章加载失败'}
+          </p>
+        </div>
+        {loadState === 'loading' ? (
+          <div className="editor-loading-stage" aria-busy="true" aria-hidden="true">
+            <div className="editor-loading-line editor-loading-line-title" />
+            <div className="editor-loading-line" />
+            <div className="editor-loading-line editor-loading-line-body" />
+          </div>
+        ) : (
+          <div className="editor-load-error" role="alert">
+            <p>{loadError || '加载文章失败'}</p>
+            <button type="button" className="btn btn-ghost" onClick={() => setLoadAttempt((value) => value + 1)}>
+              重新加载
+            </button>
+          </div>
+        )}
+      </section>
+    )
   }
 
   const writer = (
@@ -244,6 +327,7 @@ function Editor() {
         id="title"
         className="editor-title"
         type="text"
+        aria-label="文章标题"
         value={title}
         onChange={(e) => handleTitleChange(e.target.value)}
         placeholder="这篇文章叫什么？"
@@ -282,6 +366,7 @@ function Editor() {
         <textarea
           ref={contentRef}
           className="editor-body"
+          aria-label="Markdown 正文"
           value={content}
           onChange={(e) => {
             setContent(e.target.value)
@@ -339,7 +424,11 @@ function Editor() {
           placeholder="首页列表里显示的一句话简介（可留空）"
         />
       </div>
-      <div className="editor-publish-state">
+      <div
+        className="editor-publish-state"
+        data-testid="editor-publish-state"
+        data-publish-state={published ? 'published' : 'draft'}
+      >
         <span className={published ? 'published' : undefined}>{published ? '当前状态 · 已发布' : '当前状态 · 草稿'}</span>
         <p>保存草稿不会出现在前台；点击发布后才会公开。</p>
       </div>
@@ -404,7 +493,13 @@ function Editor() {
   }
 
   return (
-    <>
+    <section
+      className="admin-editor-page"
+      role="region"
+      aria-label="文章编辑器"
+      data-page-state="ready"
+      data-publish-state={published ? 'published' : 'draft'}
+    >
       {recoveryDialog}
       <div className="editor-topbar">
         <Link href="/admin" className="back-link">
@@ -413,6 +508,15 @@ function Editor() {
         <div className="editor-top-title">
           <span>WRITING ROOM</span>
           <h1>{isEdit ? '编辑文章' : '写新文章'}</h1>
+          <span
+            className="editor-save-indicator"
+            data-testid="editor-save-state"
+            data-save-state={editorSaveState}
+            role="status"
+            aria-live="polite"
+          >
+            {editorSaveText}
+          </span>
         </div>
         <div className="editor-top-actions">
           <button type="button" className="editor-quiet-action" onClick={() => setImmersive(true)}>
@@ -433,6 +537,6 @@ function Editor() {
           取消
         </Link>
       </div>
-    </>
+    </section>
   )
 }

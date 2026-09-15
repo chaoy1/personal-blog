@@ -3265,3 +3265,152 @@
     left: 0;
   }
 }
+
+/* ---------- M03 Writing Workspace：正文优先，状态始终可见 ---------- */
+
+.admin-editor-page {
+  min-width: 0;
+}
+
+.admin-editor-page .editor-topbar {
+  min-height: 54px;
+}
+
+.admin-editor-page .editor-save-indicator {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink-faint);
+  font-family: var(--font-kai);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.admin-editor-page .editor-save-indicator[data-save-state='saving'] {
+  color: var(--seal-deep);
+}
+
+.admin-editor-page .editor-save-indicator[data-save-state='saved'] {
+  color: var(--ink-soft);
+}
+
+.admin-editor-page .editor-save-indicator[data-save-state='error'] {
+  color: var(--seal-deep);
+}
+
+.editor-shell-state .editor-topbar-state {
+  margin-bottom: 24px;
+}
+
+.editor-load-status {
+  margin: 0;
+  color: var(--ink-faint);
+  font-family: var(--font-kai);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-align: right;
+}
+
+.editor-loading-stage {
+  width: min(100%, 900px);
+  min-height: 760px;
+  margin: 0 auto;
+  padding: 68px clamp(48px, 7vw, 92px) 46px;
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
+  border-top: 1px solid var(--rule);
+}
+
+.editor-loading-line {
+  width: 66%;
+  height: 16px;
+  margin-bottom: 22px;
+  background: color-mix(in srgb, var(--ink-faint) 11%, transparent);
+  background-image: linear-gradient(90deg, transparent, color-mix(in srgb, var(--ink-faint) 12%, transparent), transparent);
+  background-size: 220% 100%;
+  animation: editor-loading-shimmer 1.8s ease-in-out infinite;
+}
+
+.editor-loading-line-title {
+  width: 54%;
+  height: 42px;
+  margin-bottom: 52px;
+}
+
+.editor-loading-line-body {
+  width: 100%;
+  min-height: 280px;
+}
+
+.editor-load-error {
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+  width: min(100%, 900px);
+  margin: 0 auto;
+  padding: 42px clamp(24px, 6vw, 72px);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-soft);
+}
+
+.editor-load-error p {
+  margin: 0;
+}
+
+.editor-load-error .btn {
+  min-height: 44px;
+}
+
+@keyframes editor-loading-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -20% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editor-loading-line {
+    animation: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .admin-editor-page .editor-topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .admin-editor-page .editor-top-title {
+    text-align: left;
+  }
+
+  .admin-editor-page .editor-save-indicator {
+    margin-top: 4px;
+  }
+
+  .editor-load-status {
+    grid-column: 1 / -1;
+    text-align: left;
+  }
+
+  .editor-loading-stage {
+    min-height: 620px;
+    padding: 42px 24px 34px;
+  }
+}
+
+@media (max-width: 380px) {
+  .admin-editor-page .editor-topbar {
+    gap: 9px;
+  }
+
+  .admin-editor-page .editor-top-title h1 {
+    font-size: 17px;
+  }
+
+  .admin-editor-page .editor-save-indicator {
+    max-width: 190px;
+    overflow-wrap: anywhere;
+    font-size: 10px;
+  }
+
+  .editor-loading-stage {
+    padding-inline: 18px;
+  }
+}
