@@ -2,9 +2,11 @@
 
 日期：2026-09-15
 
-状态：待用户评审；本目录拆分全站页面设计，不实施页面代码。
+状态：已确认；Phase 4 页面实施基线已建立。
 
 上位规格：`docs/superpowers/specs/2026-09-14-site-design-system-refactor-design.md`
+
+Phase 4 QA 协议：`docs/qa/2026-09-15-site-page-implementation-baseline.md`
 
 ## 1. 拆分原则
 
@@ -66,6 +68,7 @@
 - Loading、Empty、Error、Success 互不混用；后台刷新不清空已有内容。
 - 所有页面必须同时验证 light/dark、键盘焦点、reduced-motion 和移动端横向溢出。
 - 数据加载遵循 Phase 2 修订规格；页面设计不自行创建第二套缓存或请求生命周期。
+- Phase 4 只建立页面实施基线，不批量修改页面视觉。
 
 ## 4. 执行顺序
 

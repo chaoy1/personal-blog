@@ -485,8 +485,10 @@ document.documentElement.scrollWidth <= window.innerWidth
 
 ### Phase 4：页面实施基线
 
+- 状态：已完成（2026-09-15）；已建立逐页面规格、视口/主题/状态矩阵、截图命名和验收字段。P01–P08、A01–A02、M01–M07 的实际页面视觉改动仍按页面顺序单独实施。
 - 目标：冻结公共页面、账户页面和后台页面的逐页设计边界，建立同尺寸截图、状态样例、响应式和可访问性验收模板。
 - 页面索引：`docs/superpowers/specs/pages/2026-09-15-page-design-index.md`。
+- QA 协议：`docs/qa/2026-09-15-site-page-implementation-baseline.md`。
 - 涉及：页面测试夹具、截图约定、公共 Mock/状态数据；不批量修改页面视觉。
 - 破坏性：低；本阶段只准备证据和实施顺序。
 - 依赖：Phase 1–3。

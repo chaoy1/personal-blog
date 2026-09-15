@@ -46,4 +46,16 @@ describe('Phase 4 page design baseline', () => {
     expect(qa).toContain('phase4-page-baseline/<page-id>/<theme>/<viewport>/<state>.png')
     expect(qa).toContain('本阶段不等于逐页面视觉完成')
   })
+
+  it('records the Phase 4 status without expanding into page implementation', () => {
+    const index = read('docs/superpowers/specs/pages/2026-09-15-page-design-index.md')
+    const spec = read('docs/superpowers/specs/2026-09-14-site-design-system-refactor-design.md')
+    expect(index).toContain('状态：已确认；Phase 4 页面实施基线已建立')
+    expect(index).toContain('docs/qa/2026-09-15-site-page-implementation-baseline.md')
+    expect(index).toContain('不批量修改页面视觉')
+    expect(index).toContain('同一页面通过验收后才能进入下一个页面')
+    expect(spec).toContain('状态：已完成（2026-09-15）')
+    expect(spec).toContain('docs/qa/2026-09-15-site-page-implementation-baseline.md')
+    expect(spec).toContain('不批量修改页面视觉')
+  })
 })

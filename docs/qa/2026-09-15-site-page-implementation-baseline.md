@@ -171,3 +171,16 @@ document.documentElement.scrollWidth <= window.innerWidth
 - 后续页面知道如何命名截图、记录 computed style、验证根节点溢出和键盘交互。
 - 明确 Phase 4 不批量修改页面视觉，P01–P08、A01–A02、M01–M07 仍按顺序独立实施。
 - 自动化测试、typecheck、build 和 diff-check 均有实际输出；不可用的浏览器工具或线上数据必须明确标记，不得伪造证据。
+
+## 11. 本次基线自动化验证
+
+| 检查 | 结果 |
+| --- | --- |
+| `npm test` | 通过：41 个测试文件，206 个测试 |
+| `npm run typecheck` | 通过，exit code 0 |
+| `npm run build` | 通过，静态页面 31/31，exit code 0 |
+| `git diff --check` | 通过，无空白错误 |
+| Phase 4 页面矩阵契约 | 通过：17 条路由、规格章节、视口/主题/状态和 QA 协议 |
+| 浏览器截图与 computed style | 本轮无可调用的浏览器截图/DevTools 工具，未将模板检查误报为实景验收 |
+
+构建静态生成阶段仍会输出既有 Supabase `fetch failed` / `EACCES` 警告，但最终 exit code 为 0；本阶段没有修改 Supabase schema、RLS、认证、上传流程或页面实现。
