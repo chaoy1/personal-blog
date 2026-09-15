@@ -80,6 +80,26 @@ describe('route-scoped resource boundaries', () => {
     expect(read('lib/app-store.tsx')).toContain('export function useAppStore')
   })
 
+  it('keeps server snapshots and browser revalidation loaders in separate modules', () => {
+    const read = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8')
+    const serverLoader = read('lib/public-resource-loaders.server.ts')
+    const browserLoader = read('lib/public-resource-loaders.browser.ts')
+
+    expect(serverLoader).toContain("import 'server-only'")
+    expect(serverLoader).toContain('loadMomentsSnapshot')
+    expect(serverLoader).toContain('loadAlbumsSnapshot')
+    expect(serverLoader).toContain('loadGuestbookSnapshot')
+    expect(serverLoader).toContain('loadCommentsSnapshot')
+    expect(serverLoader).toContain('revalidate: 60')
+    expect(serverLoader).toContain('revalidate: 30')
+    expect(serverLoader).toContain('revalidate: 300')
+    expect(browserLoader).toContain('loadMoments')
+    expect(browserLoader).toContain('loadAlbums')
+    expect(browserLoader).toContain('loadGuestbook')
+    expect(browserLoader).toContain('loadComments')
+    expect(browserLoader).not.toContain("import 'server-only'")
+  })
+
   it('keeps every target route in one explicit shell category', () => {
     expect(getShellKind('/')).toBe('public')
     expect(getShellKind('/posts')).toBe('public')
