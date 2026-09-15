@@ -35,4 +35,15 @@ describe('Phase 4 page design baseline', () => {
       for (const section of PAGE_SPEC_SECTIONS) expect(spec).toContain(`## ${section}`)
     }
   })
+
+  it('defines one reusable QA record format without claiming page completion', () => {
+    const qa = read('docs/qa/2026-09-15-site-page-implementation-baseline.md')
+    for (const viewport of BASELINE_VIEWPORTS) expect(qa).toContain(`${viewport.width}×${viewport.height}`)
+    for (const theme of BASELINE_THEMES) expect(qa).toContain(theme)
+    for (const state of BASELINE_STATES) expect(qa).toContain(state)
+    expect(qa).toContain('document.body.scrollWidth <= window.innerWidth')
+    expect(qa).toContain('document.documentElement.scrollWidth <= window.innerWidth')
+    expect(qa).toContain('phase4-page-baseline/<page-id>/<theme>/<viewport>/<state>.png')
+    expect(qa).toContain('本阶段不等于逐页面视觉完成')
+  })
 })
