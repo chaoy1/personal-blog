@@ -1,0 +1,321 @@
+/* Phase 5 / P02：开放式文章目录。样式只在 .posts-page 内生效。 */
+
+.posts-page {
+  --posts-paper: color-mix(in srgb, var(--color-surface) 38%, transparent);
+  --posts-paper-soft: color-mix(in srgb, var(--color-surface-soft) 34%, transparent);
+  max-width: var(--container-wide);
+  margin-inline: auto;
+}
+
+.posts-page .page-intro {
+  max-width: var(--container-default);
+  margin-inline: auto;
+  padding-inline: clamp(24px, 5vw, 48px);
+}
+
+.posts-page .posts-list {
+  width: min(100%, var(--container-default));
+  margin: 0 auto;
+  padding: var(--space-4) clamp(20px, 4.5vw, 40px) var(--space-6);
+  display: grid;
+  gap: 0;
+  list-style: none;
+  list-style-type: none;
+}
+
+.posts-page .archive-post-card {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-top: 1px solid var(--rule);
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transform: none;
+}
+
+.posts-page .archive-post-card:last-child {
+  border-bottom: 1px solid var(--rule);
+}
+
+.posts-page .archive-post-card::before {
+  display: none;
+}
+
+.posts-page .archive-post-card::after {
+  left: 0;
+  top: 22px;
+  bottom: 22px;
+  width: 2px;
+  height: auto;
+  background: var(--seal);
+  opacity: 0.55;
+  transform: scaleY(0.35);
+  transform-origin: center;
+}
+
+.posts-page .archive-post-card.is-in,
+.posts-page .archive-post-card.is-settled {
+  transform: none;
+}
+
+.posts-page .archive-post-card:hover {
+  width: 100%;
+  border-color: var(--rule);
+  background: var(--posts-paper-soft);
+  box-shadow: none;
+  transform: translateX(4px);
+}
+
+.posts-page .archive-post-card:hover::after {
+  transform: scaleY(1);
+}
+
+.posts-page .hpc-index {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 20px 0;
+  border-right: 1px dashed var(--rule);
+  background: transparent;
+}
+
+.posts-page .hpc-index b {
+  color: var(--ink-faint);
+  font-family: var(--font-latin);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.posts-page .hpc-index i {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--seal);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--seal-deep);
+  font-size: 10px;
+  font-style: normal;
+}
+
+.posts-page .hpc-copy {
+  min-width: 0;
+  padding: 22px 28px 20px;
+}
+
+.posts-page .hpc-meta {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 8px;
+  color: var(--ink-faint);
+}
+
+.posts-page .hpc-meta > span::after {
+  display: none;
+}
+
+.posts-page .post-title {
+  display: block;
+  max-width: 100%;
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(21px, 2.2vw, 29px);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.posts-page .post-title::before {
+  content: "";
+  display: inline-block;
+  width: 0;
+}
+
+.posts-page .ex {
+  display: -webkit-box;
+  max-width: 680px;
+  margin-top: 7px;
+  overflow: hidden;
+  color: var(--ink-soft);
+  line-height: 1.8;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
+}
+
+.posts-page .item-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 9px;
+  border-top: 1px solid var(--rule);
+}
+
+.posts-page .hpc-note {
+  color: var(--ink-faint);
+}
+
+.posts-page .read {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--seal-deep);
+  white-space: nowrap;
+}
+
+.posts-page .posts-state {
+  width: min(100%, var(--container-default));
+  margin: 0 auto;
+  padding: var(--space-4) clamp(20px, 4.5vw, 40px) var(--space-8);
+}
+
+.posts-page .posts-state-error {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.posts-page .posts-state .empty-state {
+  margin: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.posts-page .posts-state-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  min-height: 44px;
+  padding-inline: 12px;
+  border-bottom: 1px solid var(--rule-strong);
+  color: var(--seal-deep);
+}
+
+.posts-page .posts-state-link:hover {
+  border-color: var(--seal);
+}
+
+.posts-page .article-footer {
+  max-width: var(--container-default);
+  margin-inline: auto;
+  padding-inline: clamp(20px, 4.5vw, 40px);
+}
+
+@media (max-width: 900px) {
+  .posts-page .page-intro {
+    padding-inline: 32px;
+  }
+
+  .posts-page .posts-list {
+    padding-inline: 24px;
+  }
+
+  .posts-page .archive-post-card {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .posts-page .hpc-copy {
+    padding-inline: 22px;
+  }
+}
+
+@media (max-width: 720px) {
+  .posts-page .page-intro {
+    padding: 32px 22px 20px;
+  }
+
+  .posts-page .posts-list,
+  .posts-page .posts-state {
+    padding-inline: 12px;
+  }
+
+  .posts-page .archive-post-card {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+
+  .posts-page .archive-post-card:hover {
+    transform: translateX(2px);
+  }
+
+  .posts-page .archive-post-card::after {
+    top: 16px;
+    bottom: 16px;
+  }
+
+  .posts-page .hpc-index {
+    gap: 8px;
+    padding-block: 16px;
+  }
+
+  .posts-page .hpc-index b {
+    font-size: 12px;
+  }
+
+  .posts-page .hpc-index i {
+    width: 20px;
+    height: 20px;
+    font-size: 9px;
+  }
+
+  .posts-page .hpc-copy {
+    padding: 18px 14px 16px;
+  }
+
+  .posts-page .hpc-meta {
+    gap: 4px 8px;
+    margin-bottom: 6px;
+    font-size: 8px;
+    letter-spacing: 0.08em;
+  }
+
+  .posts-page .post-title {
+    font-size: 19px;
+  }
+
+  .posts-page .ex {
+    margin-top: 5px;
+    font-size: 12px;
+    line-height: 1.7;
+    -webkit-line-clamp: 2;
+  }
+
+  .posts-page .item-foot {
+    margin-top: 8px;
+    padding-top: 6px;
+  }
+
+  .posts-page .hpc-note {
+    display: none;
+  }
+
+  .posts-page .article-footer {
+    padding-inline: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .posts-page .archive-post-card,
+  .posts-page .archive-post-card:hover {
+    transform: none;
+  }
+}

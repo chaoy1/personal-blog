@@ -21,7 +21,7 @@ export default function PostList({ posts }: { posts: Post[] }) {
 
   return (
     <>
-      <section className="list">
+      <ol className="list posts-list" aria-label="文章目录">
         {pagePosts.map((post, i) => {
           const idx = (safePage - 1) * PAGE_SIZE + i
           return (
@@ -31,6 +31,7 @@ export default function PostList({ posts }: { posts: Post[] }) {
               resourceKey={`comments:${post.slug}`}
               intentPrefetch
               className="item home-post-card archive-post-card"
+              data-post-row="true"
             >
               <span className="hpc-index" aria-hidden="true">
                 <b>
@@ -56,7 +57,7 @@ export default function PostList({ posts }: { posts: Post[] }) {
             </ResourcePrefetchLink>
           )
         })}
-      </section>
+      </ol>
 
       <Pagination
         page={safePage}

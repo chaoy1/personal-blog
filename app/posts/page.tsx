@@ -5,7 +5,10 @@ import ScrollFX from '@/components/ScrollFX'
 import PostList from '@/components/PostList'
 import PageIntro from '@/components/PageIntro'
 import ArticleNav from '@/components/ArticleNav'
+import EmptyState from '@/components/EmptyState'
+import InlineFeedback from '@/components/InlineFeedback'
 import { publicMetadata } from '@/lib/seo'
+import '../posts.css'
 
 export const revalidate = 60
 
@@ -17,10 +20,11 @@ export const metadata: Metadata = publicMetadata({
 
 export default async function PostsPage() {
   let posts: Post[] = []
+  let loadError = false
   try {
     posts = await listPublishedPosts()
   } catch {
-    // 数据库未配置等情况
+    loadError = true
   }
 
   return (
@@ -28,19 +32,27 @@ export default async function PostsPage() {
       <ScrollFX />
       <ArticleNav current="文章" />
 
-      <main className="collection-scroll collection-scroll-posts">
+      <main className="posts-page collection-scroll collection-scroll-posts">
         <PageIntro
           index="01"
           eyebrow="ARTICLES"
           title="全部文章"
           seal="文"
-          description={`凡 ${posts.length} 篇，皆手记。`}
+          description={loadError ? '文章暂时未能载入，请稍后重试。' : `凡 ${posts.length} 篇，皆手记。`}
         />
 
-        {posts.length === 0 ? (
-          <div className="empty-state">
-            <div className="big">空</div>
-            还没有文章。
+        {loadError ? (
+          <div className="posts-state posts-state-error" data-page-state="error">
+            <InlineFeedback tone="error" message="文章暂时未能载入。" />
+            <Link className="posts-state-link button-hit-area" href="/">返回首页</Link>
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="posts-state posts-state-empty" data-page-state="empty">
+            <EmptyState
+              title="还没有文章。"
+              description="等第一篇手记落墨后，它会出现在这里。"
+              action={<Link className="posts-state-link button-hit-area" href="/admin">去后台写下第一篇</Link>}
+            />
           </div>
         ) : (
           <PostList posts={posts} />
@@ -48,7 +60,7 @@ export default async function PostsPage() {
 
         <footer className="article-footer">
           <Link href="/"><span className="nav-back-mark" aria-hidden="true" />返回首页</Link>
-          <span>共 {posts.length} 篇</span>
+          <span>{loadError ? '暂不可统计' : `共 ${posts.length} 篇`}</span>
         </footer>
       </main>
     </div>
