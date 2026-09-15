@@ -3414,3 +3414,207 @@
     padding-inline: 18px;
   }
 }
+
+/* ---------- M04 后台闲语：先写后理，列表保持开放 ---------- */
+
+.admin-moments-page {
+  min-width: 0;
+}
+
+.admin-moments-page .moments-composer {
+  max-width: 900px;
+  margin-bottom: 18px;
+}
+
+.admin-moments-page .moments-composer[aria-label^='编辑'] {
+  border-color: color-mix(in srgb, var(--seal) 52%, var(--card-border));
+  box-shadow: 0 18px 34px -28px rgba(112, 43, 28, 0.62);
+}
+
+.admin-moments-page .draft-tag {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  margin: 0 0 8px;
+  padding: 3px 9px;
+  border: 1px solid color-mix(in srgb, var(--seal) 40%, var(--rule));
+  color: var(--seal-deep);
+  font-family: var(--font-kai);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.admin-moments-page .moments-actions {
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-moments-page .moment-save-state {
+  min-width: 54px;
+  color: var(--ink-faint);
+  font-family: var(--font-kai);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-align: right;
+}
+
+.admin-moments-page .moment-save-state[data-save-state='saving'] {
+  color: var(--seal-deep);
+}
+
+.admin-moments-page .moment-save-state[data-save-state='saved'] {
+  color: var(--ink-soft);
+}
+
+.admin-moments-page .moment-save-state[data-save-state='error'] {
+  color: var(--seal-deep);
+}
+
+.admin-moments-page .admin-list {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.admin-moments-page .admin-item {
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  min-height: 88px;
+  padding: 16px 4px 16px 0;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+.admin-moments-page .admin-item:hover,
+.admin-moments-page .admin-item:focus-within {
+  background: color-mix(in srgb, var(--seal) 4%, transparent);
+  box-shadow: none;
+  transform: none;
+}
+
+.admin-moments-page .admin-item-index {
+  align-self: stretch;
+  padding: 3px 12px 0 0;
+  border-right: 1px solid var(--rule);
+}
+
+.admin-moments-page .admin-item h3 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-kai);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+}
+
+.admin-moments-page .admin-item .meta {
+  margin-top: 7px;
+  color: var(--ink-faint);
+}
+
+.admin-moments-page .admin-item .ops {
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.admin-moments-page .admin-item .ops .btn,
+.admin-moments-page .admin-page-actions .btn {
+  min-height: 44px;
+}
+
+.admin-moments-page .admin-refresh-status {
+  margin: 0 0 10px;
+}
+
+.admin-moments-page .admin-list-skeleton {
+  gap: 0;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.admin-moments-page .admin-row-skeleton {
+  min-height: 88px;
+  border-bottom: 1px solid var(--rule);
+  background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--ink-faint) 9%, transparent) 48%, transparent 100%);
+  background-size: 220% 100%;
+  animation: admin-row-shimmer 1.8s ease-in-out infinite;
+}
+
+.admin-moments-page .admin-moments-empty-state {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 28px 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.admin-moments-page .admin-moments-empty-state p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-moments-page .admin-row-skeleton {
+    animation: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .admin-moments-page .admin-page-head {
+    grid-template-columns: 36px minmax(0, 1fr);
+  }
+
+  .admin-moments-page .admin-page-action {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .admin-moments-page .admin-page-actions .btn {
+    width: 100%;
+  }
+
+  .admin-moments-page .admin-item {
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .admin-moments-page .admin-item .ops {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+
+  .admin-moments-page .moments-composer {
+    padding: 20px 17px;
+  }
+}
+
+@media (max-width: 380px) {
+  .admin-moments-page .moments-actions {
+    align-items: stretch;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .admin-moments-page .moment-draft-note {
+    grid-column: 1 / -1;
+    margin-right: 0;
+  }
+
+  .admin-moments-page .moment-save-state {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: center;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .admin-moments-page .moments-actions .btn {
+    grid-row: 2;
+  }
+}
