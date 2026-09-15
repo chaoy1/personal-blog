@@ -19,8 +19,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() ?? '/'
   const kind = getShellKind(pathname)
   const isPublic = kind === 'public'
-  const isPublicLogin = pathname === '/login' || pathname === '/admin/login'
-  const showPublicAmbient = isPublic || isPublicLogin
+  const isPublicAuthRoute = pathname === '/login' || pathname === '/account' || pathname === '/admin/login'
+  const showPublicAmbient = isPublic || isPublicAuthRoute
   const showSiteNav = kind !== 'admin' || pathname === '/admin/login'
 
   return (

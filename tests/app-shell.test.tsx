@@ -77,7 +77,7 @@ describe('AppShell route boundaries', () => {
     pathnameState.value = '/account'
     rerender(<AppShell><main data-testid="content">content</main></AppShell>)
 
-    expect(screen.queryByTestId('background-stage')).not.toBeInTheDocument()
+    expect(screen.getByTestId('background-stage')).toBeInTheDocument()
     expect(screen.queryByTestId('scroll-top')).not.toBeInTheDocument()
     expect(screen.getByTestId('site-nav')).toBeInTheDocument()
     expect(screen.queryByTestId('lightbox')).not.toBeInTheDocument()
