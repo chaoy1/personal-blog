@@ -9,6 +9,7 @@ import ArticleNav from '@/components/ArticleNav'
 import ReadingCompanion from '@/components/ReadingCompanion'
 import { getPostBySlug, formatDate, listPublishedPosts, type Post } from '@/lib/posts'
 import { articleJsonLd, articleMetadata, siteUrl } from '@/lib/seo'
+import '../article-detail.css'
 
 export const revalidate = 60
 

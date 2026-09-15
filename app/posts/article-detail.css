@@ -1,0 +1,273 @@
+/* Phase 5 / P03：文章详情页阅读配方。所有规则只在文章详情阅读壳内生效。 */
+
+.article-wrap {
+  width: 100%;
+  max-width: none;
+  padding-inline: clamp(16px, 4vw, 48px);
+}
+
+.article-wrap .article-nav,
+.article-wrap .article-reading-shell {
+  width: min(1016px, 100%);
+  margin-inline: auto;
+}
+
+.article-wrap .article-reading-shell {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 780px) 196px;
+  gap: 40px;
+  align-items: start;
+  margin-top: 34px;
+}
+
+.article-wrap .article-reading-shell .article {
+  position: relative;
+  width: 100%;
+  max-width: 780px;
+  min-width: 0;
+  margin: 0;
+  padding: clamp(34px, 5vw, 64px) clamp(22px, 5vw, 72px) 50px;
+  overflow: hidden;
+  background-color: rgba(248, 240, 216, 0.93);
+  box-shadow: 0 32px 82px -42px rgba(45, 34, 16, 0.5);
+}
+
+:root[data-theme='dark'] .article-wrap .article-reading-shell .article {
+  background-color: rgba(75, 59, 33, 0.94);
+}
+
+.article-wrap .article-reading-shell .article::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5px;
+  background: linear-gradient(90deg, var(--seal) 0 72px, rgba(178, 58, 43, 0.14) 72px, transparent 62%);
+}
+
+.article-wrap .article-header {
+  position: relative;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto 40px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.article-wrap .article-header h1 {
+  max-width: 680px;
+  margin: 0;
+  font-size: clamp(38px, 4.5vw, 56px);
+  line-height: 1.38;
+  letter-spacing: 0.06em;
+  overflow-wrap: anywhere;
+}
+
+.article-wrap .article-excerpt {
+  max-width: 680px;
+  margin: 20px 0 0;
+  padding-left: 16px;
+  border-left: 1px solid var(--seal);
+  font-size: 16px;
+  line-height: 1.95;
+  overflow-wrap: anywhere;
+}
+
+.article-wrap .article-reading-shell .md-body {
+  width: 100%;
+  max-width: 680px;
+  min-width: 0;
+  margin-inline: auto;
+  font-size: 18px;
+  line-height: 1.95;
+}
+
+.article-wrap .article-reading-shell .md-body h2,
+.article-wrap .article-reading-shell .md-body h3,
+.article-wrap .article-reading-shell .md-body h4 {
+  overflow-wrap: anywhere;
+  scroll-margin-top: calc(var(--nav-h) + 26px);
+}
+
+.article-wrap .article-reading-shell .md-body pre,
+.article-wrap .article-reading-shell .md-body .md-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.article-wrap .article-reading-shell .md-body pre {
+  white-space: pre;
+}
+
+.article-wrap .article-reading-shell .md-body img,
+.article-wrap .article-reading-shell .md-body video,
+.article-wrap .article-reading-shell .md-body iframe {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.article-wrap .article-reading-shell .comments,
+.article-wrap .article-reading-shell .related-posts {
+  width: 100%;
+  max-width: 680px;
+  margin-inline: auto;
+}
+
+.article-wrap .reading-companion-rail {
+  position: static;
+  width: auto;
+  min-width: 0;
+}
+
+.article-wrap .reading-companion {
+  position: sticky;
+  top: calc(var(--nav-h) + 34px);
+  max-height: calc(100vh - var(--nav-h) - 60px);
+  margin-top: 70px;
+  padding: 20px 18px 18px;
+  overflow: auto;
+  border-top: 3px solid var(--seal);
+  scrollbar-width: none;
+}
+
+.article-wrap .reading-companion nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.article-wrap .reading-companion a {
+  min-height: 30px;
+  overflow-wrap: anywhere;
+}
+
+.article-wrap .reading-companion-compact {
+  display: none;
+}
+
+@media (max-width: 1199px) {
+  .article-wrap .article-reading-shell {
+    display: block;
+    width: min(780px, 100%);
+  }
+
+  .article-wrap .reading-companion-rail {
+    display: none;
+  }
+
+  .article-wrap .reading-companion-compact {
+    display: block;
+    margin: 18px 0 0;
+    border-top: 1px solid var(--rule-strong);
+    border-bottom: 1px solid var(--rule-strong);
+  }
+
+  .article-wrap .reading-companion-compact summary {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    cursor: pointer;
+    color: var(--seal-deep);
+    font-family: var(--font-kai);
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    list-style: none;
+  }
+
+  .article-wrap .reading-companion-compact summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .article-wrap .reading-companion-compact summary::after {
+    content: "+";
+    color: var(--ink-faint);
+    font-family: var(--font-latin);
+    font-size: 16px;
+  }
+
+  .article-wrap .reading-companion-compact[open] summary::after {
+    content: "−";
+  }
+
+  .article-wrap .reading-companion-compact summary span:last-child {
+    margin-left: auto;
+    color: var(--ink-faint);
+    font-family: var(--font-latin);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+
+  .article-wrap .reading-companion-compact nav {
+    display: grid;
+    gap: 2px;
+    padding: 0 0 12px;
+  }
+
+  .article-wrap .reading-companion-compact a {
+    display: block;
+    min-height: 40px;
+    padding: 9px 0 9px 14px;
+    border-left: 1px solid var(--rule);
+    color: var(--ink-faint);
+    font-family: var(--font-kai);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .article-wrap .reading-companion-compact a.sub {
+    padding-left: 28px;
+    font-size: 12px;
+  }
+
+  .article-wrap .reading-companion-compact a[aria-current='location'] {
+    border-left-color: var(--seal);
+    color: var(--seal-deep);
+  }
+}
+
+@media (max-width: 720px) {
+  .article-wrap {
+    padding-inline: 12px;
+  }
+
+  .article-wrap .article-reading-shell {
+    margin-top: 18px;
+  }
+
+  .article-wrap .article-reading-shell .article {
+    padding: 34px 22px 28px;
+  }
+
+  .article-wrap .article-header {
+    margin-bottom: 30px;
+    padding-bottom: 24px;
+  }
+
+  .article-wrap .article-reading-shell .article-header h1 {
+    font-size: clamp(29px, 8.5vw, 37px);
+    line-height: 1.42;
+  }
+
+  .article-wrap .article-excerpt {
+    margin-top: 16px;
+    font-size: 15px;
+  }
+
+  .article-wrap .article-reading-shell .md-body {
+    font-size: 17px;
+    line-height: 1.9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article-wrap .reading-companion a,
+  .article-wrap .reading-companion,
+  .article-wrap .reading-progress i {
+    animation: none;
+    transition: none;
+  }
+}

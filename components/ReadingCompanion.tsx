@@ -77,24 +77,45 @@ export default function ReadingCompanion() {
         <i aria-hidden="true" style={{ transform: `scaleX(${progress})` }} />
       </div>
       {headings.length > 0 ? (
-        <div className="reading-companion-rail">
-          <aside className="reading-companion" aria-label="文章目录">
-            <span className="rc-eyebrow">卷内路径</span>
-            <nav>
+        <>
+          <div className="reading-companion-rail">
+            <aside className="reading-companion" aria-label="文章目录">
+              <span className="rc-eyebrow">卷内路径</span>
+              <nav aria-label="文章目录">
+                {headings.map((heading) => (
+                  <a
+                    key={heading.id}
+                    href={`#${heading.id}`}
+                    className={`${heading.level === 3 ? 'sub ' : ''}${activeId === heading.id ? 'active' : ''}`}
+                    aria-current={activeId === heading.id ? 'location' : undefined}
+                  >
+                    <i aria-hidden="true" />
+                    {heading.text}
+                  </a>
+                ))}
+              </nav>
+              <span className="rc-percent">已读 {Math.round(progress * 100)}%</span>
+            </aside>
+          </div>
+          <details className="reading-companion-compact">
+            <summary>
+              <span>文章目录</span>
+              <span aria-hidden="true">已读 {Math.round(progress * 100)}%</span>
+            </summary>
+            <nav aria-label="移动文章目录">
               {headings.map((heading) => (
                 <a
                   key={heading.id}
                   href={`#${heading.id}`}
-                  className={`${heading.level === 3 ? 'sub ' : ''}${activeId === heading.id ? 'active' : ''}`}
+                  className={heading.level === 3 ? 'sub' : undefined}
+                  aria-current={activeId === heading.id ? 'location' : undefined}
                 >
-                  <i aria-hidden="true" />
                   {heading.text}
                 </a>
               ))}
             </nav>
-            <span className="rc-percent">已读 {Math.round(progress * 100)}%</span>
-          </aside>
-        </div>
+          </details>
+        </>
       ) : null}
     </>
   )
