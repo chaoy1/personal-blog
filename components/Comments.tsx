@@ -10,7 +10,18 @@ type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
 export default function Comments({ slug }: { slug: string }) {
   const { user } = useAuth()
-  const { comments, error, addComment } = useComments()
+  const {
+    comments,
+    error,
+    ready,
+    hasData,
+    isInitialLoading,
+    isRefreshing,
+    refreshComments,
+    addComment,
+  } = useComments()
+  const resourceHasData = hasData ?? ready
+  const resourceIsInitialLoading = isInitialLoading ?? !ready
   const [content, setContent] = useState('')
   const [composeOpen, setComposeOpen] = useState(false)
   const [formState, setFormState] = useState<FormState>('idle')
@@ -81,7 +92,20 @@ export default function Comments({ slug }: { slug: string }) {
         <span className="comments-count">{list.length}</span>
       </div>
 
-      {error || localError ? <p className="error-text" role="alert">{localError || error}</p> : null}
+      {localError ? <p className="error-text" role="alert">{localError}</p> : null}
+      {!resourceHasData && resourceIsInitialLoading ? <p className="moments-empty">正在加载评论…</p> : null}
+      {!resourceHasData && error ? (
+        <p className="error-text" role="alert">
+          {error}{' '}
+          <button type="button" className="link-btn" onClick={() => void refreshComments()}>重试</button>
+        </p>
+      ) : null}
+      {resourceHasData && (error || isRefreshing) ? (
+        <p className="error-text" role="status">
+          {error || '正在同步评论…'}
+          {error ? <button type="button" className="link-btn" onClick={() => void refreshComments()}>重试同步</button> : null}
+        </p>
+      ) : null}
       {success ? <p className="notice-text" role="status">{success}</p> : null}
 
       {/* 评论内容优先展示 */}
@@ -89,7 +113,7 @@ export default function Comments({ slug }: { slug: string }) {
         <CommentThread
           items={list}
           userId={user?.id ?? null}
-          emptyText="还没有评论，来坐坐。"
+          emptyText={resourceHasData && !error ? '还没有评论，来坐坐。' : undefined}
           onReply={(parentId, text) => addComment(slug, text, parentId)}
         />
       </div>

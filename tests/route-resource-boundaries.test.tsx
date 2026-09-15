@@ -48,8 +48,8 @@ import { AlbumsProvider, useAlbums } from '@/lib/albums-context'
 import { GuestbookProvider, useGuestbook } from '@/lib/guestbook-context'
 
 function CommentsProbe() {
-  const { ready, comments } = useComments()
-  return <output data-testid="comments-state">{JSON.stringify({ ready, count: comments.length })}</output>
+  const { ready, comments, hasData, isInitialLoading } = useComments()
+  return <output data-testid="comments-state">{JSON.stringify({ ready, count: comments.length, hasData, isInitialLoading })}</output>
 }
 
 function MomentsProbe() {
@@ -151,6 +151,38 @@ describe('route-scoped resource boundaries', () => {
     expect(screen.getByTestId('album-guestbook-state')).toHaveTextContent('"albums":1')
     expect(screen.getByTestId('album-guestbook-state')).toHaveTextContent('"photos":1')
     expect(screen.getByTestId('album-guestbook-state')).toHaveTextContent('"guestbook":1')
+    expect(queryLog).toEqual([])
+  })
+
+  it('uses the initial snapshot for one comment slug without a browser request', () => {
+    const store = createPublicResourceStore({ now: () => 1000 })
+    render(
+      <PublicResourceCacheProvider store={store}>
+        <CommentsProvider
+          slug="beta"
+          initialSnapshot={{
+            generatedAt: 900,
+            data: {
+              comments: [{
+                id: 'comment-1',
+                post_slug: 'beta',
+                user_id: 'user-2',
+                parent_id: null,
+                content: '首条评论',
+                created_at: '2026-09-15',
+                profiles: null,
+              }],
+            },
+          }}
+        >
+          <CommentsProbe />
+        </CommentsProvider>
+      </PublicResourceCacheProvider>,
+    )
+
+    expect(screen.getByTestId('comments-state')).toHaveTextContent('"count":1')
+    expect(screen.getByTestId('comments-state')).toHaveTextContent('"hasData":true')
+    expect(screen.getByTestId('comments-state')).toHaveTextContent('"isInitialLoading":false')
     expect(queryLog).toEqual([])
   })
 

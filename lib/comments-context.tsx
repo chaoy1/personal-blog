@@ -6,15 +6,21 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useState,
+  useRef,
   type ReactNode,
 } from 'react'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 import { useAuth } from '@/lib/auth-context'
+import { loadComments } from '@/lib/public-resource-loaders.browser'
+import { usePublicResourceCache, useResourceEntry } from '@/lib/public-resource-cache'
+import type { CommentsSnapshot, ServerSnapshot } from '@/lib/public-resource-types'
 import type { CommentItem } from '@/lib/store-types'
 
 export type CommentsContextValue = {
   ready: boolean
+  hasData: boolean
+  isInitialLoading: boolean
+  isRefreshing: boolean
   error: string
   comments: CommentItem[]
   refreshComments: () => Promise<void>
@@ -23,43 +29,43 @@ export type CommentsContextValue = {
 
 export const CommentsContext = createContext<CommentsContextValue | null>(null)
 
+const EMPTY_SNAPSHOT: CommentsSnapshot = { comments: [] }
+
 function errMsg(prefix: string, e: unknown): string {
   const m = e && typeof e === 'object' && 'message' in e ? String((e as { message: unknown }).message) : ''
   return `${prefix}：${m}`
 }
 
-export function CommentsProvider({ children, slug }: { children: ReactNode; slug?: string }) {
+export function CommentsProvider({
+  children,
+  slug,
+  initialSnapshot,
+  initialError = '',
+}: {
+  children: ReactNode
+  slug?: string
+  initialSnapshot?: ServerSnapshot<CommentsSnapshot> | null
+  initialError?: string
+}) {
   const { user } = useAuth()
-  const [ready, setReady] = useState(false)
-  const [error, setError] = useState('')
-  const [comments, setComments] = useState<CommentItem[]>([])
+  const cache = usePublicResourceCache()
+  const key = `comments:${slug ?? '*'}` as `comments:${string}`
+  const seededRef = useRef<ServerSnapshot<CommentsSnapshot> | null>(null)
+
+  if (initialSnapshot && seededRef.current !== initialSnapshot) {
+    cache.seed(key, initialSnapshot)
+    seededRef.current = initialSnapshot
+  }
+
+  const entry = useResourceEntry<CommentsSnapshot>(key)
 
   const refreshComments = useCallback(async () => {
-    try {
-      let query = supabaseBrowser()
-        .from('comments')
-        .select(
-          'id, post_slug, user_id, parent_id, content, created_at, profiles!comments_user_id_fkey(nickname, avatar_url)',
-        )
-      if (slug) query = query.eq('post_slug', slug)
-      const { data } = await query.order('created_at', { ascending: true }).limit(3000)
-      setComments((data ?? []) as unknown as CommentItem[])
-    } catch (e) {
-      setError(errMsg('读取评论失败', e))
-    }
-  }, [slug])
+    await cache.revalidate(key, () => loadComments(slug)).catch(() => undefined)
+  }, [cache, key, slug])
 
   useEffect(() => {
-    let cancelled = false
-    setError('')
-    setReady(false)
-    void refreshComments().finally(() => {
-      if (!cancelled) setReady(true)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [refreshComments])
+    void cache.preload(key, () => loadComments(slug)).catch(() => undefined)
+  }, [cache, key, slug])
 
   const addComment = useCallback(
     async (postSlug: string, content: string, parentId?: string | null) => {
@@ -80,9 +86,16 @@ export function CommentsProvider({ children, slug }: { children: ReactNode; slug
     [user, refreshComments],
   )
 
+  const data = entry.data ?? EMPTY_SNAPSHOT
+  const hasData = entry.data !== null
+  const isInitialLoading = !hasData && (entry.status === 'idle' || entry.status === 'loading')
+  const isRefreshing = hasData && entry.status === 'loading'
+  const error = entry.error || (!hasData ? initialError : '')
+  const ready = hasData || (!isInitialLoading && !error)
+
   const value = useMemo<CommentsContextValue>(
-    () => ({ ready, error, comments, refreshComments, addComment }),
-    [ready, error, comments, refreshComments, addComment],
+    () => ({ ready, hasData, isInitialLoading, isRefreshing, error, comments: data.comments, refreshComments, addComment }),
+    [ready, hasData, isInitialLoading, isRefreshing, error, data, refreshComments, addComment],
   )
 
   return <CommentsContext.Provider value={value}>{children}</CommentsContext.Provider>

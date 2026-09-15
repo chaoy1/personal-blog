@@ -60,15 +60,14 @@ export async function loadGuestbook(): Promise<GuestbookSnapshot> {
   return { guestbook: (result.data ?? []) as unknown as GuestbookItem[] }
 }
 
-export async function loadComments(slug: string): Promise<CommentsSnapshot> {
-  const result = await supabaseBrowser()
+export async function loadComments(slug?: string): Promise<CommentsSnapshot> {
+  let query = supabaseBrowser()
     .from('comments')
     .select(
       'id, post_slug, user_id, parent_id, content, created_at, profiles!comments_user_id_fkey(nickname, avatar_url)',
     )
-    .eq('post_slug', slug)
-    .order('created_at', { ascending: true })
-    .limit(3000)
+  if (slug) query = query.eq('post_slug', slug)
+  const result = await query.order('created_at', { ascending: true }).limit(3000)
   queryError('读取评论失败', result.error)
   return { comments: (result.data ?? []) as unknown as CommentItem[] }
 }
