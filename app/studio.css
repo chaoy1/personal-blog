@@ -3618,3 +3618,304 @@
     grid-row: 2;
   }
 }
+
+/* ---------- M05 后台照片：相册、上传与已存照片分段管理 ---------- */
+
+.admin-photos-page {
+  min-width: 0;
+}
+
+.admin-photos-page > .admin-page-head {
+  margin-bottom: 28px;
+}
+
+.admin-photo-album-workspace,
+.admin-photo-upload-workspace,
+.admin-photo-library {
+  min-width: 0;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.admin-photo-album-workspace > .admin-album-create {
+  margin-top: 0;
+}
+
+.admin-photo-album-workspace > .admin-album-list {
+  margin-bottom: 0;
+}
+
+.admin-photo-upload-head,
+.admin-photo-library-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 22px;
+  margin-bottom: 18px;
+}
+
+.admin-photo-upload-head h2,
+.admin-photo-library-head h2 {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-family: var(--font-kai);
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+}
+
+.admin-photo-upload-head p {
+  max-width: 560px;
+  margin: 7px 0 0;
+  color: var(--ink-faint);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.admin-section-eyebrow {
+  color: var(--seal-deep);
+  font-family: var(--font-latin);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+}
+
+.admin-photo-album-selector {
+  display: grid;
+  flex: 0 0 min(260px, 100%);
+  gap: 6px;
+  color: var(--ink-faint);
+  font-family: var(--font-kai);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.admin-photo-album-selector select,
+.admin-photo-filter-bar input,
+.admin-photo-filter-bar select {
+  min-height: 44px;
+  min-width: 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: 0;
+  padding: 8px 11px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+
+.admin-photo-upload-workspace .photo-staging {
+  margin: 0;
+}
+
+.admin-photo-upload-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.admin-photo-upload-state {
+  margin-right: auto;
+  color: var(--ink-faint);
+  font-family: var(--font-kai);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.admin-photo-upload-state[data-upload-state='partial'],
+.admin-photo-upload-state[data-upload-state='error'] {
+  color: var(--seal-deep);
+}
+
+.admin-photo-upload-state[data-upload-state='success'] {
+  color: var(--ink-soft);
+}
+
+.admin-photo-library-head {
+  align-items: center;
+}
+
+.admin-photo-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.admin-photo-filter-bar input {
+  width: min(260px, 40vw);
+}
+
+.admin-photo-filter-bar select {
+  width: auto;
+}
+
+.admin-photos-page .admin-refresh-status {
+  margin: 0 0 12px;
+}
+
+.admin-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 16px;
+  margin-top: 22px !important;
+}
+
+.admin-photo-grid .album-item {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: var(--paper);
+  box-shadow: none;
+}
+
+.admin-photo-grid .album-item > img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.admin-photo-grid .album-item figcaption,
+.admin-photo-grid .album-item .album-date {
+  display: block;
+  min-width: 0;
+  padding-inline: 12px;
+  overflow-wrap: anywhere;
+}
+
+.admin-photo-grid .album-item figcaption {
+  margin-top: 11px;
+  color: var(--ink);
+  font-family: var(--font-kai);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.admin-photo-grid .album-item .album-date {
+  margin-top: 6px;
+  color: var(--ink-faint);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.admin-photo-grid .photo-card-actions {
+  position: static;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px;
+  opacity: 1;
+}
+
+.admin-photo-grid .photo-card-actions button {
+  min-height: 38px;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--font-kai);
+  font-size: 11px;
+}
+
+.admin-photo-grid .photo-card-actions button:hover,
+.admin-photo-grid .photo-card-actions button:focus-visible {
+  border-color: var(--seal);
+  color: var(--seal-deep);
+}
+
+.admin-photo-grid-skeleton {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.admin-photo-grid-skeleton div {
+  min-height: 220px;
+  border: 1px solid var(--rule);
+  background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--ink-faint) 9%, transparent) 48%, transparent 100%);
+  background-size: 220% 100%;
+  animation: admin-row-shimmer 1.8s ease-in-out infinite;
+}
+
+.admin-photo-empty-state {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 28px 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.admin-photo-empty-state p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-photo-grid-skeleton div {
+    animation: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .admin-photo-upload-head,
+  .admin-photo-library-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-photo-album-selector {
+    flex-basis: auto;
+    width: 100%;
+  }
+
+  .admin-photo-filter-bar {
+    justify-content: stretch;
+  }
+
+  .admin-photo-filter-bar label,
+  .admin-photo-filter-bar input,
+  .admin-photo-filter-bar select {
+    width: 100%;
+  }
+
+  .admin-photo-upload-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-photo-upload-state {
+    margin-right: 0;
+  }
+
+  .admin-photo-upload-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .admin-photo-grid,
+  .admin-photo-grid-skeleton {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .admin-photo-grid .album-item figcaption,
+  .admin-photo-grid .album-item .album-date {
+    padding-inline: 9px;
+  }
+
+  .admin-photo-grid .photo-card-actions {
+    margin: 9px;
+  }
+
+  .admin-photo-grid .photo-card-actions button {
+    flex: 1 1 calc(50% - 6px);
+    min-height: 40px;
+    padding-inline: 4px;
+  }
+}
