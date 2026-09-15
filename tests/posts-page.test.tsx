@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const fixtures = vi.hoisted(() => ({
@@ -51,7 +51,8 @@ describe('P02 posts page', () => {
     expect(screen.getByRole('main')).toHaveClass('posts-page', 'collection-scroll', 'collection-scroll-posts')
     expect(screen.getByRole('heading', { level: 1, name: '全部文章' })).toBeInTheDocument()
     expect(screen.getByText('凡 2 篇，皆手记。')).toBeInTheDocument()
-    expect(container.querySelector('.posts-list')).toBeInTheDocument()
+    expect(screen.getByRole('list', { name: '文章目录' })).toBeInTheDocument()
+    expect(container.querySelectorAll('.posts-list-item')).toHaveLength(2)
     expect(container.querySelectorAll('[data-post-row]')).toHaveLength(2)
     expect(screen.getByRole('heading', { level: 2, name: '山中一日' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: '桥边晚照' })).toBeInTheDocument()
@@ -66,8 +67,9 @@ describe('P02 posts page', () => {
 
     expect(container.querySelector('[data-page-state="error"]')).toBeInTheDocument()
     expect(screen.getByRole('alert')).toHaveTextContent('文章暂时未能载入。')
+    expect(within(container.querySelector('[data-page-state="error"]')!).getByRole('link', { name: '返回首页' }))
+      .toHaveAttribute('href', '/')
     expect(container.querySelector('.empty-state')).not.toBeInTheDocument()
-    expect(screen.getByText('暂不可统计')).toBeInTheDocument()
     expect(screen.getByText('暂不可统计')).toBeInTheDocument()
   })
 

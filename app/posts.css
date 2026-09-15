@@ -23,6 +23,11 @@
   list-style-type: none;
 }
 
+.posts-page .posts-list-item {
+  min-width: 0;
+  list-style: none;
+}
+
 .posts-page .archive-post-card {
   display: grid;
   grid-template-columns: 76px minmax(0, 1fr);
@@ -310,6 +315,29 @@
 
   .posts-page .article-footer {
     padding-inline: 12px;
+  }
+
+  .posts-page > .pager {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    margin-inline: 12px;
+  }
+
+  .posts-page > .pager .pager-info {
+    min-width: 0;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .posts-page > .pager > button:first-child {
+    justify-self: start;
+  }
+
+  .posts-page > .pager > button:last-child {
+    justify-self: end;
   }
 }
 

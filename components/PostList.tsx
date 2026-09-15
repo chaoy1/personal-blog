@@ -25,36 +25,37 @@ export default function PostList({ posts }: { posts: Post[] }) {
         {pagePosts.map((post, i) => {
           const idx = (safePage - 1) * PAGE_SIZE + i
           return (
-            <ResourcePrefetchLink
-              key={post.id}
-              href={`/posts/${post.slug}`}
-              resourceKey={`comments:${post.slug}`}
-              intentPrefetch
-              className="item home-post-card archive-post-card"
-              data-post-row="true"
-            >
-              <span className="hpc-index" aria-hidden="true">
-                <b>
-                  <CnNum i={idx} />
-                </b>
-                <i>文</i>
-              </span>
-              <span className="wm" aria-hidden="true">
-                {idx < CN_WM.length ? CN_WM[idx] : ''}
-              </span>
-              <div className="hpc-copy">
-                <span className="hpc-meta">
-                  <span>典藏 · ARTICLE</span>
-                  <time dateTime={post.created_at}>{formatDate(post.created_at)}</time>
+            <li key={post.id} className="posts-list-item">
+              <ResourcePrefetchLink
+                href={`/posts/${post.slug}`}
+                resourceKey={`comments:${post.slug}`}
+                intentPrefetch
+                className="item home-post-card archive-post-card"
+                data-post-row="true"
+              >
+                <span className="hpc-index" aria-hidden="true">
+                  <b>
+                    <CnNum i={idx} />
+                  </b>
+                  <i>文</i>
                 </span>
-                <h2 className="post-title">{post.title}</h2>
-                {post.excerpt ? <span className="ex">{post.excerpt}</span> : null}
-                <span className="item-foot">
-                  <span className="hpc-note">第 {String(idx + 1).padStart(2, '0')} 卷 · 手记</span>
-                  <span className="read">阅读全文</span>
+                <span className="wm" aria-hidden="true">
+                  {idx < CN_WM.length ? CN_WM[idx] : ''}
                 </span>
-              </div>
-            </ResourcePrefetchLink>
+                <div className="hpc-copy">
+                  <span className="hpc-meta">
+                    <span>典藏 · ARTICLE</span>
+                    <time dateTime={post.created_at}>{formatDate(post.created_at)}</time>
+                  </span>
+                  <h2 className="post-title">{post.title}</h2>
+                  {post.excerpt ? <span className="ex">{post.excerpt}</span> : null}
+                  <span className="item-foot">
+                    <span className="hpc-note">第 {String(idx + 1).padStart(2, '0')} 卷 · 手记</span>
+                    <span className="read">阅读全文</span>
+                  </span>
+                </div>
+              </ResourcePrefetchLink>
+            </li>
           )
         })}
       </ol>
