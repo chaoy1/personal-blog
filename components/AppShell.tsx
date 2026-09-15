@@ -16,16 +16,20 @@ export function getShellKind(pathname: string): ShellKind {
 }
 
 export default function AppShell({ children }: { children: ReactNode }) {
-  const kind = getShellKind(usePathname() ?? '/')
+  const pathname = usePathname() ?? '/'
+  const kind = getShellKind(pathname)
   const isPublic = kind === 'public'
+  const isPublicLogin = pathname === '/login' || pathname === '/admin/login'
+  const showPublicAmbient = isPublic || isPublicLogin
+  const showSiteNav = kind !== 'admin' || pathname === '/admin/login'
 
   return (
     <>
-      {isPublic ? <BackgroundStage /> : null}
-      {isPublic ? <div className="vignette" aria-hidden="true" /> : null}
-      {isPublic ? <div className="grain" aria-hidden="true" /> : null}
+      {showPublicAmbient ? <BackgroundStage /> : null}
+      {showPublicAmbient ? <div className="vignette" aria-hidden="true" /> : null}
+      {showPublicAmbient ? <div className="grain" aria-hidden="true" /> : null}
       {isPublic ? <ScrollTop /> : null}
-      {kind !== 'admin' ? <SiteNav /> : null}
+      {showSiteNav ? <SiteNav /> : null}
       {children}
       {isPublic ? <Lightbox /> : null}
     </>

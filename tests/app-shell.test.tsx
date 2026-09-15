@@ -49,7 +49,7 @@ describe('AppShell route boundaries', () => {
     expect(rootLayout).toContain('AppShell')
   })
 
-  it('keeps public ambient layers only on public routes', () => {
+  it('restores public ambient layers for both login routes', () => {
     const { rerender } = render(
       <AppShell>
         <main data-testid="content">content</main>
@@ -61,6 +61,18 @@ describe('AppShell route boundaries', () => {
     expect(screen.getByTestId('site-nav')).toBeInTheDocument()
     expect(screen.getByTestId('lightbox')).toBeInTheDocument()
     expect(screen.getByTestId('content')).toBeInTheDocument()
+
+    pathnameState.value = '/login'
+    rerender(<AppShell><main data-testid="content">content</main></AppShell>)
+
+    expect(screen.getByTestId('background-stage')).toBeInTheDocument()
+    expect(screen.getByTestId('site-nav')).toBeInTheDocument()
+
+    pathnameState.value = '/admin/login'
+    rerender(<AppShell><main data-testid="content">content</main></AppShell>)
+
+    expect(screen.getByTestId('background-stage')).toBeInTheDocument()
+    expect(screen.getByTestId('site-nav')).toBeInTheDocument()
 
     pathnameState.value = '/account'
     rerender(<AppShell><main data-testid="content">content</main></AppShell>)
