@@ -6,6 +6,7 @@ import { AlbumsContext, AlbumsProvider } from '@/lib/albums-context'
 import { CommentsContext, CommentsProvider } from '@/lib/comments-context'
 import { GuestbookContext, GuestbookProvider } from '@/lib/guestbook-context'
 import { MomentsContext, MomentsProvider } from '@/lib/moments-context'
+import { PublicResourceCacheProvider } from '@/lib/public-resource-cache'
 import type {
   AlbumItem,
   CommentItem,
@@ -71,13 +72,15 @@ export type AppStore = {
 export function AppStoreProvider({ children }: { children: ReactNode }) {
   return (
     <AuthProvider>
-      <MomentsProvider>
-        <AlbumsProvider>
-          <GuestbookProvider>
-            <CommentsProvider>{children}</CommentsProvider>
-          </GuestbookProvider>
-        </AlbumsProvider>
-      </MomentsProvider>
+      <PublicResourceCacheProvider>
+        <MomentsProvider>
+          <AlbumsProvider>
+            <GuestbookProvider>
+              <CommentsProvider>{children}</CommentsProvider>
+            </GuestbookProvider>
+          </AlbumsProvider>
+        </MomentsProvider>
+      </PublicResourceCacheProvider>
     </AuthProvider>
   )
 }

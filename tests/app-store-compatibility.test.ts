@@ -9,6 +9,7 @@ describe('AppStore compatibility boundary', () => {
   it('composes the new contexts instead of owning resource fetches', () => {
     const source = read('lib/app-store.tsx')
     expect(source).toContain('AuthProvider')
+    expect(source).toContain('PublicResourceCacheProvider')
     expect(source).toContain('MomentsProvider')
     expect(source).toContain('AlbumsProvider')
     expect(source).toContain('GuestbookProvider')
