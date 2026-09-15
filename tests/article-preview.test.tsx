@@ -24,7 +24,9 @@ describe('ArticlePreview', () => {
       updated_at: '2026-08-24T01:00:00.000Z',
     }} />)
 
+    expect(screen.getByRole('region', { name: '文章预览' })).toHaveAttribute('data-preview-state', 'ready')
     expect(screen.getByText('草稿预览')).toBeInTheDocument()
+    expect(screen.getByText('后台预览 · 仅显示已保存版本')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: '未完的山路' })).toBeInTheDocument()
     expect(screen.getByText('一段尚未公开的摘要')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: '第二节' })).toBeInTheDocument()
@@ -32,5 +34,6 @@ describe('ArticlePreview', () => {
       'href',
       '/admin/editor?id=post-1',
     )
+    expect(screen.getByRole('link', { name: '跳到预览正文' })).toHaveAttribute('href', '#admin-preview-content')
   })
 })
