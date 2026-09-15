@@ -9,6 +9,7 @@ import './studio.css'
 import { SITE_NAME, SITE_DESC } from '@/lib/site'
 import AppShell from '@/components/AppShell'
 import { AuthProvider } from '@/lib/auth-context'
+import { PublicResourceCacheProvider } from '@/lib/public-resource-cache'
 import { DEFAULT_SHARE_IMAGE, absoluteUrl, siteUrl } from '@/lib/seo'
 
 export const metadata: Metadata = {
@@ -47,7 +48,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <AuthProvider>
-          <AppShell>{children}</AppShell>
+          <PublicResourceCacheProvider>
+            <AppShell>{children}</AppShell>
+          </PublicResourceCacheProvider>
         </AuthProvider>
       </body>
     </html>

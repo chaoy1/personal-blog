@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { getShellKind } from '@/components/AppShell'
+import { PublicResourceCacheProvider, createPublicResourceStore } from '@/lib/public-resource-cache'
 
 const queryLog = vi.hoisted(() => [] as Array<{ table: string; filters: Array<[string, unknown]> }>)
 
@@ -42,10 +43,16 @@ vi.mock('@/lib/supabase-browser', () => ({
 }))
 
 import { CommentsProvider, useComments } from '@/lib/comments-context'
+import { MomentsProvider, useMoments } from '@/lib/moments-context'
 
 function CommentsProbe() {
   const { ready, comments } = useComments()
   return <output data-testid="comments-state">{JSON.stringify({ ready, count: comments.length })}</output>
+}
+
+function MomentsProbe() {
+  const { ready, moments, hasData, isInitialLoading } = useMoments()
+  return <output data-testid="moments-state">{JSON.stringify({ ready, count: moments.length, hasData, isInitialLoading })}</output>
 }
 
 describe('route-scoped resource boundaries', () => {
@@ -70,12 +77,46 @@ describe('route-scoped resource boundaries', () => {
     ])
   })
 
+  it('uses an initial moments snapshot without starting a browser request', () => {
+    const store = createPublicResourceStore({ now: () => 1000 })
+    render(
+      <PublicResourceCacheProvider store={store}>
+        <MomentsProvider
+          initialSnapshot={{
+            generatedAt: 900,
+            data: {
+              moments: [{
+                id: 'moment-1',
+                user_id: 'user-1',
+                content: '一段闲语',
+                images: [],
+                created_at: '2026-09-15T00:00:00.000Z',
+                profiles: null,
+              }],
+              momentComments: [],
+              momentLikes: [],
+            },
+          }}
+        >
+          <MomentsProbe />
+        </MomentsProvider>
+      </PublicResourceCacheProvider>,
+    )
+
+    expect(screen.getByTestId('moments-state')).toHaveTextContent('"count":1')
+    expect(screen.getByTestId('moments-state')).toHaveTextContent('"hasData":true')
+    expect(screen.getByTestId('moments-state')).toHaveTextContent('"isInitialLoading":false')
+    expect(queryLog).toEqual([])
+  })
+
   it('mounts resource providers at their route boundaries', () => {
     const read = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8')
     expect(read('app/moments/layout.tsx')).toContain('MomentsProvider')
     expect(read('app/album/layout.tsx')).toContain('AlbumsProvider')
     expect(read('app/guestbook/layout.tsx')).toContain('GuestbookProvider')
     expect(read('app/posts/[slug]/layout.tsx')).toContain('CommentsProvider')
+    expect(read('app/layout.tsx')).toContain('PublicResourceCacheProvider')
+    expect(read('app/layout.tsx')).not.toContain('AppStoreProvider')
     expect(read('lib/app-store.tsx')).toContain('export function AppStoreProvider')
     expect(read('lib/app-store.tsx')).toContain('export function useAppStore')
   })

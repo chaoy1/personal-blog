@@ -6,15 +6,21 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useState,
+  useRef,
   type ReactNode,
 } from 'react'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 import { useAuth } from '@/lib/auth-context'
+import { loadMoments } from '@/lib/public-resource-loaders.browser'
+import { usePublicResourceCache, useResourceEntry } from '@/lib/public-resource-cache'
+import type { MomentsSnapshot, ServerSnapshot } from '@/lib/public-resource-types'
 import type { MomentCommentItem, MomentItem, MomentLikeItem } from '@/lib/store-types'
 
 export type MomentsContextValue = {
   ready: boolean
+  hasData: boolean
+  isInitialLoading: boolean
+  isRefreshing: boolean
   error: string
   isOwner: boolean
   moments: MomentItem[]
@@ -29,61 +35,41 @@ export type MomentsContextValue = {
 
 export const MomentsContext = createContext<MomentsContextValue | null>(null)
 
+const EMPTY_SNAPSHOT: MomentsSnapshot = { moments: [], momentComments: [], momentLikes: [] }
+const MOMENTS_KEY = 'moments' as const
+
 function errMsg(prefix: string, e: unknown): string {
   const m = e && typeof e === 'object' && 'message' in e ? String((e as { message: unknown }).message) : ''
   return `${prefix}：${m}`
 }
 
-export function MomentsProvider({ children }: { children: ReactNode }) {
+export function MomentsProvider({
+  children,
+  initialSnapshot,
+  initialError = '',
+}: {
+  children: ReactNode
+  initialSnapshot?: ServerSnapshot<MomentsSnapshot> | null
+  initialError?: string
+}) {
   const { user, isOwner } = useAuth()
-  const [ready, setReady] = useState(false)
-  const [error, setError] = useState('')
-  const [moments, setMoments] = useState<MomentItem[]>([])
-  const [momentComments, setMomentComments] = useState<MomentCommentItem[]>([])
-  const [momentLikes, setMomentLikes] = useState<MomentLikeItem[]>([])
+  const cache = usePublicResourceCache()
+  const seededRef = useRef<ServerSnapshot<MomentsSnapshot> | null>(null)
+
+  if (initialSnapshot && seededRef.current !== initialSnapshot) {
+    cache.seed(MOMENTS_KEY, initialSnapshot)
+    seededRef.current = initialSnapshot
+  }
+
+  const entry = useResourceEntry<MomentsSnapshot>(MOMENTS_KEY)
 
   const refreshMoments = useCallback(async () => {
-    try {
-      const sb = supabaseBrowser()
-      const { data } = await sb
-        .from('moments')
-        .select('*, profiles!moments_user_id_fkey(nickname, avatar_url)')
-        .order('created_at', { ascending: false })
-        .limit(200)
-      const list = (data ?? []) as unknown as MomentItem[]
-      setMoments(list)
-      const ids = list.map((moment) => moment.id)
-      if (ids.length === 0) {
-        setMomentComments([])
-        setMomentLikes([])
-        return
-      }
-      const [commentsResult, likesResult] = await Promise.all([
-        sb
-          .from('moment_comments')
-          .select('*, profiles!moment_comments_user_id_fkey(nickname, avatar_url)')
-          .in('moment_id', ids)
-          .order('created_at', { ascending: true })
-          .limit(2000),
-        sb.from('moment_likes').select('moment_id, user_id').in('moment_id', ids).limit(5000),
-      ])
-      setMomentComments((commentsResult.data ?? []) as unknown as MomentCommentItem[])
-      setMomentLikes((likesResult.data ?? []) as unknown as MomentLikeItem[])
-    } catch (e) {
-      setError(errMsg('读取闲语失败', e))
-    }
-  }, [])
+    await cache.revalidate(MOMENTS_KEY, loadMoments).catch(() => undefined)
+  }, [cache])
 
   useEffect(() => {
-    let cancelled = false
-    setError('')
-    void refreshMoments().finally(() => {
-      if (!cancelled) setReady(true)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [refreshMoments])
+    void cache.preload(MOMENTS_KEY, loadMoments).catch(() => undefined)
+  }, [cache])
 
   const postMoment = useCallback(
     async (content: string, images: string[]) => {
@@ -108,13 +94,17 @@ export function MomentsProvider({ children }: { children: ReactNode }) {
       try {
         const { error: err } = await supabaseBrowser().from('moments').delete().eq('id', id)
         if (err) return err.message
-        await refreshMoments()
+        cache.setData<MomentsSnapshot>(MOMENTS_KEY, (current) => ({
+          moments: current.moments.filter((moment) => moment.id !== id),
+          momentComments: current.momentComments.filter((comment) => comment.moment_id !== id),
+          momentLikes: current.momentLikes.filter((like) => like.moment_id !== id),
+        }))
         return null
       } catch (e) {
         return errMsg('删除失败', e)
       }
     },
-    [user, refreshMoments],
+    [user, cache],
   )
 
   const addMomentComment = useCallback(
@@ -141,57 +131,70 @@ export function MomentsProvider({ children }: { children: ReactNode }) {
         }
         if (err) return err.message
         const row = data as unknown as MomentCommentItem | null
-        if (row) setMomentComments((previous) => [...previous, row])
+        if (row) {
+          cache.setData<MomentsSnapshot>(MOMENTS_KEY, (current) => ({
+            ...current,
+            momentComments: [...current.momentComments, row],
+          }))
+        }
         else await refreshMoments()
         return null
       } catch (e) {
         return errMsg('评论失败', e)
       }
     },
-    [user, refreshMoments],
+    [user, cache, refreshMoments],
   )
 
   const toggleMomentLike = useCallback(
     async (momentId: string) => {
       if (!user) return '未登录'
+      const before = cache.read<MomentsSnapshot>(MOMENTS_KEY).data
+      if (!before) return '闲语尚未加载'
+      const mine = before.momentLikes.some((like) => like.moment_id === momentId && like.user_id === user.id)
+      const after: MomentsSnapshot = {
+        ...before,
+        momentLikes: mine
+          ? before.momentLikes.filter((like) => !(like.moment_id === momentId && like.user_id === user.id))
+          : [...before.momentLikes, { moment_id: momentId, user_id: user.id }],
+      }
+      cache.setData(MOMENTS_KEY, after)
       try {
         const sb = supabaseBrowser()
-        const mine = momentLikes.some((like) => like.moment_id === momentId && like.user_id === user.id)
-        let dbError: { message: string } | null = null
-        if (mine) {
-          const { error } = await sb
-            .from('moment_likes')
-            .delete()
-            .match({ moment_id: momentId, user_id: user.id })
-          dbError = error
-        } else {
-          const { error } = await sb
-            .from('moment_likes')
-            .insert({ moment_id: momentId, user_id: user.id })
-          dbError = error
+        const result = mine
+          ? await sb.from('moment_likes').delete().match({ moment_id: momentId, user_id: user.id })
+          : await sb.from('moment_likes').insert({ moment_id: momentId, user_id: user.id })
+        if (result.error) {
+          cache.setData(MOMENTS_KEY, before)
+          return result.error.message
         }
-        if (dbError) return dbError.message
-        setMomentLikes((previous) =>
-          mine
-            ? previous.filter((like) => !(like.moment_id === momentId && like.user_id === user.id))
-            : [...previous, { moment_id: momentId, user_id: user.id }],
-        )
         return null
       } catch (e) {
+        cache.setData(MOMENTS_KEY, before)
         return errMsg('点赞失败', e)
       }
     },
-    [user, momentLikes],
+    [user, cache],
   )
+
+  const data = entry.data ?? EMPTY_SNAPSHOT
+  const hasData = entry.data !== null
+  const isInitialLoading = !hasData && (entry.status === 'idle' || entry.status === 'loading')
+  const isRefreshing = hasData && entry.status === 'loading'
+  const error = entry.error || (!hasData ? initialError : '')
+  const ready = hasData || (!isInitialLoading && !error)
 
   const value = useMemo<MomentsContextValue>(
     () => ({
       ready,
+      hasData,
+      isInitialLoading,
+      isRefreshing,
       error,
       isOwner,
-      moments,
-      momentComments,
-      momentLikes,
+      moments: data.moments,
+      momentComments: data.momentComments,
+      momentLikes: data.momentLikes,
       refreshMoments,
       postMoment,
       deleteMoment,
@@ -200,11 +203,12 @@ export function MomentsProvider({ children }: { children: ReactNode }) {
     }),
     [
       ready,
+      hasData,
+      isInitialLoading,
+      isRefreshing,
       error,
       isOwner,
-      moments,
-      momentComments,
-      momentLikes,
+      data,
       refreshMoments,
       postMoment,
       deleteMoment,

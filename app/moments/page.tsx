@@ -21,6 +21,10 @@ export default function MomentsPage() {
     momentLikes,
     error,
     ready,
+    hasData,
+    isInitialLoading,
+    isRefreshing,
+    refreshMoments,
     deleteMoment,
     addMomentComment,
     toggleMomentLike,
@@ -76,8 +80,19 @@ export default function MomentsPage() {
 
       <article className="article content-sheet">
 
-        {error || localError ? <p className="error-text">{localError || error}</p> : null}
-        {!ready && !error ? <p className="moments-empty">正在加载闲语…</p> : null}
+        {!hasData && isInitialLoading ? <p className="moments-empty">正在加载闲语…</p> : null}
+        {!hasData && error ? (
+          <p className="error-text" role="alert">
+            {localError || error}{' '}
+            <button type="button" className="link-btn" onClick={refreshMoments}>重试</button>
+          </p>
+        ) : null}
+        {hasData && (error || isRefreshing) ? (
+          <p className="error-text" role="status">
+            {error || '正在同步闲语…'}
+            {error ? <button type="button" className="link-btn" onClick={refreshMoments}>重试同步</button> : null}
+          </p>
+        ) : null}
 
         <div className="moments-list">
           {moments.map((m, index) => {
@@ -160,7 +175,7 @@ export default function MomentsPage() {
               </div>
             )
           })}
-          {ready && moments.length === 0 && !error ? (
+          {hasData && moments.length === 0 && !error ? (
             <p className="moments-empty">还没有闲语。</p>
           ) : null}
         </div>
