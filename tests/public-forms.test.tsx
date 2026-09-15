@@ -97,6 +97,11 @@ function openGuestbookComposer() {
   return screen.getByLabelText('留言内容')
 }
 
+function renderLoggedOutLogin() {
+  Object.assign(store, { user: null })
+  return render(<LoginPage />)
+}
+
 describe('public form feedback', () => {
   beforeEach(() => {
     mocks.addComment.mockReset()
@@ -115,6 +120,7 @@ describe('public form feedback', () => {
       guestbook: [],
       error: '',
     })
+    window.history.replaceState({}, '', '/login')
   })
 
   afterEach(cleanup)
@@ -467,7 +473,7 @@ describe('public form feedback', () => {
 
   it('announces invalid login credentials', async () => {
     mocks.signInWithPassword.mockResolvedValue({ error: { message: 'Invalid login credentials' } })
-    render(<LoginPage />)
+    renderLoggedOutLogin()
 
     fireEvent.change(screen.getByLabelText('邮箱'), { target: { value: 'traveler@example.com' } })
     fireEvent.change(screen.getByLabelText('密码'), { target: { value: 'mistake' } })
@@ -480,7 +486,7 @@ describe('public form feedback', () => {
 
   it('announces a rejected login request and leaves an explicit retry action', async () => {
     mocks.signInWithPassword.mockRejectedValue(new Error('network unavailable'))
-    render(<LoginPage />)
+    renderLoggedOutLogin()
 
     fireEvent.change(screen.getByLabelText('邮箱'), { target: { value: 'traveler@example.com' } })
     fireEvent.change(screen.getByLabelText('密码'), { target: { value: 'mistake' } })
@@ -492,13 +498,13 @@ describe('public form feedback', () => {
 
   it('returns login form state to idle when switching modes after an error', async () => {
     mocks.signInWithPassword.mockResolvedValue({ error: { message: 'Invalid login credentials' } })
-    render(<LoginPage />)
+    renderLoggedOutLogin()
 
     fireEvent.change(screen.getByLabelText('邮箱'), { target: { value: 'traveler@example.com' } })
     fireEvent.change(screen.getByLabelText('密码'), { target: { value: 'mistake' } })
     fireEvent.click(screen.getAllByRole('button', { name: '登录' }).find((button) => (button as HTMLButtonElement).type === 'submit')!)
     await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
-    fireEvent.click(screen.getByRole('button', { name: '注册' }))
+    fireEvent.click(screen.getByRole('tab', { name: '注册' }))
 
     expect(document.querySelector('form')).toHaveAttribute('data-form-state', 'idle')
   })
@@ -506,17 +512,65 @@ describe('public form feedback', () => {
   it('ignores a completed login after the user switches to register mode', async () => {
     const request = deferred<{ error: null }>()
     mocks.signInWithPassword.mockImplementationOnce(() => request.promise)
-    render(<LoginPage />)
+    renderLoggedOutLogin()
 
     fireEvent.change(screen.getByLabelText('邮箱'), { target: { value: 'traveler@example.com' } })
     fireEvent.change(screen.getByLabelText('密码'), { target: { value: 'mistake' } })
     fireEvent.click(screen.getAllByRole('button', { name: '登录' }).find((button) => (button as HTMLButtonElement).type === 'submit')!)
-    fireEvent.click(screen.getByRole('button', { name: '注册' }))
+    fireEvent.click(screen.getByRole('tab', { name: '注册' }))
     request.resolve({ error: null })
 
     await waitFor(() => expect(document.querySelector('form')).toHaveAttribute('data-form-state', 'idle'))
     expect(mocks.router.push).not.toHaveBeenCalled()
     expect(screen.getByRole('heading', { name: '注册' })).toBeInTheDocument()
+  })
+
+  it('provides an accessible focused auth shell and keeps the email when switching modes', () => {
+    renderLoggedOutLogin()
+
+    expect(screen.getByRole('main', { name: '登录' })).toHaveAttribute('data-page-state', 'ready')
+    expect(screen.getByRole('link', { name: '似水流年' })).toHaveAttribute('href', '/')
+    expect(screen.getByRole('tablist', { name: '认证模式' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: '登录' })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByLabelText('邮箱')).toHaveAttribute('autocomplete', 'email')
+
+    fireEvent.change(screen.getByLabelText('邮箱'), { target: { value: 'traveler@example.com' } })
+    fireEvent.change(screen.getByLabelText('密码'), { target: { value: 'secret-pass' } })
+    fireEvent.click(screen.getByRole('tab', { name: '注册' }))
+
+    expect(screen.getByLabelText('邮箱')).toHaveValue('traveler@example.com')
+    expect(screen.getByLabelText('密码')).toHaveValue('')
+    expect(screen.getByRole('tab', { name: '注册' })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('uses an internal next path after login and ignores an external next URL', async () => {
+    mocks.signInWithPassword.mockResolvedValue({ error: null })
+    window.history.replaceState({}, '', '/login?next=%2Fguestbook%3Ffrom%3Dlogin')
+    const firstRender = renderLoggedOutLogin()
+
+    fireEvent.change(screen.getByLabelText('邮箱'), { target: { value: 'traveler@example.com' } })
+    fireEvent.change(screen.getByLabelText('密码'), { target: { value: 'secret-pass' } })
+    fireEvent.submit(screen.getByRole('form', { name: '登录表单' }))
+
+    await waitFor(() => expect(mocks.router.replace).toHaveBeenCalledWith('/guestbook?from=login'))
+
+    firstRender.unmount()
+    mocks.router.replace.mockReset()
+    window.history.replaceState({}, '', '/login?next=https%3A%2F%2Fevil.example')
+    renderLoggedOutLogin()
+    fireEvent.change(screen.getByLabelText('邮箱'), { target: { value: 'traveler@example.com' } })
+    fireEvent.change(screen.getByLabelText('密码'), { target: { value: 'secret-pass' } })
+    fireEvent.submit(screen.getByRole('form', { name: '登录表单' }))
+
+    await waitFor(() => expect(mocks.router.replace).toHaveBeenCalledWith('/'))
+  })
+
+  it('shows a return entry instead of an invalid form for an authenticated visitor', () => {
+    render(<LoginPage />)
+
+    expect(screen.getByRole('status')).toHaveTextContent('你已经登录')
+    expect(screen.getByRole('link', { name: '进入账户' })).toHaveAttribute('href', '/account')
+    expect(screen.queryByRole('form', { name: '登录表单' })).not.toBeInTheDocument()
   })
 
   it('announces profile save completion without moving focus', async () => {

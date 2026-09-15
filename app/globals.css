@@ -8121,6 +8121,110 @@ body {
   pointer-events: none;
 }
 
+/* ---------- 认证页：聚焦表单纸面 ---------- */
+
+.auth-login-page {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  min-height: calc(100vh - 78px);
+  padding: clamp(34px, 8vh, 86px) 20px 96px;
+}
+
+.auth-login-page .auth-login-card {
+  width: min(100%, 420px);
+  margin: 0 auto;
+}
+
+.auth-brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin: -10px 0 27px;
+  font-family: var(--font-kai);
+  font-size: 14px;
+  letter-spacing: 0.24em;
+  color: var(--seal-deep);
+  text-decoration: none;
+}
+
+.auth-brand:hover {
+  color: var(--seal);
+}
+
+.auth-login-page .auth-tabs {
+  margin: 0 0 26px;
+}
+
+.auth-login-page .auth-tabs .tab {
+  min-height: 44px;
+  padding: 8px 18px;
+}
+
+.auth-login-page .auth-tabs .tab[aria-selected='true'] {
+  color: var(--ink);
+  border-bottom-color: var(--seal);
+  opacity: 1;
+}
+
+.auth-login-page .auth-tabs .tab:focus-visible,
+.auth-login-page .auth-primary-link:focus-visible,
+.auth-login-page .auth-retry:focus-visible,
+.auth-login-page .auth-brand:focus-visible,
+.auth-login-page .back-link:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 4px;
+}
+
+.auth-login-page [role='tabpanel'] {
+  min-width: 0;
+}
+
+.auth-login-page form {
+  margin-top: 0 !important;
+}
+
+.auth-login-page .auth-retry {
+  width: 100%;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.auth-signed-in {
+  margin: 4px 0 9px;
+  font-family: var(--font-kai);
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  color: var(--seal-deep);
+}
+
+.auth-primary-link {
+  width: 100%;
+  justify-content: center;
+  margin-top: 12px;
+  text-decoration: none;
+}
+
+.auth-login-page .error-text {
+  outline: none;
+}
+
+@media (max-width: 720px) {
+  .auth-login-page {
+    min-height: calc(100vh - 62px);
+    padding: 24px 14px 72px;
+  }
+
+  .auth-login-page .auth-login-card {
+    padding: 34px 24px 30px;
+  }
+
+  .auth-brand {
+    margin-top: -7px;
+  }
+}
+
 :root[data-theme='dark'] .about-colophon {
   background-color: rgba(63, 48, 26, 0.9);
 }
