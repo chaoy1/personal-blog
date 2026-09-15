@@ -1,5 +1,5 @@
 import { cleanup, render, screen, within } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
@@ -35,7 +35,46 @@ import AboutPage from '@/app/about/page'
 
 afterEach(cleanup)
 
+beforeEach(() => {
+  supabase.maybeSingle.mockReset().mockResolvedValue({
+    data: {
+      nickname: 'ChoyChou',
+      bio: '你好，我是这间小屋的主人。',
+      avatar_url: 'choy.png',
+    },
+  })
+})
+
 describe('AboutPage', () => {
+  it('exposes the readable profile as a stable page state', async () => {
+    render(await AboutPage())
+
+    const page = screen.getByRole('main', { name: '关于' })
+    expect(page).toHaveAttribute('data-page-state', 'ready')
+    expect(page).toHaveAttribute('data-profile-state', 'ready')
+    expect(within(page).getByText('你好，我是这间小屋的主人。')).toBeInTheDocument()
+  })
+
+  it('keeps a missing profile composed without inventing a biography', async () => {
+    supabase.maybeSingle.mockResolvedValueOnce({ data: null })
+    render(await AboutPage())
+
+    const page = screen.getByRole('main', { name: '关于' })
+    expect(page).toHaveAttribute('data-page-state', 'empty')
+    expect(screen.getByText('这页还没有可展示的自序。')).toBeInTheDocument()
+    expect(screen.queryByRole('complementary', { name: '博主落款' })).not.toBeInTheDocument()
+  })
+
+  it('separates a profile load error from an empty profile and offers retry', async () => {
+    supabase.maybeSingle.mockRejectedValueOnce(new Error('offline'))
+    render(await AboutPage())
+
+    const page = screen.getByRole('main', { name: '关于' })
+    expect(page).toHaveAttribute('data-page-state', 'error')
+    expect(screen.getByRole('alert')).toHaveTextContent('关于页暂时未能载入。')
+    expect(screen.getByRole('link', { name: '重试关于页' })).toHaveAttribute('href', '/about')
+  })
+
   it('uses the shared restrained navigation treatment', async () => {
     render(await AboutPage())
 
@@ -72,6 +111,8 @@ describe('AboutPage', () => {
     expect(within(colophon).getByText('落款')).toHaveClass('about-colophon-label')
     expect(colophon.querySelector('.about-colophon-rule')).not.toBeInTheDocument()
     expect(within(colophon).getByRole('img', { name: '博主头像' })).toBeInTheDocument()
+    expect(within(colophon).getByRole('img', { name: '博主头像' })).not.toHaveAttribute('src', expect.stringContaining('undefined'))
+    expect(within(colophon).getByRole('img', { name: '博主头像' })).not.toHaveAttribute('src', expect.stringContaining('undefined'))
     expect(within(colophon).getByText('ChoyChou')).toBeInTheDocument()
     expect(within(colophon).getByText('博主 · 似水流年')).toBeInTheDocument()
     expect(within(colophon).getByText('署')).toHaveClass('about-colophon-seal')

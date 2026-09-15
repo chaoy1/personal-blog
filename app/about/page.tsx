@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { supabaseAdmin } from '@/lib/supabase'
 import { SITE_NAME } from '@/lib/site'
 import ScrollFX from '@/components/ScrollFX'
@@ -17,7 +18,8 @@ export const metadata: Metadata = publicMetadata({
 export const revalidate = 60
 
 export default async function AboutPage() {
-  let owner: { nickname: string; bio: string; avatar_url: string } | null = null
+  let owner: { nickname: string | null; bio: string | null; avatar_url: string | null } | null = null
+  let loadError = false
   try {
     const { data } = await supabaseAdmin()
       .from('profiles')
@@ -26,22 +28,31 @@ export default async function AboutPage() {
       .maybeSingle()
     owner = data
   } catch {
-    // 数据库未初始化等
+    loadError = true
   }
 
-  const rawAvatar = owner?.avatar_url
+  const rawAvatar = owner?.avatar_url?.trim() || ''
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, '')
   const avatar = rawAvatar
     ? rawAvatar.startsWith('http')
       ? rawAvatar
-      : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${rawAvatar}`
+      : supabaseUrl
+        ? `${supabaseUrl}/storage/v1/object/public/avatars/${rawAvatar}`
+        : null
     : null
+  const profileState = loadError ? 'error' : owner?.bio?.trim() ? 'ready' : 'empty'
 
   return (
     <div className="wrap about-page">
       <ScrollFX />
       <ArticleNav current="关于" ariaLabel="关于页导航" />
 
-      <main className="about-scroll">
+      <main
+        className="about-scroll"
+        aria-label="关于"
+        data-page-state={profileState}
+        data-profile-state={profileState}
+      >
         <PageIntro
           index="06"
           eyebrow="ABOUT"
@@ -53,7 +64,16 @@ export default async function AboutPage() {
         <article className="article content-sheet">
 
         <div className="about-essay">
-          {owner?.bio ? <MarkdownView content={owner.bio} preserveParagraphs /> : null}
+          {loadError ? (
+            <div className="about-state about-state-error" role="alert">
+              <p>关于页暂时未能载入。</p>
+              <Link className="about-state-link" href="/about" aria-label="重试关于页">重试关于页</Link>
+            </div>
+          ) : owner?.bio ? (
+            <MarkdownView content={owner.bio} preserveParagraphs />
+          ) : (
+            <p className="about-state about-state-empty">这页还没有可展示的自序。</p>
+          )}
         </div>
 
         {owner ? (
@@ -64,7 +84,7 @@ export default async function AboutPage() {
               <Avatar className="about-avatar" src={avatar} alt="博主头像" />
             </span>
             <div className="about-colophon-info">
-              <span className="about-name">{owner.nickname || SITE_NAME}</span>
+              <span className="about-name">{owner.nickname?.trim() || SITE_NAME}</span>
               <span className="about-role">博主 · {SITE_NAME}</span>
             </div>
             <span className="about-colophon-brush" aria-hidden="true" />
