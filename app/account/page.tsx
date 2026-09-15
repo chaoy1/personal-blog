@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabaseBrowser, storagePublicUrl } from '@/lib/supabase-browser'
 import { useAuth } from '@/lib/auth-context'
@@ -13,7 +14,10 @@ export default function AccountPage() {
   const router = useRouter()
   const { ready, user, profile, updateProfile } = useAuth()
   const [nickname, setNickname] = useState('')
+  const [savedNickname, setSavedNickname] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
+  const [savedAvatarUrl, setSavedAvatarUrl] = useState('')
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState('')
   const [profileState, setProfileState] = useState<FormState>('idle')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -32,6 +36,9 @@ export default function AccountPage() {
   const busy = profileState === 'submitting'
   const pwBusy = passwordState === 'submitting'
   const uploadBusy = uploadState === 'submitting'
+  const profileFieldsDirty = nickname.trim() !== savedNickname.trim() || avatarUrl !== savedAvatarUrl
+  const profileDirty = profileFieldsDirty || Boolean(pendingAvatarFile)
+  const passwordDirty = Boolean(oldPassword || newPassword || confirmPassword)
 
   useEffect(() => {
     if (ready && !user) {
@@ -39,14 +46,46 @@ export default function AccountPage() {
       return
     }
     if (user) {
-      setNickname(profile?.nickname ?? '')
-      setAvatarUrl(profile?.avatar_url ?? '')
+      const nextNickname = profile?.nickname ?? ''
+      const nextAvatarUrl = profile?.avatar_url ?? ''
+      setNickname(nextNickname)
+      setSavedNickname(nextNickname)
+      setAvatarUrl(nextAvatarUrl)
+      setSavedAvatarUrl(nextAvatarUrl)
+      setAvatarPreviewUrl('')
     }
   }, [ready, user, profile, router])
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreviewUrl && typeof URL.revokeObjectURL === 'function') {
+        URL.revokeObjectURL(avatarPreviewUrl)
+      }
+    }
+  }, [avatarPreviewUrl])
+
+  useEffect(() => {
+    if (!profileDirty && !passwordDirty) return
+    function warnBeforeUnload(event: BeforeUnloadEvent) {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+    window.addEventListener('beforeunload', warnBeforeUnload)
+    return () => window.removeEventListener('beforeunload', warnBeforeUnload)
+  }, [profileDirty, passwordDirty])
+
+  function passwordErrorMessage(message: string): string {
+    const normalized = message.toLowerCase()
+    if (normalized.includes('invalid login credentials')) return '旧密码不正确'
+    if (normalized.includes('password') && normalized.includes('weak')) return '新密码强度不足，请换一个更安全的密码'
+    return '修改失败，请稍后再试'
+  }
 
   function startAvatarUpload(file: File) {
     const requestId = ++uploadRequestId.current
     setPendingAvatarFile(file)
+    const previewUrl = typeof URL.createObjectURL === 'function' ? URL.createObjectURL(file) : ''
+    setAvatarPreviewUrl(previewUrl)
     setProfileState('idle')
     void uploadAvatar(file, requestId)
   }
@@ -55,8 +94,6 @@ export default function AccountPage() {
     if (!user) return
     setUploadState('submitting')
     setUploadError('')
-    setError('')
-    setMessage('')
     const ext = file.name.split('.').pop() || 'png'
     const path = `${user.id}/${Date.now()}.${ext}`
     try {
@@ -70,6 +107,7 @@ export default function AccountPage() {
         return
       }
       setAvatarUrl(storagePublicUrl('avatars', path))
+      setAvatarPreviewUrl('')
       setPendingAvatarFile(null)
       setUploadState('success')
     } catch {
@@ -83,8 +121,9 @@ export default function AccountPage() {
     if (pendingAvatarFile) startAvatarUpload(pendingAvatarFile)
   }
 
-  async function save() {
-    if (!user || uploadBusy) return
+  async function save(event?: FormEvent<HTMLFormElement>) {
+    event?.preventDefault()
+    if (!user || busy || !profileFieldsDirty) return
     setProfileState('submitting')
     setError('')
     setMessage('')
@@ -94,11 +133,14 @@ export default function AccountPage() {
       setProfileState('error')
       return
     }
+    setSavedNickname(nickname.trim())
+    setSavedAvatarUrl(avatarUrl)
     setMessage('资料已保存')
     setProfileState('success')
   }
 
   async function changePassword() {
+    if (pwBusy || !passwordDirty) return
     if (!user?.email) {
       setPwError('当前账号无法修改密码')
       setPasswordState('error')
@@ -135,7 +177,7 @@ export default function AccountPage() {
       const { error: updateErr } = await sb.auth.updateUser({ password: payload.newPassword })
       if (requestId !== passwordRequestId.current) return
       if (updateErr) {
-        setPwError(`修改失败：${updateErr.message}`)
+        setPwError(passwordErrorMessage(updateErr.message))
         setPasswordState('error')
         return
       }
@@ -162,6 +204,9 @@ export default function AccountPage() {
   }
 
   function finish() {
+    if ((profileDirty || passwordDirty) && typeof window !== 'undefined' && !window.confirm('还有未保存的更改，确定离开吗？')) {
+      return
+    }
     if (typeof window !== 'undefined' && window.history.length > 1) {
       router.back()
     } else {
@@ -169,26 +214,67 @@ export default function AccountPage() {
     }
   }
 
-  return (
-    <div className="account-wrap">
-      <ArticleNav current="个人资料" />
+  if (!ready) {
+    return (
+      <main className="account-page" aria-labelledby="account-title" data-page-state="loading">
+        <div className="account-wrap">
+          <ArticleNav current="个人资料" />
+          <section className="account-card account-state-card" aria-live="polite">
+            <h1 id="account-title">个人资料</h1>
+            <p>正在载入账户资料…</p>
+          </section>
+        </div>
+      </main>
+    )
+  }
 
-      <div className="account-card">
+  if (!user) {
+    return (
+      <main className="account-page" aria-labelledby="account-title" data-page-state="unauthenticated">
+        <div className="account-wrap">
+          <ArticleNav current="个人资料" />
+          <section className="account-card account-state-card" aria-live="polite">
+            <h1 id="account-title">个人资料</h1>
+            <p>需要重新登录。登录状态已失效，请重新登录后再管理账户。</p>
+            <Link href="/login" className="btn account-state-link">重新登录</Link>
+          </section>
+        </div>
+      </main>
+    )
+  }
+
+  return (
+    <main className="account-page" aria-labelledby="account-title" data-page-state="ready">
+      <div className="account-wrap">
+        <ArticleNav current="个人资料" />
+
+        <div className="account-card">
         <header className="account-head">
-          <h1>个人资料</h1>
+          <div>
+            <h1 id="account-title">个人资料</h1>
+            <p className="profile-dirty-state" aria-live="polite">
+              {profileDirty ? '有未保存更改' : '所有更改均已保存'}
+            </p>
+          </div>
           {user?.email ? <p className="account-email">账号 · {user.email}</p> : null}
         </header>
 
-        <section className="account-section">
-          <h2 className="account-section-title">
+        <section className="account-section" aria-labelledby="profile-section-title" data-section-state={profileState}>
+          <h2 id="profile-section-title" className="account-section-title">
             <span className="sec-seal" aria-hidden="true">
               资
             </span>
             基本资料
           </h2>
           <div className="account-profile-row">
-            <div className="account-avatar" aria-busy={uploadBusy} data-form-state={uploadState}>
-              <Avatar src={avatarUrl} alt="头像" />
+            <div
+              className="account-avatar"
+              data-testid="account-avatar"
+              data-avatar-state={pendingAvatarFile ? 'preview' : 'saved'}
+              aria-busy={uploadBusy}
+              data-form-state={uploadState}
+            >
+              <Avatar src={avatarPreviewUrl || avatarUrl} alt="头像" />
               <label className="account-avatar-btn">
                 更换头像
                 <input
@@ -201,6 +287,7 @@ export default function AccountPage() {
                   }}
                 />
               </label>
+              <p className="field-help" id="avatar-help">支持 JPG、PNG 等图片格式。</p>
               {uploadState === 'error' && pendingAvatarFile ? (
                 <button className="btn btn-ghost btn-sm" type="button" onClick={retryAvatarUpload} disabled={uploadBusy}>
                   重试上传头像
@@ -210,7 +297,13 @@ export default function AccountPage() {
               {uploadState === 'success' ? <p className="notice-text" role="status">头像已上传</p> : null}
             </div>
 
-            <div className="account-profile-fields" aria-busy={busy || uploadBusy} data-form-state={uploadBusy ? 'submitting' : profileState}>
+            <form
+              className="account-profile-fields"
+              aria-label="基本资料表单"
+              aria-busy={busy}
+              data-form-state={profileState}
+              onSubmit={save}
+            >
               <div className="field">
                 <label htmlFor="nickname">昵称</label>
                 <input
@@ -224,24 +317,24 @@ export default function AccountPage() {
               {error ? <p className="error-text" role="alert">{error}</p> : null}
               {message ? <p className="notice-text" role="status">{message}</p> : null}
               <div className="editor-actions">
-                <button className="btn btn-sm" type="button" onClick={save} disabled={busy || uploadBusy}>
+                <button className="btn btn-sm" type="submit" disabled={busy || !profileFieldsDirty}>
                   {busy ? '保存中…' : '保存资料'}
                 </button>
                 {profileState === 'error' ? (
-                  <button className="btn btn-ghost btn-sm" type="button" onClick={save} disabled={busy || uploadBusy}>
+                  <button className="btn btn-ghost btn-sm" type="button" onClick={() => { void save() }} disabled={busy || !profileFieldsDirty}>
                     重试保存资料
                   </button>
                 ) : null}
               </div>
-            </div>
+            </form>
           </div>
         </section>
 
-        <section className="account-section account-security">
+        <section className="account-section account-security" aria-labelledby="security-section-title" data-section-state={passwordState}>
           <div className="account-security-head">
             <div>
               <span className="account-section-index">02 · SECURITY</span>
-              <h2>修改密码</h2>
+              <h2 id="security-section-title">账户安全</h2>
             </div>
             <p>更新后，其他设备上的登录状态可能需要重新验证。</p>
           </div>
@@ -255,6 +348,8 @@ export default function AccountPage() {
 
             <form
               className="account-pw-grid"
+              aria-label="密码修改表单"
+              aria-describedby={pwError ? 'password-feedback' : undefined}
               aria-busy={pwBusy}
               data-form-state={passwordState}
               onSubmit={(event) => {
@@ -325,14 +420,14 @@ export default function AccountPage() {
                   />
                 </div>
               </div>
-              {pwError ? <p className="error-text account-pw-status" role="alert">{pwError}</p> : null}
+              {pwError ? <p id="password-feedback" className="error-text account-pw-status" role="alert">{pwError}</p> : null}
               {pwMessage ? <p className="notice-text account-pw-status" role="status">{pwMessage}</p> : null}
               <div className="editor-actions">
-                <button className="btn btn-sm" type="submit" disabled={pwBusy}>
+                <button className="btn btn-sm" type="submit" disabled={pwBusy || !passwordDirty}>
                   {pwBusy ? '正在更新…' : '确认更新密码'}
                 </button>
                 {passwordState === 'error' ? (
-                  <button className="btn btn-ghost btn-sm" type="button" onClick={changePassword} disabled={pwBusy}>
+                  <button className="btn btn-ghost btn-sm" type="button" onClick={changePassword} disabled={pwBusy || !passwordDirty}>
                     重试更新密码
                   </button>
                 ) : null}
@@ -346,7 +441,8 @@ export default function AccountPage() {
             修改完成
           </button>
         </footer>
+        </div>
       </div>
-    </div>
+    </main>
   )
 }

@@ -8210,6 +8210,75 @@ body {
   outline: none;
 }
 
+/* ---------- 账户页：资料与安全分区 ---------- */
+
+.account-page {
+  position: relative;
+  z-index: 1;
+}
+
+.account-page .account-wrap {
+  width: min(100%, 980px);
+}
+
+.account-page .account-card {
+  width: 100%;
+}
+
+.account-state-card {
+  max-width: 560px;
+  margin-inline: auto;
+}
+
+.account-state-card h1 {
+  margin-bottom: 12px;
+}
+
+.account-state-card p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.9;
+}
+
+.account-state-link {
+  margin-top: 24px;
+  text-decoration: none;
+}
+
+.account-page .account-head > div {
+  min-width: 0;
+}
+
+.account-page .account-head .profile-dirty-state {
+  margin: 8px 0 0;
+}
+
+.account-page .account-section[data-section-state='error'] {
+  border-top-color: var(--seal);
+}
+
+.account-page .account-avatar .field-help {
+  max-width: 120px;
+  margin: 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.account-page .account-profile-fields {
+  margin-left: auto;
+}
+
+.account-page .account-avatar-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.account-page .account-foot .btn,
+.account-page .account-state-link {
+  min-height: 44px;
+}
+
 @media (max-width: 720px) {
   .auth-login-page {
     min-height: calc(100vh - 62px);
@@ -8222,6 +8291,13 @@ body {
 
   .auth-brand {
     margin-top: -7px;
+  }
+
+  .account-page .account-profile-fields .btn,
+  .account-page .account-pw-grid .btn,
+  .account-page .account-state-link {
+    width: 100%;
+    justify-content: center;
   }
 }
 

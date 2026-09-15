@@ -577,6 +577,7 @@ describe('public form feedback', () => {
     mocks.updateProfile.mockResolvedValue(null)
     render(<AccountPage />)
 
+    fireEvent.change(screen.getByLabelText('昵称'), { target: { value: '新的旅人' } })
     const saveButton = screen.getByRole('button', { name: '保存资料' })
     saveButton.focus()
     fireEvent.click(saveButton)
@@ -589,10 +590,66 @@ describe('public form feedback', () => {
     mocks.updateProfile.mockResolvedValue('保存失败，请重试')
     render(<AccountPage />)
 
+    fireEvent.change(screen.getByLabelText('昵称'), { target: { value: '新的旅人' } })
     fireEvent.click(screen.getByRole('button', { name: '保存资料' }))
 
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('保存失败，请重试'))
     expect(screen.getByRole('button', { name: '重试保存资料' })).toBeEnabled()
+  })
+
+  it('exposes independent account sections and a clear profile dirty state', () => {
+    render(<AccountPage />)
+
+    expect(screen.getByRole('main', { name: '个人资料' })).toHaveAttribute('data-page-state', 'ready')
+    expect(screen.getByRole('region', { name: '基本资料' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: '账户安全' })).toBeInTheDocument()
+    expect(screen.getByText('所有更改均已保存')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '保存资料' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '确认更新密码' })).toBeDisabled()
+
+    fireEvent.change(screen.getByLabelText('昵称'), { target: { value: '新的旅人' } })
+
+    expect(screen.getByText('有未保存更改')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '保存资料' })).toBeEnabled()
+  })
+
+  it('shows a selected avatar preview while the upload is pending', () => {
+    const request = deferred<{ error: null }>()
+    mocks.uploadAvatar.mockImplementationOnce(() => request.promise)
+    render(<AccountPage />)
+
+    fireEvent.change(screen.getByLabelText('更换头像'), {
+      target: { files: [new File(['avatar'], 'portrait.png', { type: 'image/png' })] },
+    })
+
+    expect(screen.getByTestId('account-avatar')).toHaveAttribute('data-avatar-state', 'preview')
+    expect(screen.getByTestId('account-avatar')).toHaveAttribute('aria-busy', 'true')
+    request.resolve({ error: null })
+  })
+
+  it('keeps profile saving available while an avatar upload is pending', async () => {
+    const request = deferred<{ error: null }>()
+    mocks.uploadAvatar.mockImplementationOnce(() => request.promise)
+    mocks.updateProfile.mockResolvedValue(null)
+    render(<AccountPage />)
+
+    fireEvent.change(screen.getByLabelText('更换头像'), {
+      target: { files: [new File(['avatar'], 'portrait.png', { type: 'image/png' })] },
+    })
+    fireEvent.change(screen.getByLabelText('昵称'), { target: { value: '新的旅人' } })
+    fireEvent.click(screen.getByRole('button', { name: '保存资料' }))
+
+    await waitFor(() => expect(mocks.updateProfile).toHaveBeenCalledWith(expect.objectContaining({ nickname: '新的旅人' })))
+    request.resolve({ error: null })
+  })
+
+  it('shows a session-expired entry instead of account controls when signed out', () => {
+    Object.assign(store, { user: null })
+    render(<AccountPage />)
+
+    expect(screen.getByRole('main', { name: '个人资料' })).toHaveAttribute('data-page-state', 'unauthenticated')
+    expect(screen.getByRole('link', { name: '重新登录' })).toHaveAttribute('href', '/login')
+    expect(screen.queryByRole('button', { name: '保存资料' })).not.toBeInTheDocument()
   })
 
   it('retries a failed avatar upload with the selected file before saving the new URL', async () => {
