@@ -289,6 +289,16 @@ export default function GuestbookPage() {
     return guestbook.filter((g) => ids.has(rootIdOf.get(g.id) ?? g.id))
   }, [guestbook, pageItems, rootIdOf])
 
+  const pageState = !resourceHasData && resourceIsInitialLoading
+    ? 'loading'
+    : !resourceHasData && (error || localError)
+      ? 'error'
+      : resourceHasData && parents.length === 0 && !error && !localError
+        ? 'empty'
+        : isRefreshing
+          ? 'refreshing'
+          : 'ready'
+
   async function post() {
     const text = content.trim()
     if (!user || !text) return
@@ -350,7 +360,13 @@ export default function GuestbookPage() {
   }
 
   return (
-    <div className="wrap guestbook-page">
+    <main
+      className="wrap guestbook-page"
+      aria-label="留言"
+      data-page-state={pageState}
+      data-entry-count={parents.length}
+      data-refreshing={isRefreshing ? 'true' : 'false'}
+    >
       <ScrollFX />
       <ArticleNav current="留言" />
       <PageIntro
@@ -408,7 +424,7 @@ export default function GuestbookPage() {
             {success ? <p className="notice-text" role="status">{success}</p> : null}
           </aside>
 
-          <section className="guestbook-messages" aria-label="已收留言">
+          <section className="guestbook-messages" aria-label="已收留言" data-list-state={pageState}>
             {!resourceHasData && resourceIsInitialLoading ? <p className="moments-empty">正在加载留言…</p> : null}
             {!resourceHasData && (error || localError) ? (
               <p className="error-text" role="alert">
@@ -537,6 +553,6 @@ export default function GuestbookPage() {
         )
         : null}
       {dialog}
-    </div>
+    </main>
   )
 }
