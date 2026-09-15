@@ -467,12 +467,14 @@ document.documentElement.scrollWidth <= window.innerWidth
 
 ### Phase 2：Global Layout 与数据边界
 
-- 状态：原 Shell 与路由级消费边界已经完成；数据生命周期设计于 2026-09-15 修订。
+- 状态：已完成（2026-09-15）；原 Shell、路由级消费边界和修订后的数据生命周期均已实现。
 - 修订规格：`docs/superpowers/specs/2026-09-15-site-phase-2-prefetch-cache-design.md`。
 - 目标：保留 Public、Auth、Admin shell 和路由级领域 Hook；新增服务端初始快照、会话级惰性缓存、请求去重、路由预取及 stale-while-revalidate，消除跨页面导航时的数据清空与内容跳跃。
 - 涉及：`app/layout.tsx`、资源 route layout、`SiteNav`、四个资源 context、公共资源缓存与服务端/浏览器 loader。
 - 破坏性：中；URL、业务接口、Supabase 结构和现有视觉不变。
 - 依赖：Phase 1；修订实现完成后再继续依赖数据生命周期的后续页面重构。
+- 验收证据：40 个测试文件 / 201 个测试通过，`npm run typecheck` 通过，`npm run build` 退出 0；本地 `/`、`/moments`、`/album`、`/guestbook`、`/posts`、`/about`、`/timeline` 均返回 HTTP 200。构建期间仅记录既有离线 Supabase `fetch failed` / `EACCES` 警告；本轮未完成浏览器截图视口验收。
+- 实现提交：`e468488`、`964b293`、`82dcf64`、`d3eea70`、`5bbec04`、`5f16403`、`1b4f1e0`、`a2e2d56`。
 
 ### Phase 3：基础组件与行为
 
