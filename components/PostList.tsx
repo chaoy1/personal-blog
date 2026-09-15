@@ -1,10 +1,10 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import Link from 'next/link'
 import { formatDate, type Post } from '@/lib/blog'
 import CnNum from '@/components/CnNum'
 import Pagination from '@/components/Pagination'
+import ResourcePrefetchLink from '@/components/ResourcePrefetchLink'
 
 const CN_WM = ['壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖', '拾']
 const PAGE_SIZE = 10
@@ -25,7 +25,13 @@ export default function PostList({ posts }: { posts: Post[] }) {
         {pagePosts.map((post, i) => {
           const idx = (safePage - 1) * PAGE_SIZE + i
           return (
-            <Link key={post.id} href={`/posts/${post.slug}`} className="item home-post-card archive-post-card">
+            <ResourcePrefetchLink
+              key={post.id}
+              href={`/posts/${post.slug}`}
+              resourceKey={`comments:${post.slug}`}
+              intentPrefetch
+              className="item home-post-card archive-post-card"
+            >
               <span className="hpc-index" aria-hidden="true">
                 <b>
                   <CnNum i={idx} />
@@ -47,7 +53,7 @@ export default function PostList({ posts }: { posts: Post[] }) {
                   <span className="read">阅读全文</span>
                 </span>
               </div>
-            </Link>
+            </ResourcePrefetchLink>
           )
         })}
       </section>

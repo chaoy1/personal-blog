@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import ResourcePrefetchLink from '@/components/ResourcePrefetchLink'
 import { usePathname, useRouter } from 'next/navigation'
 import { createPortal } from 'react-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -166,9 +167,11 @@ export default function SearchPalette() {
         />
         <div className="search-results" role="listbox">
           {results.map((item, index) => (
-            <Link
+            <ResourcePrefetchLink
               key={item.key}
               href={item.href}
+              resourceKey={item.href.startsWith('/posts/') ? `comments:${decodeURIComponent(item.href.slice('/posts/'.length))}` : undefined}
+              intentPrefetch={item.href.startsWith('/posts/')}
               className={index === active ? 'active' : undefined}
               role="option"
               aria-selected={index === active}
@@ -181,7 +184,7 @@ export default function SearchPalette() {
                 <small>{item.detail}</small>
               </span>
               <span className="search-arrow" aria-hidden="true">↗</span>
-            </Link>
+            </ResourcePrefetchLink>
           ))}
           {results.length === 0 ? (
             <p className="search-empty"><b>空</b> 未寻得相合的文字</p>

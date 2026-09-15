@@ -8,6 +8,8 @@ import ThemeToggle from '@/components/ThemeToggle'
 import LangToggle from '@/components/LangToggle'
 import { useAuth } from '@/lib/auth-context'
 import SearchPalette from '@/components/SearchPalette'
+import ResourcePrefetchLink from '@/components/ResourcePrefetchLink'
+import type { PublicResourceKey } from '@/lib/public-resource-cache'
 
 type NavLink = {
   href: string
@@ -24,6 +26,13 @@ const LINKS: NavLink[] = [
   { href: '/guestbook', label: '留言', match: (p) => p.startsWith('/guestbook') },
   { href: '/about', label: '关于', match: (p) => p.startsWith('/about') },
 ]
+
+function publicResourceKey(href: string): PublicResourceKey | null {
+  if (href === '/moments') return 'moments'
+  if (href === '/album') return 'albums'
+  if (href === '/guestbook') return 'guestbook'
+  return null
+}
 
 export default function SiteNav() {
   const pathname = usePathname()
@@ -97,15 +106,28 @@ export default function SiteNav() {
       <div className="nav-links">
         {LINKS.map((link, index) => {
           const active = link.match ? link.match(pathname) : false
+          const resourceKey = publicResourceKey(link.href)
           return (
             <Fragment key={link.href}>
-              <Link
-                href={link.href}
-                className={active ? 'active' : undefined}
-                aria-current={active ? 'page' : undefined}
-              >
-                {link.label}
-              </Link>
+              {resourceKey ? (
+                <ResourcePrefetchLink
+                  href={link.href}
+                  prefetch
+                  resourceKey={resourceKey}
+                  className={active ? 'active' : undefined}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  {link.label}
+                </ResourcePrefetchLink>
+              ) : (
+                <Link
+                  href={link.href}
+                  className={active ? 'active' : undefined}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  {link.label}
+                </Link>
+              )}
               {index < LINKS.length - 1 ? <span className="nav-divider" aria-hidden="true" /> : null}
             </Fragment>
           )
@@ -162,17 +184,33 @@ export default function SiteNav() {
         <div className="mobile-nav-links">
           {LINKS.map((link, index) => {
             const active = link.match ? link.match(pathname) : false
+            const resourceKey = publicResourceKey(link.href)
             return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={active ? 'active' : undefined}
-                aria-current={active ? 'page' : undefined}
-              >
-                <span>{String(index + 1).padStart(2, '0')}</span>
-                <b>{link.label}</b>
-                <i aria-hidden="true">↗</i>
-              </Link>
+              resourceKey ? (
+                <ResourcePrefetchLink
+                  key={link.href}
+                  href={link.href}
+                  prefetch
+                  resourceKey={resourceKey}
+                  className={active ? 'active' : undefined}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <b>{link.label}</b>
+                  <i aria-hidden="true">↗</i>
+                </ResourcePrefetchLink>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={active ? 'active' : undefined}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <b>{link.label}</b>
+                  <i aria-hidden="true">↗</i>
+                </Link>
+              )
             )
           })}
         </div>

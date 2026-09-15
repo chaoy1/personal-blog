@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ResourcePrefetchLink from '@/components/ResourcePrefetchLink'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import MarkdownView from '@/components/MarkdownView'
@@ -112,7 +113,13 @@ export default async function PostPage({ params }: Props) {
               <ul>
                 {related.map((p) => (
                   <li key={p.id}>
-                    <Link href={`/posts/${p.slug}`}>{p.title}</Link>
+                    <ResourcePrefetchLink
+                      href={`/posts/${p.slug}`}
+                      resourceKey={`comments:${p.slug}`}
+                      intentPrefetch
+                    >
+                      {p.title}
+                    </ResourcePrefetchLink>
                     <span className="related-date">{formatDate(p.created_at)}</span>
                   </li>
                 ))}

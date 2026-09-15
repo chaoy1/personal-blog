@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ResourcePrefetchLink from '@/components/ResourcePrefetchLink'
 import type { CSSProperties } from 'react'
 import type { Metadata } from 'next'
 import { listPublishedPosts, countPosts, formatDate, type Post } from '@/lib/posts'
@@ -171,7 +172,13 @@ export default async function HomePage() {
             </h2>
             <div className="list">
               {posts.map((post, i) => (
-                <Link key={post.id} href={`/posts/${post.slug}`} className="item home-post-card">
+                <ResourcePrefetchLink
+                  key={post.id}
+                  href={`/posts/${post.slug}`}
+                  resourceKey={`comments:${post.slug}`}
+                  intentPrefetch
+                  className="item home-post-card"
+                >
                   <span className="hpc-index" aria-hidden="true">
                     <b>
                       <CnNum i={i} />
@@ -193,7 +200,7 @@ export default async function HomePage() {
                       <span className="read">阅读全文</span>
                     </span>
                   </div>
-                </Link>
+                </ResourcePrefetchLink>
               ))}
             </div>
           </section>
