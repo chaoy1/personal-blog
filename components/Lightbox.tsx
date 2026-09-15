@@ -1,29 +1,60 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { useDialogBehavior } from '@/components/DialogBehavior'
 
 const ZOOMABLE =
   '.md-body img, .album-item img, .moment-images img, .moments-images img, .tl-thumb'
 
+type LightboxItem = {
+  src: string
+  alt: string
+  caption: string
+  date: string
+}
+
+function collectionFor(img: HTMLImageElement): HTMLImageElement[] {
+  const albumGrid = img.closest<HTMLElement>('.album-grid')
+  if (albumGrid) return Array.from(albumGrid.querySelectorAll<HTMLImageElement>('.album-item img'))
+
+  const collection = img.closest<HTMLElement>('.md-body, .moment-images, .moments-images, .timeline')
+  return collection
+    ? Array.from(collection.querySelectorAll<HTMLImageElement>(ZOOMABLE))
+    : [img]
+}
+
+function itemFrom(img: HTMLImageElement): LightboxItem {
+  return {
+    src: img.currentSrc || img.src,
+    alt: img.alt || '图片预览',
+    caption: img.dataset.lightboxCaption || img.alt || '',
+    date: img.dataset.lightboxDate || '',
+  }
+}
+
 export default function Lightbox() {
-  const [src, setSrc] = useState<string | null>(null)
-  const [alt, setAlt] = useState('')
+  const [items, setItems] = useState<LightboxItem[]>([])
+  const [index, setIndex] = useState(0)
   const closeRef = useRef<HTMLButtonElement>(null)
 
   const openImage = useCallback((img: HTMLImageElement) => {
     img.focus()
-    setSrc(img.currentSrc || img.src)
-    setAlt(img.alt || '')
+    const images = collectionFor(img)
+    setItems(images.map(itemFrom))
+    setIndex(Math.max(0, images.indexOf(img)))
   }, [])
 
   const close = useCallback(() => {
-    setSrc(null)
-    setAlt('')
+    setItems([])
+    setIndex(0)
   }, [])
 
+  const move = useCallback((delta: number) => {
+    setIndex((current) => Math.min(Math.max(current + delta, 0), items.length - 1))
+  }, [items.length])
+
   const { dialogRef, onKeyDown } = useDialogBehavior<HTMLDivElement>({
-    open: Boolean(src),
+    open: items.length > 0,
     onClose: close,
     initialFocusRef: closeRef,
   })
@@ -39,7 +70,7 @@ export default function Lightbox() {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target
       const img = target instanceof Element ? target.closest<HTMLImageElement>(ZOOMABLE) : null
-      if (!src && img && (e.key === 'Enter' || e.key === ' ')) {
+      if (!document.querySelector('.lightbox') && img && (e.key === 'Enter' || e.key === ' ')) {
         e.preventDefault()
         openImage(img)
         return
@@ -78,30 +109,69 @@ export default function Lightbox() {
     }
   }, [openImage])
 
-  if (!src) return null
+  const current = items[index]
+  if (!current) return null
+
+  const handleDialogKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    onKeyDown(event)
+    if (event.key === 'ArrowLeft' && index > 0) {
+      event.preventDefault()
+      move(-1)
+    }
+    if (event.key === 'ArrowRight' && index < items.length - 1) {
+      event.preventDefault()
+      move(1)
+    }
+  }
 
   return (
     <div
       ref={dialogRef}
       className="lightbox"
-      onKeyDown={onKeyDown}
+      onKeyDown={handleDialogKeyDown}
       onClick={(event) => {
         if (event.target === event.currentTarget) close()
       }}
       role="dialog"
       aria-modal="true"
-      aria-label={alt || '图片预览'}
+      aria-label={current.alt || '图片预览'}
     >
       <button ref={closeRef} type="button" className="lightbox-close" onClick={close} aria-label="关闭">
         ×
       </button>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        className="lightbox-img"
-        src={src}
-        alt={alt}
-        onClick={(e) => e.stopPropagation()}
-      />
+      {items.length > 1 ? (
+        <>
+          <button
+            type="button"
+            className="lightbox-nav prev"
+            aria-label="上一张"
+            onClick={() => move(-1)}
+            disabled={index === 0}
+          >
+            ←
+          </button>
+          <button
+            type="button"
+            className="lightbox-nav next"
+            aria-label="下一张"
+            onClick={() => move(1)}
+            disabled={index === items.length - 1}
+          >
+            →
+          </button>
+        </>
+      ) : null}
+      <figure className="lightbox-frame" onClick={(e) => e.stopPropagation()}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="lightbox-img" src={current.src} alt={current.alt} />
+        <figcaption>
+          <span>{current.caption}</span>
+          <span className="lightbox-count">
+            {String(index + 1).padStart(2, '0')} / {String(items.length).padStart(2, '0')}
+          </span>
+          {current.date ? <time className="lightbox-date">{current.date}</time> : null}
+        </figcaption>
+      </figure>
     </div>
   )
 }
