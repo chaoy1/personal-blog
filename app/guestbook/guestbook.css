@@ -2492,7 +2492,8 @@
 
 .guestbook-immersive-textarea:focus-visible {
   border-left: 0;
-  outline: 0;
+  outline: 2px solid var(--seal);
+  outline-offset: 4px;
 }
 
 /* ---- 页脚 ---- */

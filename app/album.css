@@ -41,17 +41,17 @@
   transform: rotate(0.3deg);
 }
 
-.album-page .album-card:hover,
-.album-page .album-card:focus-visible {
+.album-page .album-card:hover {
   border-color: var(--seal);
   box-shadow: 0 22px 42px -26px rgba(37, 25, 10, 0.7);
-  outline: none;
   transform: translateY(-4px) rotate(0deg);
 }
 
 .album-page .album-card:focus-visible,
 .album-page .album-back:focus-visible {
   box-shadow: 0 0 0 3px var(--seal), 0 18px 38px -28px rgba(40, 28, 12, 0.64);
+  outline: 2px solid var(--seal);
+  outline-offset: 3px;
 }
 
 :root[data-theme='dark'] .album-page .album-card,

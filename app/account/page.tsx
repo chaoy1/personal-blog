@@ -7,12 +7,14 @@ import { supabaseBrowser, storagePublicUrl } from '@/lib/supabase-browser'
 import { useAuth } from '@/lib/auth-context'
 import Avatar from '@/components/Avatar'
 import ArticleNav from '@/components/ArticleNav'
+import { useConfirmDialog } from '@/components/ConfirmDialog'
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
 export default function AccountPage() {
   const router = useRouter()
   const { ready, user, profile, updateProfile } = useAuth()
+  const { confirm, dialog } = useConfirmDialog()
   const [nickname, setNickname] = useState('')
   const [savedNickname, setSavedNickname] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
@@ -203,9 +205,14 @@ export default function AccountPage() {
     setValue(value)
   }
 
-  function finish() {
-    if ((profileDirty || passwordDirty) && typeof window !== 'undefined' && !window.confirm('还有未保存的更改，确定离开吗？')) {
-      return
+  async function finish() {
+    if (profileDirty || passwordDirty) {
+      const confirmed = await confirm({
+        title: '还有未保存的更改',
+        description: '离开后当前修改不会保存，确定仍要离开吗？',
+        confirmLabel: '仍然离开',
+      })
+      if (!confirmed) return
     }
     if (typeof window !== 'undefined' && window.history.length > 1) {
       router.back()
@@ -441,6 +448,7 @@ export default function AccountPage() {
             修改完成
           </button>
         </footer>
+        {dialog}
         </div>
       </div>
     </main>

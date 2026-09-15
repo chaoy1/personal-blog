@@ -613,6 +613,26 @@ describe('public form feedback', () => {
     expect(screen.getByRole('button', { name: '保存资料' })).toBeEnabled()
   })
 
+  it('uses the accessible confirmation dialog before leaving dirty account settings', async () => {
+    render(<AccountPage />)
+
+    fireEvent.change(screen.getByLabelText('昵称'), { target: { value: '尚未保存的旅人' } })
+    fireEvent.click(screen.getByRole('button', { name: '修改完成' }))
+
+    const dialog = await screen.findByRole('alertdialog', { name: '还有未保存的更改' })
+    expect(dialog).toHaveTextContent('离开后当前修改不会保存')
+    expect(screen.getByRole('button', { name: '取消' })).toHaveFocus()
+
+    fireEvent.click(screen.getByRole('button', { name: '取消' }))
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    expect(mocks.router.back).not.toHaveBeenCalled()
+    expect(mocks.router.push).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: '修改完成' }))
+    fireEvent.click(await screen.findByRole('button', { name: '仍然离开' }))
+    await waitFor(() => expect(mocks.router.push).toHaveBeenCalledWith('/'))
+  })
+
   it('shows a selected avatar preview while the upload is pending', () => {
     const request = deferred<{ error: null }>()
     mocks.uploadAvatar.mockImplementationOnce(() => request.promise)

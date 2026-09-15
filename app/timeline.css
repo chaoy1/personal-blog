@@ -196,10 +196,15 @@
   box-shadow: none;
 }
 
-.timeline-page-body .timeline-unfold:hover,
+.timeline-page-body .timeline-unfold:hover {
+  border-color: var(--seal);
+  box-shadow: 0 0 0 3px rgba(178, 58, 43, 0.15);
+}
+
 .timeline-page-body .timeline-unfold:focus-visible {
   border-color: var(--seal);
-  outline: none;
+  outline: 2px solid var(--seal);
+  outline-offset: 3px;
   box-shadow: 0 0 0 3px rgba(178, 58, 43, 0.15);
 }
 
