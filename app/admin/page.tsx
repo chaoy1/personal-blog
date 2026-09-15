@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { formatDate, type Post } from '@/lib/blog'
@@ -12,32 +12,83 @@ import { runAdminAction } from '@/lib/admin-action'
 type View = 'posts' | 'trash'
 type StatusFilter = 'all' | 'published' | 'draft'
 
+function initialView(): View {
+  if (typeof window === 'undefined') return 'posts'
+  return new URLSearchParams(window.location.search).get('view') === 'trash' ? 'trash' : 'posts'
+}
+
+function initialQuery(): string {
+  if (typeof window === 'undefined') return ''
+  return new URLSearchParams(window.location.search).get('q') ?? ''
+}
+
+function initialStatus(): StatusFilter {
+  if (typeof window === 'undefined') return 'all'
+  const value = new URLSearchParams(window.location.search).get('status')
+  return value === 'published' || value === 'draft' ? value : 'all'
+}
+
 export default function AdminDashboard() {
   const router = useRouter()
   const { confirm, dialog } = useAdminConfirm()
   const { notify } = useAdminFeedback()
   const [posts, setPosts] = useState<Post[] | null>(null)
   const [error, setError] = useState('')
-  const [view, setView] = useState<View>('posts')
-  const [query, setQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [view, setView] = useState<View>(initialView)
+  const [query, setQuery] = useState(initialQuery)
+  const [appliedQuery, setAppliedQuery] = useState(initialQuery)
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>(initialStatus)
+  const postsRef = useRef<Post[] | null>(null)
+  const snapshotViewRef = useRef<View | null>(null)
 
   const onUnauthorized = useCallback(() => {
     router.replace(`/admin/login?next=${encodeURIComponent('/admin')}`)
   }, [router])
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => setAppliedQuery(query), 160)
+    return () => window.clearTimeout(timer)
+  }, [query])
+
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (view === 'trash') params.set('view', 'trash')
+    if (query) params.set('q', query)
+    if (statusFilter !== 'all') params.set('status', statusFilter)
+    const nextUrl = params.toString() ? `/admin?${params.toString()}` : '/admin'
+    const currentUrl = `${window.location.pathname}${window.location.search}`
+    if (currentUrl !== nextUrl) window.history.replaceState(null, '', nextUrl)
+  }, [query, statusFilter, view])
+
   const load = useCallback(async () => {
+    const hasSnapshot = snapshotViewRef.current === view && postsRef.current !== null
     setError('')
-    setPosts(null)
+    if (hasSnapshot) {
+      setRefreshing(true)
+    } else {
+      setLoading(true)
+      setPosts(null)
+    }
     try {
       const result = await runAdminAction<Post[]>(
         fetch(view === 'trash' ? '/api/admin/posts?trash=1' : '/api/admin/posts'),
         { onUnauthorized },
       )
+      postsRef.current = result
+      snapshotViewRef.current = view
       setPosts(result)
     } catch (cause) {
-      setPosts([])
+      if (!hasSnapshot) {
+        postsRef.current = []
+        snapshotViewRef.current = view
+        setPosts([])
+      }
       setError(cause instanceof Error ? cause.message : '加载文章失败')
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
     }
   }, [onUnauthorized, view])
 
@@ -46,7 +97,7 @@ export default function AdminDashboard() {
   }, [load])
 
   const filteredPosts = useMemo(() => {
-    const needle = query.trim().toLocaleLowerCase('zh-CN')
+    const needle = appliedQuery.trim().toLocaleLowerCase('zh-CN')
     return (posts ?? []).filter((post) => {
       const matchesQuery = !needle
         || post.title.toLocaleLowerCase('zh-CN').includes(needle)
@@ -56,7 +107,7 @@ export default function AdminDashboard() {
         || (statusFilter === 'published' ? post.published : !post.published)
       return matchesQuery && matchesStatus
     })
-  }, [posts, query, statusFilter])
+  }, [appliedQuery, posts, statusFilter])
 
   async function moveToTrash(post: Post) {
     const accepted = await confirm({
@@ -105,8 +156,21 @@ export default function AdminDashboard() {
     }
   }
 
+  const pageState = loading && posts === null
+    ? 'loading'
+    : refreshing
+      ? 'refreshing'
+      : error
+        ? 'error'
+        : 'ready'
+
   return (
-    <>
+    <section
+      className="admin-dashboard-page"
+      role="region"
+      aria-label="文章管理"
+      data-page-state={pageState}
+    >
       {dialog}
       <AdminPageHead
         index="01"
@@ -121,6 +185,7 @@ export default function AdminDashboard() {
               onClick={() => {
                 setView((value) => value === 'posts' ? 'trash' : 'posts')
                 setQuery('')
+                setAppliedQuery('')
                 setStatusFilter('all')
               }}
             >
@@ -131,7 +196,7 @@ export default function AdminDashboard() {
         )}
       />
 
-      <div className="admin-filter-bar" role="search">
+      <div className="admin-filter-bar" role="search" aria-label="文章筛选">
         <label>
           <span className="sr-only">搜索文章</span>
           <input
@@ -152,6 +217,14 @@ export default function AdminDashboard() {
           </label>
         ) : null}
         {posts ? <span className="hint">显示 {filteredPosts.length} / {posts.length}</span> : null}
+        <button
+          type="button"
+          className="btn btn-ghost btn-sm admin-refresh-button"
+          onClick={() => void load()}
+          disabled={loading || refreshing}
+        >
+          {refreshing ? '刷新中…' : '重新加载'}
+        </button>
       </div>
 
       {error ? (
@@ -161,28 +234,57 @@ export default function AdminDashboard() {
         </div>
       ) : null}
 
+      {refreshing ? <p className="hint admin-refresh-status" role="status">正在刷新文章…</p> : null}
+
       {posts === null ? (
-        <p className="hint" role="status">正在加载文章…</p>
+        <>
+          <p className="hint" role="status">正在加载文章…</p>
+          <div className="admin-list admin-list-skeleton" aria-hidden="true">
+            <div className="admin-row-skeleton" data-testid="admin-row-skeleton" />
+            <div className="admin-row-skeleton" />
+            <div className="admin-row-skeleton" />
+          </div>
+        </>
       ) : filteredPosts.length === 0 ? (
-        <div className="empty-state">
+        <div className="empty-state admin-empty-state">
           <div className="big">空</div>
-          {posts.length > 0
-            ? '没有符合当前筛选条件的文章。'
-            : view === 'trash' ? '回收站是空的。' : '还没有文章，点「写新文章」开始吧。'}
+          <p>
+            {posts.length > 0
+              ? '没有符合当前筛选条件的文章。'
+              : view === 'trash' ? '回收站是空的。' : '还没有文章，点「写新文章」开始吧。'}
+          </p>
+          {posts.length > 0 && (query || statusFilter !== 'all') ? (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() => {
+                setQuery('')
+                setAppliedQuery('')
+                setStatusFilter('all')
+              }}
+            >
+              清除筛选
+            </button>
+          ) : null}
         </div>
       ) : (
-        <div className="admin-list">
+        <div className="admin-list" role="list" aria-label="文章列表" aria-busy={refreshing}>
           {filteredPosts.map((post, index) => (
-            <article key={post.id} className="admin-item">
+            <article key={post.id} className="admin-item" role="listitem" data-post-id={post.id}>
               <span className="admin-item-index" aria-hidden="true">
                 {String(index + 1).padStart(2, '0')}
               </span>
               <div>
                 <h3>
-                  {post.title}
-                  {view === 'trash'
-                    ? <span className="draft-tag">已删除</span>
-                    : !post.published ? <span className="draft-tag">草稿</span> : null}
+                  <Link href={`/admin/editor?id=${post.id}`} className="admin-item-title">
+                    {post.title}
+                  </Link>
+                  <span
+                    className={`status-tag status-tag-${view === 'trash' ? 'trashed' : post.published ? 'published' : 'draft'}`}
+                    data-status={view === 'trash' ? 'trashed' : post.published ? 'published' : 'draft'}
+                  >
+                    {view === 'trash' ? '已删除' : post.published ? '已发布' : '草稿'}
+                  </span>
                 </h3>
                 <div className="meta">
                   更新于 {formatDate(post.updated_at)} · /posts/{post.slug.replace(/^trashbin-\d{13}-/, '')}
@@ -191,24 +293,34 @@ export default function AdminDashboard() {
               <div className="ops">
                 {view === 'trash' ? (
                   <>
-                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => void restore(post)}>
+                    <button type="button" className="btn btn-ghost btn-sm admin-primary-action" onClick={() => void restore(post)}>
                       恢复
                     </button>
-                    <button type="button" className="btn btn-danger btn-sm" onClick={() => void removePermanently(post)}>
-                      彻底删除
-                    </button>
+                    <details className="admin-more-menu">
+                      <summary>更多操作</summary>
+                      <div className="admin-more-menu-panel">
+                        <button type="button" className="btn btn-danger btn-sm" onClick={() => void removePermanently(post)}>
+                          彻底删除
+                        </button>
+                      </div>
+                    </details>
                   </>
                 ) : (
                   <>
                     {post.published ? (
-                      <Link href={`/posts/${post.slug}`} className="btn btn-ghost btn-sm">查看前台</Link>
+                      <Link href={`/posts/${post.slug}`} className="btn btn-ghost btn-sm admin-primary-action">查看前台</Link>
                     ) : (
-                      <Link href={`/admin/preview/${post.id}`} className="btn btn-ghost btn-sm">预览草稿</Link>
+                      <Link href={`/admin/preview/${post.id}`} className="btn btn-ghost btn-sm admin-primary-action">预览草稿</Link>
                     )}
-                    <Link href={`/admin/editor?id=${post.id}`} className="btn btn-ghost btn-sm">编辑</Link>
-                    <button type="button" className="btn btn-danger btn-sm" onClick={() => void moveToTrash(post)}>
-                      移入回收站
-                    </button>
+                    <Link href={`/admin/editor?id=${post.id}`} className="btn btn-ghost btn-sm admin-primary-action">编辑</Link>
+                    <details className="admin-more-menu">
+                      <summary>更多操作</summary>
+                      <div className="admin-more-menu-panel">
+                        <button type="button" className="btn btn-danger btn-sm" onClick={() => void moveToTrash(post)}>
+                          移入回收站
+                        </button>
+                      </div>
+                    </details>
                   </>
                 )}
               </div>
@@ -216,6 +328,6 @@ export default function AdminDashboard() {
           ))}
         </div>
       )}
-    </>
+    </section>
   )
 }
