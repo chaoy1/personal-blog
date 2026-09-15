@@ -481,12 +481,6 @@
   color: rgba(60, 58, 47, 0.5);
 }
 
-.guestbook-immersive-textarea:focus-visible {
-  border-left-color: var(--gb-pine);
-  outline: 1px solid color-mix(in srgb, var(--gb-pine) 44%, transparent);
-  outline-offset: 8px;
-}
-
 .guestbook-immersive-foot {
   position: relative;
   z-index: 1;

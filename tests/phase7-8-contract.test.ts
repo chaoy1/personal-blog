@@ -46,3 +46,20 @@ describe('Phase 7 interaction and accessibility contracts', () => {
     expect(timeline).toMatch(/\.timeline-unfold\s*\{[\s\S]*?min-height:\s*44px/)
   })
 })
+
+describe('Phase 8 cleanup and ownership contracts', () => {
+  it('keeps the guestbook focus selector as one final implementation', () => {
+    const guestbook = read('app/guestbook/guestbook.css')
+
+    expect(guestbook.match(/\.guestbook-immersive-textarea:focus-visible\s*\{/g) ?? []).toHaveLength(1)
+    expect(guestbook).toMatch(/\.guestbook-immersive-textarea:focus-visible\s*\{[\s\S]*?outline:\s*2px/)
+  })
+
+  it('retains the compatibility facade while migration is in progress', () => {
+    const compatibility = read('lib/app-store.tsx')
+    const tests = read('tests/app-store-compatibility.test.ts')
+
+    expect(compatibility).toContain('export')
+    expect(tests).toContain('lib/app-store')
+  })
+})
