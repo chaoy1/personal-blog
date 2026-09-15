@@ -67,4 +67,23 @@ export type CommentItem = {
   profiles: { nickname: string; avatar_url: string } | null
 }
 
+export type MomentsSnapshot = {
+  moments: MomentItem[]
+  momentComments: MomentCommentItem[]
+  momentLikes: MomentLikeItem[]
+}
+
+export type AlbumsSnapshot = {
+  albums: AlbumItem[]
+  photos: PhotoItem[]
+}
+
+export type GuestbookSnapshot = {
+  guestbook: GuestbookItem[]
+}
+
+export type CommentsSnapshot = {
+  comments: CommentItem[]
+}
+
 export type StoreUser = { id: string; email?: string }
