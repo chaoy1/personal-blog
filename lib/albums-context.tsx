@@ -66,7 +66,16 @@ export function AlbumsProvider({
   }, [cache])
 
   useEffect(() => {
-    void cache.preload(ALBUMS_KEY, loadAlbums).catch(() => undefined)
+    const preloadWhenVisible = () => {
+      if (document.visibilityState === 'hidden') return
+      void cache.preload(ALBUMS_KEY, loadAlbums).catch(() => undefined)
+    }
+    preloadWhenVisible()
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') preloadWhenVisible()
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
   }, [cache])
 
   const createAlbum = useCallback(

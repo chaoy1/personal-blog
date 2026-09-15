@@ -63,7 +63,16 @@ export function GuestbookProvider({
   }, [cache])
 
   useEffect(() => {
-    void cache.preload(GUESTBOOK_KEY, loadGuestbook).catch(() => undefined)
+    const preloadWhenVisible = () => {
+      if (document.visibilityState === 'hidden') return
+      void cache.preload(GUESTBOOK_KEY, loadGuestbook).catch(() => undefined)
+    }
+    preloadWhenVisible()
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') preloadWhenVisible()
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
   }, [cache])
 
   const addGuestbook = useCallback(

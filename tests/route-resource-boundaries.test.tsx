@@ -186,6 +186,26 @@ describe('route-scoped resource boundaries', () => {
     expect(queryLog).toEqual([])
   })
 
+  it('defers a moments preload while the document is hidden until visibility is restored', async () => {
+    const originalVisibility = Object.getOwnPropertyDescriptor(document, 'visibilityState')
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' })
+    const store = createPublicResourceStore({ now: () => 1000 })
+
+    render(
+      <PublicResourceCacheProvider store={store}>
+        <MomentsProvider><MomentsProbe /></MomentsProvider>
+      </PublicResourceCacheProvider>,
+    )
+    expect(queryLog).toEqual([])
+
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' })
+    document.dispatchEvent(new Event('visibilitychange'))
+    await waitFor(() => expect(queryLog.some((entry) => entry.table === 'moments')).toBe(true))
+
+    if (originalVisibility) Object.defineProperty(document, 'visibilityState', originalVisibility)
+    else Reflect.deleteProperty(document, 'visibilityState')
+  })
+
   it('mounts resource providers at their route boundaries', () => {
     const read = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8')
     expect(read('app/moments/layout.tsx')).toContain('MomentsProvider')

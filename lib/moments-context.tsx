@@ -68,7 +68,16 @@ export function MomentsProvider({
   }, [cache])
 
   useEffect(() => {
-    void cache.preload(MOMENTS_KEY, loadMoments).catch(() => undefined)
+    const preloadWhenVisible = () => {
+      if (document.visibilityState === 'hidden') return
+      void cache.preload(MOMENTS_KEY, loadMoments).catch(() => undefined)
+    }
+    preloadWhenVisible()
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') preloadWhenVisible()
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
   }, [cache])
 
   const postMoment = useCallback(

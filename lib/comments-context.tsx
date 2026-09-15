@@ -64,7 +64,16 @@ export function CommentsProvider({
   }, [cache, key, slug])
 
   useEffect(() => {
-    void cache.preload(key, () => loadComments(slug)).catch(() => undefined)
+    const preloadWhenVisible = () => {
+      if (document.visibilityState === 'hidden') return
+      void cache.preload(key, () => loadComments(slug)).catch(() => undefined)
+    }
+    preloadWhenVisible()
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') preloadWhenVisible()
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
   }, [cache, key, slug])
 
   const addComment = useCallback(
