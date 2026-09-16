@@ -7,6 +7,7 @@ const globalStyles = readStyles('app/globals.css')
 const refinementStyles = readStyles('app/refinement.css')
 const studioStyles = readStyles('app/studio.css')
 const homeStyles = readStyles('app/home.css')
+const heroScrollStyles = readStyles('app/home-hero-scroll.css')
 
 function renderHomeShell() {
   document.head.innerHTML = `
@@ -14,20 +15,27 @@ function renderHomeShell() {
     <style>${refinementStyles}</style>
     <style>${studioStyles}</style>
     <style>${homeStyles}</style>
+    <style>${heroScrollStyles}</style>
   `
   document.body.innerHTML = `
     <main class="wrap home-page">
       <section class="home-hero">
-        <header class="masthead"><h1><span class="title">似水流年</span></h1></header>
+        <header class="masthead">
+          <div class="title-landscape" aria-hidden="true"><svg></svg></div>
+          <p class="eyebrow">留 白 处 自 有 山 河</p>
+          <h1><span class="title">似水流年</span><span class="seal">记</span></h1>
+          <div class="motif"></div>
+          <p class="lede">记录那些值得被记住的片刻。</p>
+        </header>
         <nav class="hero-stats" aria-label="站点内容概览">
-          <a class="home-stat-link hs-item button-hit-area"><b>12</b><i>文章</i></a>
-          <a class="home-stat-link hs-item button-hit-area"><b>4</b><i>闲语</i></a>
-          <a class="home-stat-link hs-item button-hit-area"><b>8</b><i>光影</i></a>
+          <a class="home-stat-link hs-item button-hit-area"><svg class="ink-ring"></svg><strong class="hs-number">12</strong><span class="hs-label">文章</span><small class="hs-latin">POSTS</small></a>
+          <a class="home-stat-link hs-item button-hit-area"><svg class="ink-ring"></svg><strong class="hs-number">4</strong><span class="hs-label">闲语</span><small class="hs-latin">NOTES</small></a>
+          <a class="home-stat-link hs-item button-hit-area"><svg class="ink-ring"></svg><strong class="hs-number">8</strong><span class="hs-label">光影</span><small class="hs-latin">FRAMES</small></a>
         </nav>
         <aside class="daily-quote">
-          <span class="dq-seal">句</span><p class="dq-text">山水有清音。</p><span class="dq-source">— 题记</span><button class="dq-shuffle">换</button>
+          <span class="dq-seal">句</span><p class="dq-text">山水有清音。</p><span class="dq-source">题记</span><button class="dq-shuffle"><svg class="dq-orbit"></svg><span class="dq-shuffle-label">换</span></button>
         </aside>
-        <button class="scroll-hint">向下浏览</button>
+        <button class="scroll-hint"><span class="sh-copy"><b>走下 · 入卷</b><small>SCROLL TO ENTER</small></span><span class="sh-line"><i /></span></button>
       </section>
       <section class="section section-loose home-section"></section>
     </main>
@@ -36,6 +44,8 @@ function renderHomeShell() {
   return {
     stats: document.querySelector<HTMLElement>('.hero-stats')!,
     statLink: document.querySelector<HTMLElement>('.home-stat-link')!,
+    statNumber: document.querySelector<HTMLElement>('.hs-number')!,
+    statLabel: document.querySelector<HTMLElement>('.hs-label')!,
     quote: document.querySelector<HTMLElement>('.daily-quote')!,
     shuffle: document.querySelector<HTMLElement>('.dq-shuffle')!,
     hint: document.querySelector<HTMLElement>('.scroll-hint')!,
@@ -50,26 +60,73 @@ afterEach(() => {
 
 describe('P01 home page recipe', () => {
   it('turns the content statistics into a restrained paper ledger with accessible targets', () => {
-    const { stats, statLink } = renderHomeShell()
+    const { stats, statLink, statNumber, statLabel } = renderHomeShell()
 
-    expect(getComputedStyle(stats).borderRadius).toBe('2px')
-    expect(getComputedStyle(stats).maxWidth).toBe('520px')
-    expect(getComputedStyle(statLink).minHeight).toBe('44px')
+    // V2 卷目：三枚目录刻度铺在纸上，不再套一层描边卡片。
+    expect(getComputedStyle(stats).borderTopWidth).toBe('0px')
+    expect(getComputedStyle(stats).maxWidth).toBe('760px')
+    expect(getComputedStyle(stats).gridTemplateColumns).toBe('repeat(3, minmax(0, 1fr))')
+    expect(getComputedStyle(statLink).minHeight).toBe('96px')
+    expect(getComputedStyle(statNumber).fontSize).toBe('52px')
+    expect(getComputedStyle(statLabel).fontSize).toBe('21px')
   })
 
   it('keeps the quote and scroll affordances compact while preserving 44px controls', () => {
     const { quote, shuffle, hint } = renderHomeShell()
 
-    expect(getComputedStyle(quote).borderRadius).toBe('2px')
-    expect(getComputedStyle(quote).maxWidth).toBe('620px')
-    expect(getComputedStyle(shuffle).minWidth).toBe('44px')
-    expect(getComputedStyle(shuffle).minHeight).toBe('44px')
-    expect(getComputedStyle(hint).minHeight).toBe('44px')
+    expect(getComputedStyle(quote).maxWidth).toBe('820px')
+    expect(getComputedStyle(quote).borderTopWidth).toBe('0px')
+    expect(getComputedStyle(shuffle).minWidth).toBe('46px')
+    expect(getComputedStyle(shuffle).minHeight).toBe('46px')
+    expect(getComputedStyle(hint).minHeight).toBe('70px')
   })
 
   it('uses the Phase 1 spacing scale for homepage sections', () => {
     const { section } = renderHomeShell()
 
     expect(getComputedStyle(section).marginTop).toBe('var(--space-16)')
+  })
+})
+
+describe('V2 scroll hero recipe', () => {
+  it('keeps the landscape wash as the deepest layer of the masthead', () => {
+    renderHomeShell()
+    const landscape = document.querySelector<HTMLElement>('.title-landscape')!
+
+    // 远山压在最底层，柔光在其上、文字在最上，三层互不吞没。
+    expect(getComputedStyle(landscape).zIndex).toBe('-1')
+    expect(getComputedStyle(landscape).mixBlendMode).toBe('multiply')
+    expect(getComputedStyle(landscape).pointerEvents).toBe('none')
+  })
+
+  it('leaves the rotated corner index out of the hero, where the painting hides it', () => {
+    renderHomeShell()
+
+    expect(getComputedStyle(document.querySelector<HTMLElement>('.home-hero')!).overflow).toBe('clip')
+    expect(heroScrollStyles).toMatch(/\.corner-index\s*\{[^}]*display:\s*none/)
+  })
+
+  it('declares token-driven dark-theme counterparts instead of hard-coded light ink', () => {
+    expect(heroScrollStyles).toMatch(/:root\[data-theme='dark'\][^{]*\{[^}]*--hero-stroke-strong/)
+    expect(heroScrollStyles).not.toMatch(/#a93225|#e8ddbd|#202720/)
+  })
+
+  it('scopes every rule to the home hero so no other page inherits the recipe', () => {
+    // 取每个声明块前的选择器：出现在 `{` 之前的最后一段文本。
+    const selectors = [...heroScrollStyles.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{/g)]
+      .map((match) => match[1].trim())
+      // 声明块内部的属性和 at-rule 前奏不是选择器。
+      .filter((value) => value.length > 0 && !value.startsWith('@') && !value.includes(':'))
+
+    expect(selectors.length).toBeGreaterThan(20)
+    for (const selector of selectors) {
+      for (const part of selector.split(',').map((value) => value.trim()).filter(Boolean)) {
+        expect(part, `unscoped selector: ${part}`).toMatch(/^\.home-page \.home-hero\b/)
+      }
+    }
+  })
+
+  it('collapses the side inscriptions before they can crowd the centred title', () => {
+    expect(heroScrollStyles).toMatch(/@media \(max-width: 980px\)[\s\S]*\.inscription\s*\{[^}]*display:\s*none/)
   })
 })

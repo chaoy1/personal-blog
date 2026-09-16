@@ -3,12 +3,51 @@ import type { CSSProperties } from 'react'
 
 import DailyQuote from '@/components/DailyQuote'
 import ScrollHint from '@/components/ScrollHint'
-import { SITE_DESC, SITE_NAME } from '@/lib/site'
+import HomeInscription from '@/components/home/HomeInscription'
+import Motif from '@/components/home/Motif'
+import TitleLandscape from '@/components/home/TitleLandscape'
+import { SITE_NAME, SITE_VERSE } from '@/lib/site'
 
 export type HomeHeroProps = {
   postCount: number
   momentCount: number
   photoCount: number
+}
+
+/** 三枚卷目共用一份外框，只有数字、名称与英文标注不同。 */
+function HeroStat({
+  href,
+  count,
+  label,
+  latin,
+}: {
+  href: string
+  count: number
+  label: string
+  latin: string
+}) {
+  return (
+    <Link href={href} className="home-stat-link hs-item button-hit-area">
+      <svg className="ink-ring" viewBox="0 0 136 90" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M127 45C127 69 104 84 67 84S9 69 9 45 31 7 68 7s59 14 59 38Z" />
+      </svg>
+      <strong className="hs-number">{count}</strong>
+      <span className="hs-label">{label}</span>
+      <small className="hs-latin">{latin}</small>
+    </Link>
+  )
+}
+
+function TitleChars({ children }: { children: string }) {
+  return (
+    <>
+      {children.split('').map((character, index) => (
+        <span key={`${character}-${index}`} className="title-char" style={{ '--i': index } as CSSProperties}>
+          {character}
+        </span>
+      ))}
+    </>
+  )
 }
 
 export default function HomeHero({ postCount, momentCount, photoCount }: HomeHeroProps) {
@@ -28,34 +67,29 @@ export default function HomeHero({ postCount, momentCount, photoCount }: HomeHer
         </svg>
       </div>
 
-      <div className="verse">言有尽而<b>意</b>无穷</div>
-      <div className="sigil">笔有止而思无涯</div>
-
       <section className="home-hero" aria-labelledby="home-title">
+        <HomeInscription side="left" text="亘古长青意无穷" seal="青" note="LEFT INSCRIPTION · 01" />
+        <HomeInscription side="right" text="墨有止而意无涯" seal="墨" note="RIGHT INSCRIPTION · 02" />
+
         <header className="masthead">
-          <p className="eyebrow">留白处自有山河</p>
+          <TitleLandscape />
+          <p className="eyebrow">留 白 处 自 有 山 河</p>
           <h1 id="home-title">
             <span className="title">
-              {SITE_NAME.split('').map((character, index) => (
-                <span key={character} className="title-char" style={{ '--i': index } as CSSProperties}>
-                  {character}
-                </span>
-              ))}
+              <TitleChars>{SITE_NAME}</TitleChars>
             </span>
-            <span className="seal" aria-hidden="true">记</span>
+            <span className="seal" aria-hidden="true">
+              记
+            </span>
           </h1>
-          <svg className="stroke" viewBox="0 0 250 28" aria-hidden="true">
-            <path d="M4 16 C 42 7, 94 20, 138 12 S 218 7, 246 14" className="stroke-main" strokeWidth={4} fill="none" strokeLinecap="round" opacity="0.78" />
-            <path d="M10 21 C 62 15, 124 23, 186 17 S 236 14, 244 17" className="stroke-thin" strokeWidth={1.6} fill="none" strokeLinecap="round" opacity="0.42" />
-            <path d="M124 3 C 156 8, 176 10, 204 7" className="stroke-red" strokeWidth={3} fill="none" strokeLinecap="round" opacity="0.55" />
-          </svg>
-          <p className="lede">{SITE_DESC}。</p>
+          <Motif />
+          <p className="lede">{SITE_VERSE}。</p>
         </header>
 
         <nav className="hero-stats" aria-label="站点内容概览">
-          <Link href="/posts" className="home-stat-link hs-item button-hit-area"><b>{postCount}</b><i>文章</i></Link>
-          <Link href="/moments" className="home-stat-link hs-item button-hit-area"><b>{momentCount}</b><i>闲语</i></Link>
-          <Link href="/album" className="home-stat-link hs-item button-hit-area"><b>{photoCount}</b><i>光影</i></Link>
+          <HeroStat href="/posts" count={postCount} label="文章" latin="POSTS" />
+          <HeroStat href="/moments" count={momentCount} label="闲语" latin="NOTES" />
+          <HeroStat href="/album" count={photoCount} label="光影" latin="FRAMES" />
         </nav>
 
         <DailyQuote />

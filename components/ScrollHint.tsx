@@ -32,8 +32,8 @@ export default function ScrollHint() {
       }}
     >
       <span className="sh-copy">
-        <b>往下 · 入卷</b>
-        <small>SCROLL TO EXPLORE</small>
+        <b>走下 · 入卷</b>
+        <small>SCROLL TO ENTER</small>
       </span>
       <span className="sh-line" aria-hidden="true">
         <i />

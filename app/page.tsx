@@ -10,6 +10,7 @@ import HomeHero from '@/components/home/HomeHero'
 import HomePreviews from '@/components/home/HomePreviews'
 import { publicMetadata } from '@/lib/seo'
 import './home.css'
+import './home-hero-scroll.css'
 
 export const revalidate = 60
 

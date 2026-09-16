@@ -40,18 +40,27 @@ describe('P01 home page composition', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: '似 水 流 年' })).toBeInTheDocument()
     expect(container.querySelector('.branch svg')).toBeInTheDocument()
-    expect(container.querySelector('.stroke')).toBeInTheDocument()
+    // V2 首屏：笔触换成标题背后的远山与云气纹样，两侧题签换成卷轴题签。
+    expect(container.querySelector('.title-landscape svg')).toBeInTheDocument()
+    expect(container.querySelector('.motif svg')).toBeInTheDocument()
     expect(container.querySelector('.seal')).toHaveTextContent('记')
-    expect(container.querySelector('.verse')).toBeInTheDocument()
-    expect(container.querySelector('.sigil')).toBeInTheDocument()
+    expect(container.querySelectorAll('.inscription')).toHaveLength(2)
 
     const overview = screen.getByRole('navigation', { name: '站点内容概览' })
+    const stats = within(overview).getAllByRole('link')
     expect(within(overview).getByRole('link', { name: /12\s*文章/ })).toHaveAttribute('href', '/posts')
     expect(within(overview).getByRole('link', { name: /4\s*闲语/ })).toHaveAttribute('href', '/moments')
     expect(within(overview).getByRole('link', { name: /8\s*光影/ })).toHaveAttribute('href', '/album')
-    for (const link of within(overview).getAllByRole('link')) {
+    for (const link of stats) {
       expect(link).toHaveClass('home-stat-link', 'button-hit-area')
+      // 每枚卷目都带一道墨圈与英文标注，作为设计稿的目录刻度。
+      expect(link.querySelector('.ink-ring')).toBeInTheDocument()
     }
+    expect(stats.map((link) => link.querySelector('.hs-latin')?.textContent)).toEqual([
+      'POSTS',
+      'NOTES',
+      'FRAMES',
+    ])
 
     expect(screen.getByRole('button', { name: '向下浏览首页内容' })).toBeInTheDocument()
   })

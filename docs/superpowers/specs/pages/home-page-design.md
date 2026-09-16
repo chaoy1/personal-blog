@@ -6,9 +6,48 @@
 
 模板：Immersive + 分段式内容长卷
 
+设计稿：`.design/home/home-hero-curated-scroll-v2.html`（首屏 V2「卷目山水」）
+
 ## 页面任务
 
 首页不是数据仪表盘，而是进入“似水流年”世界的序章。首屏负责建立山水、书法和时间感；下半页负责把访问者自然带向文章、闲语、光影和留言。
+
+## 首屏 V2 配方
+
+设计稿是一张 1440×900 的固定画布，落地时转译为可流式收束的首屏。样式收口在
+`app/home-hero-scroll.css`，全部选择器挂在 `.home-page .home-hero` 之下，只作用于首页首屏。
+
+分层顺序（由深到浅）：
+
+```text
+远山披麻皴（TitleLandscape，multiply）
+眉题柔光（.masthead::before）
+眉题 / 站名 + 朱印 / 云气纹样 / 短句
+两侧题签（HomeInscription）
+卷目统计（三枚目录刻度 + 墨圈）
+每日一句（含环形换句按钮）
+下滑入卷
+```
+
+组件边界：
+
+- `components/home/TitleLandscape.tsx`：站名背后的两层远山与一道云气，纯装饰。
+- `components/home/Motif.tsx`：站名与短句之间的双层山水纹样，取代旧的抽象笔触。
+- `components/home/HomeInscription.tsx`：左右题签共用形态（竖排题句 + 界格线 + 小印）。
+- `components/DailyQuote.tsx`：保留既有重排逻辑，换句按钮改为环形墨轨。
+- `components/ScrollHint.tsx`：保留滚动行为，文案改为「走下 · 入卷 / SCROLL TO ENTER」。
+
+配色不写死十六进制值，只走 token：
+
+- `--hero-ink` / `--hero-ink-soft`：文字主色与次色。
+- `--hero-stroke-strong` / `--hero-stroke-soft`：云气、墨圈、界格线。
+- `--hero-wash-far` / `--hero-wash-near`：两层远山的不透明度。
+- `--hero-type-display`：题签、站名、卷目编号、短句共用展示字体。
+
+站名保留全站既有字体，不回退成设计稿里的行书，以免首页与其它页面割裂。
+
+窄屏收束：题签在 980px 以下隐去；卷目编号在 640px 以下去掉描边与叠影、墨圈随之收窄，
+保证 375px 无横向溢出且三枚入口仍可单手点击。
 
 ## 必须保留
 
