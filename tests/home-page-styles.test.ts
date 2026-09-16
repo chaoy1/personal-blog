@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const readStyles = (file: string) => readFileSync(resolve(process.cwd(), file), 'utf8')
 const globalStyles = readStyles('app/globals.css')
@@ -8,6 +8,13 @@ const refinementStyles = readStyles('app/refinement.css')
 const studioStyles = readStyles('app/studio.css')
 const homeStyles = readStyles('app/home.css')
 const heroScrollStyles = readStyles('app/home-hero-scroll.css')
+
+// jsdom 对 calc() 与自定义属性里的长度支持不全，会让 computed style 出现假象。
+// 与基础配方一致，这里只断言「变量名」级别的取值。
+function computed(styles: Record<string, string>, property: string) {
+  const value = styles[property]
+  return typeof value === 'undefined' ? '' : value
+}
 
 function renderHomeShell() {
   document.head.innerHTML = `
@@ -55,7 +62,22 @@ function renderHomeShell() {
   }
 }
 
+beforeEach(() => {
+  // 显式要求正常动效：jsdom 默认不匹配 reduce，但别依赖这个默认值。
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  }))
+})
+
 afterEach(() => {
+  vi.unstubAllGlobals()
   document.head.innerHTML = ''
   document.body.innerHTML = ''
 })
@@ -114,18 +136,34 @@ describe('V2 scroll hero recipe', () => {
     expect(heroScrollStyles).not.toMatch(/#a93225|#e8ddbd|#202720/)
   })
 
-  it('scopes every rule to the home hero so no other page inherits the recipe', () => {
+  it('scopes every rule to the home page so no other page inherits the recipe', () => {
     // 取每个声明块前的选择器：出现在 `{` 之前的最后一段文本。
     const selectors = [...heroScrollStyles.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{/g)]
       .map((match) => match[1].trim())
-      // 声明块内部的属性和 at-rule 前奏不是选择器。
+      // 声明块内部的属性、at-rule 前奏与 keyframes 关键帧不是选择器。
       .filter((value) => value.length > 0 && !value.startsWith('@') && !value.includes(':'))
+      .filter((value) => value !== 'from' && value !== 'to' && !value.endsWith('%'))
 
     expect(selectors.length).toBeGreaterThan(20)
+    // 只允许三类首页级例外：首屏自身、以及两个由 AppShell 挂在 <main> 外的护字层。
+    const pageLevel = new Set(['.home-page', '.home-page .bg-tint', '.home-page .bg-blend'])
     for (const selector of selectors) {
       for (const part of selector.split(',').map((value) => value.trim()).filter(Boolean)) {
+        if (pageLevel.has(part)) continue
         expect(part, `unscoped selector: ${part}`).toMatch(/^\.home-page \.home-hero\b/)
       }
+    }
+
+    // 背部山水是 <main> 的兄弟节点，只能用 :has() 从根节点限定到首页。
+    const backgroundSelectors = [
+      ...heroScrollStyles
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .matchAll(/([^{}]+)\{[^}]*hero-wash-in/g),
+    ].map((match) => match[1].trim())
+
+    expect(backgroundSelectors).toHaveLength(1)
+    for (const part of backgroundSelectors[0].split(',').map((value) => value.trim())) {
+      expect(part).toMatch(/^:root:has\(\.home-page\)/)
     }
   })
 
@@ -145,12 +183,57 @@ describe('V2 scroll hero recipe', () => {
     expect(getComputedStyle(left).position).toBe('absolute')
     expect(getComputedStyle(right).position).toBe('absolute')
     // hero 顶部 = 导航 + wrap 上边距，所以偏移量是「画布值 − 上边距」。
-    expect(getComputedStyle(left).top).toBe('2px')
-    expect(getComputedStyle(right).top).toBe('82px')
-    // 矮屏改成从顶部自然排布，居中裁切会让统计与每日一句挤在一起。
-    expect(heroScrollStyles).toMatch(
-      /@media \(max-height: 820px\)[\s\S]*?justify-content:\s*flex-start/,
-    )
+    expect(computed({ top: getComputedStyle(left).top }, 'top')).toBe('2px')
+    expect(computed({ top: getComputedStyle(right).top }, 'top')).toBe('82px')
+  })
+
+  it('makes the hero fill the whole first screen instead of hugging its content', () => {
+    renderHomeShell()
+    const hero = document.querySelector<HTMLElement>('.home-hero')!
+
+    // 首屏吃满导航以下的一屏，多余空间由上下 auto 外边距平分。
+    expect(heroScrollStyles).toMatch(/min-height:\s*calc\(100svh - var\(--nav-h\)\)/)
+    expect(heroScrollStyles).toMatch(/min-height:\s*calc\(100dvh - var\(--nav-h\)\)/)
+    // 首屏自己承担上边距，导航与画卷之间不再留一段空纸。
+    expect(heroScrollStyles).toMatch(/\.home-page\s*\{[^}]*--wrap-pt:\s*0px/)
+    // 下滑入口压在首屏底部，上方 auto 外边距吸收剩余空间。
+    expect(heroScrollStyles).toMatch(/\.home-hero \.scroll-hint\s*\{[^}]*margin:\s*auto auto 0/)
+    expect(getComputedStyle(hero).overflow).toBe('clip')
+    // 内容高于视口时不能被裁掉：高度是下限而不是定值。
+    expect(heroScrollStyles).toMatch(/\.home-page \.home-hero \{[^}]*min-height: calc\(100svh - var\(--nav-h\)\)/)
+    expect(heroScrollStyles).not.toMatch(/\n\s*height: calc\(100(svh|dvh)/)
+  })
+
+  it('brings the background and every hero layer in one after another', () => {
+    const staged: Array<[string, string]> = [
+      [':root:has(.home-page) .bg-painting', 'hero-wash-in'],
+      ['.home-page .home-hero .title-landscape', 'hero-far-in'],
+      ['.home-page .home-hero .inscription', 'hero-inscription-in'],
+      ['.home-page .home-hero .motif', 'hero-motif-in'],
+    ]
+
+    // 新加的三层必须自己带入场，否则会整块硬闪出来。
+    for (const [selector, animation] of staged) {
+      const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      expect(heroScrollStyles, `missing staged animation for ${selector}`).toMatch(
+        new RegExp(`${escaped}\\s*\\{[^}]*animation:\\s*${animation}`),
+      )
+    }
+
+    // 尾部三个区块原本各等 1.6s／1.8s／2s，统一压紧。
+    expect(heroScrollStyles).toMatch(/\.home-hero \.lede[\s\S]*?animation-duration:\s*1\.05s/)
+    expect(heroScrollStyles).toMatch(/\.scroll-hint\s*\{[^}]*animation-duration:\s*1\.15s/)
+  })
+
+  it('drops every entrance animation when motion is reduced', () => {
+    const reducedMotion = heroScrollStyles.split('@media (prefers-reduced-motion: reduce)').pop()!
+
+    // 取消动画但不动 transform —— 远山要靠 translateX(-50%) 居中。
+    for (const selector of ['.eyebrow', '.title-landscape', '.inscription', '.motif', '.hero-stats', '.daily-quote']) {
+      expect(reducedMotion).toContain(selector)
+    }
+    expect(reducedMotion).toMatch(/animation:\s*none/)
+    expect(reducedMotion).not.toMatch(/\.title-landscape[^{]*\{[^}]*transform/)
   })
 
   it('keeps the quote text column capped so the source stays beside the verse', () => {

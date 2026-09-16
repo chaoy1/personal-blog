@@ -9,6 +9,15 @@
  * 颜色全部走既有 token，明暗两套主题自动跟随。
  */
 
+/*
+ * 首屏吃掉 .wrap 的上边距：首屏自己就是「卷首」，不该在导航和画卷之间
+ * 再留一段空纸。同时把首屏高度改成占满导航以下的整个第一屏，
+ * 多余的空间交给上下两条 auto 外边距平分，元素之间因此不会被挤在一起。
+ */
+.home-page {
+  --wrap-pt: 0px;
+}
+
 .home-page .home-hero {
   --hero-ink: var(--ink);
   --hero-ink-soft: var(--ink-soft);
@@ -22,6 +31,10 @@
   position: relative;
   isolation: isolate;
   overflow: clip;
+  /* 至少占满导航以下的第一屏；内容更高时自然增高，不会被裁掉。 */
+  min-height: calc(100svh - var(--nav-h));
+  min-height: calc(100dvh - var(--nav-h));
+  padding-block: 0;
 }
 
 /* 暗色纸面上放大人名与题句的护字强度，避免墨字沉进夜色。 */
@@ -37,6 +50,83 @@
   text-shadow:
     0 1px 8px color-mix(in srgb, var(--paper) 86%, transparent),
     0 0 20px color-mix(in srgb, var(--paper) 62%, transparent);
+}
+
+/* ---------- 入场：纸面先铺，题签与纹样依次落墨 ---------- */
+
+/*
+ * 背部山水不再一上来就整幅渲染：先用纸色盖住，再随首屏元素一起显影，
+ * 于是「纸 → 山水 → 题字」形成一层层铺开的感觉。
+ *
+ * 注意 `.bg-painting` 是首页 <main> 的兄弟节点（由 AppShell 统一挂载），
+ * 所以这里用 :has() 从根节点判断当前是不是首页，不能用后代选择器。
+ */
+:root:has(.home-page) .bg-painting {
+  animation: hero-wash-in 1.5s ease-out both;
+}
+
+/* 不支持 :has() 时保持原样直接渲染，只是少一层显影。 */
+@supports not selector(:has(*)) {
+  :root .bg-painting {
+    animation: none;
+  }
+}
+
+@keyframes hero-wash-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.home-page .home-hero .title-landscape {
+  animation: hero-far-in 1.7s ease-out both;
+}
+
+@keyframes hero-far-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.965);
+  }
+  45% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+.home-page .home-hero .inscription {
+  animation: hero-inscription-in 1.5s ease-out 0.1s both;
+}
+
+@keyframes hero-inscription-in {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.home-page .home-hero .motif {
+  animation: hero-motif-in 1.2s ease-out 0.62s both;
+}
+
+@keyframes hero-motif-in {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* ---------- 两侧题签 ---------- */
@@ -193,6 +283,16 @@
   width: 100%;
   height: 100%;
   overflow: visible;
+  /*
+   * 披麻皴的两端与上缘本来是硬边，显影到一半时会露出一个淡方块。
+   * 用一层柔边遮罩把四周化开，远山才像从纸里洇出来。
+   */
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%),
+    linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 84%, transparent 100%),
+    linear-gradient(90deg, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 
 .home-page .home-hero .tl-far {
@@ -336,6 +436,15 @@
   line-height: 1.6;
   color: var(--hero-ink);
   text-shadow: 0 1px 11px color-mix(in srgb, var(--paper) 100%, transparent);
+  /* 短句与统计、每日一句本来各等 1.6s／1.8s／2s，尾部拖得太久；
+     统一压到 1s 上下，落墨才紧凑。 */
+  animation-duration: 1.05s;
+}
+
+.home-page .home-hero .hero-stats,
+.home-page .home-hero .daily-quote,
+.home-page .home-hero .scroll-hint {
+  animation-duration: 1.15s;
 }
 
 /* ---------- 卷目统计 ---------- */
@@ -959,17 +1068,11 @@
 }
 
 /*
- * 矮屏优先压缩纵向空隙，保证下滑入口仍在首屏之内。
- *
- * 首屏内容高于视口时，flex 居中会把上下两端同时推出盒子并被 overflow: clip
- * 裁掉，统计与每日一句看上去就挤在一起。所以矮屏改为从顶部自然排布，
- * 由间距而不是居中来决定节奏。
+ * 矮屏压缩纵向空隙，保证下滑入口仍在首屏之内。
+ * 首屏高度现在跟着视口走，auto 外边距在内容放不下时会自然归零，
+ * 所以这里只需要收紧元素之间的间距，不必再改对齐方式。
  */
 @media (max-height: 820px) and (min-width: 981px) {
-  .home-page .home-hero {
-    justify-content: flex-start;
-  }
-
   .home-page .home-hero .title-landscape {
     top: -56px;
     height: 320px;
@@ -1025,7 +1128,37 @@
   }
 }
 
+/* 首屏自己承担上边距，所以收窄时也按导航高度取值即可。 */
+@media (max-width: 720px) {
+  .home-page {
+    --wrap-pt: 0px;
+  }
+
+  .home-page .bg-tint,
+  .home-page .bg-blend {
+    /* 窄屏首屏更高，护字层跟着铺满。 */
+    inset: 0;
+  }
+}
+
+/*
+ * 关闭动效时首屏必须一次性就位：入场动画一律取消。
+ * 注意只动 animation，不动 transform —— 远山要靠 translateX(-50%) 居中。
+ */
 @media (prefers-reduced-motion: reduce) {
+  :root:has(.home-page) .bg-painting,
+  .home-page .home-hero .eyebrow,
+  .home-page .home-hero .title,
+  .home-page .home-hero .title-landscape,
+  .home-page .home-hero .inscription,
+  .home-page .home-hero .motif,
+  .home-page .home-hero .lede,
+  .home-page .home-hero .hero-stats,
+  .home-page .home-hero .daily-quote,
+  .home-page .home-hero .scroll-hint {
+    animation: none;
+  }
+
   .home-page .home-hero .dq-shuffle,
   .home-page .home-hero .dq-orbit-track {
     transition: none;
