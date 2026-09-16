@@ -29,7 +29,10 @@ function HeroStat({
   return (
     <Link href={href} className="home-stat-link hs-item button-hit-area">
       <svg className="ink-ring" viewBox="0 0 136 90" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M127 45C127 69 104 84 67 84S9 69 9 45 31 7 68 7s59 14 59 38Z" />
+        <path
+          d="M127 45C127 69 104 84 67 84S9 69 9 45 31 7 68 7s59 14 59 38Z"
+          vectorEffect="non-scaling-stroke"
+        />
       </svg>
       <strong className="hs-number">{count}</strong>
       <span className="hs-label">{label}</span>

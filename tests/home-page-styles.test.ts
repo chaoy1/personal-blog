@@ -20,6 +20,8 @@ function renderHomeShell() {
   document.body.innerHTML = `
     <main class="wrap home-page">
       <section class="home-hero">
+        <div class="inscription left"><div class="inscription-copy">亘古长青意无穷</div></div>
+        <div class="inscription right"><div class="inscription-copy">墨有止而意无涯</div></div>
         <header class="masthead">
           <div class="title-landscape" aria-hidden="true"><svg></svg></div>
           <p class="eyebrow">留 白 处 自 有 山 河</p>
@@ -64,7 +66,8 @@ describe('P01 home page recipe', () => {
 
     // V2 卷目：三枚目录刻度铺在纸上，不再套一层描边卡片。
     expect(getComputedStyle(stats).borderTopWidth).toBe('0px')
-    expect(getComputedStyle(stats).maxWidth).toBe('760px')
+    // 容器收到内容宽度：满宽时透明盒会伸到右侧题签底下。
+    expect(getComputedStyle(stats).maxWidth).toBe('690px')
     expect(getComputedStyle(stats).gridTemplateColumns).toBe('repeat(3, minmax(0, 1fr))')
     expect(getComputedStyle(statLink).minHeight).toBe('96px')
     expect(getComputedStyle(statNumber).fontSize).toBe('52px')
@@ -128,5 +131,33 @@ describe('V2 scroll hero recipe', () => {
 
   it('collapses the side inscriptions before they can crowd the centred title', () => {
     expect(heroScrollStyles).toMatch(/@media \(max-width: 980px\)[\s\S]*\.inscription\s*\{[^}]*display:\s*none/)
+  })
+
+  /*
+   * 设计稿把题签钉在 1440×900 画布上，和统计数据不在同一条水平带里。
+   * 曾经把题签挂到 hero 盒子里，矮屏上它随盒子下移，直接压在三枚卷目上。
+   */
+  it('anchors the inscriptions to the same band as the title, never down onto the catalog', () => {
+    renderHomeShell()
+    const left = document.querySelector<HTMLElement>('.inscription.left')!
+    const right = document.querySelector<HTMLElement>('.inscription.right')!
+
+    expect(getComputedStyle(left).position).toBe('absolute')
+    expect(getComputedStyle(right).position).toBe('absolute')
+    // hero 顶部 = 导航 + wrap 上边距，所以偏移量是「画布值 − 上边距」。
+    expect(getComputedStyle(left).top).toBe('2px')
+    expect(getComputedStyle(right).top).toBe('82px')
+    // 矮屏改成从顶部自然排布，居中裁切会让统计与每日一句挤在一起。
+    expect(heroScrollStyles).toMatch(
+      /@media \(max-height: 820px\)[\s\S]*?justify-content:\s*flex-start/,
+    )
+  })
+
+  it('keeps the quote text column capped so the source stays beside the verse', () => {
+    const { quote } = renderHomeShell()
+
+    // 引文列若用 1fr，容器变宽会把出处推到天边，和换句按钮贴在一起。
+    expect(getComputedStyle(quote).gridTemplateColumns).toBe('46px minmax(0, 410px) auto 52px')
+    expect(getComputedStyle(quote).maxWidth).toBe('820px')
   })
 })
