@@ -1557,6 +1557,40 @@
   }
 }
 
+/* 按设计稿，换句控件脱离文字网格，始终钉在每日一句纸带的右端。 */
+.home-page .home-hero .daily-quote {
+  left: 48%;
+  grid-template-columns: 46px minmax(0, 410px) auto;
+  padding-right: 96px;
+}
+
+.home-page .home-hero .dq-shuffle {
+  position: absolute;
+  top: 50%;
+  right: 34px;
+  transform: translateY(-50%);
+}
+
+.home-page .home-hero .dq-shuffle:hover {
+  transform: translateY(calc(-50% - 1px));
+}
+
+.home-page .home-hero .dq-shuffle:active {
+  transform: translateY(calc(-50% + 1px));
+}
+
+@media (max-width: 720px) {
+  .home-page .home-hero .daily-quote {
+    left: 50%;
+    grid-template-columns: 30px minmax(0, 1fr);
+    padding-right: 64px;
+  }
+
+  .home-page .home-hero .dq-shuffle {
+    right: 10px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root:has(.home-page) .bg-painting,
   .home-page .home-hero .eyebrow,

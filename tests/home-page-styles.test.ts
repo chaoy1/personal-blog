@@ -292,10 +292,26 @@ describe('V2 scroll hero recipe', () => {
   })
 
   it('keeps the quote text column capped so the source stays beside the verse', () => {
-    const { quote } = renderHomeShell()
+    const { quote, shuffle } = renderHomeShell()
 
-    // 引文列若用 1fr，容器变宽会把出处推到天边，和换句按钮贴在一起。
-    expect(getComputedStyle(quote).gridTemplateColumns).toBe('46px minmax(0, 410px) auto 52px')
+    // 引文列若用 1fr，容器变宽会把出处推到天边；换句按钮独立钉在纸带右端。
+    expect(getComputedStyle(quote).gridTemplateColumns).toBe('46px minmax(0, 410px) auto')
+    expect(getComputedStyle(shuffle).position).toBe('absolute')
     expect(getComputedStyle(quote).maxWidth).toBe('820px')
+    expect(heroScrollStyles).toMatch(
+      /\.home-page \.home-hero \.daily-quote\s*\{[^}]*left:\s*48%/,
+    )
+    expect(heroScrollStyles).toMatch(
+      /\.home-page \.home-hero \.dq-shuffle\s*\{[^}]*position:\s*absolute[^}]*top:\s*50%[^}]*right:\s*34px/,
+    )
+  })
+
+  it('keeps the quote switch inside the right edge on narrow screens', () => {
+    expect(heroScrollStyles).toMatch(
+      /@media \(max-width:\s*720px\)[\s\S]*?\.home-page \.home-hero \.daily-quote\s*\{[^}]*padding-right:\s*64px/,
+    )
+    expect(heroScrollStyles).toMatch(
+      /@media \(max-width:\s*720px\)[\s\S]*?\.home-page \.home-hero \.dq-shuffle\s*\{[^}]*right:\s*10px/,
+    )
   })
 })
