@@ -26,6 +26,8 @@ function renderHomeShell() {
     <style>${heroScrollStyles}</style>
   `
   document.body.innerHTML = `
+    <div class="bg-painting" aria-hidden="true"></div>
+    <div class="bg-blend" aria-hidden="true"></div>
     <main class="wrap home-page">
       <section class="home-hero">
         <div class="inscription left"><div class="inscription-copy">亘古长青意无穷</div></div>
@@ -156,6 +158,40 @@ describe('V2 scroll hero recipe', () => {
     expect(heroScrollStyles).toMatch(/:root:has\(\.home-page\) \.bg-canvas\s*\{[^}]*display:\s*none/)
     expect(heroScrollStyles).toMatch(/:root:has\(\.home-page\) \.vignette\s*\{[^}]*animation:\s*none/)
     expect(heroScrollStyles).toMatch(/:root:has\(\.home-page\) \.bg-blend\s*\{[^}]*mix-blend-mode:\s*normal/)
+  })
+
+  it('subordinates the source painting to the warm title-area landscape wash', () => {
+    const { painting, blend } = (() => {
+      renderHomeShell()
+      return {
+        painting: document.querySelector<HTMLElement>('.bg-painting')!,
+        blend: document.querySelector<HTMLElement>('.bg-blend')!,
+      }
+    })()
+
+    expect(getComputedStyle(painting).filter).toBe('var(--hero-bg-filter)')
+    expect(getComputedStyle(blend).background).toContain('var(--hero-bg-wash)')
+    expect(heroScrollStyles).toMatch(
+      /:root:has\(\.home-page\)\s*\{[^}]*--hero-bg-filter:\s*brightness\(1\.03\) saturate\(0\.84\) contrast\(0\.98\)/,
+    )
+    expect(heroScrollStyles).toMatch(
+      /:root:has\(\.home-page\)\s*\{[^}]*--hero-bg-wash:\s*rgba\(242, 231, 197, 0\.54\)/,
+    )
+    expect(heroScrollStyles).toMatch(
+      /:root:has\(\.home-page\)\s*\{[^}]*--hero-bg-edge-wash:\s*rgba\(242, 231, 197, 0\.32\)/,
+    )
+    expect(heroScrollStyles).toMatch(
+      /radial-gradient\(ellipse 56% 44% at 50% 30%,\s*var\(--hero-bg-wash\),\s*transparent 76%\)/,
+    )
+    expect(heroScrollStyles).toMatch(
+      /:root:has\(\.home-page\) \.bg-blend::before\s*\{[^}]*background:/,
+    )
+    expect(heroScrollStyles).toMatch(
+      /:root:has\(\.home-page\) \.bg-blend::before\s*\{[^}]*mask-image:\s*linear-gradient\(180deg,\s*#000 0%,\s*#000 68%,\s*transparent 92%\)/,
+    )
+    expect(heroScrollStyles).toMatch(
+      /:root\[data-theme='dark'\]:has\(\.home-page\)\s*\{[^}]*--hero-bg-filter:\s*brightness\(0\.78\) saturate\(0\.64\) contrast\(0\.98\)/,
+    )
   })
 
   it('keeps the landscape wash as the deepest layer of the masthead', () => {

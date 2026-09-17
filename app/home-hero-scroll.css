@@ -1193,18 +1193,46 @@
 }
 
 /* 首屏只留下纸、画和少量纹理；光尘、月亮/星子会破坏标题的留白。 */
+:root:has(.home-page) {
+  /* 原画负责铺底，标题区的远山由第二层洗色重新拉开景深。 */
+  --hero-bg-filter: brightness(1.03) saturate(0.84) contrast(0.98);
+  --hero-bg-wash: rgba(242, 231, 197, 0.54);
+  --hero-bg-edge-wash: rgba(242, 231, 197, 0.32);
+}
+
+:root[data-theme='dark']:has(.home-page) {
+  --hero-bg-filter: brightness(0.78) saturate(0.64) contrast(0.98);
+  --hero-bg-wash: rgba(84, 70, 45, 0.38);
+  --hero-bg-edge-wash: rgba(84, 70, 45, 0.26);
+}
+
 :root:has(.home-page) .bg-painting {
   inset: 0;
   background-position: center 53%;
-  filter: brightness(1) saturate(1.02) contrast(1.01);
+  filter: var(--hero-bg-filter);
 }
 
 :root:has(.home-page) .bg-blend {
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(237, 225, 192, 0.12), rgba(128, 108, 67, 0.03) 48%, rgba(35, 49, 38, 0.13)),
-    radial-gradient(ellipse 42% 34% at 50% 31%, rgba(242, 231, 197, 0.34), transparent 71%);
+    linear-gradient(180deg, rgba(237, 225, 192, 0.2), rgba(128, 108, 67, 0.08) 48%, rgba(35, 49, 38, 0.12)),
+    radial-gradient(ellipse 56% 44% at 50% 30%, var(--hero-bg-wash), transparent 76%);
   mix-blend-mode: normal;
+}
+
+:root:has(.home-page) .bg-blend::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--hero-bg-edge-wash),
+    transparent 24%,
+    transparent 76%,
+    var(--hero-bg-edge-wash)
+  );
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 68%, transparent 92%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 68%, transparent 92%);
 }
 
 :root:has(.home-page) .bg-tint {
