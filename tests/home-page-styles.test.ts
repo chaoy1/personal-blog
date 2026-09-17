@@ -237,9 +237,9 @@ describe('V2 scroll hero recipe', () => {
 
     expect(getComputedStyle(left).position).toBe('absolute')
     expect(getComputedStyle(right).position).toBe('absolute')
-    // hero 顶部 = 导航 + wrap 上边距，所以偏移量是「画布值 − 上边距」。
-    expect(computed({ top: getComputedStyle(left).top }, 'top')).toBe('2px')
-    expect(computed({ top: getComputedStyle(right).top }, 'top')).toBe('82px')
+    // AppShell 的导航在 hero 外部；这里直接沿用设计稿相对于 hero 的画布坐标。
+    expect(computed({ top: getComputedStyle(left).top }, 'top')).toBe('132px')
+    expect(computed({ top: getComputedStyle(right).top }, 'top')).toBe('212px')
   })
 
   it('makes the hero fill the whole first screen instead of hugging its content', () => {

@@ -147,12 +147,12 @@
 
 .home-page .home-hero .inscription.left {
   left: max(12px, calc(50% - 570px));
-  top: 2px;
+  top: 132px;
 }
 
 .home-page .home-hero .inscription.right {
   right: max(12px, calc(50% - 573px));
-  top: 82px;
+  top: 212px;
 }
 
 .home-page .home-hero .inscription-mist {
