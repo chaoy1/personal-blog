@@ -127,7 +127,7 @@ export default function ScrollFX() {
       raf = requestAnimationFrame(() => {
         const y = window.scrollY
         if (masthead) {
-          masthead.style.transform = `translate3d(0, ${y * 0.28}px, 0)`
+          masthead.style.setProperty('--home-hero-scroll-y', `${y * 0.28}px`)
           masthead.style.opacity = String(Math.max(0, 1 - y / 420))
         }
         ticking = false
@@ -143,7 +143,7 @@ export default function ScrollFX() {
       cancelAnimationFrame(raf)
       transitionTimers.forEach((timer) => window.clearTimeout(timer))
       if (masthead) {
-        masthead.style.transform = ''
+        masthead.style.removeProperty('--home-hero-scroll-y')
         masthead.style.opacity = ''
       }
       mo.disconnect()

@@ -45,6 +45,7 @@ describe('P01 home page composition', () => {
     expect(container.querySelector('.motif svg')).toBeInTheDocument()
     expect(container.querySelector('.seal')).toHaveTextContent('记')
     expect(container.querySelectorAll('.inscription')).toHaveLength(2)
+    expect(container.querySelectorAll('.hero-leaf')).toHaveLength(4)
 
     const overview = screen.getByRole('navigation', { name: '站点内容概览' })
     const stats = within(overview).getAllByRole('link')

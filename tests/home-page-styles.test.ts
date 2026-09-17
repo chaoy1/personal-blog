@@ -8,6 +8,7 @@ const refinementStyles = readStyles('app/refinement.css')
 const studioStyles = readStyles('app/studio.css')
 const homeStyles = readStyles('app/home.css')
 const heroScrollStyles = readStyles('app/home-hero-scroll.css')
+const scrollFxSource = readStyles('components/ScrollFX.tsx')
 
 // jsdom 对 calc() 与自定义属性里的长度支持不全，会让 computed style 出现假象。
 // 与基础配方一致，这里只断言「变量名」级别的取值。
@@ -89,7 +90,7 @@ describe('P01 home page recipe', () => {
     // V2 卷目：三枚目录刻度铺在纸上，不再套一层描边卡片。
     expect(getComputedStyle(stats).borderTopWidth).toBe('0px')
     // 容器收到内容宽度：满宽时透明盒会伸到右侧题签底下。
-    expect(getComputedStyle(stats).maxWidth).toBe('690px')
+    expect(getComputedStyle(stats).maxWidth).toBe('760px')
     expect(getComputedStyle(stats).gridTemplateColumns).toBe('repeat(3, minmax(0, 1fr))')
     expect(getComputedStyle(statLink).minHeight).toBe('96px')
     expect(getComputedStyle(statNumber).fontSize).toBe('52px')
@@ -114,6 +115,49 @@ describe('P01 home page recipe', () => {
 })
 
 describe('V2 scroll hero recipe', () => {
+  it('anchors the hero layers to the full-bleed first-screen canvas', () => {
+    const { stats, quote, hint } = renderHomeShell()
+    const hero = document.querySelector<HTMLElement>('.home-hero')!
+    const masthead = document.querySelector<HTMLElement>('.masthead')!
+
+    // 设计稿是整幅 1440×900 卷首；首屏内容不能继续沿用自然流排版，
+    // 否则高屏会全部挤在顶部，矮屏又会把题签和统计推到一起。
+    expect(getComputedStyle(hero).display).toBe('block')
+    expect(getComputedStyle(hero).paddingTop).toBe('0px')
+    expect(getComputedStyle(hero).maxWidth).toBe('none')
+    expect(getComputedStyle(masthead).position).toBe('absolute')
+    expect(getComputedStyle(stats).position).toBe('absolute')
+    expect(getComputedStyle(quote).position).toBe('absolute')
+    expect(getComputedStyle(hint).position).toBe('absolute')
+
+    expect(heroScrollStyles).toMatch(
+      /\.home-page \.home-hero \.masthead\s*\{[^}]*top:\s*clamp\(104px,\s*13\.55vh,\s*122px\)/,
+    )
+    expect(heroScrollStyles).toMatch(
+      /\.home-page \.home-hero \.hero-stats\s*\{[^}]*top:\s*clamp\(390px,\s*52\.2vh,\s*470px\)/,
+    )
+    expect(heroScrollStyles).toMatch(
+      /\.home-page \.home-hero \.daily-quote\s*\{[^}]*top:\s*clamp\(520px,\s*68\.9vh,\s*620px\)/,
+    )
+    expect(heroScrollStyles).toMatch(
+      /\.home-page \.home-hero \.masthead\s*\{[^}]*transform:\s*translateX\(-50%\) translateY\(var\(--home-hero-scroll-y,\s*0px\)\)/,
+    )
+    expect(heroScrollStyles).toMatch(
+      /\.home-page \.home-hero \.hero-stats,\s*\.home-page \.home-hero \.daily-quote,\s*\.home-page \.home-hero \.scroll-hint\s*\{[^}]*animation:\s*hero-ink-in/,
+    )
+    expect(scrollFxSource).toContain("masthead.style.setProperty('--home-hero-scroll-y'")
+    expect(scrollFxSource).not.toContain('masthead.style.transform =')
+  })
+
+  it('removes ambient particles and the legacy corner branch from the curated hero', () => {
+    renderHomeShell()
+
+    expect(heroScrollStyles).toMatch(/\.home-page\s*>\s*\.branch\s*\{[^}]*display:\s*none/)
+    expect(heroScrollStyles).toMatch(/:root:has\(\.home-page\) \.bg-canvas\s*\{[^}]*display:\s*none/)
+    expect(heroScrollStyles).toMatch(/:root:has\(\.home-page\) \.vignette\s*\{[^}]*animation:\s*none/)
+    expect(heroScrollStyles).toMatch(/:root:has\(\.home-page\) \.bg-blend\s*\{[^}]*mix-blend-mode:\s*normal/)
+  })
+
   it('keeps the landscape wash as the deepest layer of the masthead', () => {
     renderHomeShell()
     const landscape = document.querySelector<HTMLElement>('.title-landscape')!
@@ -146,7 +190,18 @@ describe('V2 scroll hero recipe', () => {
 
     expect(selectors.length).toBeGreaterThan(20)
     // 只允许三类首页级例外：首屏自身、以及两个由 AppShell 挂在 <main> 外的护字层。
-    const pageLevel = new Set(['.home-page', '.home-page .bg-tint', '.home-page .bg-blend'])
+    const pageLevel = new Set([
+      '.home-page',
+      '.home-page .bg-tint',
+      '.home-page .bg-blend',
+      '.home-page > .branch',
+      ':root:has(.home-page) .bg-painting',
+      ':root:has(.home-page) .bg-blend',
+      ':root:has(.home-page) .bg-tint',
+      ':root:has(.home-page) .bg-canvas',
+      ':root:has(.home-page) .vignette',
+      ':root:has(.home-page) .grain',
+    ])
     for (const selector of selectors) {
       for (const part of selector.split(',').map((value) => value.trim()).filter(Boolean)) {
         if (pageLevel.has(part)) continue

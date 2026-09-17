@@ -97,6 +97,11 @@ export default function HomeHero({ postCount, momentCount, photoCount }: HomeHer
 
         <DailyQuote />
         <ScrollHint />
+        <div className="hero-leaves" aria-hidden="true">
+          {(['one', 'two', 'three', 'four'] as const).map((position) => (
+            <i key={position} className={`hero-leaf hero-leaf-${position}`} />
+          ))}
+        </div>
       </section>
     </>
   )
