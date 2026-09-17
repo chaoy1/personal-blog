@@ -32,8 +32,8 @@
   isolation: isolate;
   overflow: clip;
   /* 至少占满导航以下的第一屏；内容更高时自然增高，不会被裁掉。 */
-  min-height: max(720px, calc(100svh - var(--nav-h)));
-  min-height: max(720px, calc(100dvh - var(--nav-h)));
+  min-height: max(1100px, calc(100svh - var(--nav-h)));
+  min-height: max(1100px, calc(100dvh - var(--nav-h)));
   padding-block: 0;
 }
 
@@ -320,7 +320,7 @@
 .home-page .home-hero .eyebrow {
   display: table;
   width: max-content;
-  margin: 0 auto 24px;
+  margin: 0 auto 126px;
   padding-left: 0.42em;
   font-family: var(--font-display);
   font-size: 16px;
@@ -380,7 +380,7 @@
   position: relative;
   width: min(390px, 74%);
   height: 54px;
-  margin: 18px auto 2px;
+  margin: 152px auto 2px;
 }
 
 .home-page .home-hero .motif svg {
@@ -429,7 +429,7 @@
 }
 
 .home-page .home-hero .lede {
-  margin-top: 18px;
+  margin-top: 8px;
   font-family: var(--hero-type-display);
   font-size: 20px;
   letter-spacing: 0.18em;
@@ -1150,8 +1150,8 @@
    * 每日一句会和下滑入口争抢同一条带；宁可让卷首自然多滚一点，
    * 也不把题字、卷目和引文压成一团。
    */
-  min-height: max(720px, calc(100svh - var(--nav-h)));
-  min-height: max(720px, calc(100dvh - var(--nav-h)));
+  min-height: max(1100px, calc(100svh - var(--nav-h)));
+  min-height: max(1100px, calc(100dvh - var(--nav-h)));
   padding: 0;
 }
 
@@ -1264,7 +1264,7 @@
 .home-page .home-hero .hero-stats {
   position: absolute;
   z-index: 5;
-  top: clamp(420px, 52.2vh, 470px);
+  top: clamp(650px, 77.8vh, 700px);
   left: 50%;
   width: min(760px, calc(100% - 44px));
   max-width: 760px;
@@ -1276,7 +1276,7 @@
 .home-page .home-hero .daily-quote {
   position: absolute;
   z-index: 5;
-  top: clamp(555px, 68.9vh, 620px);
+  top: clamp(880px, 100vh, 940px);
   left: 50%;
   width: min(820px, calc(100% - 32px));
   max-width: 820px;
@@ -1375,6 +1375,11 @@
 }
 
 @media (max-width: 720px) {
+  .home-page .home-hero {
+    min-height: max(720px, calc(100svh - var(--nav-h)));
+    min-height: max(720px, calc(100dvh - var(--nav-h)));
+  }
+
   .home-page .home-hero .masthead {
     top: clamp(72px, 12vh, 98px);
     width: calc(100% - 32px);
