@@ -1,7 +1,8 @@
 import React from 'react'
-import { cleanup, render, screen, within } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import DailyQuote from '@/components/DailyQuote'
 import HomeHero from '@/components/home/HomeHero'
 import HomePreviews from '@/components/home/HomePreviews'
 
@@ -33,7 +34,28 @@ const guestbookEntry = {
 }
 
 describe('P01 home page composition', () => {
-  afterEach(cleanup)
+  afterEach(() => {
+    cleanup()
+    vi.restoreAllMocks()
+  })
+
+  it('accumulates another orbit turn for every rapid quote switch', () => {
+    let randomCall = 0
+    const randomValues = [0, 0.5, 0.99]
+    vi.spyOn(Math, 'random').mockImplementation(() => randomValues[randomCall++ % randomValues.length])
+
+    const { container } = render(<DailyQuote />)
+    const shuffle = screen.getByRole('button', { name: '随机换一句' })
+    const orbit = container.querySelector<SVGElement>('.dq-orbit')!
+
+    expect(orbit.style.getPropertyValue('--dq-turns')).toBe('0')
+
+    fireEvent.click(shuffle)
+    fireEvent.click(shuffle)
+    fireEvent.click(shuffle)
+
+    expect(orbit.style.getPropertyValue('--dq-turns')).toBe('3')
+  })
 
   it('keeps one primary title and exposes the three content statistics as a labelled navigation', () => {
     const { container } = render(<HomeHero postCount={12} momentCount={4} photoCount={8} />)
