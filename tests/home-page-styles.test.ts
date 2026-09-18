@@ -139,10 +139,10 @@ describe('V2 scroll hero recipe', () => {
       /\.home-page \.home-hero \.masthead\s*\{[^}]*top:\s*clamp\(104px,\s*13\.55vh,\s*122px\)/,
     )
     expect(heroScrollStyles).toMatch(
-      /\.home-page \.home-hero \.hero-stats\s*\{[^}]*top:\s*clamp\(650px,\s*77\.8vh,\s*700px\)/,
+      /\.home-page \.home-hero \.hero-stats\s*\{[^}]*top:\s*clamp\(555px,\s*63\.3vh,\s*585px\)/,
     )
     expect(heroScrollStyles).toMatch(
-      /\.home-page \.home-hero \.daily-quote\s*\{[^}]*top:\s*clamp\(880px,\s*100vh,\s*940px\)/,
+      /\.home-page \.home-hero \.daily-quote\s*\{[^}]*top:\s*clamp\(665px,\s*76\.1vh,\s*700px\)/,
     )
     expect(heroScrollStyles).toMatch(
       /\.home-page \.home-hero \.masthead\s*\{[^}]*transform:\s*translateX\(-50%\) translateY\(var\(--home-hero-scroll-y,\s*0px\)\)/,
@@ -286,36 +286,41 @@ describe('V2 scroll hero recipe', () => {
     const hero = document.querySelector<HTMLElement>('.home-hero')!
 
     // 首屏吃满导航以下的一屏，多余空间由上下 auto 外边距平分。
-    expect(heroScrollStyles).toMatch(/min-height:\s*max\(1100px,\s*calc\(100svh - var\(--nav-h\)\)\)/)
-    expect(heroScrollStyles).toMatch(/min-height:\s*max\(1100px,\s*calc\(100dvh - var\(--nav-h\)\)\)/)
+    expect(heroScrollStyles).toMatch(/min-height:\s*max\(800px,\s*calc\(100svh - var\(--nav-h\)\)\)/)
+    expect(heroScrollStyles).toMatch(/min-height:\s*max\(800px,\s*calc\(100dvh - var\(--nav-h\)\)\)/)
     // 首屏自己承担上边距，导航与画卷之间不再留一段空纸。
     expect(heroScrollStyles).toMatch(/\.home-page\s*\{[^}]*--wrap-pt:\s*0px/)
-    // 下滑入口压在首屏底部，上方 auto 外边距吸收剩余空间。
-    expect(heroScrollStyles).toMatch(/\.home-hero \.scroll-hint\s*\{[^}]*margin:\s*auto auto 0/)
+    // V2 下滑入口由最终画布规则钉在首屏底部，不能退回旧的自然流 auto 外边距。
+    expect(v2HeroStyles).toMatch(
+      /\.home-page \.home-hero \.scroll-hint\s*\{[^}]*position:\s*absolute[^}]*bottom:\s*3px[^}]*margin:\s*0/,
+    )
     expect(getComputedStyle(hero).overflow).toBe('clip')
     // 内容高于视口时不能被裁掉：高度是下限而不是定值。
     expect(v2Start).toBeGreaterThan(-1)
-    expect(v2HeroStyles).toMatch(/\.home-page \.home-hero \{[^}]*min-height: max\(1100px,\s*calc\(100svh - var\(--nav-h\)\)\)/)
+    expect(v2HeroStyles).toMatch(/\.home-page \.home-hero \{[^}]*min-height: max\(800px,\s*calc\(100svh - var\(--nav-h\)\)\)/)
     expect(v2HeroStyles).toMatch(
       /@media \(max-width:\s*720px\)[\s\S]*?\.home-page \.home-hero\s*\{[^}]*min-height:\s*max\(720px,\s*calc\(100dvh - var\(--nav-h\)\)\)/,
     )
     expect(v2HeroStyles.indexOf('@media (max-width: 720px)')).toBeGreaterThan(
-      v2HeroStyles.indexOf('min-height: max(1100px'),
+      v2HeroStyles.indexOf('min-height: max(800px'),
     )
     expect(heroScrollStyles).not.toMatch(/\n\s*height: calc\(100(svh|dvh)/)
   })
 
   it('keeps the title stack breathable instead of shrinking it into short desktop viewports', () => {
     expect(heroScrollStyles).toMatch(
-      /\.home-page \.home-hero \.eyebrow\s*\{[^}]*margin:\s*0 auto 126px/,
+      /\.home-page \.home-hero \.eyebrow\s*\{[^}]*margin:\s*0 auto 96px/,
     )
     expect(heroScrollStyles).toMatch(
-      /\.home-page \.home-hero \.motif\s*\{[^}]*margin:\s*152px auto 2px/,
+      /\.home-page \.home-hero \.motif\s*\{[^}]*margin:\s*110px auto 2px/,
     )
     expect(heroScrollStyles).toMatch(
       /\.home-page \.home-hero \.lede\s*\{[^}]*margin-top:\s*8px/,
     )
     expect(heroScrollStyles).not.toMatch(/@media \(max-height:\s*680px\)[\s\S]*?\.home-page \.home-hero \.title\s*\{/)
+    expect(v2HeroStyles).toMatch(
+      /@media \(max-height:\s*820px\) and \(min-width:\s*721px\)[\s\S]*?\.eyebrow\s*\{[^}]*margin-bottom:\s*80px[^}]*\}[\s\S]*?\.motif\s*\{[^}]*margin:\s*94px auto 2px[^}]*\}[\s\S]*?\.hero-stats\s*\{[^}]*top:\s*525px[^}]*\}[\s\S]*?\.daily-quote\s*\{[^}]*top:\s*640px/,
+    )
   })
 
   it('brings the background and every hero layer in one after another', () => {
