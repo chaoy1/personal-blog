@@ -65,6 +65,8 @@ describe('P01 home page composition', () => {
     // V2 首屏：笔触换成标题背后的远山与云气纹样，两侧题签换成卷轴题签。
     expect(container.querySelector('.title-landscape svg')).toBeInTheDocument()
     expect(container.querySelector('.motif svg')).toBeInTheDocument()
+    const motifClouds = container.querySelectorAll<SVGPathElement>('.motif-cloud')
+    expect(motifClouds[1]).toHaveAttribute('d', expect.stringContaining('M219 22 H279'))
     expect(container.querySelector('.seal')).toHaveTextContent('记')
     expect(container.querySelectorAll('.inscription')).toHaveLength(2)
     expect(container.querySelectorAll('.hero-leaf')).toHaveLength(4)
