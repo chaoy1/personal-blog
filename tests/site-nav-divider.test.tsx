@@ -76,29 +76,38 @@ describe('主导航分隔菱形的悬停联动', () => {
 describe('选项下方那一笔朱墨', () => {
   const brush = () => refinement.match(/\.nav-links a::before \{[\s\S]*?\n\}/)?.[0] ?? ''
 
-  it('不是等粗直线：有厚度，且纵向有墨量变化', () => {
+  it('不是等粗直线：细而长，纵向留一点墨量', () => {
     const block = brush()
 
-    // 细横但不失笔腹：2.5px 厚
-    expect(block).toContain('height: 2.5px')
+    // 细横：1.5px，且足够长
+    expect(block).toContain('height: 1.5px')
+    expect(block).toContain('width: 34px')
     // 纵向渐变留一点浓淡，而不是整块实色
     expect(block).toMatch(/background: linear-gradient\(\s*180deg/)
-    expect(block).toContain('color-mix(in srgb, var(--seal) 92%, transparent)')
+    expect(block).toContain('color-mix(in srgb, var(--seal) 90%, transparent)')
   })
 
-  it('两端收细：横向遮罩必须是两端透明、中段满宽的多段曲线', () => {
+  it('笔势连贯：两端透明并连续加厚，中段不得出现满宽平台', () => {
     const block = brush()
-    const mask = block.match(/mask-image: linear-gradient\(\s*90deg,([^;]*)\);/)?.[1] ?? ''
+    // 用带换行的写法定位标准属性，避免匹配到 -webkit-mask-image
+    const mask = block.match(/\n\s*mask-image: linear-gradient\(\s*90deg,([^;]*)\);/)?.[1] ?? ''
+    // 每个色标各占一行，逐行取整行，别按逗号切（rgba() 自带逗号）
+    const stops = mask
+      .split('\n')
+      .map((s) => s.trim().replace(/,+$/, '').trim())
+      .filter(Boolean)
 
     expect(mask, '遮罩缺失就无法做出笔锋').not.toBe('')
     // 两端透明
-    expect(mask).toMatch(/^\s*transparent 0/)
-    expect(mask).toMatch(/transparent 100%\s*$/)
-    // 中段满宽
-    expect(mask).toMatch(/#000 47%,\s*#000 53%/)
-    // 收细段要有中间档，才不是硬切
-    expect(mask).toMatch(/rgba\(0, 0, 0, 0\.3\) 16%/)
-    expect(mask).toMatch(/rgba\(0, 0, 0, 0\.8\) 32%/)
+    expect(stops[0]).toBe('transparent 0')
+    expect(stops[stops.length - 1]).toBe('transparent 100%')
+    // 中间只有一个峰值，而不是两个相同值夹出一段平台（梯形）
+    const fullWidth = stops.filter((s) => s.startsWith('#000 '))
+    expect(fullWidth).toHaveLength(1)
+    expect(fullWidth[0]).toBe('#000 50%')
+    // 中间档位要够多，才是连续过渡而非硬切
+    const middles = stops.filter((s) => s.startsWith('rgba(0, 0, 0,'))
+    expect(middles.length).toBeGreaterThanOrEqual(8)
     // -webkit- 前缀同样要有，Safari 才收得细
     expect(block).toMatch(/-webkit-mask-image: linear-gradient\(\s*90deg,/)
   })
