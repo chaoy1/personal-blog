@@ -7,7 +7,7 @@
   outline-offset: 3px;
 }
 
-/* 主导航以小菱形分隔路径，去掉包围文字的横线。 */
+/* 主导航以空心菱形分隔路径 / 悬停时相邻两枚一并染朱。 */
 .nav-brand::after {
   content: "JOURNAL";
   width: auto;
@@ -30,6 +30,13 @@
   display: none;
 }
 
+/**
+ * 分隔菱形。
+ * 组件把每枚分隔符放在每个链接之后，所以某个链接的左右两枚分别是：
+ *   右邻 = 它自己的下一个兄弟            → a:hover + .nav-divider
+ *   左邻 = 它前一个链接的下一个兄弟（在它之前）→ .nav-divider:has(+ a:hover)
+ * 注意不能用 a:hover ~ .nav-divider：那会把它右边所有菱形全部点亮。
+ */
 .nav-divider {
   width: 4px;
   height: 4px;
@@ -37,6 +44,36 @@
   border: 1px solid var(--rule-strong);
   transform: rotate(45deg);
   opacity: 0.78;
+  transition:
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    opacity 0.22s ease,
+    transform 0.22s ease;
+}
+
+/* 鼠标停在链接上：紧邻的左右两枚一起变朱红 */
+.nav-links a:hover + .nav-divider,
+.nav-links .nav-divider:has(+ a:hover) {
+  border-color: var(--seal);
+  opacity: 1;
+  transform: rotate(45deg) scale(1.35);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--seal) 16%, transparent);
+}
+
+/* 鼠标直接停在菱形上：这一枚也亮 */
+.nav-links .nav-divider:hover {
+  border-color: var(--seal);
+  opacity: 1;
+  transform: rotate(45deg) scale(1.35);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--seal) 16%, transparent);
+}
+
+/* 键盘 Tab 到链接时同样点亮，键盘用户不会看不到反馈 */
+.nav-links a:focus-visible + .nav-divider,
+.nav-links .nav-divider:has(+ a:focus-visible) {
+  border-color: var(--seal);
+  opacity: 1;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--seal) 16%, transparent);
 }
 
 .nav-links a::before {
