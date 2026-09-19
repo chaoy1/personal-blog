@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#e8d4a3">
+  <title>闲语 · 暖宣札记设计稿</title>
+  <style>
+    :root {
+      --paper: #f4e6bd;
+      --paper-light: #fbf1d2;
+      --paper-deep: #e4cc95;
+      --ink: #302c25;
+      --ink-soft: #635849;
+      --ink-faint: #8a7659;
+      --cinnabar: #a53b31;
+      --cinnabar-dark: #862b27;
+      --jade: #526e68;
+      --line: rgba(108, 77, 43, .25);
+      --font-body: "LXGW WenKai", "Kaiti SC", "KaiTi", "STKaiti", serif;
+      --font-display: "STXingkai", "Kaiti SC", "KaiTi", serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-width: 320px;
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--font-body);
+      background:
+        radial-gradient(ellipse at 50% 13%, rgba(251, 233, 174, .76), transparent 42%),
+        radial-gradient(ellipse at 5% 70%, rgba(109, 135, 112, .16), transparent 44%),
+        linear-gradient(120deg, #d9c18f, #e7d5aa 48%, #cbb180);
+    }
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      opacity: .13;
+      content: "";
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E");
+    }
+    a { color: inherit; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, a:focus-visible {
+      outline: 2px solid var(--cinnabar);
+      outline-offset: 4px;
+    }
+
+    .site-header {
+      position: relative;
+      z-index: 2;
+      background: rgba(251, 244, 222, .93);
+      border-bottom: 1px solid rgba(85, 60, 36, .19);
+    }
+    .site-header-inner {
+      width: min(1180px, calc(100% - 56px));
+      height: 76px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 0 0 auto;
+      text-decoration: none;
+    }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 31px;
+      height: 31px;
+      transform: rotate(45deg);
+      border: 1px solid var(--cinnabar);
+      color: var(--cinnabar);
+      font-size: 17px;
+      line-height: 1;
+    }
+    .brand-mark span { transform: rotate(-45deg); }
+    .brand-name { font-size: 19px; letter-spacing: .28em; white-space: nowrap; }
+    .brand-sub { margin-left: -6px; color: var(--ink-faint); font: 9px Georgia, serif; letter-spacing: .17em; }
+    .site-nav { display: flex; align-items: center; gap: clamp(12px, 2.1vw, 30px); }
+    .site-nav a {
+      position: relative;
+      padding: 26px 1px 24px;
+      text-decoration: none;
+      color: var(--ink-soft);
+      font-size: 13px;
+      letter-spacing: .16em;
+      white-space: nowrap;
+      transition: color .25s;
+    }
+    .site-nav a:hover, .site-nav a[aria-current="page"] { color: var(--cinnabar-dark); }
+    .site-nav a[aria-current="page"]::after {
+      position: absolute;
+      right: 15%; bottom: 16px; left: 15%;
+      height: 2px;
+      background: var(--cinnabar);
+      content: "";
+    }
+    .header-end { display: flex; align-items: center; gap: 10px; color: var(--ink-soft); font-size: 12px; white-space: nowrap; }
+    .header-end::before { width: 5px; height: 5px; border-radius: 50%; background: var(--cinnabar); content: ""; }
+
+    .landscape {
+      position: relative;
+      height: 190px;
+      overflow: hidden;
+      background-image:
+        linear-gradient(90deg, rgba(218, 193, 140, .22), rgba(246, 228, 181, .2) 52%, rgba(151, 116, 62, .19)),
+        url("../public/bg/qianli-bridge.jpg");
+      background-position: center, center 46%;
+      background-size: cover;
+    }
+    .landscape::before {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(244, 225, 182, .08), rgba(226, 205, 157, .62));
+      content: "";
+    }
+    .landscape::after {
+      position: absolute; right: 0; bottom: 0; left: 0;
+      height: 58px;
+      background: linear-gradient(transparent, rgba(219, 194, 146, .72));
+      content: "";
+    }
+    .landscape-line {
+      position: absolute;
+      top: 34px;
+      right: max(6vw, calc((100vw - 1160px) / 2));
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      color: rgba(56, 54, 39, .82);
+      font-size: 12px;
+      letter-spacing: .34em;
+      text-shadow: 0 1px 2px rgba(250, 237, 205, .7);
+    }
+    .landscape-line::before { width: 52px; height: 1px; background: currentColor; content: ""; }
+
+    .page-wrap { position: relative; z-index: 1; margin: -72px auto 90px; width: min(1160px, calc(100% - 56px)); }
+    .paper {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at 91% 5%, rgba(250, 242, 213, .9), transparent 37%),
+        radial-gradient(ellipse at 0 40%, rgba(207, 170, 105, .17), transparent 48%),
+        repeating-linear-gradient(94deg, transparent 0 4px, rgba(139, 105, 58, .013) 4px 5px),
+        var(--paper);
+      border: 1px solid rgba(128, 93, 50, .3);
+      box-shadow: 0 3px 7px rgba(90, 64, 34, .08), 0 28px 80px rgba(85, 55, 27, .17);
+      animation: paper-arrive .75s ease-out both;
+    }
+    .paper::before {
+      position: absolute; inset: 12px;
+      border: 1px solid rgba(150, 106, 56, .21);
+      pointer-events: none;
+      content: "";
+    }
+    .paper::after {
+      position: absolute;
+      top: 0; right: 0;
+      width: 0; height: 0;
+      border-top: 38px solid rgba(220, 190, 129, .7);
+      border-left: 38px solid transparent;
+      filter: drop-shadow(-2px 2px 2px rgba(85, 64, 39, .18));
+      content: "";
+    }
+    .paper-head {
+      position: relative;
+      min-height: 232px;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      align-items: center;
+      gap: 48px;
+      margin: 0 48px;
+      padding: 34px 18px 29px;
+      border-bottom: 1px solid var(--line);
+    }
+    .paper-head::before {
+      position: absolute;
+      bottom: -2px; left: 0;
+      width: 86px; height: 3px;
+      background: var(--cinnabar);
+      content: "";
+    }
+    .eyebrow { margin: 0 0 11px; color: var(--cinnabar-dark); font: 11px Georgia, serif; letter-spacing: .25em; }
+    .title-row { display: flex; align-items: flex-end; gap: 13px; }
+    h1 { margin: 0; font-family: var(--font-display); font-size: clamp(55px, 6vw, 79px); font-weight: 400; letter-spacing: .14em; line-height: 1.08; }
+    .title-seal {
+      display: grid; place-items: center;
+      width: 31px; height: 37px; margin-bottom: 8px;
+      transform: rotate(-7deg);
+      border: 2px solid var(--cinnabar);
+      color: var(--cinnabar);
+      font-size: 19px;
+      line-height: 1;
+    }
+    .head-intro { position: relative; padding-left: 28px; border-left: 1px solid var(--line); }
+    .head-intro p { position: relative; z-index: 1; margin: 0; }
+    .head-intro .lead { font-size: clamp(18px, 2.1vw, 25px); letter-spacing: .13em; line-height: 1.8; }
+    .head-intro .sublead { margin-top: 8px; color: var(--ink-faint); font-size: 12px; letter-spacing: .1em; }
+    .mountain-wash { position: absolute; right: -23px; bottom: -38px; width: 280px; height: 150px; opacity: .43; }
+    .paper-body { display: grid; grid-template-columns: 205px minmax(0, 1fr); gap: 44px; padding: 0 66px 70px 66px; }
+    .margin-art { position: relative; padding: 40px 28px 0 14px; border-right: 1px solid var(--line); }
+    .margin-note { margin: 0; color: var(--ink-faint); font-size: 12px; letter-spacing: .18em; }
+    .margin-art svg { display: block; width: 155px; max-width: 100%; height: auto; margin: 24px auto 12px; }
+    .vertical-verse { height: 245px; margin: 35px 8px 0 auto; color: var(--ink-soft); font-size: 14px; letter-spacing: .2em; line-height: 2; writing-mode: vertical-rl; }
+    .margin-stamp { display: block; width: max-content; margin: 34px auto 0 15px; border: 1px solid var(--cinnabar); padding: 5px 4px; color: var(--cinnabar); font-size: 12px; letter-spacing: .08em; line-height: 1.05; writing-mode: vertical-rl; }
+    .entries-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 35px 0 15px; }
+    .entries-head h2 { margin: 0; font-size: 13px; font-weight: 400; letter-spacing: .28em; }
+    .entries-head span { color: var(--ink-faint); font: 11px Georgia, serif; letter-spacing: .15em; }
+    .entry { position: relative; display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 18px; padding: 31px 0 42px; border-top: 1px solid var(--line); animation: entry-arrive .65s ease both; }
+    .entry:nth-of-type(2) { animation-delay: .12s; }
+    .entry:nth-of-type(3) { animation-delay: .22s; }
+    .entry-no { padding-top: 6px; color: var(--cinnabar); font: italic 18px Georgia, serif; }
+    .entry-no::after { display: block; width: 18px; height: 1px; margin-top: 14px; background: var(--cinnabar); content: ""; }
+    .entry-main { min-width: 0; }
+    .entry-head { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+    .avatar { width: 40px; height: 40px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; border: 1px solid rgba(77, 95, 84, .48); background: radial-gradient(circle at 35% 30%, #b8c4a4, #6d8073 62%, #3f5959); color: #fff7dc; font-size: 20px; }
+    .author { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+    .author strong { font-size: 14px; font-weight: 500; letter-spacing: .08em; }
+    .author time { color: var(--ink-faint); font-size: 11px; letter-spacing: .08em; }
+    .entry-tag { margin-left: auto; color: var(--cinnabar); font: 10px Georgia, serif; letter-spacing: .16em; white-space: nowrap; }
+    .entry-delete { margin-left: 8px; border: 0; background: none; color: var(--ink-faint); font-size: 11px; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 4px; }
+    .entry-copy { max-width: 590px; margin: 21px 0 0; font-size: 18px; line-height: 2; letter-spacing: .08em; overflow-wrap: anywhere; }
+    .entry-copy + .entry-copy { margin-top: 4px; }
+    .entry-copy .red { color: var(--cinnabar-dark); }
+    .moment-photo { position: relative; max-width: 590px; margin: 25px 0 0; padding: 9px 9px 10px; background: #ecdbb0; border: 1px solid rgba(113, 79, 43, .29); box-shadow: 4px 5px 0 rgba(156, 111, 61, .12); }
+    .moment-photo::before, .moment-photo::after { position: absolute; top: -8px; width: 62px; height: 20px; background: rgba(230, 202, 149, .72); border: 1px solid rgba(142, 107, 59, .18); content: ""; }
+    .moment-photo::before { left: 8%; transform: rotate(-8deg); }
+    .moment-photo::after { right: 10%; transform: rotate(7deg); }
+    .moment-photo img { display: block; width: 100%; height: 210px; object-fit: cover; object-position: center 62%; filter: saturate(.78) sepia(.08); }
+    .moment-photo figcaption { padding: 11px 7px 2px; color: var(--ink-faint); font-size: 11px; letter-spacing: .12em; text-align: right; }
+    .entry-actions { display: flex; align-items: center; gap: 20px; max-width: 590px; margin-top: 22px; padding-top: 11px; border-top: 1px solid var(--line); }
+    .like, .comments-toggle { min-height: 44px; padding: 7px 3px; border: 0; background: none; color: var(--ink-soft); font-size: 12px; letter-spacing: .1em; transition: color .2s, transform .2s; }
+    .like:hover, .comments-toggle:hover { color: var(--cinnabar-dark); transform: translateY(-2px); }
+    .like[aria-pressed="true"] { color: var(--cinnabar-dark); }
+    .heart { display: inline-block; margin-right: 5px; color: var(--cinnabar); font: 17px Georgia, serif; vertical-align: -1px; }
+    .action-divider { width: 1px; height: 15px; background: var(--line); }
+    .entry-actions .tail { margin-left: auto; color: var(--ink-faint); font: 10px Georgia, serif; letter-spacing: .13em; }
+    .comment-area { max-width: 590px; margin-top: 8px; padding: 16px 18px 17px; background: rgba(252, 244, 221, .5); border: 1px solid rgba(128, 94, 52, .19); }
+    .comment-line { margin: 0 0 13px; padding-bottom: 11px; border-bottom: 1px solid rgba(128, 94, 52, .14); color: var(--ink-soft); font-size: 12px; line-height: 1.65; }
+    .comment-line strong { margin-right: 8px; color: var(--cinnabar-dark); font-weight: 500; }
+    .comment-line:last-child { margin-bottom: 0; }
+    .comment-form { display: flex; gap: 10px; }
+    .comment-form input { min-width: 0; flex: 1; min-height: 42px; padding: 9px 12px; border: 1px solid rgba(128, 94, 52, .24); border-radius: 0; background: rgba(255, 251, 236, .54); color: var(--ink); font-size: 12px; }
+    .comment-form input::placeholder { color: var(--ink-faint); }
+    .send { min-width: 74px; min-height: 42px; border: 1px solid var(--cinnabar-dark); border-radius: 0; background: var(--cinnabar); color: #fff4d9; font-size: 12px; letter-spacing: .2em; transition: background .2s, transform .2s; }
+    .send:hover { background: var(--cinnabar-dark); transform: translateY(-2px); }
+    .paper-foot { position: relative; display: flex; align-items: center; justify-content: center; gap: 18px; padding: 28px; border-top: 1px solid var(--line); color: var(--ink-faint); font-size: 11px; letter-spacing: .18em; }
+    .paper-foot::before, .paper-foot::after { width: 45px; height: 1px; background: var(--line); content: ""; }
+    .prototype-note { margin: 20px 0 0; color: rgba(54, 43, 28, .7); font-size: 11px; letter-spacing: .06em; text-align: center; }
+    dialog { width: min(390px, calc(100% - 40px)); padding: 27px; border: 1px solid #ab8c5c; background: var(--paper-light); color: var(--ink); box-shadow: 0 20px 65px rgba(38, 29, 19, .3); }
+    dialog::backdrop { background: rgba(36, 31, 24, .43); }
+    dialog h2 { margin: 0 0 9px; font-size: 20px; font-weight: 400; }
+    dialog p { margin: 0 0 25px; color: var(--ink-soft); font-size: 13px; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; }
+    .dialog-actions button { min-height: 42px; padding: 6px 14px; border: 1px solid var(--line); background: none; color: var(--ink); }
+    .dialog-actions .danger { border-color: var(--cinnabar); background: var(--cinnabar); color: white; }
+    @keyframes paper-arrive { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes entry-arrive { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes petal-sway { 0%, 100% { transform: rotate(-4deg) translateY(0); } 50% { transform: rotate(4deg) translateY(-3px); } }
+    .plum-bloom { transform-origin: center; animation: petal-sway 5.5s ease-in-out infinite; }
+    .plum-bloom:nth-child(2) { animation-delay: -2s; }
+
+    @media (max-width: 950px) {
+      .header-end, .brand-sub { display: none; }
+      .paper-head { grid-template-columns: 190px 1fr; gap: 24px; margin-inline: 32px; }
+      .paper-body { grid-template-columns: 155px minmax(0, 1fr); gap: 28px; padding-inline: 40px; }
+      .margin-art { padding-right: 18px; }
+    }
+    @media (max-width: 700px) {
+      .site-header-inner { width: calc(100% - 32px); height: auto; min-height: 66px; flex-wrap: wrap; gap: 0 12px; padding: 8px 0; }
+      .brand-name { font-size: 16px; }
+      .brand-mark { width: 25px; height: 25px; font-size: 13px; }
+      .site-nav { width: 100%; justify-content: space-between; overflow-x: auto; gap: 13px; }
+      .site-nav a { padding: 12px 0 10px; font-size: 11px; }
+      .site-nav a[aria-current="page"]::after { bottom: 4px; }
+      .landscape { height: 130px; }
+      .landscape-line { top: 16px; right: 20px; font-size: 10px; }
+      .page-wrap { width: calc(100% - 24px); margin-top: -34px; }
+      .paper::before { inset: 7px; }
+      .paper-head { display: block; min-height: 0; margin: 0 18px; padding: 31px 8px 25px; }
+      h1 { font-size: 60px; }
+      .head-intro { margin-top: 18px; padding-left: 15px; }
+      .head-intro .lead { font-size: 18px; }
+      .mountain-wash { width: 170px; right: -16px; bottom: -17px; }
+      .paper-body { display: block; padding: 0 26px 30px; }
+      .margin-art { display: none; }
+      .entries-head { padding-top: 25px; }
+      .entry { grid-template-columns: 28px minmax(0, 1fr); gap: 10px; padding: 25px 0 32px; }
+      .entry-no { font-size: 13px; }
+      .entry-no::after { width: 14px; margin-top: 8px; }
+      .entry-copy { font-size: 16px; line-height: 1.9; }
+      .moment-photo img { height: 170px; }
+      .entry-tag { display: none; }
+      .comment-area { padding: 12px; }
+    }
+    @media (max-width: 390px) {
+      .site-nav a { font-size: 10px; }
+      .paper-body { padding-inline: 20px; }
+      .entry { grid-template-columns: 23px minmax(0, 1fr); gap: 8px; }
+      .entry-head { gap: 8px; }
+      .avatar { width: 36px; height: 36px; }
+      .entry-delete { margin-left: auto; }
+      .comment-form { gap: 6px; }
+      .send { min-width: 58px; letter-spacing: .05em; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="/" aria-label="似水流年首页"><span class="brand-mark" aria-hidden="true"><span>◇</span></span><span class="brand-name">似水流年</span><span class="brand-sub">JOURNAL</span></a>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="/">首页</a><a href="/posts">文章</a><a href="/moments" aria-current="page">闲语</a><a href="/album">光影</a><a href="/timeline">时间轴</a><a href="/guestbook">留言</a><a href="/about">关于</a>
+      </nav>
+      <div class="header-end">ChoyChou · 手记</div>
+    </div>
+  </header>
+
+  <div class="landscape" aria-hidden="true"><span class="landscape-line">山水有信，片语可藏</span></div>
+
+  <main class="page-wrap" id="page">
+    <section class="paper" aria-labelledby="page-title">
+      <header class="paper-head">
+        <div>
+          <p class="eyebrow">VOL. 02　/　MUSINGS</p>
+          <div class="title-row"><h1 id="page-title">闲语</h1><span class="title-seal" aria-hidden="true">言</span></div>
+        </div>
+        <div class="head-intro">
+          <p class="lead">片言只语，也是一日光景。</p>
+          <p class="sublead">把路上的风、心里的晴雨，轻轻写在这里。</p>
+          <svg class="mountain-wash" viewBox="0 0 280 150" fill="none" aria-hidden="true">
+            <path d="M0 144C27 126 39 89 55 91c11 2 19 17 26 16 13-1 27-62 48-78 11-8 27 54 39 54 10 0 22-30 38-37 12-5 19 41 33 42 10 1 25-26 41-30" stroke="#617c77" stroke-width="19" stroke-linecap="round" opacity=".21"/>
+            <path d="M0 143c28-18 39-58 55-56 13 2 18 17 27 16 13-1 29-63 46-78 12-10 27 53 41 52 12-1 20-32 37-36 13-4 19 40 32 42 12 2 26-24 42-27" stroke="#3e6567" stroke-width="1.5" opacity=".8"/>
+            <path d="M29 145c21-13 36-38 52-34 13 3 18 21 26 21 11 0 20-15 30-16 19-2 35 22 47 22 13 0 29-23 46-21 15 2 30 20 50 23" stroke="#728b7a" stroke-width="2" opacity=".6"/>
+          </svg>
+        </div>
+      </header>
+
+      <div class="paper-body">
+        <aside class="margin-art" aria-label="装饰题跋">
+          <p class="margin-note">随 · 手 · 札 · 记</p>
+          <svg viewBox="0 0 170 245" fill="none" aria-hidden="true">
+            <path d="M18 239c36-47 62-75 73-124 7-31 23-60 52-95M84 142c-20-7-35-23-39-43m52 20c25 3 39-7 49-23M116 66c-5-16-20-26-31-27" stroke="#5d6250" stroke-width="2" stroke-linecap="round"/>
+            <path d="M43 108c-13 1-18-8-19-15 11-3 21 1 24 10m52 13c18-13 26-10 34-5-6 11-17 14-30 13M92 48c-15-1-20-10-18-18 10 0 18 4 23 13" fill="#798571" opacity=".62"/>
+            <g class="plum-bloom" fill="#aa4437"><path d="M139 26c-5-10-4-17 1-18 5-1 8 6 5 16 8-8 15-8 17-3 2 6-5 9-16 9 10 5 13 11 9 15-4 4-11 0-16-10-1 11-5 17-10 15-6-2-5-9 1-18-10 3-17 1-17-5 1-5 8-7 18-3Z"/><circle cx="139" cy="29" r="4" fill="#e9b566"/></g>
+            <g class="plum-bloom" fill="#bb5848"><path d="M45 94c-5-9-4-15 1-16 5-1 7 5 5 14 8-7 14-7 15-2 1 5-4 8-14 8 9 5 11 10 7 14-4 3-9-1-14-9-1 10-5 14-9 12-5-2-4-8 2-15-10 2-15 0-15-5 1-5 7-6 16-3Z"/><circle cx="45" cy="97" r="3.4" fill="#e9b566"/></g>
+            <g fill="#b45b47"><circle cx="100" cy="140" r="4"/><circle cx="108" cy="145" r="3"/><circle cx="94" cy="147" r="3"/></g>
+          </svg>
+          <p class="vertical-verse">写下时是细语，回望便成了光阴。</p>
+          <span class="margin-stamp">岁月留痕</span>
+        </aside>
+
+        <section class="entries" aria-label="闲语列表">
+          <div class="entries-head"><h2>近来所记</h2><span>RECENT NOTES · 03</span></div>
+
+          <article class="entry" data-entry>
+            <div class="entry-no" aria-hidden="true">01</div>
+            <div class="entry-main">
+              <div class="entry-head"><span class="avatar" aria-hidden="true">舟</span><div class="author"><strong>ChoyChou</strong><time datetime="2026-08-16">2026 年 8 月 16 日</time></div><span class="entry-tag">MOMENT / 片语</span><button class="entry-delete" type="button" data-delete>删除</button></div>
+              <p class="entry-copy">山雨刚停，远处的青色一点一点亮起来。</p>
+              <p class="entry-copy">今日不赶路，<span class="red">且把这阵风记下。</span></p>
+              <figure class="moment-photo"><img src="../public/bg/qianli-bridge.jpg" alt="青绿山水与山间村落" width="1200" height="480"><figcaption>山光收进一页纸里 · 山水札记</figcaption></figure>
+              <div class="entry-actions"><button class="like" type="button" aria-pressed="false" data-like><span class="heart" aria-hidden="true">♡</span>喜欢 · <span data-like-count>12</span></button><span class="action-divider" aria-hidden="true"></span><button class="comments-toggle" type="button" data-focus-comment>评论 · <span data-comment-count>1</span></button><span class="tail">AUG · 16</span></div>
+              <div class="comment-area"><div data-comments><p class="comment-line"><strong>林间</strong>读到这里，像真的闻到了雨后的草木气息。</p></div><form class="comment-form" data-comment-form><input aria-label="评论第一条闲语" name="comment" maxlength="300" placeholder="写下你的回应…" required><button class="send" type="submit">寄语</button></form></div>
+            </div>
+          </article>
+
+          <article class="entry" data-entry>
+            <div class="entry-no" aria-hidden="true">02</div>
+            <div class="entry-main">
+              <div class="entry-head"><span class="avatar" aria-hidden="true">舟</span><div class="author"><strong>ChoyChou</strong><time datetime="2026-08-01">2026 年 8 月 1 日</time></div><span class="entry-tag">MOMENT / 片语</span><button class="entry-delete" type="button" data-delete>删除</button></div>
+              <p class="entry-copy">午后翻到旧书里夹着的一片叶子，才想起去年秋天的那条山路。<span class="red">原来日子会替我们收藏一些小事。</span></p>
+              <div class="entry-actions"><button class="like" type="button" aria-pressed="false" data-like><span class="heart" aria-hidden="true">♡</span>喜欢 · <span data-like-count>8</span></button><span class="action-divider" aria-hidden="true"></span><button class="comments-toggle" type="button" data-focus-comment>评论 · <span data-comment-count>0</span></button><span class="tail">AUG · 01</span></div>
+              <div class="comment-area"><div data-comments></div><form class="comment-form" data-comment-form><input aria-label="评论第二条闲语" name="comment" maxlength="300" placeholder="写下你的回应…" required><button class="send" type="submit">寄语</button></form></div>
+            </div>
+          </article>
+
+          <article class="entry" data-entry>
+            <div class="entry-no" aria-hidden="true">03</div>
+            <div class="entry-main">
+              <div class="entry-head"><span class="avatar" aria-hidden="true">舟</span><div class="author"><strong>ChoyChou</strong><time datetime="2026-07-19">2026 年 7 月 19 日</time></div><span class="entry-tag">MOMENT / 片语</span><button class="entry-delete" type="button" data-delete>删除</button></div>
+              <p class="entry-copy">窗边的光比昨日长了一寸。给花换了水，给自己泡了茶，寻常的一天也有了值得落笔的地方。</p>
+              <div class="entry-actions"><button class="like" type="button" aria-pressed="false" data-like><span class="heart" aria-hidden="true">♡</span>喜欢 · <span data-like-count>6</span></button><span class="action-divider" aria-hidden="true"></span><button class="comments-toggle" type="button" data-focus-comment>评论 · <span data-comment-count>0</span></button><span class="tail">JUL · 19</span></div>
+              <div class="comment-area"><div data-comments></div><form class="comment-form" data-comment-form><input aria-label="评论第三条闲语" name="comment" maxlength="300" placeholder="写下你的回应…" required><button class="send" type="submit">寄语</button></form></div>
+            </div>
+          </article>
+        </section>
+      </div>
+      <footer class="paper-foot">纸短情长 · 来日续写</footer>
+    </section>
+    <p class="prototype-note">设计预览 · 示例内容与互动仅用于展示布局，尚未连接真实数据。</p>
+  </main>
+
+  <dialog id="delete-dialog" aria-labelledby="delete-title"><h2 id="delete-title">删去这条闲语？</h2><p>此操作只作用于当前设计预览。</p><div class="dialog-actions"><button type="button" data-cancel>再想想</button><button type="button" class="danger" data-confirm>确认删除</button></div></dialog>
+  <script>
+    const dialog = document.querySelector('#delete-dialog');
+    let pendingDelete = null;
+    document.querySelectorAll('[data-entry]').forEach((entry) => {
+      const like = entry.querySelector('[data-like]');
+      like.addEventListener('click', () => {
+        const active = like.getAttribute('aria-pressed') === 'true';
+        like.setAttribute('aria-pressed', String(!active));
+        like.querySelector('.heart').textContent = active ? '♡' : '♥';
+        const count = like.querySelector('[data-like-count]');
+        count.textContent = Number(count.textContent) + (active ? -1 : 1);
+      });
+      entry.querySelector('[data-focus-comment]').addEventListener('click', () => entry.querySelector('input[name="comment"]').focus());
+      entry.querySelector('[data-comment-form]').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const input = event.currentTarget.elements.comment;
+        const value = input.value.trim();
+        if (!value) return;
+        const comment = document.createElement('p');
+        comment.className = 'comment-line';
+        const author = document.createElement('strong');
+        author.textContent = '访客';
+        comment.append(author, document.createTextNode(value));
+        entry.querySelector('[data-comments]').append(comment);
+        const count = entry.querySelector('[data-comment-count]');
+        count.textContent = Number(count.textContent) + 1;
+        input.value = '';
+      });
+      entry.querySelector('[data-delete]').addEventListener('click', () => {
+        pendingDelete = entry;
+        dialog.showModal();
+      });
+    });
+    dialog.querySelector('[data-cancel]').addEventListener('click', () => dialog.close());
+    dialog.querySelector('[data-confirm]').addEventListener('click', () => {
+      pendingDelete?.remove();
+      pendingDelete = null;
+      dialog.close();
+    });
+  </script>
+</body>
+</html>
