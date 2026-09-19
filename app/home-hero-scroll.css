@@ -1208,7 +1208,9 @@
   mix-blend-mode: multiply;
 }
 
-:root:has(.home-page) .bg-canvas {
+/* 首屏只留下纸、画、纹理和飘落的枫叶；光尘、月亮/星子会破坏标题的留白。 */
+:root:has(.home-page) .bg-canvas-dust,
+:root:has(.home-page) .bg-canvas-stars {
   display: none;
 }
 

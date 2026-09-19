@@ -3557,6 +3557,7 @@ html.motion-static .reveal {
   mix-blend-mode: multiply;
 }
 
+/* 所有背景画布共用的定位层；-leaves / -dust / -stars 供各页按需取舍。 */
 .bg-canvas {
   position: fixed;
   inset: 0;

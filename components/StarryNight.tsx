@@ -202,5 +202,5 @@ export default function StarryNight({ active = true }: { active?: boolean }) {
     }
   }, [active])
 
-  return active ? <canvas ref={ref} className="bg-canvas" aria-hidden="true" /> : null
+  return active ? <canvas ref={ref} className="bg-canvas bg-canvas-stars" aria-hidden="true" /> : null
 }

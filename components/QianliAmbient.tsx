@@ -103,5 +103,5 @@ export default function QianliAmbient({ active = true }: { active?: boolean }) {
     }
   }, [active])
 
-  return active ? <canvas ref={ref} className="bg-canvas" aria-hidden="true" /> : null
+  return active ? <canvas ref={ref} className="bg-canvas bg-canvas-dust" aria-hidden="true" /> : null
 }

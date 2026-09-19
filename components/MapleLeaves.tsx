@@ -354,5 +354,5 @@ export default function MapleLeaves({ night = false, active = true }: { night?: 
     }
   }, [active, night])
 
-  return active ? <canvas ref={ref} className="bg-canvas" aria-hidden="true" /> : null
+  return active ? <canvas ref={ref} className="bg-canvas bg-canvas-leaves" aria-hidden="true" /> : null
 }
