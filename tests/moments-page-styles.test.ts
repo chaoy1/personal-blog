@@ -64,14 +64,14 @@ afterEach(() => {
 })
 
 describe('P04 moments xuan paper scroll recipe', () => {
-  it('draws one continuous sheet that is wider than the reading column', () => {
+  it('draws one continuous sheet only a little wider than the reading column', () => {
     const { page, sheet } = renderMomentsShell()
 
     expect(page).toBeInTheDocument()
-    // 纸面本身撑到 1160px，比默认正文栏宽，卷页感来自纸而不是卡片
+    // 纸面收到 960px：比默认正文栏（900px）略宽，但不至于散掉札记的紧凑感
     // （jsdom 不解析 min() 与 var()，所以核对样式表里的声明）
     const css = readStyles('app/moments.css')
-    expect(css).toContain('width: min(1160px, 100%)')
+    expect(css).toContain('width: min(960px, 100%)')
     expect(css).toContain('--mp-paper: #f0e2bc')
     expect(getComputedStyle(sheet).backgroundColor).toBe('var(--mp-paper)')
     expect(getComputedStyle(sheet).boxShadow).not.toBe('none')
@@ -84,8 +84,11 @@ describe('P04 moments xuan paper scroll recipe', () => {
   it('keeps the hero brush lettering, lede and postmark as the volume opening', () => {
     const { hero, title, postmark } = renderMomentsShell()
 
-    expect(getComputedStyle(hero).minHeight).toBe('350px')
-    expect(getComputedStyle(title).fontSize).toBe('100px')
+    const css = readStyles('app/moments.css')
+    expect(getComputedStyle(hero).minHeight).toBe('318px')
+    // 题字跟着纸面一起收：clamp 的中间值与上限都降下来
+    expect(css).toContain('font-size: clamp(62px, 7vw, 84px)')
+    expect(css).toContain('font-size: clamp(52px, 12vw, 68px)')
     // jsdom 不解析 var()，只核对题字声明了行书变量
     expect(getComputedStyle(title).fontFamily).toBe('var(--mp-brush)')
     expect(getComputedStyle(postmark).borderRadius).toBe('50%')

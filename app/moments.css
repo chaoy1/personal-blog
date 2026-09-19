@@ -20,15 +20,15 @@
   --mp-brush: "hongleixingshu", "STXingkai", "KaiTi", var(--font-kai);
 
   position: relative;
-  width: min(1160px, 100%);
+  width: min(960px, 100%);
   margin-inline: auto;
   color: var(--mp-ink);
 }
 
-/* 纸面要宽过正文栏，所以让这一页自己撑开 .wrap 的默认宽度。 */
+/* 纸面比默认正文栏宽一点就够，太宽会散掉札记的紧凑感。 */
 .wrap:has(.moments-page) {
-  max-width: 1280px;
-  padding-inline: clamp(11px, 3vw, 56px);
+  max-width: 1060px;
+  padding-inline: clamp(11px, 3vw, 50px);
 }
 
 :root[data-theme='dark'] .moments-page {
@@ -101,8 +101,8 @@
 
 .moments-page .moments-hero {
   position: relative;
-  min-height: 350px;
-  padding: 66px 92px 54px 117px;
+  min-height: 318px;
+  padding: 58px 84px 48px 104px;
   overflow: hidden;
 }
 
@@ -152,11 +152,11 @@
 .moments-page .moments-hero-title {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 15px;
   margin: 0;
   color: var(--mp-ink);
   font-family: var(--mp-brush);
-  font-size: 100px;
+  font-size: clamp(62px, 7vw, 84px);
   font-weight: 400;
   line-height: 1.1;
   letter-spacing: 0.14em;
@@ -194,30 +194,30 @@
 }
 
 .moments-page .moments-hero-lede {
-  margin: 17px 0 0 6px;
+  margin: 15px 0 0 6px;
   color: var(--mp-ink);
   font-family: var(--mp-brush);
-  font-size: 27px;
+  font-size: 25px;
   line-height: 1.45;
   letter-spacing: 0.17em;
 }
 
 .moments-page .moments-hero-rule {
   display: block;
-  width: min(66%, 650px);
+  width: min(64%, 560px);
   height: 2px;
-  margin: 39px 0 0 7px;
+  margin: 33px 0 0 7px;
   background: linear-gradient(90deg, var(--mp-seal) 0 56px, rgba(143, 88, 51, 0.34) 56px 78%, transparent);
 }
 
 .moments-page .moments-postmark {
   position: absolute;
-  top: 57px;
-  right: 53px;
+  top: 50px;
+  right: 46px;
   display: grid;
   place-items: center;
-  width: 140px;
-  height: 140px;
+  width: 124px;
+  height: 124px;
   transform: rotate(13deg);
   border: 1px solid rgba(123, 95, 65, 0.2);
   border-radius: 50%;
@@ -258,14 +258,14 @@
 
 .moments-page .moments-sheet-content {
   position: relative;
-  padding: 12px 78px 34px;
+  padding: 12px 64px 30px;
 }
 
 .moments-page .moments-sheet-content::before {
   position: absolute;
   top: 0;
-  right: 78px;
-  left: 78px;
+  right: 64px;
+  left: 64px;
   height: 1px;
   background: var(--mp-rule-bar);
   content: "";
@@ -908,46 +908,46 @@
 
 /* ---------- 响应式 ---------- */
 
-@media (max-width: 1000px) {
+@media (max-width: 900px) {
   .moments-page .moments-hero {
-    padding-left: 75px;
+    padding-left: 70px;
   }
 
   .moments-page .moments-postmark {
-    right: 28px;
+    right: 26px;
   }
 
   .moments-page .moments-sheet-content {
-    padding-inline: 52px;
+    padding-inline: 48px;
   }
 
   .moments-page .moments-sheet-content::before {
-    right: 52px;
-    left: 52px;
+    right: 48px;
+    left: 48px;
   }
 
   .moments-page .moment {
-    padding-inline: 23px;
+    padding-inline: 22px;
   }
 
   .moments-page .moment-layout {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 240px);
-    gap: 24px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 232px);
+    gap: 22px;
   }
 
   .moments-page .photo-leaf img {
-    height: 160px;
+    height: 158px;
   }
 
   .moments-page .colophon {
-    margin-inline: 52px;
+    margin-inline: 48px;
   }
 }
 
 @media (max-width: 720px) {
   .moments-page .moments-hero {
-    min-height: 290px;
-    padding: 53px 28px 37px 35px;
+    min-height: 268px;
+    padding: 48px 26px 34px 32px;
   }
 
   .moments-page .moments-hero-wash {
@@ -978,7 +978,7 @@
   }
 
   .moments-page .moments-hero-title {
-    font-size: clamp(61px, 14vw, 83px);
+    font-size: clamp(52px, 12vw, 68px);
   }
 
   .moments-page .moments-hero-title .article-seal {

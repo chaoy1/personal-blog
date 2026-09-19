@@ -32,6 +32,7 @@ describe('fixed corner control safe area', () => {
       `.posts-list {\n    padding-right: ${gutter};\n  }`,
       `.masthead,\n  .home-hero,\n  .home-section,\n  .home-footer {\n    padding-right: ${gutter};\n  }`,
       `.guestbook-layout {\n    padding-right: ${gutter};\n  }`,
+      `.moments-page {\n    padding-right: ${gutter};\n  }`,
     ]
 
     for (const rule of rules) {
@@ -41,7 +42,7 @@ describe('fixed corner control safe area', () => {
 
   it('leaves the fragile paper sheets alone', () => {
     // 这些纸面带题签栅格，641–720px 区间加内边距会连带压到题签，刻意不动
-    for (const selector of ['.posts-page', '.guestbook-sheet', '.about-scroll', '.article']) {
+    for (const selector of ['.posts-page', '.guestbook-sheet', '.about-scroll', '.article', '.art-sheet']) {
       expect(fixed).not.toMatch(new RegExp(`${selector.replace(/\./g, '\\.')}\\s*\\{`))
     }
   })

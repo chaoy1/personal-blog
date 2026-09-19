@@ -43,6 +43,11 @@
   .guestbook-layout {
     padding-right: var(--fixed-control-gutter);
   }
+
+  /* 闲语：条目纸片本来就窄，再让开一档，卡片右缘不会蹭到印章 */
+  .moments-page {
+    padding-right: var(--fixed-control-gutter);
+  }
 }
 
 @media (max-width: 520px) {
