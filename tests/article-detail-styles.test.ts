@@ -51,21 +51,25 @@ afterEach(() => {
 })
 
 describe('P03 reading layout recipe', () => {
-  it('keeps the paper, the readable measure and the annotation rail in one sheet', () => {
-    const { reading, rail, body } = renderArticleShell()
+  it('keeps the paper on the shared inner-page width with a fixed reading measure', () => {
+    const { reading, body } = renderArticleShell()
 
-    // 宣纸宽度可伸展，阅读行宽固定；批注轨是纸面内的第二栏。
+    // 纸面取内页标准宽度（--container-page），阅读行宽固定，两者互不牵连。
+    const css = readFileSync(resolve(process.cwd(), 'app/posts/article-detail.css'), 'utf8')
+    expect(css).toContain('width: min(var(--container-page), 100%)')
     expect(getComputedStyle(body).maxWidth).toBe('730px')
-    expect(getComputedStyle(reading).display).toBe('grid')
-    expect(getComputedStyle(reading).gridTemplateColumns).toContain('225px')
-    expect(rail.parentElement?.classList.contains('art-reading')).toBe(true)
+    expect(getComputedStyle(reading).display).toBe('block')
   })
 
-  it('keeps the annotation rail inside the sheet instead of floating outside it', () => {
+  it('floats the annotation rail outside the paper and falls back to the compact directory', () => {
     const { rail } = renderArticleShell()
 
-    // globals.css 里旧的悬浮轨道规则必须被纸面配方覆盖。
-    expect(getComputedStyle(rail).position).toBe('static')
+    // 纸面收窄后纸内放不下整轨：轨道移到纸外，默认收起，
+    // 只在宽屏（>=1320px）显示，窄屏用卷内目录入口。
+    const css = readFileSync(resolve(process.cwd(), 'app/posts/article-detail.css'), 'utf8')
+    expect(getComputedStyle(rail).position).toBe('absolute')
+    expect(getComputedStyle(rail).display).toBe('none')
+    expect(css).toMatch(/@media \(min-width: 1320px\) \{[\s\S]*?\.reading-companion-rail \{\s*display: block/)
   })
 
   it('contains wide media inside the paper and gives tables their own scroll region', () => {

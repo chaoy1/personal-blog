@@ -1,13 +1,18 @@
 /* P05：相册像展开的影集，不使用电商式图片卡片墙。 */
 
 .album-page {
-  width: min(var(--container-wide), 100%);
+  width: min(var(--container-page), 100%);
   margin: 0 auto;
 }
 
+.wrap:has(.album-page) {
+  max-width: calc(var(--container-page) + 100px);
+  padding-inline: clamp(11px, 3vw, 50px);
+}
+
 .album-page .album-sheet {
-  width: min(calc(100% - 32px), 1080px);
-  max-width: 1080px;
+  width: 100%;
+  max-width: none;
   margin: 0 auto 84px;
   padding: 30px clamp(22px, 4vw, 52px) 46px;
   overflow: hidden;
@@ -377,7 +382,7 @@
 
 @media (max-width: 720px) {
   .album-page .album-sheet {
-    width: min(calc(100% - 20px), 1080px);
+    width: 100%;
     margin-bottom: 52px;
     padding: 22px 16px 32px;
   }

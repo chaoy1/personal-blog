@@ -20,14 +20,15 @@
   --mp-brush: "hongleixingshu", "STXingkai", "KaiTi", var(--font-kai);
 
   position: relative;
-  width: min(960px, 100%);
+  /* 内页纸面的标准宽度（--container-page），其余内页向这一档对齐。 */
+  width: min(var(--container-page), 100%);
   margin-inline: auto;
   color: var(--mp-ink);
 }
 
 /* 纸面比默认正文栏宽一点就够，太宽会散掉札记的紧凑感。 */
 .wrap:has(.moments-page) {
-  max-width: 1060px;
+  max-width: calc(var(--container-page) + 100px);
   padding-inline: clamp(11px, 3vw, 50px);
 }
 

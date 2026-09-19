@@ -35,6 +35,8 @@
   --container-readable: 680px;
   --container-article: 780px;
   --container-default: 900px;
+  /* 统一纸面宽度：以内页（闲语）的宣纸为准，首页与时间轴不受此约束。 */
+  --container-page: 960px;
   --container-wide: 1080px;
   --gutter-wide: 56px;
   --gutter-compact: 40px;

@@ -51,7 +51,10 @@ describe('P05 album paper collection recipe', () => {
     const { page, sheet, item, back } = renderAlbumShell()
 
     expect(page).toBeInTheDocument()
-    expect(getComputedStyle(sheet).maxWidth).toBe('1080px')
+    // 纸面取内页标准宽度，和闲语页一样宽（jsdom 不解析 var()，核对样式表声明）。
+    const css = readFileSync(resolve(process.cwd(), 'app/album.css'), 'utf8')
+    expect(css).toContain('width: min(var(--container-page), 100%)')
+    expect(getComputedStyle(sheet).maxWidth).toBe('none')
     expect(getComputedStyle(item).borderRadius).toBe('1px')
     expect(getComputedStyle(item).boxShadow).not.toBe('none')
     expect(getComputedStyle(back).minHeight).toBe('44px')

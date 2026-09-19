@@ -68,10 +68,11 @@ describe('P04 moments xuan paper scroll recipe', () => {
     const { page, sheet } = renderMomentsShell()
 
     expect(page).toBeInTheDocument()
-    // 纸面收到 960px：比默认正文栏（900px）略宽，但不至于散掉札记的紧凑感
+    // 纸面取内页标准宽度 --container-page（960px）：比默认正文栏（900px）略宽，
+    // 但不至于散掉札记的紧凑感；其余内页向这一档对齐。
     // （jsdom 不解析 min() 与 var()，所以核对样式表里的声明）
     const css = readStyles('app/moments.css')
-    expect(css).toContain('width: min(960px, 100%)')
+    expect(css).toContain('width: min(var(--container-page), 100%)')
     expect(css).toContain('--mp-paper: #f0e2bc')
     expect(getComputedStyle(sheet).backgroundColor).toBe('var(--mp-paper)')
     expect(getComputedStyle(sheet).boxShadow).not.toBe('none')

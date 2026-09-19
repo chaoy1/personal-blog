@@ -18,6 +18,8 @@ describe('design system foundation', () => {
     expect(globals).toContain('--space-16: 64px')
     expect(globals).toContain('--radius-pill: 999px')
     expect(globals).toContain('--container-readable: 680px')
+    // 内页统一纸面宽度：以闲语页为基准，首页与时间轴不受约束。
+    expect(globals).toContain('--container-page: 960px')
     expect(globals).toContain('--container-wide: 1080px')
     expect(globals).toContain('--paper:')
     expect(globals).toContain('--ink:')
