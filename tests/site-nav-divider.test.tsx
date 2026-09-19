@@ -79,10 +79,11 @@ describe('选项下方那一笔朱墨', () => {
   it('不是等粗直线：有厚度，且纵向有墨量变化', () => {
     const block = brush()
 
-    expect(block).toContain('height: 4px')
-    // 纵向渐变让笔腹有浓淡，而不是一块实色
+    // 细横：2px 厚，不再是一根粗杠
+    expect(block).toContain('height: 2px')
+    // 纵向渐变留一点浓淡，而不是整块实色
     expect(block).toMatch(/background: linear-gradient\(\s*180deg/)
-    expect(block).toContain('color-mix(in srgb, var(--seal) 80%, transparent)')
+    expect(block).toContain('color-mix(in srgb, var(--seal) 90%, transparent)')
   })
 
   it('两端收细：横向遮罩必须是两端透明、中段满宽的多段曲线', () => {
@@ -94,10 +95,10 @@ describe('选项下方那一笔朱墨', () => {
     expect(mask).toMatch(/^\s*transparent 0/)
     expect(mask).toMatch(/transparent 100%\s*$/)
     // 中段满宽
-    expect(mask).toMatch(/#000 42%,\s*#000 58%/)
+    expect(mask).toMatch(/#000 46%,\s*#000 54%/)
     // 收细段要有中间档，才不是硬切
-    expect(mask).toMatch(/rgba\(0, 0, 0, 0\.28\) 12%/)
-    expect(mask).toMatch(/rgba\(0, 0, 0, 0\.75\) 26%/)
+    expect(mask).toMatch(/rgba\(0, 0, 0, 0\.3\) 14%/)
+    expect(mask).toMatch(/rgba\(0, 0, 0, 0\.8\) 30%/)
     // -webkit- 前缀同样要有，Safari 才收得细
     expect(block).toMatch(/-webkit-mask-image: linear-gradient\(\s*90deg,/)
   })
