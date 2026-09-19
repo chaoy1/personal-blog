@@ -1461,15 +1461,9 @@
   height: 22px;
 }
 
-/* 关于页：纸面与其余内页同宽（--container-page），.wrap 只补两侧留白。 */
-.wrap.about-page {
-  max-width: calc(var(--container-page) + 100px);
-  padding-inline: clamp(11px, 3vw, 50px);
-}
-
 .about-scroll {
   position: relative;
-  width: min(var(--container-page), 100%);
+  width: min(1080px, 100%);
   margin: 0 auto;
   overflow: hidden;
   border-radius: 3px;
@@ -1526,12 +1520,10 @@
   opacity: 0.7;
 }
 
-/* 纸面按内页标准放宽到 960 后，正文列仍守着自己的行宽（680 + 两侧 54 内边距），
-   在纸面里居中，签名落款跟着正文列走。 */
 .about-scroll .content-sheet {
   width: 100%;
-  max-width: calc(var(--container-readable) + 108px);
-  margin-inline: auto;
+  max-width: none;
+  margin: 0;
   padding: 10px 54px 52px;
   border: 0;
   background: transparent;
