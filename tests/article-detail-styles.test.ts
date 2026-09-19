@@ -58,7 +58,9 @@ describe('P03 reading layout recipe', () => {
     const css = readFileSync(resolve(process.cwd(), 'app/posts/article-detail.css'), 'utf8')
     expect(css).toContain('width: min(var(--container-page), 100%)')
     expect(getComputedStyle(body).maxWidth).toBe('730px')
-    expect(getComputedStyle(reading).display).toBe('block')
+    // 纵向 flex 列：卷内目录入口靠 order: -1 落在正文之前。
+    expect(getComputedStyle(reading).display).toBe('flex')
+    expect(getComputedStyle(reading).flexDirection).toBe('column')
   })
 
   it('floats the annotation rail outside the paper and falls back to the compact directory', () => {

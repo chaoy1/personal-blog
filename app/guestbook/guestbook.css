@@ -1471,7 +1471,7 @@
   --gb-paper-fibers: url("/bg/guestbook-paper-fibers.svg");
   --gb-landscape-tone: none;
   width: auto;
-  max-width: var(--container-page);
+  max-width: 1080px;
   margin-right: auto;
   margin-left: auto;
   padding-right: 0;
