@@ -19,7 +19,6 @@ vi.mock('@/lib/auth-context', () => ({
   useAuth: () => ({ user: null, profile: null, signOut: vi.fn() }),
 }))
 
-vi.mock('@/components/SearchPalette', () => ({ default: () => null }))
 vi.mock('@/components/ThemeToggle', () => ({ default: () => null }))
 
 import SiteNav from '@/components/SiteNav'

@@ -7,7 +7,6 @@ import { SITE_NAME } from '@/lib/site'
 import ThemeToggle from '@/components/ThemeToggle'
 import LangToggle from '@/components/LangToggle'
 import { useAuth } from '@/lib/auth-context'
-import SearchPalette from '@/components/SearchPalette'
 import ResourcePrefetchLink from '@/components/ResourcePrefetchLink'
 import type { PublicResourceKey } from '@/lib/public-resource-cache'
 
@@ -154,7 +153,6 @@ export default function SiteNav() {
             登录
           </Link>
         )}
-        <SearchPalette />
         <LangToggle />
         <ThemeToggle />
         <button
