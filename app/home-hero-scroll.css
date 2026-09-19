@@ -24,6 +24,10 @@
   /* 披麻皴与云气：亮色纸面上用墨绿，暗色纸面上退成月白。 */
   --hero-stroke-strong: rgba(32, 40, 33, 0.82);
   --hero-stroke-soft: rgba(40, 48, 39, 0.42);
+  /* 换句钮的纸饼：高光、暗缘与环线墨色 */
+  --dq-paper-hi: #fbf6ea;
+  --dq-paper-lo: #e3d8bf;
+  --dq-ring: #8b8172;
   --hero-wash-far: 0.56;
   --hero-wash-near: 0.7;
   --hero-type-display: var(--font-display);
@@ -41,6 +45,9 @@
 :root[data-theme='dark'] .home-page .home-hero {
   --hero-stroke-strong: rgba(236, 223, 192, 0.72);
   --hero-stroke-soft: rgba(236, 223, 192, 0.34);
+  --dq-paper-hi: #3a3021;
+  --dq-paper-lo: #1d1810;
+  --dq-ring: #a99b7d;
   --hero-wash-far: 0.5;
   --hero-wash-near: 0.56;
 }
@@ -702,40 +709,59 @@
   padding: 0;
   border: 0;
   border-radius: 50%;
+  /* 纸饼：内凹的纸缘，而不是一块陶土粉渐变 */
   background:
-    radial-gradient(
-      circle at 38% 32%,
-      color-mix(in srgb, var(--paper) 92%, white),
-      color-mix(in srgb, var(--paper) 78%, var(--seal)) 68%,
-      color-mix(in srgb, var(--paper) 46%, var(--seal)) 100%
-    );
+    radial-gradient(circle at 36% 30%, var(--dq-paper-hi), transparent 62%),
+    linear-gradient(160deg, color-mix(in srgb, var(--paper) 88%, white), var(--dq-paper-lo));
   color: var(--hero-ink);
   font-family: var(--font-latin);
   font-size: 12px;
   isolation: isolate;
-  box-shadow: 0 5px 12px rgba(54, 41, 23, 0.13);
+  box-shadow:
+    0 5px 13px -6px rgba(48, 35, 18, 0.4),
+    inset 0 1px 0 color-mix(in srgb, white 58%, transparent),
+    inset 0 -1px 2px color-mix(in srgb, var(--ink) 8%, transparent);
   transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+/* 隐形热区：圆钮不大，但点击范围要够 */
+.home-page .home-hero .dq-shuffle::before {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  content: "";
 }
 
 .home-page .home-hero .dq-orbit {
   position: absolute;
-  inset: -4px;
-  width: 52px;
-  height: 52px;
+  inset: -5px;
+  width: 56px;
+  height: 56px;
   overflow: visible;
   pointer-events: none;
-  transform: rotate(calc(var(--dq-turns, 0) * 1turn));
-  transform-origin: 50% 50%;
-  transition: transform 0.52s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* 指针由 JS 每帧写 transform，这里不能加 transition，否则会与惯性打架 */
+.home-page .home-hero .dq-orbit-rotor {
+  transform-origin: 27px 27px;
+  will-change: transform;
 }
 
 .home-page .home-hero .dq-orbit-track {
   fill: none;
-  stroke: var(--hero-stroke-soft);
-  stroke-width: 1.1;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: stroke 0.22s ease;
+  stroke: var(--dq-ring);
+  stroke-width: 1;
+  stroke-opacity: 0.14;
+}
+
+/* 一支笔锋绕行：78% 周长的弧。要比环明确重一档，
+   否则两者重量接近，缺口会读成"接缝"而不是墨停。 */
+.home-page .home-hero .dq-orbit-arc {
+  stroke: var(--dq-ring);
+  stroke-width: 1.7;
+  stroke-opacity: 0.5;
+  stroke-dasharray: 103 29;
+  transition: stroke-opacity 0.22s ease;
 }
 
 .home-page .home-hero .dq-orbit-dot {
@@ -752,16 +778,19 @@
   line-height: 1;
   color: var(--hero-ink);
   text-shadow: 0 1px 4px color-mix(in srgb, var(--paper) 92%, transparent);
+  transform: translateY(-0.5px);
 }
 
 .home-page .home-hero .dq-shuffle:hover {
   color: var(--hero-ink);
   transform: translateY(-1px);
-  box-shadow: 0 7px 14px rgba(54, 41, 23, 0.17);
+  box-shadow:
+    0 9px 17px -7px rgba(48, 35, 18, 0.46),
+    inset 0 1px 0 color-mix(in srgb, white 62%, transparent);
 }
 
-.home-page .home-hero .dq-shuffle:hover .dq-orbit-track {
-  stroke: var(--hero-stroke-strong);
+.home-page .home-hero .dq-shuffle:hover .dq-orbit-arc {
+  stroke-opacity: 0.68;
 }
 
 .home-page .home-hero .dq-shuffle:active {

@@ -4390,24 +4390,97 @@ html.unfold-returning .wrap {
 }
 
 .dq-shuffle {
+  position: relative;
   flex: none;
-  width: 24px;
-  height: 24px;
-  border: 1px solid var(--rule-strong);
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
-  background: none;
-  color: var(--ink-soft);
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--paper) 92%, white),
+    color-mix(in srgb, var(--paper) 74%, var(--ink-faint))
+  );
+  color: var(--ink);
   font-family: var(--font-kai);
   font-size: 12px;
   line-height: 1;
   cursor: pointer;
-  transition: color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+  box-shadow:
+    0 4px 9px -5px rgba(48, 35, 18, 0.35),
+    inset 0 1px 0 color-mix(in srgb, white 55%, transparent);
+  transition: box-shadow 0.22s ease, transform 0.22s ease;
+}
+
+/* 隐形热区：小圆钮也要有够得着的点击范围 */
+.dq-shuffle::before {
+  position: absolute;
+  inset: -9px;
+  border-radius: 50%;
+  content: "";
 }
 
 .dq-shuffle:hover {
-  color: var(--seal);
-  border-color: var(--seal);
-  transform: rotate(180deg);
+  transform: translateY(-1px);
+  box-shadow:
+    0 7px 14px -6px rgba(48, 35, 18, 0.4),
+    inset 0 1px 0 color-mix(in srgb, white 60%, transparent);
+}
+
+.dq-shuffle:active {
+  transform: translateY(1px);
+}
+
+.dq-shuffle:hover .dq-orbit-arc {
+  stroke-opacity: 0.52;
+}
+
+/* 换字：点一下轻轻一颤，连点也不会被截断 */
+.dq-shuffle-label[data-pulse='true'] {
+  animation: dq-glyph-pulse 0.34s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+
+@keyframes dq-glyph-pulse {
+  0% { transform: scale(1); }
+  32% { transform: scale(0.88); }
+  68% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+.dq-orbit {
+  position: absolute;
+  inset: -5px;
+  width: 36px;
+  height: 36px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.dq-orbit-rotor {
+  transform-origin: 27px 27px;
+  will-change: transform;
+}
+
+.dq-orbit-track {
+  stroke: var(--ink-faint);
+  stroke-width: 1;
+  stroke-opacity: 0.2;
+}
+
+/* 一支笔锋：78% 周长的弧，尾端靠弧长收住 */
+.dq-orbit-arc {
+  stroke: var(--seal-deep);
+  stroke-width: 1.5;
+  stroke-opacity: 0.34;
+  stroke-dasharray: 103 29;
+  transition: stroke-opacity 0.22s ease;
+}
+
+.dq-orbit-dot {
+  fill: var(--seal);
 }
 
 

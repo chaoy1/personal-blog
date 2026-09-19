@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>笔锋可读性对比 · 三个微调</title>
+<style>
+  @import url("../public/fonts/hongleixingshu/font.css");
+  :root {
+    --paper: #f2edde;
+    --ink: #2f2b24;
+    --ink-soft: #6f685a;
+    --hi: #fbf6ea;
+    --lo: #e3d8bf;
+    --ring: #8b8172;
+    --seal: #b23a2b;
+    --kai: "KaiTi", "STKaiti", "楷体", "Songti SC", serif;
+    --brush: "hongleixingshu", "STXingkai", "KaiTi", var(--kai);
+    --tile: #cdbf9f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 34px 24px 70px; background: var(--paper); color: var(--ink);
+    font-family: var(--kai);
+  }
+  h1 { margin: 0 0 4px; font: 400 24px/1.3 var(--kai); letter-spacing: .1em; }
+  p.lede { margin: 0 0 26px; color: var(--ink-soft); font-size: 13px; }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; }
+  .col { flex: 1 1 250px; border: 1px solid rgba(44,42,36,.16); background: color-mix(in srgb, var(--hi) 45%, transparent); }
+  .col h2 { margin: 0; padding: 13px 16px 10px; border-bottom: 1px solid rgba(44,42,36,.16); font: 400 15px var(--kai); letter-spacing: .1em; }
+  .col .spec { padding: 9px 16px 0; color: var(--ink-soft); font-size: 11.5px; line-height: 1.8; }
+  .stage {
+    display: grid; grid-auto-flow: column; place-items: center; gap: 14px;
+    min-height: 150px; padding: 20px 12px; background: var(--tile);
+  }
+
+  .dq {
+    position: relative; display: grid; place-items: center;
+    width: 46px; height: 46px; border-radius: 50%; border: 0; padding: 0;
+    background:
+      radial-gradient(circle at 36% 30%, var(--hi), transparent 62%),
+      linear-gradient(160deg, color-mix(in srgb, var(--paper) 88%, white), var(--lo));
+    box-shadow:
+      0 5px 13px -6px rgba(48,35,18,.4),
+      inset 0 1px 0 color-mix(in srgb, white 58%, transparent),
+      inset 0 -1px 2px color-mix(in srgb, var(--ink) 8%, transparent);
+    color: var(--ink);
+  }
+  .dq svg { position: absolute; inset: -5px; width: 56px; height: 56px; overflow: visible; }
+  .dq .g { font-family: var(--brush); font-size: 18px; line-height: 1; transform: translateY(-.5px); }
+
+  /* 现在这一版 */
+  .v0 .track { stroke: var(--ring); stroke-width: 1.1; stroke-opacity: .22; }
+  .v0 .arc { stroke: var(--ring); stroke-width: 1.6; stroke-opacity: .34; }
+
+  /* 微调一：笔锋更实，环线更淡 —— 让两者拉开层级 */
+  .v1 .track { stroke: var(--ring); stroke-width: 1; stroke-opacity: .14; }
+  .v1 .arc { stroke: var(--ring); stroke-width: 1.7; stroke-opacity: .5; }
+
+  /* 微调二：去掉整圈，只留一道笔锋 */
+  .v2 .arc { stroke: var(--ring); stroke-width: 1.7; stroke-opacity: .5; }
+  .v2 .tail { stroke: var(--ring); stroke-width: 1.7; stroke-opacity: .18; }
+
+  /* 微调三：笔锋改用墨色（更沉） */
+  .v3 .track { stroke: var(--ring); stroke-width: 1; stroke-opacity: .14; }
+  .v3 .arc { stroke: color-mix(in srgb, var(--ink) 55%, transparent); stroke-width: 1.7; }
+
+  .colophon { margin-top: 30px; color: var(--ink-soft); font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>笔锋可读性 · 三个微调</h1>
+<p class="lede">每个方案都转了两个角度，看笔锋在不同位置是否都读得出来。</p>
+
+<div class="row">
+  <section class="col v0">
+    <h2>现在这一版</h2>
+    <div class="stage">
+      <span class="dq"><svg viewBox="0 0 54 54"><circle class="track" cx="27" cy="27" r="21" fill="none"/><path class="arc" d="M27 6A21 21 0 1 1 8.2 37.6" fill="none" stroke-linecap="round"/><circle cx="27" cy="6" r="2.6" fill="var(--seal)"/></svg><span class="g">换</span></span>
+      <span class="dq"><svg viewBox="0 0 54 54" style="transform:rotate(140deg)"><circle class="track" cx="27" cy="27" r="21" fill="none"/><path class="arc" d="M27 6A21 21 0 1 1 8.2 37.6" fill="none" stroke-linecap="round"/><circle cx="27" cy="6" r="2.6" fill="var(--seal)"/></svg><span class="g">换</span></span>
+    </div>
+    <p class="spec">环 .22 / 笔锋 .34 — 两者重量接近，缺口像"接缝"</p>
+  </section>
+
+  <section class="col v1">
+    <h2>微调一 · 拉开层级</h2>
+    <div class="stage">
+      <span class="dq"><svg viewBox="0 0 54 54"><circle class="track" cx="27" cy="27" r="21" fill="none"/><path class="arc" d="M27 6A21 21 0 1 1 8.2 37.6" fill="none" stroke-linecap="round"/><circle cx="27" cy="6" r="2.6" fill="var(--seal)"/></svg><span class="g">换</span></span>
+      <span class="dq"><svg viewBox="0 0 54 54" style="transform:rotate(140deg)"><circle class="track" cx="27" cy="27" r="21" fill="none"/><path class="arc" d="M27 6A21 21 0 1 1 8.2 37.6" fill="none" stroke-linecap="round"/><circle cx="27" cy="6" r="2.6" fill="var(--seal)"/></svg><span class="g">换</span></span>
+    </div>
+    <p class="spec">环 .14 / 笔锋 .50 — 笔锋成为主体，环退成暗示</p>
+  </section>
+
+  <section class="col v2">
+    <h2>微调二 · 只留笔锋</h2>
+    <div class="stage">
+      <span class="dq"><svg viewBox="0 0 54 54"><path class="tail" d="M8.2 37.6A21 21 0 1 1 27 6" fill="none" stroke-linecap="round"/><path class="arc" d="M27 6A21 21 0 1 1 8.2 37.6" fill="none" stroke-linecap="round"/><circle cx="27" cy="6" r="2.6" fill="var(--seal)"/></svg><span class="g">换</span></span>
+      <span class="dq"><svg viewBox="0 0 54 54" style="transform:rotate(140deg)"><path class="tail" d="M8.2 37.6A21 21 0 1 1 27 6" fill="none" stroke-linecap="round"/><path class="arc" d="M27 6A21 21 0 1 1 8.2 37.6" fill="none" stroke-linecap="round"/><circle cx="27" cy="6" r="2.6" fill="var(--seal)"/></svg><span class="g">换</span></span>
+    </div>
+    <p class="spec">没有整圈，只有一道笔锋 + 一段极淡余墨</p>
+  </section>
+
+  <section class="col v3">
+    <h2>微调三 · 笔锋用墨色</h2>
+    <div class="stage">
+      <span class="dq"><svg viewBox="0 0 54 54"><circle class="track" cx="27" cy="27" r="21" fill="none"/><path class="arc" d="M27 6A21 21 0 1 1 8.2 37.6" fill="none" stroke-linecap="round"/><circle cx="27" cy="6" r="2.6" fill="var(--seal)"/></svg><span class="g">换</span></span>
+      <span class="dq"><svg viewBox="0 0 54 54" style="transform:rotate(140deg)"><circle class="track" cx="27" cy="27" r="21" fill="none"/><path class="arc" d="M27 6A21 21 0 1 1 8.2 37.6" fill="none" stroke-linecap="round"/><circle cx="27" cy="6" r="2.6" fill="var(--seal)"/></svg><span class="g">换</span></span>
+    </div>
+    <p class="spec">笔锋改成墨色，与「换」字同源，但更抢眼</p>
+  </section>
+</div>
+
+<p class="colophon">我倾向<strong>微调一</strong>：保留整圈的含蓄，同时让笔锋明确比环重一档。</p>
+</body>
+</html>

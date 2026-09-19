@@ -1,6 +1,6 @@
 import React from 'react'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import DailyQuote from '@/components/DailyQuote'
 import HomeHero from '@/components/home/HomeHero'
@@ -34,27 +34,73 @@ const guestbookEntry = {
 }
 
 describe('P01 home page composition', () => {
+  beforeEach(() => {
+    // 换句钮要读 prefers-reduced-motion；jsdom 默认没有 matchMedia。
+    // 注意：不能写成 stubGlobal('matchMedia', …) 再把它赋给 window.matchMedia，
+    // 那样等于让 window.matchMedia 指向自己，调用时会无限递归直到耗尽内存。
+    const { matchMedia } = window as unknown as { matchMedia?: unknown }
+    if (typeof matchMedia !== 'function') {
+      vi.stubGlobal('matchMedia', (query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        addListener: () => {},
+        removeListener: () => {},
+        dispatchEvent: () => false,
+      }))
+    }
+  })
+
   afterEach(() => {
     cleanup()
     vi.restoreAllMocks()
+    vi.unstubAllGlobals()
   })
 
-  it('accumulates another orbit turn for every rapid quote switch', () => {
+  it('gives every press its own spin instead of restarting one full turn', () => {
+    // 不模拟 rAF 时序：点击处理函数本身就应当立刻推动指针，
+    // 连点的连续加减速在浏览器里实测（见 effect-preview 说明）。
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 1)
+    vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {})
+    // 注意：不能返回常量 —— 换句逻辑要一直抽到「与当前不同」的那条，
+    // 常量会让它的 while 永不退出。
+    const randomValues = [0, 0.5, 0.99, 0.25]
     let randomCall = 0
-    const randomValues = [0, 0.5, 0.99]
     vi.spyOn(Math, 'random').mockImplementation(() => randomValues[randomCall++ % randomValues.length])
 
     const { container } = render(<DailyQuote />)
     const shuffle = screen.getByRole('button', { name: '随机换一句' })
-    const orbit = container.querySelector<SVGElement>('.dq-orbit')!
+    const rotor = container.querySelector<SVGGElement>('.dq-orbit-rotor')!
 
-    expect(orbit.style.getPropertyValue('--dq-turns')).toBe('0')
+    const angle = () => Number(/rotate\(([-\d.]+)deg\)/.exec(rotor.style.transform)?.[1] ?? 0)
+    const turns = () => Number(rotor.style.getPropertyValue('--dq-turns'))
 
+    // 连点三次：每次只加一次速度，累计远小于「每点一次转一整圈」的 3 圈
     fireEvent.click(shuffle)
     fireEvent.click(shuffle)
     fireEvent.click(shuffle)
 
-    expect(orbit.style.getPropertyValue('--dq-turns')).toBe('3')
+    expect(angle()).toBeGreaterThan(0)
+    expect(turns()).toBeCloseTo(angle() / 360, 5)
+    expect(turns()).toBeLessThan(1)
+    // 已经在转：按钮把旋转状态暴露给样式，供节流后的外部提示使用
+    expect(shuffle).toHaveAttribute('data-spinning', 'true')
+  })
+
+  it('still switches to a different quote on every press', () => {
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 1)
+    vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {})
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+
+    const { container } = render(<DailyQuote />)
+    const shuffle = screen.getByRole('button', { name: '随机换一句' })
+    const before = container.querySelector('.dq-text')!.textContent
+
+    fireEvent.click(shuffle)
+
+    expect(container.querySelector('.dq-text')!.textContent).not.toBe(before)
   })
 
   it('keeps one primary title and exposes the three content statistics as a labelled navigation', () => {

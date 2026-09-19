@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>首页每日一句 · 换句按钮重设计</title>
+<style>
+  @import url("../public/fonts/hongleixingshu/font.css");
+
+  :root {
+    --paper: #f2edde;
+    --paper-hi: #fbf6ea;
+    --paper-lo: #e3d8bf;
+    --ink: #2f2b24;
+    --ink-soft: #6f685a;
+    --ring: #8b8172;
+    --seal: #b23a2b;
+    --seal-deep: #8f2b1f;
+    --line: rgba(44, 42, 36, .16);
+    --kai: "KaiTi", "STKaiti", "楷体", "Songti SC", serif;
+    --brush: "hongleixingshu", "STXingkai", "KaiTi", var(--kai);
+    --latin: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --tile: #cdbf9f;
+  }
+  :root[data-theme='dark'] {
+    --paper: #2b2317;
+    --paper-hi: #3a3021;
+    --paper-lo: #1d1810;
+    --ink: #ece0c4;
+    --ink-soft: #b6a67d;
+    --ring: #a99b7d;
+    --seal: #c64b31;
+    --seal-deep: #d96b4a;
+    --line: rgba(236, 223, 192, .18);
+    --tile: #1b150d;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-width: 320px; padding: 40px 26px 80px;
+    background: var(--paper); color: var(--ink);
+    font-family: var(--kai); line-height: 1.9;
+    transition: background-color .5s ease, color .5s ease;
+  }
+  h1 { margin: 0 0 6px; font: 400 29px/1.3 var(--kai); letter-spacing: .1em; }
+  .lede { margin: 0 0 6px; color: var(--ink-soft); font-size: 14px; letter-spacing: .05em; }
+  .note { margin: 0 0 28px; color: var(--ink-soft); font-size: 13px; opacity: .8; }
+  code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; background: var(--paper-lo); padding: 1px 5px; }
+
+  .topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 26px; }
+  .topbar button {
+    min-height: 34px; padding: 4px 14px; cursor: pointer;
+    border: 1px solid var(--line); background: transparent; color: var(--ink);
+    font: 13px var(--kai); letter-spacing: .1em;
+  }
+  .topbar button:hover { border-color: var(--seal); color: var(--seal-deep); }
+
+  .row { display: flex; flex-wrap: wrap; gap: 18px; }
+  .card {
+    flex: 1 1 300px; border: 1px solid var(--line); padding: 0 0 16px;
+    background: color-mix(in srgb, var(--paper-hi) 46%, transparent);
+  }
+  .card > header { padding: 14px 18px 11px; border-bottom: 1px solid var(--line); }
+  .card h2 { margin: 0 0 2px; font: 400 16px var(--kai); letter-spacing: .1em; }
+  .card p { margin: 0; color: var(--ink-soft); font-size: 12px; }
+  .stage {
+    display: grid; place-items: center; min-height: 176px; padding: 22px;
+    background: var(--tile);
+    background-image: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--paper-hi) 55%, transparent), transparent 60%);
+  }
+  .meta { padding: 12px 18px 0; color: var(--ink-soft); font-size: 12px; }
+  .meta b { color: var(--ink); font-weight: 400; }
+
+  /* ============ 三种处理方向 ============ */
+
+  /* A · 纸印 */
+  .dqA {
+    position: relative; display: grid; place-items: center;
+    width: 44px; height: 44px; border-radius: 50%;
+    background:
+      radial-gradient(circle at 36% 30%, var(--paper-hi), transparent 62%),
+      linear-gradient(160deg, color-mix(in srgb, var(--paper) 88%, white), var(--paper-lo));
+    box-shadow:
+      0 6px 14px -6px rgba(48, 35, 18, .38),
+      inset 0 1px 0 color-mix(in srgb, white 60%, transparent),
+      inset 0 -1px 2px color-mix(in srgb, var(--ink) 8%, transparent);
+    color: var(--ink);
+  }
+  .dqA .glyph { font-family: var(--brush); font-size: 18px; line-height: 1; transform: translateY(-.5px); }
+  .dqA svg { position: absolute; inset: -5px; width: 54px; height: 54px; overflow: visible; pointer-events: none; }
+
+  /* B · 墨静 */
+  .dqB {
+    position: relative; display: grid; place-items: center;
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+    background: none; color: var(--ink);
+  }
+  .dqB .glyph { font-family: var(--brush); font-size: 18px; line-height: 1; }
+  .dqB::after {
+    position: absolute; inset: 4px; border-radius: 50%; content: "";
+    border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  }
+
+  /* C · 朱印 */
+  .dqC {
+    position: relative; display: grid; place-items: center;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: none; color: var(--seal);
+    border: 1.5px solid color-mix(in srgb, var(--seal) 62%, transparent);
+  }
+  .dqC .glyph { font-family: var(--brush); font-size: 18px; line-height: 1; }
+  .dqC::after {
+    position: absolute; inset: 5px; border-radius: 50%; content: "";
+    border: 1px dashed color-mix(in srgb, var(--seal) 42%, transparent);
+  }
+
+  /* ============ 推荐：纸印 + 一支笔锋（可交互） ============ */
+  .hero-stage {
+    display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 26px;
+    padding: 26px 22px; background: var(--tile);
+    background-image: radial-gradient(circle at 22% 20%, color-mix(in srgb, var(--paper-hi) 50%, transparent), transparent 58%);
+    border-bottom: 1px solid var(--line);
+  }
+  .dqR {
+    position: relative; display: grid; place-items: center;
+    width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%;
+    background:
+      radial-gradient(circle at 36% 30%, var(--paper-hi), transparent 62%),
+      linear-gradient(160deg, color-mix(in srgb, var(--paper) 88%, white), var(--paper-lo));
+    box-shadow:
+      0 6px 14px -6px rgba(48, 35, 18, .38),
+      inset 0 1px 0 color-mix(in srgb, white 60%, transparent),
+      inset 0 -1px 2px color-mix(in srgb, var(--ink) 8%, transparent);
+    color: var(--ink); cursor: pointer;
+    transition: box-shadow .22s ease, transform .22s ease;
+  }
+  .dqR::before { /* 隐形热区，指尖够得着 */
+    position: absolute; inset: -6px; border-radius: 50%; content: "";
+  }
+  .dqR:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 9px 18px -7px rgba(48, 35, 18, .44), inset 0 1px 0 color-mix(in srgb, white 64%, transparent);
+  }
+  .dqR:active { transform: translateY(1px); }
+  .dqR .glyph { font-family: var(--brush); font-size: 18px; line-height: 1; transform: translateY(-.5px); }
+  .dqR svg { position: absolute; inset: -5px; width: 54px; height: 54px; overflow: visible; pointer-events: none; }
+  .dqR .pen { transform-origin: 27px 27px; }
+  .dqR .arc-hit { fill: none; stroke: transparent; stroke-width: 8; }
+
+  .readout { color: var(--ink-soft); font: 12px/1.9 ui-monospace, Consolas, monospace; }
+  .readout b { color: var(--seal-deep); font-weight: 400; }
+  .readout .live { color: var(--ink); }
+
+  .copy { padding: 14px 20px 0; color: var(--ink-soft); font-size: 13px; line-height: 1.95; }
+  .copy b { color: var(--ink); font-weight: 400; }
+  .copy ul { margin: 8px 0 0; padding-left: 1.2em; }
+  .copy li { margin: 3px 0; }
+  .colophon { margin-top: 38px; color: var(--ink-soft); font-size: 12px; letter-spacing: .12em; opacity: .85; }
+</style>
+</head>
+<body>
+
+<h1>换句按钮 · 重设计</h1>
+<p class="lede">首页「每日一句」纸带右端那个圆钮。</p>
+<p class="note">现状：陶土粉渐变饼 + 一圈粗灰环 + 右上红点。环线太重，两层圆彼此较劲，红点与缺口位置对不上；连点时过渡被反复重置、整圈转满又弹回原点。</p>
+
+<div class="topbar">
+  <button type="button" id="theme">切换深色纸</button>
+  <span class="note" style="margin:0">↓ 推荐方向可以直接连点试手感</span>
+</div>
+
+<section class="card" style="margin-bottom:18px">
+  <header>
+    <h2>推荐 · 纸印与一支笔锋</h2>
+    <p>连点试试：转得越来越快，松手后缓慢收势</p>
+  </header>
+  <div class="hero-stage">
+    <button type="button" class="dqR" id="dqR" aria-label="随机换一句">
+      <svg viewBox="0 0 54 54" aria-hidden="true">
+        <defs>
+          <linearGradient id="inkArc" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="var(--ring)" stop-opacity="0" />
+            <stop offset="34%" stop-color="var(--ring)" stop-opacity=".75" />
+            <stop offset="78%" stop-color="var(--ring)" stop-opacity="1" />
+            <stop offset="100%" stop-color="var(--seal)" />
+          </linearGradient>
+        </defs>
+        <g class="pen" id="pen">
+          <circle class="arc-hit" cx="27" cy="27" r="21" />
+          <circle cx="27" cy="27" r="21" fill="none" stroke="var(--ring)" stroke-opacity=".22" stroke-width="1.1" />
+          <path d="M27 6 A21 21 0 1 1 8.2 37.6" fill="none" stroke="url(#inkArc)" stroke-width="1.7" stroke-linecap="round" />
+          <circle cx="27" cy="6" r="2.6" fill="var(--seal)" />
+        </g>
+      </svg>
+      <span class="glyph">换</span>
+    </button>
+    <div class="readout">
+      <div>连点 <b id="hits">0</b> 次</div>
+      <div>当前速度 <span class="live" id="speed">0.00</span> 圈/秒</div>
+      <div>累计转过 <span class="live" id="turns">0.00</span> 圈</div>
+      <div style="margin-top:6px;opacity:.75">角度单调递增，永不停顿回跳</div>
+    </div>
+  </div>
+  <p class="copy">
+    <b>为什么这样才不会顿：</b>不再用「每次加一整圈 + CSS transition」，改成一个小型的陀螺模型 —— 指针用 <code>requestAnimationFrame</code> 连续积分，
+    每次点击只<b>加一次速度</b>（有上限）。速度按每帧衰减，所以连点会持续加速、松手后自然收势，全程角度单调递增，不存在过渡被重置，也不会转满一圈弹回起点。
+  </p>
+</section>
+
+<div class="row">
+  <section class="card">
+    <header><h2>A · 纸印（推荐）</h2><p>纸饼凸起，环线收细到 1.1px</p></header>
+    <div class="stage">
+      <span class="dqA">
+        <svg viewBox="0 0 54 54" aria-hidden="true">
+          <circle cx="27" cy="27" r="21" fill="none" stroke="var(--ring)" stroke-opacity=".22" stroke-width="1.1" />
+          <path d="M27 6 A21 21 0 0 1 45.8 37.6" fill="none" stroke="var(--ring)" stroke-width="1.6" stroke-linecap="round" />
+          <circle cx="27" cy="6" r="2.6" fill="var(--seal)" />
+        </svg>
+        <span class="glyph">换</span>
+      </span>
+    </div>
+    <p class="meta">环线 <b>1.1px</b>·不透明度 <b>22%</b>；笔锋 <b>1.6px</b>，尾端渐隐。</p>
+  </section>
+
+  <section class="card">
+    <header><h2>B · 墨静</h2><p>去掉实心饼，只留双细线</p></header>
+    <div class="stage">
+      <span class="dqB"><span class="glyph">换</span></span>
+    </div>
+    <p class="meta">最轻，但与纸带底色贴得太近，<b>可点感偏弱</b>。</p>
+  </section>
+
+  <section class="card">
+    <header><h2>C · 朱印</h2><p>整钮改用朱色</p></header>
+    <div class="stage">
+      <span class="dqC"><span class="glyph">换</span></span>
+    </div>
+    <p class="meta">最醒目，但朱色在站点里是<b>落款与强调</b>，做成常驻控件会稀释它的分量。</p>
+  </section>
+</div>
+
+<p class="colophon">推荐 A：它保留你原来「纸饼 + 环 + 朱点」的构思，只是把环收细、笔锋收尖、去掉多余的第三层圆，让红点成为唯一的饱和色。</p>
+
+<script>
+  document.getElementById('theme').addEventListener('click', () => {
+    const d = document.documentElement.dataset.theme !== 'dark'
+    document.documentElement.dataset.theme = d ? 'dark' : 'light'
+  })
+
+  // ---- 陀螺模型：与将要实现的组件同一套参数 ----
+  const MAX_SPEED = 1.15        // 圈/秒
+  const CLICK_KICK = 0.42       // 每次点击加的速度
+  const DECAY = 2.6             // 每帧衰减强度
+  const IDLE_EPS = 0.015
+
+  const btn = document.getElementById('dqR')
+  const pen = document.getElementById('pen')
+  const hitsEl = document.getElementById('hits')
+  const speedEl = document.getElementById('speed')
+  const turnsEl = document.getElementById('turns')
+
+  let angle = 0
+  let speed = 0
+  let hits = 0
+  let turns = 0
+  let last = performance.now()
+  let raf = 0
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)')
+
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000)
+    last = now
+    speed *= Math.pow(0.0001, dt / DECAY)   // 与帧率无关的指数衰减
+    if (speed < IDLE_EPS) speed = 0
+    angle += speed * dt
+    turns += speed * dt
+    pen.style.transform = 'rotate(' + (angle * 360) + 'deg)'
+    speedEl.textContent = speed.toFixed(2)
+    turnsEl.textContent = turns.toFixed(2)
+    raf = requestAnimationFrame(frame)
+  }
+  raf = requestAnimationFrame(frame)
+
+  btn.addEventListener('click', () => {
+    hits += 1
+    hitsEl.textContent = hits
+    if (reduce.matches) { pen.style.transform = 'rotate(' + ((angle += 0.25) * 360) + 'deg)'; return }
+    speed = Math.min(MAX_SPEED, speed + CLICK_KICK)
+  })
+</script>
+</body>
+</html>
