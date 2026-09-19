@@ -37,6 +37,7 @@ function renderTimelineShell() {
   return {
     page: document.querySelector<HTMLElement>('.timeline-page')!,
     timeline: document.querySelector<HTMLElement>('.timeline')!,
+    date: document.querySelector<HTMLElement>('.tl-date')!,
     card: document.querySelector<HTMLElement>('.tl-card')!,
     image: document.querySelector<HTMLImageElement>('.tl-thumb')!,
     unfold: document.querySelector<HTMLElement>('.timeline-unfold')!,
@@ -50,14 +51,24 @@ afterEach(() => {
 })
 
 describe('P06 chronicle paper recipe', () => {
-  it('uses an open timeline surface instead of a stack of thick cards', () => {
-    const { page, timeline, card } = renderTimelineShell()
+  it('keeps each chronicle entry readable above the landscape', () => {
+    const { page, timeline, date, card } = renderTimelineShell()
 
     expect(page).toBeInTheDocument()
     expect(getComputedStyle(timeline).maxWidth).toBe('960px')
-    expect(getComputedStyle(card).borderRadius).toBe('0px')
-    expect(getComputedStyle(card).boxShadow).toBe('none')
-    expect(getComputedStyle(card).backgroundColor).toBe('rgba(0, 0, 0, 0)')
+    expect(getComputedStyle(card).backgroundColor).toBe('rgb(242, 230, 200)')
+    expect(getComputedStyle(date).backgroundColor).toBe('rgb(242, 230, 200)')
+  })
+
+  it('uses an opaque dark paper surface in night mode', () => {
+    document.documentElement.dataset.theme = 'dark'
+    try {
+      const { card, date } = renderTimelineShell()
+      expect(getComputedStyle(card).backgroundColor).toBe('rgb(55, 43, 30)')
+      expect(getComputedStyle(date).backgroundColor).toBe('rgb(55, 43, 30)')
+    } finally {
+      delete document.documentElement.dataset.theme
+    }
   })
 
   it('reserves stable media space and keeps terminal controls reachable', () => {

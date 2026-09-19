@@ -1,4 +1,4 @@
-/* P06：时间轴是一条开放的编年纸带，节点不再组成厚重卡片墙。 */
+/* P06：以山水长卷为底，每条记录覆一张清晰的宣纸签。 */
 
 .timeline-page-body {
   width: min(var(--container-wide), 100%);
@@ -89,11 +89,11 @@
   display: block;
   width: fit-content;
   margin-bottom: 8px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--ink-faint);
+  padding: 4px 10px;
+  border: 1px solid #8b704b;
+  border-radius: 1px;
+  background: #f2e6c8;
+  color: #4b3928;
   font-family: var(--font-latin);
   font-size: 11px;
   letter-spacing: 0.08em;
@@ -101,17 +101,29 @@
 
 .timeline-page-body .tl-card {
   min-width: 0;
-  padding: 12px 0 14px 18px;
-  overflow: visible;
-  border: 0;
-  border-left: 2px solid var(--rule-strong);
-  border-radius: 0px;
-  background-color: transparent;
+  padding: 16px 17px;
+  overflow: hidden;
+  border: 1px solid #8b704b;
+  border-left: 3px solid var(--seal-deep);
+  border-radius: 1px;
+  background-color: #f2e6c8;
   background-image: none;
-  box-shadow: none;
+  box-shadow: inset 0 0 0 3px rgba(255, 249, 230, 0.38), 0 12px 25px -18px rgba(36, 26, 11, 0.68);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  transition: border-color 0.3s ease, transform 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+:root[data-theme='dark'] .timeline-page-body .tl-date,
+:root[data-theme='dark'] .timeline-page-body .tl-card {
+  border-color: #a88b60;
+  background-color: #372b1e;
+  color: var(--ink);
+}
+
+:root[data-theme='dark'] .timeline-page-body .tl-card {
+  border-left-color: var(--seal-deep);
+  box-shadow: inset 0 0 0 3px rgba(255, 240, 198, 0.07), 0 12px 25px -18px rgba(0, 0, 0, 0.78);
 }
 
 .timeline-page-body .tl-card::after {
@@ -120,8 +132,12 @@
 
 .timeline-page-body .tl-card:hover {
   border-left-color: var(--seal);
-  box-shadow: none;
+  box-shadow: inset 0 0 0 3px rgba(255, 249, 230, 0.38), 0 16px 28px -16px rgba(36, 26, 11, 0.72);
   transform: translateX(3px);
+}
+
+:root[data-theme='dark'] .timeline-page-body .tl-card:hover {
+  box-shadow: inset 0 0 0 3px rgba(255, 240, 198, 0.07), 0 16px 28px -16px rgba(0, 0, 0, 0.84);
 }
 
 .timeline-page-body .tl-body {
@@ -316,7 +332,7 @@
   }
 
   .timeline-page-body .tl-card {
-    padding-left: 14px;
+    padding: 14px;
   }
 
   .timeline-page-body .tl-body {
