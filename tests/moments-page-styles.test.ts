@@ -13,17 +13,30 @@ function renderMomentsShell() {
   `
   document.body.innerHTML = `
     <main class="moments-page">
-      <header class="page-intro"><h1>闲语</h1></header>
-      <section class="article content-sheet moments-sheet" aria-label="闲语列表">
-        <article class="moment">
-          <div class="moment-head"><span class="moment-avatar">旅</span></div>
-          <p class="moment-content">沿着溪声走进一页春山。</p>
-          <div class="moment-images"><img src="/mountain.jpg" alt="闲语配图" /></div>
-          <div class="moment-actions"><button class="moment-like">点赞</button></div>
-          <div class="moment-comments">
-            <div class="moment-comment-form"><input /><button class="btn btn-sm">发送</button></div>
+      <section class="moments-sheet">
+        <header class="moments-hero">
+          <div class="moments-postmark">COLLECTED<br />NOTES</div>
+          <div class="moments-hero-copy">
+            <h1 class="moments-hero-title"><span><span class="moments-hero-char">闲</span></span></h1>
+            <p class="moments-hero-lede">片言只语，也是一日光景。</p>
           </div>
-        </article>
+        </header>
+        <div class="moments-sheet-content">
+          <div class="collection-heading"><h2>近来所记</h2></div>
+          <article class="moment">
+            <div class="date-rail"><span class="day">01</span><span class="month">SEP</span></div>
+            <div class="moment-inner">
+              <div class="moment-layout">
+                <div class="moment-body"><p class="moment-content">沿着溪声走进一页春山。</p></div>
+                <figure class="photo-leaf"><img src="/mountain.jpg" alt="闲语配图" /></figure>
+              </div>
+              <div class="moment-actions"><button class="moment-like">喜欢</button></div>
+              <div class="moment-comments">
+                <div class="moment-comment-form"><input /><button class="send">寄语</button></div>
+              </div>
+            </div>
+          </article>
+        </div>
       </section>
     </main>
   `
@@ -31,9 +44,15 @@ function renderMomentsShell() {
   return {
     page: document.querySelector<HTMLElement>('.moments-page')!,
     sheet: document.querySelector<HTMLElement>('.moments-sheet')!,
+    hero: document.querySelector<HTMLElement>('.moments-hero')!,
+    title: document.querySelector<HTMLElement>('.moments-hero-title')!,
+    postmark: document.querySelector<HTMLElement>('.moments-postmark')!,
     moment: document.querySelector<HTMLElement>('.moment')!,
+    rail: document.querySelector<HTMLElement>('.date-rail')!,
+    layout: document.querySelector<HTMLElement>('.moment-layout')!,
     content: document.querySelector<HTMLElement>('.moment-content')!,
-    image: document.querySelector<HTMLImageElement>('.moment-images img')!,
+    leaf: document.querySelector<HTMLElement>('.photo-leaf')!,
+    image: document.querySelector<HTMLImageElement>('.photo-leaf img')!,
     like: document.querySelector<HTMLElement>('.moment-like')!,
     input: document.querySelector<HTMLElement>('.moment-comment-form input')!,
   }
@@ -44,24 +63,63 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-describe('P04 moments paper collection recipe', () => {
-  it('keeps the paper sheet narrower than the page and renders moments as open notes', () => {
-    const { page, sheet, moment, content } = renderMomentsShell()
+describe('P04 moments xuan paper scroll recipe', () => {
+  it('draws one continuous sheet that is wider than the reading column', () => {
+    const { page, sheet } = renderMomentsShell()
 
     expect(page).toBeInTheDocument()
-    expect(getComputedStyle(sheet).maxWidth).toBe('900px')
-    expect(getComputedStyle(moment).borderRadius).toBe('0px')
-    expect(getComputedStyle(moment).boxShadow).toBe('none')
-    expect(getComputedStyle(moment).backgroundColor).toBe('rgba(0, 0, 0, 0)')
-    expect(getComputedStyle(content).maxWidth).toBe('680px')
+    // 纸面本身撑到 1160px，比默认正文栏宽，卷页感来自纸而不是卡片
+    // （jsdom 不解析 min() 与 var()，所以核对样式表里的声明）
+    const css = readStyles('app/moments.css')
+    expect(css).toContain('width: min(1160px, 100%)')
+    expect(css).toContain('--mp-paper: #f0e2bc')
+    expect(getComputedStyle(sheet).backgroundColor).toBe('var(--mp-paper)')
+    expect(getComputedStyle(sheet).boxShadow).not.toBe('none')
+    // 纸纹用背景图铺，不再是一层模糊玻璃（url() 藏在 --mp-fiber 里）
+    expect(getComputedStyle(sheet).backgroundImage).toContain('linear-gradient(115deg')
+    expect(css).toContain('--mp-fiber: url("data:image/svg+xml')
+    expect(getComputedStyle(sheet).backdropFilter || 'none').toBe('none')
   })
 
-  it('reserves stable image space and keeps moment actions reachable', () => {
+  it('keeps the hero brush lettering, lede and postmark as the volume opening', () => {
+    const { hero, title, postmark } = renderMomentsShell()
+
+    expect(getComputedStyle(hero).minHeight).toBe('350px')
+    expect(getComputedStyle(title).fontSize).toBe('100px')
+    // jsdom 不解析 var()，只核对题字声明了行书变量
+    expect(getComputedStyle(title).fontFamily).toBe('var(--mp-brush)')
+    expect(getComputedStyle(postmark).borderRadius).toBe('50%')
+  })
+
+  it('lays each note out as a date rail plus a two column note body', () => {
+    const { moment, rail, layout, content, leaf } = renderMomentsShell()
+
+    expect(getComputedStyle(moment).display).toBe('grid')
+    // jsdom 把 0 归一化成 '0'，浏览器里仍是 0px：条目是直角纸片不是圆角卡片
+    expect(getComputedStyle(moment).borderRadius).toMatch(/^0(px)?$/)
+    // 左侧朱线是条目的分栏标记，不再靠独立厚卡片分隔
+    expect(getComputedStyle(moment).borderLeftStyle).toBe('solid')
+    expect(getComputedStyle(rail).position).toBe('relative')
+    expect(getComputedStyle(layout).display).toBe('grid')
+    expect(getComputedStyle(content).maxWidth).toBe('610px')
+    // 照片压在纸上，带一点点倾斜
+    expect(getComputedStyle(leaf).transform).toBe('rotate(1.3deg)')
+  })
+
+  it('reserves stable photo space and keeps every action reachable', () => {
     const { image, like, input } = renderMomentsShell()
 
-    expect(getComputedStyle(image).aspectRatio).toBe('1')
+    expect(getComputedStyle(image).height).toBe('194px')
+    expect(getComputedStyle(image).objectFit).toBe('cover')
     expect(getComputedStyle(image).maxWidth).toBe('100%')
     expect(getComputedStyle(like).minHeight).toBe('44px')
     expect(getComputedStyle(input).minHeight).toBe('44px')
+  })
+
+  it('ships the bundled brush font for the volume title', () => {
+    const css = readStyles('app/moments.css')
+
+    expect(css).toContain('@import url("/fonts/hongleixingshu/font.css")')
+    expect(css).toContain('--mp-brush')
   })
 })

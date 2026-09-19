@@ -85,4 +85,31 @@ describe('P04 moments page', () => {
     fireEvent.keyDown(input, { key: 'Enter' })
     await waitFor(() => expect(addMomentComment).toHaveBeenCalledWith('moment-1', '中文评论'))
   })
+
+  it('renders the volume opening and a dated rail for each note', () => {
+    render(<MomentsPage />)
+
+    const title = screen.getByRole('heading', { level: 1 })
+    expect(title).toHaveTextContent('闲语')
+    expect(screen.getByRole('heading', { level: 2, name: '近来所记' })).toBeInTheDocument()
+    expect(screen.getByLabelText('2026年9月1日')).toBeInTheDocument()
+    expect(screen.getByText('SEP')).toBeInTheDocument()
+  })
+
+  it('collapses and reopens a note comment panel from its action row', () => {
+    render(<MomentsPage />)
+
+    const toggle = screen.getByRole('button', { name: /评论 · 0/ })
+    const panel = document.getElementById('moment-comments-moment-1')
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    expect(panel).not.toHaveAttribute('hidden')
+
+    fireEvent.click(toggle)
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    expect(panel).toHaveAttribute('hidden')
+
+    fireEvent.click(toggle)
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    expect(panel).not.toHaveAttribute('hidden')
+  })
 })
