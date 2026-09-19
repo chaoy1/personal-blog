@@ -245,6 +245,18 @@ const LAYERS: LayerCfg[] = [
   { scale: [0.9, 1.18], opacity: [0.72, 0.94], fall: [50, 80], swayAmp: [22, 38] }, // 近
 ]
 
+/**
+ * 一屏落几片叶子：按视口面积换算，再夹在上下限内。
+ * 树叶过密会盖住山水与题签，所以上下限都收得比较紧；夜里本就该更疏。
+ */
+export function leafCount(width: number, height: number, night: boolean): number {
+  const density = night ? 0.5 : 0.82
+  return Math.max(
+    night ? 11 : 18,
+    Math.min(night ? 21 : 36, Math.round(((width * height) / 56000) * density)),
+  )
+}
+
 export default function MapleLeaves({ night = false, active = true }: { night?: boolean; active?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null)
 
@@ -280,8 +292,7 @@ export default function MapleLeaves({ night = false, active = true }: { night?: 
           : DAY_COLORS.map((c) => makeSprite(c, false))
       }
 
-      const density = night ? 0.62 : 1
-      const count = Math.max(night ? 14 : 22, Math.min(night ? 26 : 44, Math.round(((W * H) / 56000) * density)))
+      const count = leafCount(W, H, night)
       leaves = Array.from({ length: count }, () => {
         const cfg = LAYERS[layerOf(Math.random())]
         const size = 20 + Math.random() * 15
