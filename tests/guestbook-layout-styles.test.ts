@@ -104,7 +104,7 @@ describe('guestbook desktop composition', () => {
     const { page, sheet } = renderGuestbookShell()
     const pageStyle = getComputedStyle(page)
 
-    expect(pageStyle.maxWidth).toBe('1080px')
+    expect(pageStyle.maxWidth).toBe('var(--container-page)')
     expect(pageStyle.width).toBe('auto')
     // 底纸直接铺在页面容器上：纸面宽度与正文宽度一致，不再多出一层。
     expect(pageStyle.backgroundImage).toContain('var(--gb-botanical-art)')
