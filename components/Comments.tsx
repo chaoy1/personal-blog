@@ -8,7 +8,7 @@ import CommentThread from '@/components/CommentThread'
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
-export default function Comments({ slug }: { slug: string }) {
+export default function Comments({ slug, title = '评论' }: { slug: string; title?: string }) {
   const { user } = useAuth()
   const {
     comments,
@@ -86,11 +86,11 @@ export default function Comments({ slug }: { slug: string }) {
   }
 
   return (
-    <section className="comments" aria-busy={busy} data-form-state={formState}>
-      <div className="comments-title">
-        <span>评论</span>
-        <span className="comments-count">{list.length}</span>
-      </div>
+    <section className="comments" aria-busy={busy} aria-labelledby="comments-title" data-form-state={formState}>
+      <h2 className="comments-title" id="comments-title">
+        <span>{title}</span>
+        <span className="comments-count">{String(list.length).padStart(2, '0')}</span>
+      </h2>
 
       {localError ? <p className="error-text" role="alert">{localError}</p> : null}
       {!resourceHasData && resourceIsInitialLoading ? <p className="moments-empty">正在加载评论…</p> : null}
