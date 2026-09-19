@@ -154,15 +154,12 @@ describe('V2 scroll hero recipe', () => {
     expect(scrollFxSource).not.toContain('masthead.style.transform =')
   })
 
-  it('keeps dust and stars out of the curated hero while the maple leaves keep falling', () => {
+  it('keeps the legacy corner branch out while every ambient canvas stays on the home page', () => {
     renderHomeShell()
 
     expect(heroScrollStyles).toMatch(/\.home-page\s*>\s*\.branch\s*\{[^}]*display:\s*none/)
-    expect(heroScrollStyles).toMatch(
-      /:root:has\(\.home-page\) \.bg-canvas-dust,\s*:root:has\(\.home-page\) \.bg-canvas-stars\s*\{[^}]*display:\s*none/,
-    )
-    // 枫叶层不能再被整类关掉。
-    expect(heroScrollStyles).not.toMatch(/:root:has\(\.home-page\) \.bg-canvas\s*\{[^}]*display:\s*none/)
+    // 光尘、枫叶、星夜三层氛围都保留在首屏，不再整类关掉。
+    expect(heroScrollStyles).not.toMatch(/:root:has\(\.home-page\) \.bg-canvas[^{]*\{[^}]*display:\s*none/)
     expect(heroScrollStyles).toMatch(/:root:has\(\.home-page\) \.vignette\s*\{[^}]*animation:\s*none/)
     expect(heroScrollStyles).toMatch(/:root:has\(\.home-page\) \.bg-blend\s*\{[^}]*mix-blend-mode:\s*normal/)
   })
@@ -241,8 +238,6 @@ describe('V2 scroll hero recipe', () => {
       ':root:has(.home-page) .bg-painting',
       ':root:has(.home-page) .bg-blend',
       ':root:has(.home-page) .bg-tint',
-      ':root:has(.home-page) .bg-canvas-dust',
-      ':root:has(.home-page) .bg-canvas-stars',
       ':root:has(.home-page) .vignette',
       ':root:has(.home-page) .grain',
     ])

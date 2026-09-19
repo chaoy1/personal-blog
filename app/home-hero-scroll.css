@@ -1157,7 +1157,7 @@
   display: none;
 }
 
-/* 首屏只留下纸、画和少量纹理；光尘、月亮/星子会破坏标题的留白。 */
+/* 首页保留整站的山水与三层氛围（光尘／枫叶／星夜），只把底色、洗色与护字层按首屏构图重排。 */
 :root:has(.home-page) {
   /* 原画负责铺底，标题区的远山由第二层洗色重新拉开景深。 */
   --hero-bg-filter: brightness(1.03) saturate(0.84) contrast(0.98);
@@ -1206,12 +1206,6 @@
     linear-gradient(180deg, rgba(36, 28, 16, 0.22), rgba(36, 28, 16, 0.08) 48%, rgba(26, 19, 10, 0.34)),
     radial-gradient(ellipse 52% 40% at 50% 28%, rgba(232, 207, 141, 0.08), transparent 72%);
   mix-blend-mode: multiply;
-}
-
-/* 首屏只留下纸、画、纹理和飘落的枫叶；光尘、月亮/星子会破坏标题的留白。 */
-:root:has(.home-page) .bg-canvas-dust,
-:root:has(.home-page) .bg-canvas-stars {
-  display: none;
 }
 
 :root:has(.home-page) .vignette {
