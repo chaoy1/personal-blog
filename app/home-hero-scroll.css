@@ -1598,17 +1598,293 @@
   }
 }
 
+/* ==========================================================================
+ * V3 · 入场节奏：一拍 120ms，四拍开卷
+ *
+ * 全首屏共用一根时间轴：--beat 是唯一的单位，下面每一处 delay 与 duration
+ * 都写成 calc(N * var(--beat)) 的整数倍，于是改一个 --beat 就能整体调速，
+ * 节奏结构一点不用重排。
+ *
+ * 两条约定：
+ *
+ * 1. 位移一律走独立的 translate / scale / rotate 属性，不碰 transform。
+ *    首屏的居中（translateX(-50%)）、印章定位、换句钮都写在 transform 上，
+ *    两者互不覆盖。这也正是「卷目 / 引文 / 入卷」能从只淡入变成能浮起的
+ *    原因 —— 旧版 rise-* 关键帧把 transform 写回 none，会把居中一起冲掉，
+ *    所以它们当时只能退化成纯透明度。
+ *
+ * 2. 关键帧尽量只写起点（from-only），终点留给元素自身的计算值。于是暗色
+ *    主题里 .title-landscape 的 opacity .7 不会被写死成 1，减弱动效时元素
+ *    也天然落在最终状态，不必再补一层覆盖。
+ *
+ * 四拍：开卷（0–8）→ 落墨（6–16）→ 用印（18–24）→ 题跋（21–37）。
+ * 落墨收笔之后留了 2 拍静默，用印才成为全场唯一的重音。
+ * ========================================================================== */
+
+/* 拍值。本文件只在首页加载，挂在 :root 也不会外溢；之所以不挂在 .home-hero
+   上，是因为 .bg-painting 是 <main> 的兄弟节点，只有 :root 能覆盖到它。 */
+:root {
+  --beat: 120ms;
+}
+
+/* ---------- 关键帧 ---------- */
+
+/* 底：只显影，不位移 */
+@keyframes hero-develop {
+  from { opacity: 0; visibility: hidden; }
+}
+
+/* 底：显影 + 微微收束 */
+@keyframes hero-bloom {
+  from { opacity: 0; scale: 0.965; }
+}
+
+/* 题名底光：比远山绽得更开，保留原 splash 的墨晕性格 */
+@keyframes hero-splash {
+  from { opacity: 0; scale: 0.5; }
+  55%  { opacity: 0.9; }
+}
+
+@keyframes hero-bloom-soft {
+  from { opacity: 0; scale: 0.94; }
+}
+
+/* 墨：落笔 —— 位移最大，因为墨是落下来的 */
+@keyframes hero-ink {
+  0%   { opacity: 0; translate: 0 18px; scale: 1.1; filter: blur(10px); }
+  55%  { opacity: 1; filter: blur(1.5px); }
+  100% { opacity: 1; translate: 0 0; scale: 1; filter: blur(0); }
+}
+
+/* 字：排版就位 —— 小幅上浮，带一点墨晕 */
+@keyframes hero-set {
+  from { opacity: 0; translate: 0 6px; filter: blur(5px); }
+}
+
+/* 文：自下浮起 —— 与「向下阅读」同向。
+   visibility 一并动画，是为了入场期间这些纸带里的链接与按钮
+   不会被 Tab 聚焦到「看不见的地方」。 */
+@keyframes hero-settle {
+  from { opacity: 0; translate: 0 10px; visibility: hidden; }
+}
+
+/* 印：顿印 —— 全场唯一的重音。只动 scale，
+   于是 .seal 自己的 translateY(42%) rotate(-6deg) 定位得以保留。 */
+@keyframes hero-stamp {
+  0%   { opacity: 0; scale: 1.9; }
+  62%  { opacity: 1; scale: 0.955; }
+  100% { opacity: 1; scale: 1; }
+}
+
+/* 朱晕：顿印之后向外洇开 */
+@keyframes hero-bleed {
+  0%   { opacity: 0;    scale: 0.34; }
+  15%  { opacity: 0.62; }
+  100% { opacity: 0;    scale: 2.5; }
+}
+
+/* 描线：两侧界格与枝干共用 */
+@keyframes hero-draw {
+  from { stroke-dashoffset: 900; }
+}
+
+/* 墨圈起笔 */
+@keyframes hero-circle {
+  from { stroke-dashoffset: 195; opacity: 0; }
+}
+
+/* 枫叶 / 竹叶 */
+@keyframes hero-leaf {
+  from { opacity: 0; scale: 0.4; rotate: -14deg; }
+}
+
+/* ---------- I 开卷 · 0 – 8 拍：纸先铺开，只显影不位移 ---------- */
+
+:root:has(.home-page) .bg-painting {
+  animation: hero-develop calc(8 * var(--beat)) ease-out both;
+}
+
+.home-page .home-hero .masthead::before {
+  animation: hero-splash calc(7 * var(--beat)) ease-out both calc(1 * var(--beat));
+}
+
+.home-page .home-hero .title-landscape {
+  animation: hero-bloom calc(7 * var(--beat)) ease-out both calc(1 * var(--beat));
+}
+
+.home-page .home-hero .inscription {
+  animation: hero-develop calc(6 * var(--beat)) ease-out both calc(2 * var(--beat));
+}
+
+/* 两侧界格自顶端向下描出。原组件只给了 strokeWidth，没有虚线，
+   这里补上 dasharray，才真的有「写出来」的过程。 */
+.home-page .home-hero .inscription-rule,
+.home-page .home-hero .inscription-rule-accent {
+  stroke-dasharray: 900;
+  animation: hero-draw calc(6 * var(--beat)) ease-out both calc(2 * var(--beat));
+}
+
+/* ---------- II 落墨 · 6 – 16 拍 ---------- */
+
+.home-page .home-hero .eyebrow {
+  animation: hero-set calc(5 * var(--beat)) ease-out both calc(6 * var(--beat));
+}
+
+/* 站名一字一拍。--i 由组件按字序写在内联样式上。 */
+.home-page .home-hero .title-char {
+  animation: hero-ink calc(6 * var(--beat)) cubic-bezier(0.22, 0.61, 0.36, 1) both
+    calc((7 + var(--i, 0)) * var(--beat));
+}
+
+/* h1 整块不再单独上浮：位移交给逐字，避免两层叠加。 */
+.home-page .home-hero .masthead h1 {
+  animation: none;
+}
+
+.home-page .home-hero .motif {
+  animation: hero-bloom-soft calc(5 * var(--beat)) ease-out both calc(11 * var(--beat));
+}
+
+/* ---------- III 用印 · 18 – 24 拍：全场唯一的重音 ---------- */
+
+.home-page .home-hero .lede {
+  animation: hero-set calc(4 * var(--beat)) ease-out both calc(18 * var(--beat));
+}
+
+.home-page .home-hero .seal {
+  animation: hero-stamp calc(2 * var(--beat)) cubic-bezier(0.2, 0.9, 0.3, 1.4) both
+    calc(20 * var(--beat));
+}
+
+/* 首屏原先关掉了印章的朱晕（见本文件前面的 display: none），按设计稿放回来。 */
+.home-page .home-hero .seal::before {
+  display: block;
+  animation: hero-bleed calc(4 * var(--beat)) ease-out both calc(20 * var(--beat));
+}
+
+/* ---------- IV 题跋 · 21 – 37 拍 ---------- */
+
+/* 纸带先起，三枚卷目再一拍一记地跟上。 */
+.home-page .home-hero .hero-stats {
+  animation: hero-settle calc(5 * var(--beat)) ease-out both calc(21 * var(--beat));
+}
+
+.home-page .home-hero .home-stat-link:nth-child(1) { --stat-i: 0; }
+.home-page .home-hero .home-stat-link:nth-child(2) { --stat-i: 1; }
+.home-page .home-hero .home-stat-link:nth-child(3) { --stat-i: 2; }
+
+.home-page .home-hero .home-stat-link {
+  animation: hero-settle calc(5 * var(--beat)) ease-out both
+    calc((21 + var(--stat-i, 0)) * var(--beat));
+}
+
+.home-page .home-hero .ink-ring path {
+  animation: hero-circle calc(5 * var(--beat)) ease-out both
+    calc((21 + var(--stat-i, 0)) * var(--beat));
+}
+
+/* 引文是一枚和弦：纸带整枚落定，内部四项各错半拍跟上。 */
+.home-page .home-hero .daily-quote {
+  animation: hero-settle calc(5 * var(--beat)) ease-out both calc(25 * var(--beat));
+}
+
+.home-page .home-hero .dq-seal {
+  animation: hero-stamp calc(2 * var(--beat)) cubic-bezier(0.2, 0.9, 0.3, 1.4) both
+    calc(25 * var(--beat));
+}
+
+.home-page .home-hero .dq-text {
+  animation: hero-set calc(4 * var(--beat)) ease-out both calc(25.5 * var(--beat));
+}
+
+.home-page .home-hero .dq-source {
+  animation: hero-develop calc(3 * var(--beat)) ease-out both calc(26 * var(--beat));
+}
+
+.home-page .home-hero .dq-shuffle {
+  animation: hero-develop calc(3 * var(--beat)) ease-out both calc(26.5 * var(--beat));
+}
+
+/* 入卷最后招手，也是唯一自下迎向「往下走」的元素。 */
+.home-page .home-hero .scroll-hint {
+  animation: hero-settle calc(5 * var(--beat)) ease-out both calc(27 * var(--beat));
+}
+
+.home-page .home-hero .scroll-hint .sh-line i {
+  animation: hero-develop calc(3 * var(--beat)) ease-out both calc(28 * var(--beat));
+}
+
+/* 枝干与枫叶不在这里排拍子。
+   首屏右上角看到的枝叶来自 MapleLeaves 那块常驻画布（环境层，自己走自己的
+   生命周期），而组件里那棵 .branch 是 <main> 的直接子节点、已被
+   `.home-page > .branch { display: none }` 关掉，所以给它写动画只是死代码。
+   环境层不参与入场节拍，这是有意的：入场讲一次「落墨」，环境讲一直在的「风」。 */
+
+.home-page .home-hero .hero-leaf-one   { --leaf-j: 0; }
+.home-page .home-hero .hero-leaf-two   { --leaf-j: 1; }
+.home-page .home-hero .hero-leaf-three { --leaf-j: 2; }
+.home-page .home-hero .hero-leaf-four  { --leaf-j: 3; }
+
+.home-page .home-hero .hero-leaf {
+  animation: hero-leaf calc(3 * var(--beat)) ease-out both
+    calc((29 + var(--leaf-j, 0)) * var(--beat));
+}
+
+/* ---------- 会话内二次进入：只重播「开卷 + 落墨」 ----------
+ *
+ * 完整序列 3.84s 才落定。从文章返回首页不该再等一遍，于是下半屏改成一枚
+ * 轻淡的显影，在纸铺开之后（第 8 拍）就到齐，整段收在 1.68s 左右。
+ *
+ * hero-revisit 由 ScrollFX 在客户端路由回到首页时、首帧绘制之前挂到根节点上。
+ * 整页加载（首次进入、刷新、新标签页）不会挂，永远走完整序列 —— 想再看一遍
+ * 完整版按 F5 就够了。 */
+:root.hero-revisit .home-page .home-hero .lede,
+:root.hero-revisit .home-page .home-hero .seal,
+:root.hero-revisit .home-page .home-hero .seal::before,
+:root.hero-revisit .home-page .home-hero .hero-stats,
+:root.hero-revisit .home-page .home-hero .home-stat-link,
+:root.hero-revisit .home-page .home-hero .ink-ring path,
+:root.hero-revisit .home-page .home-hero .daily-quote,
+:root.hero-revisit .home-page .home-hero .dq-seal,
+:root.hero-revisit .home-page .home-hero .dq-text,
+:root.hero-revisit .home-page .home-hero .dq-source,
+:root.hero-revisit .home-page .home-hero .dq-shuffle,
+:root.hero-revisit .home-page .home-hero .scroll-hint,
+:root.hero-revisit .home-page .home-hero .scroll-hint .sh-line i,
+:root.hero-revisit .home-page .home-hero .hero-leaf {
+  animation: hero-develop calc(6 * var(--beat)) ease-out both calc(8 * var(--beat));
+}
+
+/* ---------- 减弱动效 ----------
+ *
+ * globals.css 已有一层 * { animation: none !important } 兜底，这里再列一份
+ * 首屏清单，是为了让这个文件自己读起来是完整的：上面每一条入场动画，都能在
+ * 下面找到对应的关闭项。 */
 @media (prefers-reduced-motion: reduce) {
   :root:has(.home-page) .bg-painting,
-  .home-page .home-hero .eyebrow,
+  .home-page .home-hero .masthead::before,
   .home-page .home-hero .title,
+  .home-page .home-hero .title-char,
   .home-page .home-hero .title-landscape,
   .home-page .home-hero .inscription,
+  .home-page .home-hero .inscription-rule,
+  .home-page .home-hero .inscription-rule-accent,
+  .home-page .home-hero .eyebrow,
   .home-page .home-hero .motif,
   .home-page .home-hero .lede,
+  .home-page .home-hero .seal,
+  .home-page .home-hero .seal::before,
   .home-page .home-hero .hero-stats,
+  .home-page .home-hero .home-stat-link,
+  .home-page .home-hero .ink-ring path,
   .home-page .home-hero .daily-quote,
-  .home-page .home-hero .scroll-hint {
-    animation: none;
+  .home-page .home-hero .dq-seal,
+  .home-page .home-hero .dq-text,
+  .home-page .home-hero .dq-source,
+  .home-page .home-hero .dq-shuffle,
+  .home-page .home-hero .scroll-hint,
+  .home-page .home-hero .scroll-hint .sh-line i,
+  .home-page .home-hero .hero-leaf {
+    animation: none !important;
   }
 }

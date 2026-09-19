@@ -1,12 +1,21 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import useAmbientMotion, { supportsFinePointer } from './useAmbientMotion'
 
 const REVEAL_SELECTOR = '.item, .reveal'
 const REVEAL_DELAY_STEP_MS = 70
 const REVEAL_DELAY_MAX_STEPS = 3
 const REVEAL_TRANSITION_MS = 650
+
+/** 服务端渲染时 useLayoutEffect 没有意义，退回 useEffect 免得 React 告警。 */
+const useIsoLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
+
+// 首屏完整入场序列在一次「页面加载」里只完整播一次。这个标记活在模块内存里：
+// 客户端路由回到首页时它还是 true，于是那一次只重播「开卷 + 落墨」；而整页加载
+// （首次进入、刷新、新标签页）模块是全新的，永远走完整序列 —— 想再看一遍完整版，
+// 按 F5 就够了，不必去清缓存。
+let heroPlayedInThisLoad = false
 
 /**
  * 滚动与入场动效：
@@ -17,6 +26,18 @@ const REVEAL_TRANSITION_MS = 650
  */
 export default function ScrollFX() {
   const active = useAmbientMotion()
+
+  // 客户端路由回到首页时，赶在首帧绘制前把 hero-revisit 挂到根节点上，
+  // 否则会先闪一下完整序列再跳到短版。ScrollFX 也挂在别的页面上，所以要先
+  // 确认当前确实是首页；整页加载时这里是本次加载的第一次，不挂，走完整序列。
+  useIsoLayoutEffect(() => {
+    if (!document.querySelector('.home-page')) return
+    if (heroPlayedInThisLoad) {
+      document.documentElement.classList.add('hero-revisit')
+    } else {
+      heroPlayedInThisLoad = true
+    }
+  }, [])
 
   useEffect(() => {
     if (active === null) return
