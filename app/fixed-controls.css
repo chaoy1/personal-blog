@@ -1,0 +1,53 @@
+/* 右下角固定控件的安全区。
+   「回到顶部」印章（.back-top）钉在视口右下角，而各页内容在窄屏会一直铺到
+   视口边缘——印章于是压在卡片正文和「阅读全文」上。这里只给少数几个容器补一条
+   右侧通道，让印章落回纸外的空白。只动内边距，不改栅格、字号或纸面宽度；
+   碰撞发生在 960px 以下，所以这些规则只在窄屏生效。
+
+   刻意不碰：
+   - `.posts-page` / `.guestbook-sheet` / `.about-scroll` 这类带页面题签的纸面：
+     在 641–720px 区间给它们加内边距会连带压到题签的栅格（另一个已存在的窄屏问题）。
+   - `.article`：它在窄屏本来就有 56px 的纸内留白，印章落在这圈留白里，
+     不会盖到文字。 */
+
+:root {
+  /* 印章宽度 + 一侧留白 */
+  --fixed-control-gutter: 62px;
+}
+
+@media (max-width: 960px) {
+  /* 时间轴：单列版式靠 padding-left 单侧顶到右边，补上右侧通道即可 */
+  .timeline-page-body {
+    padding-right: var(--fixed-control-gutter);
+  }
+
+  /* 相册：整块版面让开 */
+  .album-page {
+    padding-right: var(--fixed-control-gutter);
+  }
+
+  /* 文章目录：卡片本身让开，纸面与题签保持原样 */
+  .posts-list {
+    padding-right: var(--fixed-control-gutter);
+  }
+
+  /* 首页：首屏题签与各分区让开，页面背景不动 */
+  .masthead,
+  .home-hero,
+  .home-section,
+  .home-footer {
+    padding-right: var(--fixed-control-gutter);
+  }
+
+  /* 留言板：外层容器让开 */
+  .guestbook-layout {
+    padding-right: var(--fixed-control-gutter);
+  }
+}
+
+@media (max-width: 520px) {
+  :root {
+    /* 小屏印章缩到 40px，通道同步收窄，别白占正文宽度 */
+    --fixed-control-gutter: 54px;
+  }
+}
