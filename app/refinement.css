@@ -76,14 +76,54 @@
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--seal) 16%, transparent);
 }
 
+/**
+ * 选项下方的一笔朱墨。
+ * 不是等粗的直尺线：横向用遮罩把两端收细（中间满粗、两端渐没），
+ * 纵向用渐变让笔腹有一点墨量，读起来像一笔写出来的横。
+ */
 .nav-links a::before {
+  content: "";
+  position: absolute;
+  left: 50%;
   top: auto;
   bottom: -1px;
-  width: 12px;
-  height: 1px;
+  width: 22px;
+  height: 4px;
   border-radius: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--seal) 80%, transparent),
+    var(--seal) 34%,
+    var(--seal) 66%,
+    color-mix(in srgb, var(--seal) 80%, transparent)
+  );
+  /* 两端收细、中段满粗：横向遮罩用缓入缓出的曲线，
+     让笔画在两端各自收成尖，而不是等粗的一根横杠 */
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    rgba(0, 0, 0, 0.28) 12%,
+    rgba(0, 0, 0, 0.75) 26%,
+    #000 42%,
+    #000 58%,
+    rgba(0, 0, 0, 0.75) 74%,
+    rgba(0, 0, 0, 0.28) 88%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    rgba(0, 0, 0, 0.28) 12%,
+    rgba(0, 0, 0, 0.75) 26%,
+    #000 42%,
+    #000 58%,
+    rgba(0, 0, 0, 0.75) 74%,
+    rgba(0, 0, 0, 0.28) 88%,
+    transparent 100%
+  );
   transform: translateX(-50%) scaleX(0);
   transform-origin: center;
+  transition: transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .nav-links a:hover::before,

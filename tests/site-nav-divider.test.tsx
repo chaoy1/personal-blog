@@ -72,3 +72,41 @@ describe('主导航分隔菱形的悬停联动', () => {
     expect(refinement).toMatch(/\.nav-divider \{[\s\S]*?transition:/)
   })
 })
+
+describe('选项下方那一笔朱墨', () => {
+  const brush = () => refinement.match(/\.nav-links a::before \{[\s\S]*?\n\}/)?.[0] ?? ''
+
+  it('不是等粗直线：有厚度，且纵向有墨量变化', () => {
+    const block = brush()
+
+    expect(block).toContain('height: 4px')
+    // 纵向渐变让笔腹有浓淡，而不是一块实色
+    expect(block).toMatch(/background: linear-gradient\(\s*180deg/)
+    expect(block).toContain('color-mix(in srgb, var(--seal) 80%, transparent)')
+  })
+
+  it('两端收细：横向遮罩必须是两端透明、中段满宽的多段曲线', () => {
+    const block = brush()
+    const mask = block.match(/mask-image: linear-gradient\(\s*90deg,([^;]*)\);/)?.[1] ?? ''
+
+    expect(mask, '遮罩缺失就无法做出笔锋').not.toBe('')
+    // 两端透明
+    expect(mask).toMatch(/^\s*transparent 0/)
+    expect(mask).toMatch(/transparent 100%\s*$/)
+    // 中段满宽
+    expect(mask).toMatch(/#000 42%,\s*#000 58%/)
+    // 收细段要有中间档，才不是硬切
+    expect(mask).toMatch(/rgba\(0, 0, 0, 0\.28\) 12%/)
+    expect(mask).toMatch(/rgba\(0, 0, 0, 0\.75\) 26%/)
+    // -webkit- 前缀同样要有，Safari 才收得细
+    expect(block).toMatch(/-webkit-mask-image: linear-gradient\(\s*90deg,/)
+  })
+
+  it('仍然以中心为原点从中间展开', () => {
+    const block = brush()
+
+    expect(block).toContain('transform: translateX(-50%) scaleX(0)')
+    expect(block).toContain('transform-origin: center')
+    expect(refinement).toMatch(/\.nav-links a:hover::before,\s*\.nav-links a\.active::before \{\s*transform: translateX\(-50%\) scaleX\(1\)/)
+  })
+})
