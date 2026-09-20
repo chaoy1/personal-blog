@@ -1,205 +1,1115 @@
-/* Phase 5 / P03：文章详情页阅读配方。所有规则只在文章详情阅读壳内生效。 */
+/* Phase 5 / P03：文章详情页阅读配方。
+   版式取自 effect-preview/article-xuan-reading.html —— 一张宣纸，卷首用行书起笔，
+   正文居中留出批注边栏，卷尾收束。所有规则只在文章详情纸面内生效。 */
+
+/* ---------- 纸面令牌 ---------- */
 
 .article-wrap {
+  --sheet-paper: #f0e2bf;
+  --sheet-paper-light: #faf1d8;
+  --sheet-rule: rgba(91, 70, 46, 0.24);
+  --sheet-rule-soft: rgba(91, 70, 46, 0.13);
+  --sheet-edge: rgba(101, 65, 29, 0.15);
+  --sheet-tick: rgba(126, 86, 44, 0.29);
+  --sheet-shadow: rgba(38, 28, 13, 0.43);
+  --sheet-wash: rgba(255, 250, 231, 0.35);
+  /* 纸外批注轨：轨道本体 + 与纸面的间距。 */
+  --art-rail-width: 196px;
+  --art-rail-gap: 40px;
+  --art-rail-gutter: calc(var(--art-rail-width) + var(--art-rail-gap) + 26px);
+  --sheet-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)' opacity='0.07' fill='%23907848'/%3E%3C/svg%3E");
   width: 100%;
   max-width: none;
-  padding-inline: clamp(16px, 4vw, 48px);
+  padding-inline: clamp(14px, 3.2vw, 46px);
 }
 
-.article-wrap .article-nav,
-.article-wrap .article-reading-shell {
-  width: min(1016px, 100%);
+:root[data-theme='dark'] .article-wrap {
+  --sheet-paper: #3b3125;
+  --sheet-paper-light: #493b2a;
+  --sheet-rule: rgba(226, 197, 148, 0.28);
+  --sheet-rule-soft: rgba(226, 197, 148, 0.15);
+  --sheet-edge: rgba(0, 0, 0, 0.32);
+  --sheet-tick: rgba(226, 197, 148, 0.2);
+  --sheet-shadow: rgba(12, 10, 7, 0.65);
+  --sheet-wash: rgba(255, 250, 231, 0.1);
+  --sheet-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)' opacity='0.06' fill='%23e9d6a5'/%3E%3C/svg%3E");
+}
+
+.article-wrap > .article-nav,
+.article-wrap > .art-sheet {
+  width: min(var(--container-page), 100%);
   margin-inline: auto;
 }
 
-.article-wrap .article-reading-shell {
+/* 宽屏时给纸外的批注轨留出通道，纸面与轨道作为整体居中。 */
+@media (min-width: 1320px) {
+  .article-wrap {
+    padding-right: calc(clamp(14px, 3.2vw, 46px) + var(--art-rail-gutter));
+  }
+}
+
+/* ---------- 纸面 ---------- */
+
+.art-sheet {
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 780px) 196px;
-  gap: 40px;
-  align-items: start;
-  margin-top: 34px;
+  isolation: isolate;
+  margin: 0 auto 90px;
+  border: 1px solid var(--sheet-rule);
+  background-color: var(--sheet-paper);
+  background-image:
+    linear-gradient(122deg, var(--sheet-wash), transparent 38%),
+    radial-gradient(ellipse at 85% 0, rgba(181, 131, 69, 0.1), transparent 34%),
+    var(--sheet-noise);
+  box-shadow: 0 34px 88px -33px var(--sheet-shadow);
 }
 
-.article-wrap .article-reading-shell .article {
-  position: relative;
-  width: 100%;
-  max-width: 780px;
-  min-width: 0;
-  margin: 0;
-  padding: clamp(34px, 5vw, 64px) clamp(22px, 5vw, 72px) 50px;
-  overflow: hidden;
-  background-color: rgba(248, 240, 216, 0.93);
-  box-shadow: 0 32px 82px -42px rgba(45, 34, 16, 0.5);
-}
-
-:root[data-theme='dark'] .article-wrap .article-reading-shell .article {
-  background-color: rgba(75, 59, 33, 0.94);
-}
-
-.article-wrap .article-reading-shell .article::before {
+.art-sheet::before,
+.art-sheet::after {
   content: "";
   position: absolute;
-  inset: 0 0 auto;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 7px;
+  pointer-events: none;
+}
+
+.art-sheet::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--sheet-edge), transparent);
+}
+
+.art-sheet::after {
+  right: 0;
+  background: linear-gradient(270deg, var(--sheet-edge), transparent);
+}
+
+.art-sheet-edge {
   height: 5px;
-  background: linear-gradient(90deg, var(--seal) 0 72px, rgba(178, 58, 43, 0.14) 72px, transparent 62%);
+  background: linear-gradient(90deg, var(--seal) 0 104px, var(--sheet-tick) 104px 46%, transparent 72%);
 }
 
-.article-wrap .article-header {
+/* ---------- 卷首 ---------- */
+
+.art-hero {
   position: relative;
-  width: 100%;
-  max-width: 680px;
-  margin: 0 auto 40px;
-  padding-bottom: 32px;
-  border-bottom: 1px solid var(--rule-strong);
+  display: grid;
+  /* 纸面收到 960 后，留白画卷比原来窄一档，题字才不会挤成两行。 */
+  grid-template-columns: minmax(0, 1fr) minmax(232px, 29%);
+  min-height: 440px;
+  padding: 62px 68px 46px 82px;
+  overflow: hidden;
 }
 
-.article-wrap .article-header h1 {
-  max-width: 680px;
-  margin: 0;
-  font-size: clamp(38px, 4.5vw, 56px);
-  line-height: 1.38;
-  letter-spacing: 0.06em;
-  overflow-wrap: anywhere;
+/* 左侧留白里的一条朱线与起笔点，提示这里是正文的边界。 */
+.art-hero::before {
+  content: "";
+  position: absolute;
+  top: 50px;
+  bottom: 46px;
+  left: 40px;
+  width: 1px;
+  background: linear-gradient(var(--seal), var(--sheet-rule-soft) 42%, transparent);
 }
 
-.article-wrap .article-excerpt {
-  max-width: 680px;
-  margin: 20px 0 0;
-  padding-left: 16px;
-  border-left: 1px solid var(--seal);
-  font-size: 16px;
-  line-height: 1.95;
-  overflow-wrap: anywhere;
+.art-hero::after {
+  content: "";
+  position: absolute;
+  top: 46px;
+  left: 36px;
+  width: 9px;
+  height: 9px;
+  background: var(--seal);
+  transform: rotate(45deg);
 }
 
-.article-wrap .article-reading-shell .md-body {
-  width: 100%;
-  max-width: 680px;
+.art-hero-copy {
+  position: relative;
+  z-index: 2;
+  align-self: center;
   min-width: 0;
-  margin-inline: auto;
-  font-size: 18px;
-  line-height: 1.95;
 }
 
-.article-wrap .article-reading-shell .md-body h2,
-.article-wrap .article-reading-shell .md-body h3,
-.article-wrap .article-reading-shell .md-body h4 {
+.art-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin: 0 0 26px;
+  color: var(--seal-deep);
+  font-family: var(--font-kai);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+}
+
+.art-eyebrow i {
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--seal);
+  transform: rotate(45deg);
+}
+
+.art-eyebrow small {
+  color: var(--ink-faint);
+  font-family: var(--font-latin);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+}
+
+.art-title {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 400;
+}
+
+.art-title-brush {
+  display: block;
+  margin-left: -4px;
+  font-family: var(--font-display);
+  font-size: clamp(50px, 5.4vw, 80px);
+  line-height: 1.18;
+  letter-spacing: 0.1em;
   overflow-wrap: anywhere;
-  scroll-margin-top: calc(var(--nav-h) + 26px);
 }
 
-.article-wrap .article-reading-shell .md-body pre,
-.article-wrap .article-reading-shell .md-body .md-table-wrap {
+.art-title-line {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--font-kai);
+  font-size: clamp(31px, 3.3vw, 48px);
+  line-height: 1.42;
+  letter-spacing: 0.07em;
+  overflow-wrap: anywhere;
+}
+
+/* 标题里没有自然停顿时，整句用楷书落笔，不用行书撑满整行。 */
+.art-title-plain .art-title-line {
+  margin-top: 0;
+  margin-left: -3px;
+  font-size: clamp(32px, 3.8vw, 52px);
+  line-height: 1.36;
+  letter-spacing: 0.08em;
+}
+
+.art-lede {
+  max-width: 34em;
+  margin: 26px 0 0 3px;
+  padding-left: 18px;
+  border-left: 2px solid var(--seal);
+  color: var(--ink-soft);
+  font-family: var(--font-kai);
+  font-size: 17px;
+  line-height: 1.8;
+  letter-spacing: 0.08em;
+  overflow-wrap: anywhere;
+}
+
+.art-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 15px;
+  margin: 28px 0 0 3px;
+  color: var(--ink-faint);
+  font-family: var(--font-kai);
+  font-size: 11.5px;
+  line-height: 1.8;
+  letter-spacing: 0.14em;
+}
+
+.art-meta b {
+  width: 18px;
+  height: 1px;
+  background: var(--sheet-rule);
+}
+
+.art-hero-art {
+  position: relative;
+  align-self: stretch;
+  min-height: 300px;
+  margin: -28px -68px -46px -72px;
+  background: url("/bg/about-ink-banner.png") 65% 62% / auto 450px no-repeat;
+  opacity: 0.82;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 34%);
+  mask-image: linear-gradient(90deg, transparent, #000 34%);
+}
+
+.art-hero-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--sheet-paper) 0, transparent 24%, transparent 68%, var(--sheet-paper) 100%);
+}
+
+:root[data-theme='dark'] .art-hero-art {
+  filter: brightness(0.62) sepia(0.28);
+  opacity: 0.64;
+}
+
+.art-hero-seal {
+  position: absolute;
+  top: 56px;
+  right: 88px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 48px;
+  border: 3px double var(--sheet-paper-light);
+  outline: 1px solid var(--seal);
+  background: var(--seal);
+  box-shadow: 3px 4px 0 rgba(76, 39, 20, 0.13);
+  color: #fff1d2;
+  font-family: var(--font-kai);
+  font-size: 21px;
+  transform: rotate(7deg);
+}
+
+.art-caption {
+  position: absolute;
+  right: 44px;
+  bottom: 32px;
+  z-index: 2;
+  color: var(--ink-faint);
+  font-family: var(--font-kai);
+  font-size: 12px;
+  letter-spacing: 0.34em;
+  opacity: 0.75;
+  writing-mode: vertical-rl;
+}
+
+.art-hero-foot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 68px;
+  padding: 14px 0 19px;
+  border-top: 1px solid var(--sheet-rule);
+  border-bottom: 1px solid var(--sheet-rule-soft);
+  color: var(--ink-faint);
+  font-family: var(--font-kai);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+
+.art-hero-foot::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 62px;
+  height: 2px;
+  background: var(--seal);
+}
+
+.art-hero-foot::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--seal);
+  background: var(--sheet-paper);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.art-hero-foot span:last-child {
+  font-family: var(--font-latin);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+}
+
+/* ---------- 阅读区 ---------- */
+
+/* 卷首之后的全部内容（正文 + 卷尾 + 推荐 + 评论 + 落款）共用一个定位容器，
+   批注轨挂在这里，吸附范围因此覆盖整张纸而不只是正文那一段。 */
+.art-body {
+  position: relative;
+}
+
+.art-reading {
+  /* 纵向 flex：卷内目录入口（order: -1）可以落在正文之前。 */
+  display: flex;
+  flex-direction: column;
+  padding: 48px 68px 70px 82px;
+}
+
+.art-prose {
+  min-width: 0;
+}
+
+.art-sheet .md-body {
+  width: 100%;
+  max-width: 730px;
+  min-width: 0;
+  /* 与卷首同一条左对齐线，纸面变宽时也不居中漂移。 */
+  margin-inline: 0 auto;
+  color: var(--ink);
+  font-family: var(--font-cn);
+  font-size: 19px;
+  line-height: 2.02;
+  letter-spacing: 0.02em;
+  counter-reset: art-section;
+}
+
+.art-sheet .md-body > :first-child {
+  margin-top: 0;
+}
+
+.art-sheet .md-body > p {
+  margin: 0 0 1.28em;
+  text-indent: 2em;
+  overflow-wrap: anywhere;
+}
+
+/* 起笔段：落一个朱色首字，作为整篇的入口。 */
+.art-sheet .md-body > p:first-of-type {
+  min-height: 82px;
+  font-size: 21px;
+  line-height: 1.95;
+  text-indent: 0;
+}
+
+.art-sheet .md-body > p:first-of-type::first-letter {
+  float: left;
+  margin: 3px 12px -8px 0;
+  color: var(--seal-deep);
+  font-family: var(--font-display);
+  font-size: 60px;
+  line-height: 1;
+}
+
+.art-sheet .md-body h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin: 2.2em 0 0.85em;
+  padding: 0;
+  border: 0;
+  color: var(--ink);
+  font-family: var(--font-kai);
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.11em;
+  overflow-wrap: anywhere;
+  counter-increment: art-section;
+}
+
+.art-sheet .md-body h2::before {
+  content: counter(art-section, decimal-leading-zero);
+  flex: 0 0 auto;
+  color: var(--seal);
+  font-family: var(--font-latin);
+  font-size: 17px;
+  letter-spacing: 0;
+}
+
+.art-sheet .md-body h2::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  margin-left: 8px;
+  background: linear-gradient(90deg, var(--sheet-rule), transparent);
+  transform: translateY(-7px);
+}
+
+.art-sheet .md-body h3 {
+  position: relative;
+  margin: 1.7em 0 0.7em;
+  padding-left: 20px;
+  color: var(--ink);
+  font-family: var(--font-kai);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.09em;
+  overflow-wrap: anywhere;
+}
+
+.art-sheet .md-body h3::before {
+  content: "";
+  position: absolute;
+  top: 0.62em;
+  left: 2px;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--seal);
+  transform: rotate(45deg);
+}
+
+.art-sheet .md-body h4,
+.art-sheet .md-body h5,
+.art-sheet .md-body h6 {
+  margin: 1.5em 0 0.6em;
+  color: var(--ink);
+  font-family: var(--font-kai);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  overflow-wrap: anywhere;
+}
+
+.art-sheet .md-body blockquote {
+  position: relative;
+  margin: 40px 0 28px;
+  padding: 22px 26px 20px 46px;
+  border-left: 3px solid var(--seal);
+  background: color-mix(in srgb, var(--sheet-paper-light) 52%, transparent);
+  color: var(--ink-soft);
+  font-family: var(--font-kai);
+  font-size: 23px;
+  line-height: 1.72;
+  letter-spacing: 0.07em;
+}
+
+.art-sheet .md-body blockquote::before {
+  content: "\201C";
+  position: absolute;
+  top: 6px;
+  left: 13px;
+  color: var(--seal);
+  font-family: var(--font-latin);
+  font-size: 42px;
+  line-height: 1;
+  opacity: 0.55;
+}
+
+.art-sheet .md-body blockquote p {
+  margin: 0 0 0.6em;
+  text-indent: 0;
+}
+
+.art-sheet .md-body blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.art-sheet .md-body ol {
+  margin: 22px 0 32px;
+  padding: 0;
+  list-style: none;
+  counter-reset: art-step;
+}
+
+.art-sheet .md-body ol li {
+  display: flex;
+  gap: 21px;
+  align-items: baseline;
+  margin: 0;
+  padding: 7px 0 8px;
+  border-bottom: 1px solid var(--sheet-rule-soft);
+  counter-increment: art-step;
+}
+
+.art-sheet .md-body ol li::before {
+  content: counter(art-step, decimal-leading-zero);
+  color: var(--seal-deep);
+  font-family: var(--font-latin);
+  font-size: 14px;
+  letter-spacing: 0.05em;
+}
+
+.art-sheet .md-body ol li > p {
+  margin: 0;
+  text-indent: 0;
+}
+
+.art-sheet .md-body ul {
+  margin: 22px 0 32px;
+  padding-left: 1.5em;
+}
+
+.art-sheet .md-body ul li {
+  margin: 0.4em 0;
+}
+
+.art-sheet .md-body ul li::marker {
+  color: var(--seal);
+}
+
+.art-sheet .md-body li > ul,
+.art-sheet .md-body li > ol {
+  margin: 0.5em 0 0;
+}
+
+.art-sheet .md-body a {
+  color: var(--seal-deep);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--seal) 45%, transparent);
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+}
+
+.art-sheet .md-body code {
+  padding: 0.15em 0.45em;
+  border-radius: 3px;
+  background: var(--code-inline);
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+}
+
+.art-sheet .md-body pre {
   max-width: 100%;
+  margin: 28px 0;
+  padding: 18px 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-radius: 4px;
+  background: var(--code-bg);
+  color: var(--code-ink);
+  line-height: 1.7;
+  white-space: pre;
+}
+
+.art-sheet .md-body pre code {
+  padding: 0;
+  background: none;
+  font-size: 14px;
+}
+
+.art-sheet .md-body .md-table-wrap {
+  max-width: 100%;
+  margin: 26px 0;
   overflow-x: auto;
   overflow-y: hidden;
 }
 
-.article-wrap .article-reading-shell .md-body pre {
-  white-space: pre;
+.art-sheet .md-body .md-table-wrap table {
+  margin: 0;
+  font-size: 15.5px;
 }
 
-.article-wrap .article-reading-shell .md-body img,
-.article-wrap .article-reading-shell .md-body video,
-.article-wrap .article-reading-shell .md-body iframe {
+.art-sheet .md-body table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.art-sheet .md-body th,
+.art-sheet .md-body td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--sheet-rule);
+  text-align: left;
+}
+
+.art-sheet .md-body th {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.art-sheet .md-body img,
+.art-sheet .md-body video,
+.art-sheet .md-body iframe {
   display: block;
   max-width: 100%;
   height: auto;
+  border-radius: 3px;
 }
 
-.article-wrap .article-reading-shell .comments,
-.article-wrap .article-reading-shell .related-posts {
-  width: 100%;
-  max-width: 680px;
-  margin-inline: auto;
+/* 分节线：两道淡去的水线，中间一枚「续」字签。 */
+.art-sheet .md-body hr {
+  position: relative;
+  height: 29px;
+  margin: 34px 0;
+  border: 0;
+  background-image:
+    linear-gradient(90deg, transparent, var(--sheet-rule) 75%),
+    linear-gradient(90deg, var(--sheet-rule) 25%, transparent);
+  background-repeat: no-repeat;
+  background-position: left center, right center;
+  background-size: calc(50% - 26px) 1px, calc(50% - 26px) 1px;
 }
 
-/* 目录要跟着整页走，所以吸附放在网格栏本身：
-   网格行的行高等于纸面高度（正文 + 评论 + 推荐），
-   吸附范围因此覆盖整篇文章，滚到哪一段目录都留在屏幕里。
-   原来吸附写在内层卡片上，而卡片和栏一样高，没有可移动的余量，
-   实际效果是目录跟着页面滚走。 */
-.article-wrap .reading-companion-rail {
-  position: sticky;
-  top: calc(var(--nav-h) + 34px);
-  align-self: start;
-  width: auto;
+.art-sheet .md-body hr::after {
+  content: "续";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 29px;
+  margin-left: -13.5px;
+  border: 1px solid var(--seal);
+  background: var(--sheet-paper);
+  color: var(--seal-deep);
+  font-family: var(--font-kai);
+  font-size: 14px;
+  transform: rotate(-6deg);
+}
+
+/* 正文收束：明确标出文章到此为止，与后面的推荐、评论分开。 */
+.art-end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  margin: 50px 0 0;
+  color: var(--ink-faint);
+  font-family: var(--font-kai);
+  font-size: 14px;
+  letter-spacing: 0.18em;
+}
+
+.art-end::before {
+  content: "";
+  width: 45px;
+  height: 1px;
+  background: var(--sheet-rule);
+}
+
+.art-end i {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 30px;
+  border: 1px solid var(--seal);
+  color: var(--seal);
+  font-size: 15px;
+  font-style: normal;
+  transform: rotate(-5deg);
+}
+
+/* ---------- 批注轨 ---------- */
+
+/* 纸面收到内页标准宽度后，纸内已放不下整条轨道：
+   批注移到纸面之外，浮在右侧留白里，纸面与轨道作为整体居中。
+   轨道挂在 .art-body（正文到落款）上，吸附范围 = 整张纸，
+   滚到评论、推荐那一段目录依旧留在屏幕里。
+   视口放不下时（< 1320px）整轨收起，改用卷内目录入口。 */
+.article-wrap .art-sheet .reading-companion-rail {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(100% + var(--art-rail-gap));
+  width: var(--art-rail-width);
   min-width: 0;
 }
 
-.article-wrap .reading-companion {
-  position: static;
-  max-height: calc(100vh - var(--nav-h) - 60px);
-  margin-top: 70px;
+@media (min-width: 1320px) {
+  .article-wrap .art-sheet .reading-companion-rail {
+    display: block;
+  }
+
+  .article-wrap .art-sheet .reading-companion-compact {
+    display: none;
+  }
+}
+
+/* 纸外是山水，墨字没有依托：批注轨自带一张浮起的小纸。 */
+.article-wrap .art-sheet .reading-companion {
+  position: sticky;
+  top: calc(var(--nav-h) + 40px);
+  max-height: calc(100vh - var(--nav-h) - 80px);
+  margin: 0;
   padding: 20px 18px 18px;
   overflow: auto;
+  border: 1px solid var(--sheet-rule);
   border-top: 3px solid var(--seal);
+  background-color: color-mix(in srgb, var(--sheet-paper) 86%, transparent);
+  box-shadow: 0 20px 44px -30px var(--sheet-shadow);
+  backdrop-filter: blur(5px) saturate(0.9);
+  -webkit-backdrop-filter: blur(5px) saturate(0.9);
+  color: var(--ink);
+  font-family: var(--font-kai);
   scrollbar-width: none;
+  animation: none;
 }
 
-.article-wrap .reading-companion nav {
+.article-wrap .art-sheet .reading-companion nav {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0;
+  border-top: 1px solid var(--sheet-rule-soft);
 }
 
-.article-wrap .reading-companion a {
-  min-height: 30px;
-  overflow-wrap: anywhere;
+.article-wrap .art-sheet .reading-companion a {
+  position: relative;
+  display: block;
+  min-height: 0;
+  padding: 14px 0 14px 15px;
+  border-bottom: 1px solid var(--sheet-rule-soft);
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  transition: color 0.2s ease, padding-left 0.2s ease;
 }
 
-.article-wrap .reading-companion-compact {
+.article-wrap .art-sheet .reading-companion a i {
+  position: absolute;
+  top: 20px;
+  left: 1px;
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--sheet-rule);
+  border-radius: 0;
+  background: transparent;
+  transform: rotate(45deg);
+}
+
+.article-wrap .art-sheet .reading-companion a:hover,
+.article-wrap .art-sheet .reading-companion a.active {
+  padding-left: 19px;
+  color: var(--seal-deep);
+  transform: none;
+}
+
+.article-wrap .art-sheet .reading-companion a.active i {
+  border-color: var(--seal);
+  background: var(--seal);
+  box-shadow: none;
+}
+
+.article-wrap .art-sheet .reading-companion a.sub {
+  padding-left: 27px;
+  font-size: 12px;
+}
+
+.article-wrap .art-sheet .reading-companion a.sub i {
+  left: 12px;
+  width: 4px;
+  height: 4px;
+  border-color: transparent;
+  background: var(--sheet-rule);
+}
+
+.article-wrap .art-sheet .reading-companion a.sub:hover,
+.article-wrap .art-sheet .reading-companion a.sub.active {
+  padding-left: 31px;
+}
+
+.article-wrap .art-sheet .reading-companion a.sub.active i {
+  border-color: var(--seal);
+  background: var(--seal);
+}
+
+.rc-eyebrow {
+  display: block;
+  color: var(--seal-deep);
+  font-family: var(--font-latin);
+  font-size: 10px;
+  letter-spacing: 0.29em;
+}
+
+.rc-title {
+  margin: 10px 0 20px;
+  color: var(--ink);
+  font-family: var(--font-kai);
+  font-size: 18px;
+  letter-spacing: 0.14em;
+}
+
+.rc-progress {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 22px;
+  color: var(--ink-faint);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.rc-progress strong {
+  color: var(--seal-deep);
+  font-family: var(--font-latin);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.rc-track {
+  height: 2px;
+  margin-top: 8px;
+  background: var(--sheet-rule-soft);
+}
+
+.rc-track span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--seal);
+  transform-origin: left center;
+  transition: transform 0.12s linear;
+}
+
+.rc-aside {
+  margin: 44px 0 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--sheet-rule);
+  color: var(--ink-faint);
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1.9;
+  letter-spacing: 0.13em;
+}
+
+.rc-aside::before {
+  content: "";
+  display: block;
+  width: 28px;
+  height: 2px;
+  margin-bottom: 16px;
+  background: var(--seal);
+}
+
+/* 窄屏的卷内目录入口，默认隐藏，由响应式规则放出。 */
+.article-wrap .art-sheet .reading-companion-compact {
   display: none;
 }
 
-@media (max-width: 1199px) {
-  .article-wrap .article-reading-shell {
+/* ---------- 卷尾 ---------- */
+
+.art-chapter {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0 68px 30px 82px;
+  color: var(--seal);
+}
+
+.art-chapter::before,
+.art-chapter::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--sheet-rule));
+}
+
+.art-chapter::after {
+  transform: rotate(180deg);
+}
+
+.art-chapter span {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 31px;
+  height: 33px;
+  padding: 0 7px;
+  border: 3px double var(--seal);
+  color: var(--seal-deep);
+  font-family: var(--font-kai);
+  font-size: 12px;
+  transform: rotate(5deg);
+}
+
+.art-afterword {
+  margin: 0 68px 0 82px;
+}
+
+.art-afterword-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.art-afterword-head h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-kai);
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+}
+
+.art-afterword-head span {
+  color: var(--ink-faint);
+  font-family: var(--font-latin);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+}
+
+.art-related {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 17px;
+  margin-top: 20px;
+}
+
+/* 三篇推荐时让第一篇独占一行，避免第二行只剩一格空白。 */
+.art-related-card:first-child:nth-last-child(3) {
+  grid-column: 1 / -1;
+}
+
+.art-related-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 110px;
+  padding: 20px 23px;
+  border: 1px solid var(--sheet-rule);
+  background: color-mix(in srgb, var(--sheet-paper-light) 38%, transparent);
+  text-decoration: none;
+  transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+}
+
+.art-related-card:hover {
+  border-color: var(--seal);
+  background: color-mix(in srgb, var(--sheet-paper-light) 62%, transparent);
+  transform: translateY(-3px);
+}
+
+.art-related-card small {
+  color: var(--seal-deep);
+  font-family: var(--font-kai);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+
+.art-related-card strong {
+  color: var(--ink);
+  font-family: var(--font-kai);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  overflow-wrap: anywhere;
+}
+
+.art-related-arrow {
+  position: absolute;
+  right: 21px;
+  bottom: 15px;
+  color: var(--seal);
+  font-family: var(--font-latin);
+  font-size: 20px;
+}
+
+/* ---------- 评论与落款 ---------- */
+
+.art-sheet .comments {
+  position: relative;
+  margin: 44px 68px 0 82px;
+  padding: 30px 0 51px;
+  border-top: 1px dashed var(--sheet-rule);
+}
+
+.art-sheet .comments::before,
+.art-sheet .comments::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  width: 8px;
+  height: 8px;
+  background: var(--sheet-paper);
+  transform: rotate(45deg);
+}
+
+.art-sheet .comments::before {
+  left: 0;
+  background: var(--seal);
+}
+
+.art-sheet .comments::after {
+  right: 0;
+  border: 1px solid var(--seal);
+}
+
+.art-sheet .comments-title {
+  margin: 0;
+  gap: 12px;
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+}
+
+.art-sheet .comments-count {
+  min-width: 0;
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--ink-faint);
+  font-family: var(--font-latin);
+  font-size: 13px;
+}
+
+/* 评论区的登录提示与正文同一对齐线，不单独居中。 */
+.art-sheet .gb-compose > .gb-login-tip {
+  align-self: stretch;
+  text-align: left;
+}
+
+.art-colophon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  min-height: 76px;
+  border-top: 1px solid var(--sheet-rule-soft);
+  color: var(--ink-faint);
+  font-family: var(--font-kai);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+}
+
+.art-colophon i {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 28px;
+  background: var(--seal);
+  color: #fff1d3;
+  font-size: 13px;
+  font-style: normal;
+  transform: rotate(-7deg);
+}
+
+/* ---------- 响应式 ---------- */
+
+/* 纸外放不下整条批注轨时（< 1320px），改用正文顶部的卷内目录入口。 */
+@media (max-width: 1319px) {
+  .art-reading {
+    padding: 44px 68px 62px 82px;
+  }
+
+  .article-wrap .art-sheet .reading-companion-compact {
     display: block;
-    width: min(780px, 100%);
+    order: -1;
+    margin: 0 0 36px;
+    border-top: 1px solid var(--sheet-rule);
+    border-bottom: 1px solid var(--sheet-rule);
   }
 
-  .article-wrap .reading-companion-rail {
-    display: none;
-  }
-
-  .article-wrap .reading-companion-compact {
-    display: block;
-    margin: 18px 0 0;
-    border-top: 1px solid var(--rule-strong);
-    border-bottom: 1px solid var(--rule-strong);
-  }
-
-  .article-wrap .reading-companion-compact summary {
+  .article-wrap .art-sheet .reading-companion-compact summary {
     display: flex;
-    min-height: 44px;
+    min-height: 47px;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    cursor: pointer;
+    gap: 12px;
     color: var(--seal-deep);
     font-family: var(--font-kai);
     font-size: 13px;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.15em;
+    cursor: pointer;
     list-style: none;
   }
 
-  .article-wrap .reading-companion-compact summary::-webkit-details-marker {
+  .article-wrap .art-sheet .reading-companion-compact summary::-webkit-details-marker {
     display: none;
   }
 
-  .article-wrap .reading-companion-compact summary::after {
+  .article-wrap .art-sheet .reading-companion-compact summary::after {
     content: "+";
     color: var(--ink-faint);
     font-family: var(--font-latin);
-    font-size: 16px;
+    font-size: 18px;
   }
 
-  .article-wrap .reading-companion-compact[open] summary::after {
-    content: "−";
+  .article-wrap .art-sheet .reading-companion-compact[open] summary::after {
+    content: "\2212";
   }
 
-  .article-wrap .reading-companion-compact summary span:last-child {
+  .article-wrap .art-sheet .reading-companion-compact summary span:last-child {
     margin-left: auto;
     color: var(--ink-faint);
     font-family: var(--font-latin);
@@ -207,73 +1117,292 @@
     letter-spacing: 0.08em;
   }
 
-  .article-wrap .reading-companion-compact nav {
+  .article-wrap .art-sheet .reading-companion-compact nav {
     display: grid;
-    gap: 2px;
-    padding: 0 0 12px;
+    gap: 5px;
+    padding-bottom: 15px;
   }
 
-  .article-wrap .reading-companion-compact a {
+  .article-wrap .art-sheet .reading-companion-compact a {
     display: block;
     min-height: 40px;
-    padding: 9px 0 9px 14px;
-    border-left: 1px solid var(--rule);
-    color: var(--ink-faint);
+    padding: 9px 12px;
+    border-left: 2px solid var(--sheet-rule);
+    color: var(--ink-soft);
     font-family: var(--font-kai);
     font-size: 13px;
     line-height: 1.6;
+    text-decoration: none;
   }
 
-  .article-wrap .reading-companion-compact a.sub {
-    padding-left: 28px;
-    font-size: 12px;
+  .article-wrap .art-sheet .reading-companion-compact a.sub {
+    margin-left: 18px;
+    font-size: 12.5px;
   }
 
-  .article-wrap .reading-companion-compact a[aria-current='location'] {
+  .article-wrap .art-sheet .reading-companion-compact a[aria-current='location'] {
     border-left-color: var(--seal);
     color: var(--seal-deep);
   }
 }
 
-@media (max-width: 720px) {
-  .article-wrap {
-    padding-inline: 12px;
+@media (max-width: 1000px) {
+  .art-hero {
+    grid-template-columns: minmax(0, 1fr) 28%;
+    min-height: 400px;
+    padding: 54px 50px 44px 66px;
   }
 
-  .article-wrap .article-reading-shell {
-    margin-top: 18px;
+  .art-hero::before {
+    left: 33px;
   }
 
-  .article-wrap .article-reading-shell .article {
-    padding: 34px 22px 28px;
+  .art-hero::after {
+    left: 29px;
   }
 
-  .article-wrap .article-header {
-    margin-bottom: 30px;
-    padding-bottom: 24px;
+  .art-hero-art {
+    margin: -24px -50px -44px -56px;
+    background-position: 71% 58%;
+    opacity: 0.6;
   }
 
-  .article-wrap .article-reading-shell .article-header h1 {
-    font-size: clamp(29px, 8.5vw, 37px);
-    line-height: 1.42;
+  .art-hero-seal {
+    right: 50px;
   }
 
-  .article-wrap .article-excerpt {
-    margin-top: 16px;
-    font-size: 15px;
+  .art-caption {
+    right: 28px;
   }
 
-  .article-wrap .article-reading-shell .md-body {
+  .art-hero-foot {
+    margin-inline: 50px;
+  }
+
+  .art-reading {
+    padding: 44px 50px 62px 66px;
+  }
+
+  .art-chapter,
+  .art-afterword,
+  .art-sheet .comments {
+    margin-right: 50px;
+    margin-left: 66px;
+  }
+}
+
+@media (max-width: 900px) {
+  /* 平板区间的纸面变窄，正文随之收一号，保住每行 33 字以上。 */
+  .art-sheet .md-body {
+    font-size: 18px;
+  }
+
+  .art-sheet .md-body > p:first-of-type {
+    font-size: 19.5px;
+  }
+}
+
+@media (max-width: 760px) {
+  .art-sheet {
+    margin-bottom: 60px;
+  }
+
+  .art-hero {
+    display: block;
+    min-height: 0;
+    padding: 40px 30px 34px 40px;
+  }
+
+  .art-hero::before {
+    top: 40px;
+    bottom: 36px;
+    left: 20px;
+  }
+
+  .art-hero::after {
+    top: 36px;
+    left: 16px;
+    width: 8px;
+    height: 8px;
+  }
+
+  .art-title-brush {
+    font-size: clamp(48px, 13vw, 72px);
+  }
+
+  .art-title-line,
+  .art-title-plain .art-title-line {
+    font-size: clamp(27px, 7.4vw, 40px);
+  }
+
+  .art-hero-art {
+    height: 132px;
+    min-height: 0;
+    margin: 14px -30px -34px -40px;
+    background-position: 76% 59%;
+    background-size: auto 220px;
+    opacity: 0.6;
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 35%);
+    mask-image: linear-gradient(180deg, transparent, #000 35%);
+  }
+
+  .art-hero-art::after {
+    background: linear-gradient(180deg, var(--sheet-paper) 0, transparent 52%, var(--sheet-paper) 100%);
+  }
+
+  .art-hero-seal {
+    top: 42px;
+    right: 26px;
+    width: 30px;
+    height: 33px;
+    border-width: 2px;
+    font-size: 14px;
+  }
+
+  .art-caption {
+    right: 22px;
+    bottom: 12px;
+    font-size: 9px;
+  }
+
+  .art-hero-foot {
+    margin-inline: 30px;
+    padding: 12px 0 15px;
+    font-size: 9.5px;
+  }
+
+  .art-hero-foot span:last-child {
+    font-size: 8px;
+  }
+
+  .art-reading {
+    padding: 32px 30px 46px 40px;
+  }
+
+  .art-sheet .md-body {
     font-size: 17px;
-    line-height: 1.9;
+    line-height: 1.95;
+  }
+
+  .art-sheet .md-body > p:first-of-type {
+    min-height: 66px;
+    font-size: 18px;
+  }
+
+  .art-sheet .md-body > p:first-of-type::first-letter {
+    font-size: 52px;
+  }
+
+  .art-sheet .md-body h2 {
+    gap: 10px;
+    font-size: 24px;
+  }
+
+  .art-sheet .md-body h2::before {
+    font-size: 13px;
+  }
+
+  .art-sheet .md-body blockquote {
+    margin-block: 32px;
+    padding: 18px 16px 18px 34px;
+    font-size: 19px;
+  }
+
+  .art-sheet .md-body blockquote::before {
+    left: 9px;
+    font-size: 34px;
+  }
+
+  .art-sheet .md-body ol li {
+    gap: 12px;
+  }
+
+  .art-chapter,
+  .art-afterword,
+  .art-sheet .comments {
+    margin-right: 30px;
+    margin-left: 40px;
+  }
+
+  .art-chapter {
+    gap: 11px;
+    margin-bottom: 24px;
+  }
+
+  .art-afterword-head h2,
+  .art-sheet .comments-title {
+    font-size: 17px;
+  }
+
+  .art-afterword-head span {
+    font-size: 8px;
+  }
+
+  .art-related {
+    grid-template-columns: 1fr;
+  }
+
+  .art-related-card {
+    min-height: 100px;
+  }
+
+  .art-colophon {
+    min-height: 64px;
+    font-size: 10.5px;
+  }
+}
+
+@media (max-width: 420px) {
+  .art-hero {
+    padding: 34px 24px 30px 33px;
+  }
+
+  .art-hero::before {
+    top: 34px;
+    bottom: 32px;
+    left: 15px;
+  }
+
+  .art-hero::after {
+    top: 30px;
+    left: 11px;
+  }
+
+  .art-hero-art {
+    margin: 12px -24px -30px -33px;
+  }
+
+  .art-hero-foot {
+    margin-inline: 24px;
+  }
+
+  .art-reading {
+    padding: 28px 24px 40px 33px;
+  }
+
+  .art-chapter,
+  .art-afterword,
+  .art-sheet .comments {
+    margin-right: 24px;
+    margin-left: 33px;
+  }
+
+  .art-title-brush {
+    font-size: clamp(42px, 12.6vw, 56px);
+    letter-spacing: 0.06em;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .article-wrap .reading-companion a,
-  .article-wrap .reading-companion,
-  .article-wrap .reading-progress i {
+  .article-wrap .art-sheet .reading-companion a,
+  .article-wrap .art-sheet .reading-companion,
+  .article-wrap .art-sheet .rc-track span,
+  .article-wrap .art-sheet .art-related-card {
     animation: none;
     transition: none;
+  }
+
+  .article-wrap .art-sheet .art-related-card:hover {
+    transform: none;
   }
 }

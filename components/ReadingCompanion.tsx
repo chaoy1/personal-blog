@@ -19,8 +19,8 @@ export default function ReadingCompanion() {
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
-    const article = document.querySelector<HTMLElement>('.article-reading-shell .article')
-    const body = article?.querySelector<HTMLElement>('.md-body')
+    const body = document.querySelector<HTMLElement>('.article-wrap .md-body, .article-reading-shell .md-body')
+    const article = body?.closest<HTMLElement>('.art-sheet, .article') ?? null
     if (!article || !body) return
 
     const used = new Set<string>()
@@ -63,6 +63,8 @@ export default function ReadingCompanion() {
     }
   }, [])
 
+  const percent = Math.round(progress * 100)
+
   return (
     <>
       <div
@@ -71,16 +73,17 @@ export default function ReadingCompanion() {
         aria-label="阅读进度"
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-valuenow={Math.round(progress * 100)}
-        aria-valuetext={`已读 ${Math.round(progress * 100)}%`}
+        aria-valuenow={percent}
+        aria-valuetext={`已读 ${percent}%`}
       >
         <i aria-hidden="true" style={{ transform: `scaleX(${progress})` }} />
       </div>
       {headings.length > 0 ? (
         <>
           <div className="reading-companion-rail">
-            <aside className="reading-companion" aria-label="文章目录">
-              <span className="rc-eyebrow">卷内路径</span>
+            <aside className="reading-companion" aria-label="阅读批注">
+              <span className="rc-eyebrow">CONTENTS / 目录</span>
+              <p className="rc-title">卷内路径</p>
               <nav aria-label="文章目录">
                 {headings.map((heading) => (
                   <a
@@ -94,13 +97,24 @@ export default function ReadingCompanion() {
                   </a>
                 ))}
               </nav>
-              <span className="rc-percent">已读 {Math.round(progress * 100)}%</span>
+              <div className="rc-progress">
+                <span>已读</span>
+                <strong>{percent}%</strong>
+              </div>
+              <div className="rc-track" aria-hidden="true">
+                <span style={{ transform: `scaleX(${progress})` }} />
+              </div>
+              <p className="rc-aside">
+                写得慢一点，
+                <br />
+                也算是在往前走。
+              </p>
             </aside>
           </div>
           <details className="reading-companion-compact">
             <summary>
-              <span>文章目录</span>
-              <span aria-hidden="true">已读 {Math.round(progress * 100)}%</span>
+              <span>卷内目录</span>
+              <span aria-hidden="true">已读 {percent}%</span>
             </summary>
             <nav aria-label="移动文章目录">
               {headings.map((heading) => (
