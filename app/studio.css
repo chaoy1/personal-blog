@@ -2948,6 +2948,102 @@
   }
 }
 
+/* ---------- 关于页配色整理 ----------
+   依据 effect-preview/about-color-harmony.html，只调色，尺寸一律照旧。
+   三件事：
+   1) 题头画心原来是一张贴上去的方块，底边一条硬缝；改成渗出纸里；
+   2) 纸色从偏黄（渲染约 #DCD5BE）退到「灰米」一档，冷灰墨山才有落脚处；
+   3) 落款底下的水痕原来是玫粉，跟朱印不同族；改回赭红。
+   ---------------------------------------------------------------------- */
+.about-page {
+  --about-paper: rgba(251, 246, 229, 0.96);
+  --about-wash-rgb: 160, 78, 63;
+}
+
+.about-scroll {
+  background-color: var(--about-paper);
+  background-image:
+    linear-gradient(112deg, rgba(255, 251, 238, 0.46), transparent 38%),
+    linear-gradient(180deg, rgba(252, 248, 236, 0.4), rgba(250, 246, 232, 0.24)),
+    radial-gradient(circle at 86% 16%, rgba(178, 58, 43, 0.05), transparent 23%),
+    var(--card-paper);
+  background-size: auto, auto, auto, 220px 220px;
+}
+
+/* 画心：降饱和、提亮，底边用遮罩收掉——不再有可辨的横向接缝。 */
+.about-scroll .page-intro::after {
+  background-image:
+    linear-gradient(rgba(250, 248, 242, 0.18), rgba(250, 248, 242, 0.18)),
+    url("/bg/about-ink-banner.png");
+  background-position: 0 0, center;
+  background-size: auto, cover;
+  background-repeat: no-repeat, no-repeat;
+  opacity: 0.82;
+  filter: saturate(0.6) contrast(0.9) brightness(1.05);
+  -webkit-mask-image: linear-gradient(180deg, #000 0 68%, rgba(0, 0, 0, 0.6) 86%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0 68%, rgba(0, 0, 0, 0.6) 86%, transparent 100%);
+}
+
+/* 落款水痕：玫粉 → 赭红（椭圆与色斑的尺寸全部保持原样） */
+.about-colophon-wash {
+  background:
+    radial-gradient(ellipse 92px 66px at 14% 47%, rgba(var(--about-wash-rgb), 0.2) 0 17%, rgba(var(--about-wash-rgb), 0.085) 40%, transparent 73%),
+    radial-gradient(ellipse 178px 62px at 52% 59%, rgba(var(--about-wash-rgb), 0.125) 0 20%, rgba(var(--about-wash-rgb), 0.055) 44%, transparent 77%),
+    radial-gradient(ellipse 105px 56px at 88% 72%, rgba(var(--about-wash-rgb), 0.14) 0 14%, rgba(var(--about-wash-rgb), 0.055) 42%, transparent 76%);
+}
+
+.about-colophon-wash::before {
+  background:
+    radial-gradient(circle at 38% 34%, rgba(var(--about-wash-rgb), 0.17) 0 12%, transparent 31%),
+    radial-gradient(circle at 59% 61%, rgba(var(--about-wash-rgb), 0.22) 0 18%, transparent 47%),
+    radial-gradient(circle at 23% 72%, rgba(var(--about-wash-rgb), 0.11) 0 8%, transparent 31%);
+}
+
+.about-colophon-wash::after {
+  background:
+    radial-gradient(ellipse at 64% 51%, rgba(var(--about-wash-rgb), 0.15), transparent 64%),
+    radial-gradient(ellipse at 30% 69%, rgba(var(--about-wash-rgb), 0.14), transparent 68%);
+}
+
+:root[data-theme='dark'] .about-page {
+  --about-wash-rgb: 175, 89, 71;
+}
+
+:root[data-theme='dark'] .about-scroll {
+  background-color: rgba(52, 46, 36, 0.95);
+  background-image:
+    linear-gradient(112deg, rgba(242, 226, 188, 0.035), transparent 36%),
+    radial-gradient(circle at 86% 16%, rgba(201, 77, 55, 0.08), transparent 23%),
+    var(--card-paper);
+}
+
+:root[data-theme='dark'] .about-scroll .page-intro::after {
+  background-image:
+    linear-gradient(rgba(30, 26, 19, 0.26), rgba(30, 26, 19, 0.26)),
+    url("/bg/about-ink-banner.png");
+  background-position: 0 0, center;
+  background-size: auto, cover;
+  opacity: 0.72;
+  filter: brightness(0.6) saturate(0.62);
+  -webkit-mask-image: linear-gradient(180deg, #000 0 66%, rgba(0, 0, 0, 0.55) 86%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0 66%, rgba(0, 0, 0, 0.55) 86%, transparent 100%);
+}
+
+:root[data-theme='dark'] .about-colophon-wash {
+  background:
+    radial-gradient(ellipse 92px 66px at 14% 47%, rgba(var(--about-wash-rgb), 0.17) 0 17%, rgba(var(--about-wash-rgb), 0.07) 40%, transparent 73%),
+    radial-gradient(ellipse 178px 62px at 52% 59%, rgba(var(--about-wash-rgb), 0.105) 0 20%, rgba(var(--about-wash-rgb), 0.05) 44%, transparent 77%),
+    radial-gradient(ellipse 105px 56px at 88% 72%, rgba(var(--about-wash-rgb), 0.12) 0 14%, rgba(var(--about-wash-rgb), 0.05) 42%, transparent 76%);
+}
+
+@media (max-width: 720px) {
+  .about-scroll .page-intro::after {
+    background-position: 0 0, 63% center;
+    background-size: auto, cover;
+    opacity: 0.82;
+  }
+}
+
 @media (max-width: 380px) {
   .about-scroll .page-intro h1 {
     font-size: 32px;

@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>关于这间小屋 · 配色微调预览</title>
+  <style>
+    /*
+      独立预览，不依赖项目样式。图片和字体引用本仓库的现有资源。
+      如要移植到现有关于页，可将「配色调整」一节的值对应到
+      .about-scroll、.about-essay、.page-intro 和 .about-colophon-wash。
+    */
+    @import url("../node_modules/@fontsource/zhi-mang-xing/400.css");
+    @import url("../node_modules/@fontsource/lxgw-wenkai/300.css");
+    @import url("../node_modules/@fontsource/lxgw-wenkai/500.css");
+
+    :root {
+      /* 配色调整：让冷灰墨山与暖纸之间有一层灰米色过渡。 */
+      --paper: #f0ebdc;
+      --paper-top: #f1ecdf;
+      --paper-light: #f5f1e7;
+      --ink: #393a35;
+      --ink-body: #595a51;
+      --ink-soft: #706f63;
+      --cinnabar: #a44737;
+      --cinnabar-deep: #853d32;
+      --wash: 160, 78, 63;
+      --nav-paper: #f1eee4;
+      --paper-shadow: rgba(35, 32, 23, .31);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { min-width: 320px; }
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      isolation: isolate;
+      background: #837c68;
+      color: var(--ink);
+      font-family: "LXGW WenKai", "Songti SC", "Noto Serif CJK SC", "STSong", serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      position: fixed;
+      inset: -3%;
+      z-index: -3;
+      content: "";
+      background: url("../public/bg/qianli-bridge.jpg") 50% 62% / cover no-repeat;
+      filter: brightness(.88) saturate(.96) contrast(1.025);
+    }
+    body::after {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      content: "";
+      pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(234, 227, 209, .27), transparent 24%),
+        radial-gradient(ellipse 68% 55% at 50% 37%, rgba(80, 69, 48, .18), transparent 74%),
+        linear-gradient(0deg, rgba(43, 37, 25, .15), transparent 35%);
+    }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    a { color: inherit; text-decoration: none; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--cinnabar); outline-offset: 4px; }
+
+    .site-header {
+      position: relative;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: minmax(210px, 1fr) auto minmax(210px, 1fr);
+      align-items: center;
+      min-height: 60px;
+      padding: 0 clamp(24px, 2.25vw, 42px);
+      border-bottom: 1px solid rgba(91, 74, 57, .12);
+      background: color-mix(in srgb, var(--nav-paper) 96%, transparent);
+      box-shadow: 0 2px 10px rgba(37, 33, 25, .06);
+    }
+    .brand, .site-nav, .site-user { display: flex; align-items: center; }
+    .brand { gap: 12px; white-space: nowrap; font-size: 17px; letter-spacing: .31em; }
+    .brand-mark {
+      width: 13px;
+      height: 13px;
+      border: 1px solid var(--cinnabar);
+      transform: rotate(45deg);
+      display: grid;
+      place-items: center;
+    }
+    .brand-mark::after { content: ""; width: 6px; height: 6px; background: var(--cinnabar); }
+    .brand small { margin-left: 3px; color: #928c7d; font: 9px Georgia, serif; letter-spacing: .21em; }
+    .site-nav { gap: 15px; justify-content: center; white-space: nowrap; }
+    .site-nav a { position: relative; font-size: 14px; letter-spacing: .2em; color: #67665e; }
+    .site-nav a + a::before { content: "◇"; position: absolute; left: -12px; color: #afa899; font-size: 7px; top: 6px; }
+    .site-nav a[aria-current="page"] { color: var(--ink); }
+    .site-nav a[aria-current="page"]::after { content: ""; position: absolute; height: 1px; left: 3px; right: 6px; bottom: -13px; background: var(--cinnabar); }
+    .site-user { justify-content: flex-end; gap: 12px; color: #69665e; font-size: 13px; letter-spacing: .14em; white-space: nowrap; }
+    .site-user .online { width: 7px; height: 7px; border-radius: 50%; background: var(--cinnabar); box-shadow: 0 0 0 3px rgba(164, 71, 55, .1); }
+    .site-user .exit { margin-left: 9px; }
+
+    .layout { width: min(1080px, calc(100% - 48px)); margin: 0 auto 80px; }
+    .section-nav { min-height: 74px; display: flex; align-items: center; justify-content: space-between; gap: 18px; color: #312f2a; }
+    .back-link { display: inline-flex; align-items: center; gap: 14px; font-size: 14px; letter-spacing: .25em; text-shadow: 0 1px 8px rgba(245, 238, 214, .9); }
+    .back-link .arrow { font: 28px Georgia, serif; line-height: 1; }
+    .current { display: inline-flex; align-items: center; gap: 11px; font-size: 14px; letter-spacing: .18em; text-shadow: 0 1px 8px rgba(245, 238, 214, .9); }
+    .current .seal { display: grid; place-items: center; width: 24px; height: 24px; background: var(--cinnabar); color: #f7efe4; border: 1px solid #ead5c7; box-shadow: inset 0 0 0 2px var(--cinnabar-deep); transform: rotate(4deg); font-size: 10px; letter-spacing: 0; }
+
+    .scroll {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      min-height: 840px;
+      border-radius: 3px;
+      background:
+        linear-gradient(108deg, rgba(255,255,255,.19), transparent 35%),
+        radial-gradient(ellipse 48% 62% at 52% 52%, rgba(250,247,236,.15), transparent 78%),
+        var(--paper);
+      box-shadow: 0 32px 70px -40px var(--paper-shadow), 0 1px 0 rgba(255,255,255,.4) inset;
+    }
+    .scroll::before {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      content: "";
+      pointer-events: none;
+      opacity: .22;
+      background-image: url("../public/bg/guestbook-paper-fibers.svg");
+      background-size: 280px;
+    }
+    .scroll::after { content: "记"; position: absolute; right: 42px; bottom: 33px; z-index: -1; color: var(--cinnabar); opacity: .045; font-size: 86px; transform: rotate(-8deg); }
+
+    .intro {
+      position: relative;
+      display: flex;
+      align-items: center;
+      min-height: 210px;
+      padding: 32px 60px;
+      overflow: hidden;
+      background: var(--paper-top);
+    }
+    .intro::before {
+      position: absolute;
+      inset: 0;
+      content: "";
+      background: url("../public/bg/about-ink-banner.png") center / cover no-repeat;
+      opacity: .78;
+      filter: saturate(.68) contrast(.92);
+    }
+    .intro::after {
+      position: absolute;
+      inset: 0;
+      content: "";
+      pointer-events: none;
+      /* 轻覆一层纸白，压低题头山水的色彩浓度，并继续向正文纸色收束。 */
+      background: linear-gradient(180deg, rgba(249,247,241,.22) 0%, rgba(249,247,241,.18) 66%, rgba(244,240,230,.34) 86%, var(--paper-top) 100%);
+    }
+    .intro-copy { position: relative; z-index: 1; }
+    .intro-meta { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; color: #665f55; font-size: 12px; letter-spacing: .18em; }
+    .intro-meta .diamond { color: var(--cinnabar); font-size: 9px; }
+    .intro-meta .english { color: var(--cinnabar-deep); font: bold 10px Georgia, serif; letter-spacing: .25em; }
+    h1 { margin: 0; color: #333530; font-family: "Zhi Mang Xing", "STXingkai", cursive; font-size: clamp(42px, 4vw, 56px); font-weight: 400; line-height: 1.15; letter-spacing: .02em; }
+    .title-seal { display: inline-grid; place-items: center; vertical-align: middle; width: 30px; height: 31px; margin-left: 13px; transform: rotate(-5deg) translateY(-2px); border: 1px solid #ead0c4; background: var(--cinnabar); box-shadow: inset 0 0 0 2px var(--cinnabar-deep); color: #f7eee2; font-family: "Songti SC", serif; font-size: 15px; }
+    .intro-description { margin: 15px 0 0; color: #4e504a; font-family: "Zhi Mang Xing", "STXingkai", cursive; font-size: 19px; letter-spacing: .08em; }
+
+    .content { padding: 13px 60px 60px; }
+    .essay { max-width: 845px; margin: 0 auto; color: var(--ink-body); font-size: 19px; letter-spacing: .045em; line-height: 2.05; }
+    .essay p { margin: 0 0 1.38em; text-indent: 2em; }
+    .essay p:last-child { margin-bottom: 0; }
+
+    .colophon { position: relative; display: grid; grid-template-columns: 40px 68px minmax(0, 1fr) 30px; align-items: center; gap: 12px; width: 388px; max-width: 100%; min-height: 108px; margin: 43px 64px 0 auto; padding: 14px 8px 17px 18px; }
+    .colophon-wash {
+      position: absolute;
+      inset: -14px -18px -19px -23px;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 90px 65px at 14% 48%, rgba(var(--wash),.20) 0 16%, rgba(var(--wash),.08) 44%, transparent 74%),
+        radial-gradient(ellipse 175px 60px at 52% 57%, rgba(var(--wash),.12) 0 20%, rgba(var(--wash),.055) 44%, transparent 77%),
+        radial-gradient(ellipse 105px 55px at 89% 72%, rgba(var(--wash),.14) 0 14%, rgba(var(--wash),.055) 42%, transparent 76%);
+      clip-path: polygon(0 24%, 8% 12%, 18% 20%, 29% 7%, 42% 16%, 55% 5%, 67% 15%, 80% 9%, 92% 18%, 100% 30%, 97% 73%, 88% 88%, 75% 80%, 61% 94%, 47% 84%, 32% 97%, 18% 86%, 6% 93%, 1% 72%);
+      filter: blur(2px);
+    }
+    .colophon-label { display: flex; align-items: center; justify-content: center; min-height: 76px; padding-right: 12px; border-right: 1px solid rgba(164,71,55,.29); color: var(--cinnabar-deep); font-size: 14px; letter-spacing: .12em; writing-mode: vertical-rl; }
+    .avatar { display: block; width: 64px; height: 64px; overflow: hidden; border: 2px solid var(--paper-light); border-radius: 50%; background: #dfd6c3; box-shadow: 0 0 0 2px rgba(164,71,55,.65), 0 5px 13px rgba(40,31,23,.16); object-fit: cover; }
+    .byline { min-width: 0; align-self: center; padding-bottom: 4px; }
+    .name { display: block; color: #393b36; font: 600 23px/1.35 "Segoe Print", "Bradley Hand", cursive; letter-spacing: -.025em; transform: rotate(-1deg); }
+    .role { display: block; margin-top: 6px; color: #625f56; font-size: 13px; font-weight: 600; letter-spacing: .07em; white-space: nowrap; }
+    .brush { position: absolute; left: 157px; right: 75px; bottom: 2px; height: 14px; background: linear-gradient(90deg, var(--cinnabar), rgba(164,71,55,.65) 60%, rgba(164,71,55,.08)); clip-path: polygon(0 61%,14% 52%,36% 43%,58% 35%,79% 31%,100% 24%,99% 39%,80% 45%,60% 49%,39% 55%,17% 65%,1% 79%); transform: rotate(-3.5deg); }
+    .signature-seal { display: grid; place-items: center; width: 29px; height: 29px; border: 1px solid var(--cinnabar-deep); background: var(--cinnabar); color: #f6eee2; font-size: 12px; box-shadow: inset 0 0 0 2px rgba(247,239,222,.35); transform: translate(-44px,13px) rotate(-4deg); }
+
+    @media (max-width: 900px) {
+      .site-header { grid-template-columns: 1fr auto; }
+      .site-nav { display: none; }
+      .layout { width: min(760px, calc(100% - 30px)); }
+      .content { padding-inline: clamp(28px, 6vw, 54px); }
+      .colophon { margin-right: 16px; }
+    }
+    @media (max-width: 600px) {
+      .site-header { min-height: 55px; padding-inline: 18px; }
+      .brand { gap: 9px; font-size: 15px; letter-spacing: .2em; }
+      .brand small, .site-user .id, .site-user .exit { display: none; }
+      .section-nav { min-height: 60px; }
+      .intro { min-height: 176px; padding: 26px 22px 22px 34px; }
+      .intro::before { background-position: 63% center; }
+      h1 { font-size: clamp(30px, 8.9vw, 38px); }
+      .title-seal { width: 25px; height: 26px; margin-left: 8px; font-size: 12px; }
+      .intro-description { font-size: 17px; }
+      .content { padding: 12px 24px 42px; }
+      .essay { font-size: 17px; letter-spacing: .015em; line-height: 1.95; }
+      .colophon { margin: 32px 0 0 auto; }
+    }
+    @media (max-width: 380px) {
+      .layout { width: calc(100% - 20px); }
+      .content { padding-inline: 20px; }
+      .colophon { grid-template-columns: 30px 54px minmax(0, 1fr) 24px; gap: 7px; padding-inline: 5px; }
+      .colophon-label { min-height: 66px; padding-right: 8px; font-size: 12px; }
+      .avatar { width: 50px; height: 50px; }
+      .name { font-size: 18px; }
+      .role { font-size: 10px; }
+      .brush { left: 106px; right: 40px; }
+      .signature-seal { width: 24px; height: 24px; transform: translate(-22px,11px) rotate(-4deg); }
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) { --paper: #302d28; --paper-top: #37352e; --paper-light: #474236; --ink: #e1d9c7; --ink-body: #d3cbb9; --ink-soft: #beb39e; --nav-paper: #292821; --paper-shadow: rgba(0,0,0,.45); --wash: 175, 89, 71; }
+      :root:not([data-theme="light"]) body::before { filter: brightness(.56) saturate(.72); }
+      :root:not([data-theme="light"]) .intro::before { opacity: 1; filter: brightness(.55) saturate(.65); }
+      :root:not([data-theme="light"]) .intro::after { background: linear-gradient(180deg, rgba(34,32,28,.15), transparent 63%, var(--paper-top)); }
+      :root:not([data-theme="light"]) h1, :root:not([data-theme="light"]) .intro-description, :root:not([data-theme="light"]) .name { color: #e1d9c7; }
+      :root:not([data-theme="light"]) .brand, :root:not([data-theme="light"]) .site-user, :root:not([data-theme="light"]) .site-nav a, :root:not([data-theme="light"]) .section-nav { color: #ddd4bd; }
+      :root:not([data-theme="light"]) .intro-meta, :root:not([data-theme="light"]) .role { color: #c6bba7; }
+      :root:not([data-theme="light"]) .intro-meta .english { color: #d29580; }
+      :root:not([data-theme="light"]) .back-link, :root:not([data-theme="light"]) .current { text-shadow: 0 1px 8px rgba(25,23,19,.65); }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="似水流年"><span class="brand-mark" aria-hidden="true"></span><span>似水流年</span><small>JOURNAL</small></a>
+    <nav class="site-nav" aria-label="站点导航"><a href="#">首页</a><a href="#">文章</a><a href="#">闲语</a><a href="#">光影</a><a href="#">时间轴</a><a href="#">留言</a><a href="#" aria-current="page">关于</a></nav>
+    <div class="site-user"><span class="online" aria-hidden="true"></span><span class="id">410798220</span><span class="exit">退出</span></div>
+  </header>
+
+  <div class="layout">
+    <nav class="section-nav" aria-label="关于页导航"><a class="back-link" href="#"><span class="arrow" aria-hidden="true">←</span>返回首页</a><span class="current"><span class="seal" aria-hidden="true">卷</span>关于</span></nav>
+    <main class="scroll" aria-labelledby="about-title">
+      <header class="intro">
+        <div class="intro-copy">
+          <div class="intro-meta"><span>卷 06</span><span class="diamond">◇</span><span class="english">ABOUT</span></div>
+          <h1 id="about-title">关于这间小屋<span class="title-seal" aria-hidden="true">记</span></h1>
+          <p class="intro-description">写代码，也写生活。</p>
+        </div>
+      </header>
+      <div class="content">
+        <article class="essay" aria-label="自序">
+          <p>你好，我是这间小屋的主人。</p>
+          <p>平日里写代码，也写一些关于生活、成长和思考的文字。偶尔拍照，记录路过的风景；偶尔停下来，把那些不愿遗忘的瞬间整理成篇。</p>
+          <p>我喜欢简单而长久的事物：一本反复翻阅的书，一段认真完成的代码，一次没有目的的散步，以及人与人之间真诚的交流。</p>
+          <p>建立这个博客，并不是为了给生活下结论，只是想为走过的时间留下些许痕迹。这里有文章、闲语和光影，也可能有尚未想明白的问题。</p>
+          <p>如果其中某一段文字恰好与你产生共鸣，欢迎留下只言片语。山水有相逢，来日皆可期。</p>
+        </article>
+        <aside class="colophon" aria-label="博主落款">
+          <span class="colophon-wash" aria-hidden="true"></span><span class="colophon-label" aria-hidden="true">落款</span>
+          <img class="avatar" src="../public/avatar-default.svg" alt="博主头像占位图">
+          <div class="byline"><span class="name">ChoyChou</span><span class="role">博主 · 似水流年</span></div>
+          <span class="brush" aria-hidden="true"></span><span class="signature-seal" aria-hidden="true">署</span>
+        </aside>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
