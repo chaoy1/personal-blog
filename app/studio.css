@@ -1461,10 +1461,22 @@
   height: 22px;
 }
 
+/* 关于页打开动效「展立轴」把纸面挪到了内层 .about-unfold-paper：
+   展开是靠 clip-path 裁纸，而裁切会把天杆/地杆一起切掉 —— 硬件必须站在裁切区外面。
+   纸色、纸纹、朱红起笔与压角闲章都跟着这一层走，于是「合着」的时候它们一起被裁住。 */
 .about-scroll {
   position: relative;
   width: min(1080px, 100%);
   margin: 0 auto;
+  border-radius: 3px;
+  /* 卡片投影交给 drop-shadow：它沿「裁切后的轮廓」投影，展开到哪影子到哪；
+     box-shadow 会被 clip-path 一并裁掉。 */
+  filter: drop-shadow(0 22px 30px rgba(38, 27, 13, 0.4));
+  isolation: isolate;
+}
+
+.about-unfold-paper {
+  position: relative;
   overflow: hidden;
   border-radius: 3px;
   background-color: rgba(241, 230, 202, 0.92);
@@ -1473,11 +1485,11 @@
     radial-gradient(circle at 86% 16%, rgba(178, 58, 43, 0.055), transparent 23%),
     var(--card-paper);
   background-size: auto, auto, 220px 220px;
-  box-shadow: 0 30px 68px -42px rgba(38, 27, 13, 0.8);
-  isolation: isolate;
+  animation: about-unroll calc(11 * var(--beat)) var(--ease-roll) var(--beat) both;
 }
 
-.about-scroll::before {
+/* 贴边朱红起笔 */
+.about-unfold-paper::before {
   content: "";
   position: absolute;
   left: 0;
@@ -1488,7 +1500,8 @@
   opacity: 0.85;
 }
 
-.about-scroll::after {
+/* 压角闲章 */
+.about-unfold-paper::after {
   content: "记";
   position: absolute;
   right: 42px;
@@ -1562,7 +1575,7 @@
   display: none;
 }
 
-:root[data-theme='dark'] .about-scroll {
+:root[data-theme='dark'] .about-unfold-paper {
   background-color: rgba(54, 43, 26, 0.94);
   background-image:
     linear-gradient(112deg, rgba(242, 226, 188, 0.035), transparent 36%),
@@ -1600,7 +1613,7 @@
     margin-top: 28px;
   }
 
-  .about-scroll::after {
+  .about-unfold-paper::after {
     right: 8px;
     bottom: 20px;
     font-size: 64px;
@@ -3023,6 +3036,382 @@
     background-position: 0 0, 63% center;
     background-size: auto, cover;
     opacity: 0.88;
+  }
+}
+
+/* ---------- 关于页打开动效：展立轴 ----------
+   设计论证与逐拍留档见 effect-preview/about-scroll-unfold.html。
+   首页展的是长卷（横轴，木轴自左向右把画面卷走），关于页展的是立轴（纵向）
+   —— 同一套语汇换个物件，不与首页重复。
+   拍长沿用首页那套 calc(N * var(--beat)) 的写法，值收得更紧：
+   25 拍 × 96ms = 2.40s（首页 hero 是 37 拍 = 4.44s，全站内页通用的
+   page-scroll-arrive 是 0.78s）。要整体再调，只改 --beat 一个值。
+   ---- 为什么 --beat 挂 .about-page 而不是 :root ----
+   首页的 --beat 定义在 home-hero-scroll.css 的 :root 上，而那个文件只有
+   app/page.tsx import，关于页本来拿不到它；挂在这里也顺带不会覆盖首页。
+   ---------------------------------------------------------------------- */
+.about-page {
+  --beat: 96ms;
+  /* 合着时纸卷的直径。太薄（试过 30px）天杆与地杆会贴在一起读成一根粗木条。 */
+  --roll: 64px;
+  --rod-h: 17px;
+
+  --ease-roll: cubic-bezier(0.55, 0.03, 0.42, 1);
+  --ease-ink: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-stamp: cubic-bezier(0.2, 0.9, 0.3, 1.4);
+
+  /* 题头画心的调子。动画只推 blur，色调交给变量 ——
+     否则动画里写死的 filter 会把暗色主题那套调子盖掉。 */
+  --ink-tone: saturate(0.7) sepia(0.12) contrast(0.94) brightness(1.03);
+  --ink-opacity: 0.88;
+}
+
+:root[data-theme='dark'] .about-page {
+  --ink-tone: brightness(0.66) saturate(0.68) sepia(0.08);
+  --ink-opacity: 0.8;
+}
+
+/* --- I 立轴 0–1 拍 / II 展轴 1–12 拍 --------------------------------------
+   合着的状态：纸只露出一卷（--roll 高），地杆在卷心，天杆在上端定住。
+   两个 keyframe 都只用百分比，不依赖 JS 量出来的高度 —— 卡片写多长都不会错位，
+   服务端直出的第一帧也一定是「合着」的样子。clip-path 带 round 3px，圆角不跳。
+   ------------------------------------------------------------------------- */
+@keyframes about-unroll {
+  from { clip-path: inset(0 0 calc(100% - var(--roll)) 0 round 3px); }
+  to   { clip-path: inset(0 0 0 0 round 3px); }
+}
+@keyframes about-rod-track {
+  from { top: calc(var(--roll) - var(--rod-h) / 2); }
+  to   { top: calc(100% - var(--rod-h) / 2); }
+}
+@keyframes about-curl-track {
+  from { top: var(--roll); }
+  to   { top: 100%; }
+}
+
+/* --- III 渗墨 2–8 拍：题头画心像墨刚落纸一样渗开（blur 9 → 0）。
+       比展轴晚一拍起手，墨是跟着轴走的。 ---------------------------------- */
+@keyframes about-ink {
+  0%   { opacity: 0; filter: blur(9px) var(--ink-tone); }
+  45%  { opacity: calc(var(--ink-opacity) * 0.82); }
+  100% { opacity: var(--ink-opacity); filter: blur(0) var(--ink-tone); }
+}
+
+/* --- IV 落字 5–11 拍：正文显影。只显影、不位移，段落之间没有任何 translateY --- */
+@keyframes about-develop {
+  from { opacity: 0; filter: blur(2px); }
+  to   { opacity: 1; filter: blur(0); }
+}
+
+/* --- V 用印 18–20 拍：全场唯一的重音 --------------------------------------
+   只动 scale（独立属性），不动 transform —— 这样 .about-colophon-seal 自己的
+   translate(-44px,13px) rotate(-4deg) 定位原样保留。首页 hero-stamp 就是这么做的。
+   ------------------------------------------------------------------------- */
+@keyframes about-stamp {
+  0%   { opacity: 0; scale: 1.9; }
+  62%  { opacity: 1; scale: 0.955; }
+  100% { opacity: 1; scale: 1; }
+}
+/* --- 余晕 19–22 拍：顿印之后向外晕开一次 --------------------------------- */
+@keyframes about-bleed {
+  0%   { opacity: 0; scale: 0.34; }
+  15%  { opacity: 0.6; }
+  100% { opacity: 0; scale: 2.4; }
+}
+/* --- 题款笔触 13–18 拍：朱红自左扫开 ------------------------------------ */
+@keyframes about-brush {
+  from { scale: 0 1; opacity: 0.2; }
+  to   { scale: 1 1; opacity: 1; }
+}
+/* --- 收轴 22–25 拍：两根轴一起淡出，纸定住。
+       动效不留痕 —— 终态就是这张卡片本来的样子。 -------------------------- */
+@keyframes about-rod-away {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* ---- 挂到元素上：全部 both，首帧即「合着」，服务端直出也不会先闪整张纸 ---- */
+.about-page .about-unfold-curl {
+  animation:
+    about-curl-track calc(11 * var(--beat)) var(--ease-roll) var(--beat) both,
+    about-rod-away calc(3 * var(--beat)) ease-out calc(22 * var(--beat)) both;
+}
+.about-page .page-intro::after {
+  animation: about-ink calc(6 * var(--beat)) var(--ease-ink) calc(2 * var(--beat)) both;
+}
+.about-page .about-essay {
+  animation: about-develop calc(6 * var(--beat)) ease-out calc(5 * var(--beat)) both;
+}
+/* 落款先显，印后落 —— 先写字再盖章，顺序不能倒。
+   （第一版把印排在落款之前，结果印盖在一张空落款上。） */
+.about-page .about-colophon-info,
+.about-page .about-colophon-label,
+.about-page .about-avatar-wrap,
+.about-page .about-colophon-wash {
+  animation: about-develop calc(4 * var(--beat)) ease-out calc(11 * var(--beat)) both;
+}
+.about-page .about-colophon-brush {
+  animation: about-brush calc(5 * var(--beat)) var(--ease-roll) calc(13 * var(--beat)) both;
+}
+.about-page .about-colophon-seal {
+  animation: about-stamp calc(2 * var(--beat)) var(--ease-stamp) calc(18 * var(--beat)) both;
+}
+/* 余晕：::after 在关于页没被 .about-colophon-seal 占用 */
+.about-page .about-colophon-seal::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  z-index: -1;
+  background: radial-gradient(circle, rgba(178, 58, 43, 0.5) 0 30%, rgba(178, 58, 43, 0.16) 52%, transparent 72%);
+  animation: about-bleed calc(3 * var(--beat)) ease-out calc(19 * var(--beat)) both;
+}
+
+/* ---------- 立轴硬件：天杆（定住）与地杆（下行）----------
+   —— 哑光胡桃木：手绘的长向纹理、两处真正绕开的节疤与稀疏棕眼。
+      柱面只留柔和的漫反射，不留贯穿整根轴的亮白塑料高光。
+      纹理是独立的 SVG（public/bg/wood-rod-grain.svg），比在 CSS 里堆
+      repeating-linear-gradient 那种等距条纹真实得多 —— 等距条纹一眼就是压花塑料。
+   —— 配饰：车木轴头、旧铜包口、近端双刻线、天杆两端的朱红丝绦。
+      只在展开过程中在场，收轴时随两轴一起淡出。
+   ---------------------------------------------------------------------- */
+.about-page {
+  --wood-grain: url("/bg/wood-rod-grain.svg");
+}
+
+.about-unfold-rod {
+  position: absolute;
+  left: -13px;
+  right: -13px;
+  z-index: 4;
+  height: var(--rod-h);
+  border-radius: 3px / 42%;
+  background-color: #704326;
+  background-image:
+    /* 细哑光反射在上三分之一，不贯穿整根轴 */
+    linear-gradient(180deg,
+      rgba(245, 205, 153, 0.18) 0%,
+      rgba(255, 221, 170, 0.12) 19%,
+      rgba(255, 215, 164, 0.025) 34%,
+      rgba(31, 16, 9, 0.07) 58%,
+      rgba(27, 13, 7, 0.49) 100%),
+    linear-gradient(90deg,
+      rgba(22, 10, 5, 0.24), transparent 13% 28%,
+      rgba(38, 20, 11, 0.14) 43%, transparent 57% 80%,
+      rgba(25, 11, 6, 0.24)),
+    var(--wood-grain);
+  background-size: auto, auto, 100% 100%;
+  box-shadow:
+    inset 0 1px 0 rgba(239, 190, 131, 0.27),
+    inset 0 3px 2px rgba(255, 219, 170, 0.075),
+    inset 0 -2px 2px rgba(26, 12, 6, 0.57),
+    0 1px 1px rgba(36, 18, 8, 0.18);
+  /* 轴头与丝绦都比杆身大，用父级 drop-shadow 才能让它们各自投出自己的影子 */
+  filter: drop-shadow(0 4px 6px rgba(26, 14, 3, 0.37));
+  pointer-events: none;
+}
+
+/* 两端留一小段刀刻暗线，旧铜包口只占极窄一圈。装饰跟着轴走。 */
+.about-unfold-inlay {
+  position: absolute;
+  top: 0;
+  width: 30px;
+  height: 100%;
+  background: linear-gradient(90deg,
+    rgba(25, 11, 5, 0.68) 0 2px,
+    rgba(185, 136, 73, 0.32) 2px 3px,
+    transparent 3px 12px,
+    rgba(35, 17, 9, 0.46) 12px 13px,
+    rgba(207, 164, 101, 0.38) 13px 14px,
+    transparent 14px 17px,
+    rgba(31, 14, 7, 0.48) 17px 18px,
+    rgba(200, 153, 87, 0.33) 18px 19px,
+    transparent 19px);
+  opacity: 0.8;
+}
+.about-unfold-inlay[data-side="l"] { left: 5px; }
+.about-unfold-inlay[data-side="r"] { right: 5px; transform: scaleX(-1); }
+
+/* 轴头：车木。束腰 → 鼓腹 → 收尖，末段一道铜箍。clip-path 才雕得出这个轮廓。 */
+.about-unfold-rod::before,
+.about-unfold-rod::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 34px;
+  height: 23px;
+  margin-top: -11.5px;
+  background-color: #4e2c1d;
+  background-image:
+    radial-gradient(ellipse 30% 43% at 42% 27%, rgba(224, 168, 112, 0.43), transparent 77%),
+    radial-gradient(ellipse 31% 29% at 46% 86%, rgba(181, 105, 62, 0.25), transparent 74%),
+    /* 铜包口有暗氧化边，亮面只占一道细线 */
+    linear-gradient(90deg,
+      transparent 0 73%,
+      rgba(48, 30, 14, 0.94) 75% 77%,
+      rgba(139, 97, 45, 0.94) 79% 82%,
+      rgba(226, 190, 122, 0.89) 83% 84%,
+      rgba(108, 70, 34, 0.95) 86% 89%,
+      transparent 91%),
+    linear-gradient(90deg, transparent 0 65%, rgba(21, 9, 4, 0.55) 70% 76%, transparent 80%),
+    linear-gradient(180deg, #70442e 0%, #5b3523 37%, #31190f 80%, #472616 100%),
+    var(--wood-grain);
+  background-size: auto, auto, auto, auto, auto, 170px 100%;
+  background-blend-mode: normal, normal, normal, normal, normal, multiply;
+  clip-path: polygon(
+    100% 0%, 89% 6%, 76% 22%, 50% 6%, 22% 20%, 8% 38%, 0% 50%,
+    8% 62%, 22% 80%, 50% 94%, 76% 78%, 89% 94%, 100% 100%
+  );
+}
+.about-unfold-rod::before { left: -33px; }
+.about-unfold-rod::after { right: -33px; transform: scaleX(-1); }
+
+.about-unfold-rod[data-rod="top"] {
+  top: -8px;
+  opacity: 1;
+  animation: about-rod-away calc(3 * var(--beat)) ease-out calc(22 * var(--beat)) both;
+}
+.about-unfold-rod[data-rod="bottom"] {
+  top: calc(var(--roll) - var(--rod-h) / 2);
+  animation:
+    about-rod-track calc(11 * var(--beat)) var(--ease-roll) var(--beat) both,
+    about-rod-away calc(3 * var(--beat)) ease-out calc(22 * var(--beat)) both;
+}
+
+/* 丝绦：只挂在天杆两端的轴头下，落在卡片之外、山水之上，不压正文 */
+.about-unfold-cord {
+  position: absolute;
+  top: calc(50% + 11px);
+  left: -30px;
+  width: 14px;
+  height: 34px;
+  pointer-events: none;
+  /* 结：一颗中间带孔的小珠 */
+  background:
+    radial-gradient(circle 1.2px at 46% 3.4px, rgba(255, 222, 208, 0.72), transparent 100%),
+    radial-gradient(circle 3.6px at 50% 4.6px, rgba(116, 28, 18, 0.95) 0 26%, #b8422f 32% 62%, #8a2a1e 88%, rgba(138, 42, 30, 0) 93%);
+  background-repeat: no-repeat;
+}
+.about-unfold-cord[data-side="r"] { left: auto; right: -30px; }
+/* 绳：横向高光 + 细密的编织纹 */
+.about-unfold-cord::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  width: 2.4px;
+  height: 10px;
+  margin-left: -1.2px;
+  background:
+    repeating-linear-gradient(180deg, rgba(255, 214, 200, 0.34) 0 1px, transparent 1px 2.6px),
+    linear-gradient(90deg, #8a2a1e, #c24c34 46%, #8a2a1e);
+}
+/* 穗：上收下散。是丝线束而不是一块红片 —— 竖纹 + 圆柱明暗 + 参差的底边 */
+.about-unfold-cord::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 15px;
+  width: 10px;
+  height: 19px;
+  margin-left: -5px;
+  background-image:
+    repeating-linear-gradient(90deg,
+      rgba(58, 14, 8, 0.34) 0 0.8px,
+      rgba(255, 226, 214, 0.2) 0.8px 1.9px,
+      transparent 1.9px 2.6px),
+    linear-gradient(90deg,
+      rgba(58, 14, 8, 0.44) 0%,
+      rgba(255, 216, 200, 0.22) 32%,
+      rgba(255, 216, 200, 0.16) 52%,
+      rgba(58, 14, 8, 0.36) 100%),
+    linear-gradient(180deg, #bd4632 0%, #a83524 46%, rgba(140, 42, 30, 0.6) 100%);
+  clip-path: polygon(
+    40% 0, 60% 0, 100% 20%, 96% 72%, 88% 100%, 70% 91%, 52% 100%,
+    34% 92%, 14% 100%, 5% 70%, 0 20%
+  );
+}
+
+/* 展开前沿：纸从地杆上卷出来的柱面高光与贴合的暗部。
+   末端收一点暗，合着的时候这一小段才读得出是「一卷纸」而不只是一条亮边。 */
+.about-unfold-curl {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--roll);
+  z-index: 3;
+  height: 132px;
+  margin-top: -132px;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(70, 52, 30, 0) 0%,
+    rgba(70, 52, 30, 0.16) 36%,
+    rgba(70, 52, 30, 0.34) 62%,
+    rgba(250, 243, 226, 0.74) 82%,
+    rgba(238, 226, 202, 0.58) 93%,
+    rgba(112, 90, 56, 0.42) 100%
+  );
+  filter: blur(1.2px);
+}
+
+/* ---------- 降级 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .about-page .about-unfold-paper,
+  .about-page .about-unfold-rod,
+  .about-page .about-unfold-curl,
+  .about-page .page-intro::after,
+  .about-page .about-essay,
+  .about-page .about-colophon-seal,
+  .about-page .about-colophon-seal::after,
+  .about-page .about-colophon-brush,
+  .about-page .about-colophon-info,
+  .about-page .about-colophon-label,
+  .about-page .about-avatar-wrap,
+  .about-page .about-colophon-wash {
+    animation: none;
+  }
+  /* 让两轴退场的是 about-rod-away 这个动画本身。只摘动画的话，
+     木轴会永久留在页面上 —— 静止态必须是读完的样子，不留硬件。 */
+  .about-page .about-unfold-rod,
+  .about-page .about-unfold-curl {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* 「跳过」：把动画摘掉，浏览器直接落到终态 */
+.about-page[data-unfold="done"] .about-unfold-paper,
+.about-page[data-unfold="done"] .about-unfold-rod,
+.about-page[data-unfold="done"] .about-unfold-curl,
+.about-page[data-unfold="done"] .page-intro::after,
+.about-page[data-unfold="done"] .about-essay,
+.about-page[data-unfold="done"] .about-colophon-seal,
+.about-page[data-unfold="done"] .about-colophon-seal::after,
+.about-page[data-unfold="done"] .about-colophon-brush,
+.about-page[data-unfold="done"] .about-colophon-info,
+.about-page[data-unfold="done"] .about-colophon-label,
+.about-page[data-unfold="done"] .about-avatar-wrap,
+.about-page[data-unfold="done"] .about-colophon-wash {
+  animation: none;
+}
+.about-page[data-unfold="done"] .about-unfold-rod,
+.about-page[data-unfold="done"] .about-unfold-curl {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* 窄屏：卡片几乎占满视口，轴头与丝绦伸不到卡片外面去，
+   而 .about-scroll 在这档本来就是 overflow: hidden —— 索性让硬件退回「只有两根杆」。 */
+@media (max-width: 720px) {
+  .about-unfold-rod {
+    left: 0;
+    right: 0;
+  }
+
+  .about-unfold-rod::before,
+  .about-unfold-rod::after,
+  .about-unfold-cord {
+    display: none;
   }
 }
 

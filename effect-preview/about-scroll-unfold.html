@@ -1,0 +1,1085 @@
+<!doctype html>
+<html lang="zh-CN" data-unfold="live" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>关于页打开动效 · 展立轴 · 似水流年</title>
+<!--
+  ===========================================================================
+  关于页「打开动效」方案：展立轴
+  ===========================================================================
+  为什么是立轴：
+    首页展的是「长卷」—— 横轴、木轴自左向右把画面卷走（globals.css 里那套
+    .su-roll / su-roll-track，3.6s）。关于页如果也用横轴，就成了首页的重复。
+    关于页是一页自序、落款、用印，对应的是「立轴」：竖着挂起来、自上而下展开。
+    同一套语汇（宣纸 / 水墨 / 朱印）、同一套拍子（--beat: 120ms），换一个物件。
+
+  为什么是这套节拍：
+    站点首页已经有一套「拍」的编舞（home-hero-scroll.css，--beat:120ms）：
+      I 开卷 0–8 拍（纸先铺开，只显影不位移）
+      II 落墨 6–16 拍
+      III 用印 18–24 拍（全场唯一的重音）
+      IV 题跋 21–37 拍
+    本方案沿用同一套拍号与缓动曲线，共 27 拍 = 3.24s（比首页短 10 拍，因为
+    关于页不是门厅，用户是特意来的）。唯一的重音同样留给「用印」。
+
+  自检：这不是通用的「每段淡入上浮」。
+    全片只有一个位移：那根向下走的轴。纸是展开的，字只是显影（develop），
+    段落之间没有任何 translateY。重音只有一个：顿印。
+  ===========================================================================
+-->
+<style>
+@import url("../node_modules/@fontsource/zhi-mang-xing/400.css");
+@import url("../node_modules/@fontsource/lxgw-wenkai/300.css");
+@import url("../node_modules/@fontsource/lxgw-wenkai/500.css");
+@import url("../node_modules/@fontsource/lxgw-wenkai/700.css");
+
+/* =========================================================================
+   0. 站点基础令牌（与 app/globals.css 一致）
+   ========================================================================= */
+:root {
+  --paper: #f2edde;
+  --paper-2: #eae3d0;
+  --ink: #2c2a24;
+  --ink-soft: #6f685a;
+  --ink-faint: #98907f;
+  --rule: rgba(44, 42, 36, 0.15);
+  --rule-strong: rgba(44, 42, 36, 0.3);
+  --seal: #b23a2b;
+  --seal-deep: #8f2b1f;
+  --font-cn: "Songti SC", "STSong", "SimSun", "Noto Serif CJK SC", serif;
+  --font-kai: "KaiTi", "STKaiti", "楷体", var(--font-cn);
+  --font-latin: Georgia, "Songti SC", serif;
+  --card-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.2' fill='%23907848'/%3E%3C/svg%3E");
+  --gb-paper-fibers: url("../public/bg/guestbook-paper-fibers.svg");
+  --grain-img: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.5' fill='%23433e33'/%3E%3C/svg%3E");
+  --vignette: radial-gradient(ellipse at center, transparent 55%, rgba(70, 60, 40, 0.12) 100%);
+  --about-wash-rgb: 160, 78, 63;
+  /* 站点通用的入场（其他内页用的就是这个 0.78s）*/
+  --arrive: 0.78s cubic-bezier(0.22, 0.74, 0.28, 1);
+}
+
+* { box-sizing: border-box; }
+html { min-width: 320px; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background: #837c68;
+  font-family: var(--font-kai);
+  -webkit-font-smoothing: antialiased;
+}
+/* 千里江山底 + 护字层 + 全站噪点/暗角：让卡片处在真实上下文里判断 */
+.bg-painting {
+  position: fixed; inset: -3%; z-index: -3; pointer-events: none;
+  background: url("../public/bg/qianli-bridge.jpg") 50% 62% / cover no-repeat;
+  filter: brightness(0.9) saturate(1.08) contrast(1.06);
+}
+.bg-blend {
+  position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(238, 232, 214, 0.58) 0%, rgba(238, 232, 214, 0.14) 13%, transparent 25%),
+    radial-gradient(ellipse 68% 48% at 50% 34%, rgba(244, 239, 224, 0.34), rgba(244, 239, 224, 0.13) 58%, transparent 79%),
+    linear-gradient(0deg, rgba(233, 226, 205, 0.48) 0%, rgba(233, 226, 205, 0.1) 18%, transparent 34%);
+}
+.grain {
+  position: fixed; inset: 0; z-index: 60; pointer-events: none;
+  opacity: 0.5; mix-blend-mode: multiply; background-image: var(--grain-img);
+}
+.vignette {
+  position: fixed; inset: 0; z-index: 61; pointer-events: none;
+  background: var(--vignette); opacity: 0.7;
+}
+
+/* =========================================================================
+   1. 关于页卡片本体
+   —— 尺寸、纸张配方、题头遮罩全部照 app/studio.css 的现值，一字未改。
+      唯一的结构新增：纸面套了一层 .about-unfold-paper（原因见第 3 节注释）。
+   ========================================================================= */
+.stage {
+  position: relative;
+  z-index: 2;
+  width: min(1080px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 34px 0 120px;
+}
+
+.about-scroll {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  /* 卡片自身的投影交给外层：clip-path 会把自己的 box-shadow 一起裁掉，
+     而 filter: drop-shadow() 是沿「裁切后的轮廓」投影，展开到哪影子到哪。 */
+  filter: drop-shadow(0 30px 68px rgba(38, 27, 13, 0.62));
+  isolation: isolate;
+}
+
+.about-unfold-paper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 3px;
+  background-color: rgba(241, 230, 202, 0.92);
+  background-image:
+    linear-gradient(112deg, rgba(255, 250, 232, 0.42), transparent 36%),
+    radial-gradient(circle at 86% 16%, rgba(178, 58, 43, 0.055), transparent 23%),
+    var(--card-paper);
+  background-size: auto, auto, 220px 220px;
+}
+
+/* 贴边朱红起笔 + 压角闲章 */
+.about-unfold-paper::before {
+  content: "";
+  position: absolute; left: 0; top: 42px; width: 3px; height: 82px; z-index: 1;
+  background: linear-gradient(180deg, var(--seal), rgba(178, 58, 43, 0));
+  opacity: 0.85;
+}
+.about-unfold-paper::after {
+  content: "记";
+  position: absolute; right: 42px; bottom: 34px; z-index: 0;
+  color: var(--seal); font-family: var(--font-kai); font-size: 86px; line-height: 1;
+  opacity: 0.035; transform: rotate(-8deg); pointer-events: none;
+}
+
+/* ---------- 题头 ---------- */
+.page-intro {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  min-height: 206px;
+  margin: 0;
+  padding: 46px 56px 25px 60px;
+}
+.page-intro::before {
+  content: "";
+  position: absolute; left: 41px; top: 35px; z-index: 1;
+  width: 2px; height: 132px;
+  background: linear-gradient(180deg, var(--seal-deep), rgba(178, 58, 43, 0.025));
+  opacity: 0.78;
+}
+/* 画心：底边遮罩让墨水渐隐为透明，直接露出纸色 —— 任何纸色都不会有接缝 */
+.page-intro::after {
+  content: "";
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(252, 248, 236, 0.16), rgba(252, 248, 236, 0.16)),
+    url("../public/bg/about-ink-banner.png");
+  background-position: 0 0, center;
+  background-size: auto, cover;
+  background-repeat: no-repeat, no-repeat;
+  opacity: 0.88;
+  filter: saturate(0.7) sepia(0.12) contrast(0.94) brightness(1.03);
+  -webkit-mask-image: linear-gradient(180deg, #000 0 68%, rgba(0, 0, 0, 0.6) 86%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0 68%, rgba(0, 0, 0, 0.6) 86%, transparent 100%);
+}
+.page-intro-copy { position: relative; z-index: 1; max-width: 680px; }
+.page-intro-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.page-intro-index {
+  display: inline-flex; gap: 10px; align-items: center;
+  color: var(--ink-soft); font-family: "STXingkai", "KaiTi", var(--font-kai);
+  font-size: 14px; letter-spacing: 0.08em;
+}
+.page-intro-index b { color: var(--seal-deep); font-family: var(--font-latin); font-size: 18px; font-weight: 400; }
+.page-intro-index::after {
+  content: ""; width: 4px; height: 4px;
+  border: 1px solid var(--seal); transform: rotate(45deg); opacity: 0.7;
+}
+.eyebrow {
+  margin: 0; color: var(--seal-deep); font-family: var(--font-latin);
+  font-size: 8px; letter-spacing: 0.3em; opacity: 0.92;
+}
+.page-intro h1 {
+  margin: 0; color: var(--ink);
+  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
+  font-size: clamp(42px, 5vw, 54px); font-weight: 400;
+  letter-spacing: 0.018em; line-height: 1.12;
+}
+.article-seal {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; margin-left: 12px;
+  background: var(--seal); color: var(--paper);
+  font-family: var(--font-kai); font-size: 12px;
+  vertical-align: 5px; transform: rotate(-5deg);
+}
+.article-seal::after { content: ""; position: absolute; inset: 2px; border: 1px solid rgba(242, 237, 222, 0.55); }
+.page-intro-description {
+  margin: 11px 0 0; color: var(--ink-soft);
+  font-family: "Zhi Mang Xing", "STXingkai", var(--font-kai);
+  font-size: 17px; letter-spacing: 0.08em;
+}
+.page-intro-mark {
+  align-self: center; justify-self: end; min-height: 126px;
+  color: var(--ink-soft); font-family: var(--font-latin);
+  font-size: 6px; letter-spacing: 0.18em; line-height: 1.5;
+  opacity: 0.42; writing-mode: vertical-rl;
+}
+
+/* ---------- 正文 ---------- */
+.content-sheet { width: 100%; max-width: none; margin: 0; padding: 10px 54px 52px; }
+.about-essay {
+  max-width: 850px;
+  font-size: 17px;
+  line-height: 2.1;
+  color: var(--ink-soft);
+}
+.about-essay p { margin: 0 0 1.35em; text-indent: 2em; }
+.about-essay p:last-child { margin-bottom: 0; }
+
+/* ---------- 落款 ---------- */
+.about-colophon {
+  position: relative;
+  right: -4px;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 40px 68px minmax(0, 1fr) 30px;
+  align-items: center;
+  column-gap: 12px;
+  width: min(388px, 100%);
+  min-height: 108px;
+  margin: 50px 0 0 auto;
+  padding: 14px 8px 17px 18px;
+  border: 0; background: transparent; box-shadow: none;
+}
+.about-colophon-wash {
+  position: absolute; inset: -16px -14px -22px -24px; z-index: 0;
+  display: block; pointer-events: none;
+  background:
+    radial-gradient(ellipse 92px 66px at 14% 47%, rgba(var(--about-wash-rgb), 0.2) 0 17%, rgba(var(--about-wash-rgb), 0.085) 40%, transparent 73%),
+    radial-gradient(ellipse 178px 62px at 52% 59%, rgba(var(--about-wash-rgb), 0.125) 0 20%, rgba(var(--about-wash-rgb), 0.055) 44%, transparent 77%),
+    radial-gradient(ellipse 105px 56px at 88% 72%, rgba(var(--about-wash-rgb), 0.14) 0 14%, rgba(var(--about-wash-rgb), 0.055) 42%, transparent 76%);
+  clip-path: polygon(0 24%, 8% 12%, 18% 20%, 29% 7%, 42% 16%, 55% 5%, 67% 15%, 80% 9%, 92% 18%, 100% 30%, 97% 73%, 88% 88%, 75% 80%, 61% 94%, 47% 84%, 32% 97%, 18% 86%, 6% 93%, 1% 72%);
+  filter: blur(2px) saturate(0.92);
+  mix-blend-mode: multiply;
+  opacity: 0.88;
+}
+.about-colophon-label {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 5px; width: 40px; min-height: 76px; padding-right: 12px;
+  border-right: 1px solid rgba(178, 58, 43, 0.28);
+  color: var(--seal-deep); font-family: var(--font-kai);
+  font-size: 14px; line-height: 1.22; letter-spacing: 0.12em;
+  writing-mode: vertical-rl; transform: translateY(-2px) rotate(0.7deg);
+}
+.about-colophon-label::before,
+.about-colophon-label::after { content: ""; width: 14px; height: 1px; background: var(--seal); opacity: 0.7; }
+.about-avatar-wrap { position: relative; z-index: 2; display: grid; place-items: center; width: 68px; height: 68px; transform: translateY(-4px) rotate(-1deg); }
+.about-avatar {
+  width: 64px; height: 64px; border-radius: 50%; object-fit: cover;
+  border: 2px solid rgba(248, 239, 218, 0.92);
+  box-shadow: 0 0 0 2px rgba(178, 58, 43, 0.58), 0 5px 13px rgba(43, 29, 15, 0.16);
+}
+.about-colophon-info { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 7px; min-width: 0; padding: 0 0 7px 2px; transform: rotate(-0.25deg); }
+.about-name {
+  display: block; overflow: hidden; color: var(--ink);
+  font-family: "Segoe Print", "Bradley Hand", var(--font-kai), cursive;
+  font-size: 23px; font-weight: 600; letter-spacing: -0.025em; line-height: 1.26;
+  white-space: nowrap; text-overflow: ellipsis;
+  transform: rotate(-1.2deg); transform-origin: left bottom;
+}
+.about-role { color: var(--ink-soft); font-size: 13px; font-weight: 600; letter-spacing: 0.045em; white-space: nowrap; }
+.about-colophon-brush {
+  position: absolute; left: 157px; right: 75px; bottom: 2px; z-index: 1;
+  display: block; height: 14px;
+  background: linear-gradient(90deg, rgba(178, 58, 43, 0.92), rgba(178, 58, 43, 0.7) 62%, rgba(178, 58, 43, 0.16));
+  clip-path: polygon(0 61%, 14% 52%, 36% 43%, 58% 35%, 79% 31%, 100% 24%, 99% 39%, 80% 45%, 60% 49%, 39% 55%, 17% 65%, 1% 79%);
+  transform: rotate(-3.5deg); transform-origin: left center;
+}
+.about-colophon-seal {
+  position: relative; z-index: 3;
+  display: grid; place-items: center;
+  width: 29px; height: 29px;
+  border: 1px solid var(--seal-deep);
+  background: var(--seal); color: rgba(248, 239, 218, 0.96);
+  font-family: var(--font-kai); font-size: 12px; line-height: 1;
+  box-shadow: inset 0 0 0 2px rgba(248, 239, 218, 0.38), 0 3px 7px rgba(62, 31, 18, 0.12);
+  transform: translate(-44px, 13px) rotate(-4deg);
+}
+
+/* =========================================================================
+   2. 立轴硬件：天杆（定住）与地杆（下行）
+   —— 哑光胡桃木：手绘的长向纹理、两处真正绕开的节疤与稀疏棕眼。
+      柱面只留柔和的漫反射，不留贯穿整根轴的亮白塑料高光。
+   —— 配饰：车木轴头、旧铜包口、近端双刻线、天杆两端的朱红丝绦。
+      只在展开过程中在场，收轴时随两轴一起淡出。
+   ========================================================================= */
+.about-page {
+  --wood-grain: url("./wood-rod-grain.svg");
+}
+
+.about-unfold-rod {
+  position: absolute;
+  left: -13px;
+  right: -13px;
+  z-index: 4;
+  height: var(--rod-h);
+  border-radius: 3px / 42%;
+  background-color: #704326;
+  background-image:
+    /* 细哑光反射在上三分之一，不贯穿整根轴 */
+    linear-gradient(180deg,
+      rgba(245, 205, 153, 0.18) 0%,
+      rgba(255, 221, 170, 0.12) 19%,
+      rgba(255, 215, 164, 0.025) 34%,
+      rgba(31, 16, 9, 0.07) 58%,
+      rgba(27, 13, 7, 0.49) 100%),
+    linear-gradient(90deg,
+      rgba(22, 10, 5, 0.24), transparent 13% 28%,
+      rgba(38, 20, 11, 0.14) 43%, transparent 57% 80%,
+      rgba(25, 11, 6, 0.24)),
+    var(--wood-grain);
+  background-size: auto, auto, 100% 100%;
+  box-shadow:
+    inset 0 1px 0 rgba(239, 190, 131, 0.27),
+    inset 0 3px 2px rgba(255, 219, 170, 0.075),
+    inset 0 -2px 2px rgba(26, 12, 6, 0.57),
+    0 1px 1px rgba(36, 18, 8, 0.18);
+  /* 轴头与丝绦都比杆身大，用父级 drop-shadow 才能让它们各自投出自己的影子 */
+  filter: drop-shadow(0 4px 6px rgba(26, 14, 3, 0.37));
+  pointer-events: none;
+}
+
+/* 两端留一小段刀刻暗线，旧铜包口只占极窄一圈。装饰跟着轴走。 */
+.about-unfold-inlay {
+  position: absolute;
+  top: 0;
+  width: 30px;
+  height: 100%;
+  background: linear-gradient(90deg,
+    rgba(25, 11, 5, 0.68) 0 2px,
+    rgba(185, 136, 73, 0.32) 2px 3px,
+    transparent 3px 12px,
+    rgba(35, 17, 9, 0.46) 12px 13px,
+    rgba(207, 164, 101, 0.38) 13px 14px,
+    transparent 14px 17px,
+    rgba(31, 14, 7, 0.48) 17px 18px,
+    rgba(200, 153, 87, 0.33) 18px 19px,
+    transparent 19px);
+  opacity: .8;
+}
+.about-unfold-inlay[data-side="l"] { left: 5px; }
+.about-unfold-inlay[data-side="r"] { right: 5px; transform: scaleX(-1); }
+
+/* 轴头：车木。束腰 → 鼓腹 → 收尖，末段一道铜箍。clip-path 才雕得出这个轮廓。 */
+.about-unfold-rod::before,
+.about-unfold-rod::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 34px;
+  height: 23px;
+  margin-top: -11.5px;
+  background-color: #4e2c1d;
+  background-image:
+    radial-gradient(ellipse 30% 43% at 42% 27%, rgba(224, 168, 112, 0.43), transparent 77%),
+    radial-gradient(ellipse 31% 29% at 46% 86%, rgba(181, 105, 62, 0.25), transparent 74%),
+    /* 铜包口有暗氧化边，亮面只占一道细线 */
+    linear-gradient(90deg,
+      transparent 0 73%,
+      rgba(48, 30, 14, 0.94) 75% 77%,
+      rgba(139, 97, 45, 0.94) 79% 82%,
+      rgba(226, 190, 122, 0.89) 83% 84%,
+      rgba(108, 70, 34, 0.95) 86% 89%,
+      transparent 91%),
+    linear-gradient(90deg, transparent 0 65%, rgba(21, 9, 4, 0.55) 70% 76%, transparent 80%),
+    linear-gradient(180deg, #70442e 0%, #5b3523 37%, #31190f 80%, #472616 100%),
+    var(--wood-grain);
+  background-size: auto, auto, auto, auto, auto, 170px 100%;
+  background-blend-mode: normal, normal, normal, normal, normal, multiply;
+  clip-path: polygon(
+    100% 0%, 89% 6%, 76% 22%, 50% 6%, 22% 20%, 8% 38%, 0% 50%,
+    8% 62%, 22% 80%, 50% 94%, 76% 78%, 89% 94%, 100% 100%
+  );
+}
+.about-unfold-rod::before { left: -33px; }
+.about-unfold-rod::after { right: -33px; transform: scaleX(-1); }
+
+.about-unfold-rod[data-rod="top"] { top: -8px; }
+.about-unfold-rod[data-rod="bottom"] { top: calc(var(--roll) - var(--rod-h) / 2); }
+
+/* 丝绦：只挂在天杆两端的轴头下，落在卡片之外、山水之上，不压正文 */
+.about-unfold-cord {
+  position: absolute;
+  top: calc(50% + 11px);
+  left: -30px;
+  width: 14px;
+  height: 34px;
+  pointer-events: none;
+  /* 结：一颗中间带孔的小珠 */
+  background:
+    radial-gradient(circle 1.2px at 46% 3.4px, rgba(255, 222, 208, 0.72), transparent 100%),
+    radial-gradient(circle 3.6px at 50% 4.6px, rgba(116, 28, 18, 0.95) 0 26%, #b8422f 32% 62%, #8a2a1e 88%, rgba(138, 42, 30, 0) 93%);
+  background-repeat: no-repeat;
+}
+.about-unfold-cord[data-side="r"] { left: auto; right: -30px; }
+/* 绳：横向高光 + 细密的编织纹 */
+.about-unfold-cord::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  width: 2.4px;
+  height: 10px;
+  margin-left: -1.2px;
+  background:
+    repeating-linear-gradient(180deg, rgba(255, 214, 200, 0.34) 0 1px, transparent 1px 2.6px),
+    linear-gradient(90deg, #8a2a1e, #c24c34 46%, #8a2a1e);
+}
+/* 穗：上收下散，是丝线束而不是一块红片 —— 竖纹 + 圆柱明暗 + 参差的底边 */
+.about-unfold-cord::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 15px;
+  width: 10px;
+  height: 19px;
+  margin-left: -5px;
+  background-image:
+    repeating-linear-gradient(90deg,
+      rgba(58, 14, 8, 0.34) 0 0.8px,
+      rgba(255, 226, 214, 0.2) 0.8px 1.9px,
+      transparent 1.9px 2.6px),
+    linear-gradient(90deg,
+      rgba(58, 14, 8, 0.44) 0%,
+      rgba(255, 216, 200, 0.22) 32%,
+      rgba(255, 216, 200, 0.16) 52%,
+      rgba(58, 14, 8, 0.36) 100%),
+    linear-gradient(180deg, #bd4632 0%, #a83524 46%, rgba(140, 42, 30, 0.6) 100%);
+  clip-path: polygon(
+    40% 0, 60% 0, 100% 20%, 96% 72%, 88% 100%, 70% 91%, 52% 100%,
+    34% 92%, 14% 100%, 5% 70%, 0 20%
+  );
+}
+
+/* 展开前沿：纸从地杆上卷出来的柱面高光与贴合的暗部。
+   末端收一点暗，合着的时候这一小段才读得出是「一卷纸」而不只是一条亮边。 */
+.about-unfold-curl {
+  position: absolute;
+  left: 0; right: 0;
+  top: var(--roll);
+  z-index: 3;
+  height: 132px;
+  margin-top: -132px;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(70, 52, 30, 0) 0%,
+    rgba(70, 52, 30, 0.16) 36%,
+    rgba(70, 52, 30, 0.34) 62%,
+    rgba(250, 243, 226, 0.74) 82%,
+    rgba(238, 226, 202, 0.58) 93%,
+    rgba(112, 90, 56, 0.42) 100%
+  );
+  filter: blur(1.2px);
+}
+
+/* =========================================================================
+   3. 打开动效：展立轴 · 25 拍
+   —— 拍长沿用首页的 --beat: 120ms。
+   —— 缓动没有沿用首页那条：cubic-bezier(0.52,0.02,0.18,1) 是为「横向 100vw
+      画卷被卷走」配的甩鞭，放到竖向展纸上，实测会把 82% 的行程压进 360ms
+      （第 4→6 拍），剩下 600ms 全是死的。这条是量出来的：
+        拍 0→13 的揭示进度  0% → 21% → 47% → 76% → 95% → 100%
+      起手迟滞（纸有自重）、中段肯走、收尾长缓 —— 手卷被手拉着展开就是这个手感。
+   ========================================================================= */
+.about-page {
+  --beat: 120ms;
+  /* 合着时纸卷的直径。太薄（试过 30px）天杆与地杆会贴在一起读成一根粗木条，
+     64px 才看得出中间那卷纸，也接近一卷真立轴卷起来的粗细。 */
+  --roll: 64px;
+  --rod-h: 17px;
+
+  --ease-roll: cubic-bezier(0.55, 0.03, 0.42, 1);
+  /* 落墨：首页 hero-ink 原值 */
+  --ease-ink: cubic-bezier(0.22, 0.61, 0.36, 1);
+  /* 顿印：首页 hero-stamp 原值，带回弹 */
+  --ease-stamp: cubic-bezier(0.2, 0.9, 0.3, 1.4);
+}
+
+/* --- I 立轴 0–1 拍 / II 展轴 1–13 拍 --------------------------------------
+   合着的状态：纸只露出一卷（--roll 高），地杆在卷心，天杆在上端定住。
+   两个 keyframe 都只用百分比，不依赖 JS 量出来的高度 —— 卡片写多长都不会错位，
+   服务端直出的第一帧也一定是「合着」的样子。
+   ------------------------------------------------------------------------- */
+@keyframes about-unroll {
+  from { clip-path: inset(0 0 calc(100% - var(--roll)) 0 round 3px); }
+  to   { clip-path: inset(0 0 0 0 round 3px); }
+}
+@keyframes about-rod-track {
+  from { top: calc(var(--roll) - var(--rod-h) / 2); }
+  to   { top: calc(100% - var(--rod-h) / 2); }
+}
+@keyframes about-curl-track {
+  from { top: var(--roll); }
+  to   { top: 100%; }
+}
+
+/* --- III 渗墨 2–8 拍：题头画心像墨刚落纸一样渗开（blur 9 → 0）。
+       起手比展轴晚一拍，于是墨是「跟着轴」走的。 ---------------------------- */
+@keyframes about-ink {
+  0%   { opacity: 0; filter: blur(9px) saturate(0.5); }
+  45%  { opacity: 0.72; }
+  100% { opacity: 0.88; filter: blur(0) saturate(0.7) sepia(0.12) contrast(0.94) brightness(1.03); }
+}
+
+/* --- IV 落字 5–12 拍：正文显影。只显影、不位移，段落之间没有任何 translateY --- */
+@keyframes about-develop {
+  from { opacity: 0; filter: blur(2px); }
+  to   { opacity: 1; filter: blur(0); }
+}
+
+/* --- V 用印 15–17 拍：全场唯一的重音 --------------------------------------
+   只动 scale（独立属性），不动 transform —— 这样 .about-colophon-seal 自己的
+   translate(-44px,13px) rotate(-4deg) 定位原样保留。首页 hero-stamp 就是这么做的。
+   ------------------------------------------------------------------------- */
+@keyframes about-stamp {
+  0%   { opacity: 0; scale: 1.9; }
+  62%  { opacity: 1; scale: 0.955; }
+  100% { opacity: 1; scale: 1; }
+}
+/* --- VI 余晕 16–19 拍：顿印之后向外晕开一次 ------------------------------- */
+@keyframes about-bleed {
+  0%   { opacity: 0; scale: 0.34; }
+  15%  { opacity: 0.6; }
+  100% { opacity: 0; scale: 2.4; }
+}
+/* --- VII 题款 16–21 拍：朱红笔触自左扫开 --------------------------------- */
+@keyframes about-brush {
+  from { scale: 0 1; opacity: 0.2; }
+  to   { scale: 1 1; opacity: 1; }
+}
+/* --- VIII 收轴 18–22 拍：两根轴一起淡出，纸定住。
+       动效不留痕 —— 终态就是现在这张卡片本来的样子。 ---------------------- */
+@keyframes about-rod-away {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* ---- 挂到元素上：全部 both，首帧即「合着」，服务端直出也不会先闪整张纸 ---- */
+.about-page .about-unfold-paper {
+  animation: about-unroll calc(11 * var(--beat)) var(--ease-roll) var(--beat) both;
+}
+.about-page .about-unfold-rod[data-rod="bottom"] {
+  animation:
+    about-rod-track calc(11 * var(--beat)) var(--ease-roll) var(--beat) both,
+    about-rod-away calc(3 * var(--beat)) ease-out calc(22 * var(--beat)) both;
+}
+.about-page .about-unfold-curl {
+  animation:
+    about-curl-track calc(11 * var(--beat)) var(--ease-roll) var(--beat) both,
+    about-rod-away calc(3 * var(--beat)) ease-out calc(22 * var(--beat)) both;
+}
+.about-page .about-unfold-rod[data-rod="top"] {
+  animation: about-rod-away calc(3 * var(--beat)) ease-out calc(22 * var(--beat)) both;
+  opacity: 1;
+}
+.about-page .page-intro::after {
+  animation: about-ink calc(6 * var(--beat)) var(--ease-ink) calc(2 * var(--beat)) both;
+}
+.about-page .about-essay {
+  animation: about-develop calc(6 * var(--beat)) ease-out calc(5 * var(--beat)) both;
+}
+/* 落款先显，印后落 —— 先写字再盖章，顺序不能倒。
+   （第一版把印排在落款之前，结果印盖在一张空落款上。） */
+.about-page .about-colophon-info,
+.about-page .about-colophon-label,
+.about-page .about-avatar-wrap,
+.about-page .about-colophon-wash {
+  animation: about-develop calc(4 * var(--beat)) ease-out calc(11 * var(--beat)) both;
+}
+.about-page .about-colophon-brush {
+  animation: about-brush calc(5 * var(--beat)) var(--ease-roll) calc(13 * var(--beat)) both;
+}
+.about-page .about-colophon-seal {
+  animation: about-stamp calc(2 * var(--beat)) var(--ease-stamp) calc(18 * var(--beat)) both;
+}
+/* 余晕：::after 在本项目里没被 .about-colophon-seal 占用 */
+.about-page .about-colophon-seal::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  z-index: -1;
+  background: radial-gradient(circle, rgba(178, 58, 43, 0.5) 0 30%, rgba(178, 58, 43, 0.16) 52%, transparent 72%);
+  animation: about-bleed calc(3 * var(--beat)) ease-out calc(19 * var(--beat)) both;
+}
+
+/* =========================================================================
+   4. 降级与跳过
+   ========================================================================= */
+/* prefers-reduced-motion 或用户按了「终态」：零动画，直接是读完的样子 */
+@media (prefers-reduced-motion: reduce) {
+  .about-page .about-unfold-paper,
+  .about-page .about-unfold-rod,
+  .about-page .about-unfold-curl,
+  .about-page .page-intro::after,
+  .about-page .about-essay,
+  .about-page .about-colophon-seal,
+  .about-page .about-colophon-seal::after,
+  .about-page .about-colophon-brush,
+  .about-page .about-colophon-info,
+  .about-page .about-colophon-label,
+  .about-page .about-avatar-wrap,
+  .about-page .about-colophon-wash {
+    animation: none;
+  }
+  /* 关键：让两轴退场的是 about-rod-away 这个动画本身。
+     只把动画摘掉，木轴就会永久留在页面上 —— 静止态必须是读完的样子，不留硬件。 */
+  .about-page .about-unfold-rod,
+  .about-page .about-unfold-curl {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+/* 「跳过」= 把动画摘掉，浏览器直接落到终态；同时藏掉不该留的硬件 */
+.about-page[data-unfold="done"] .about-unfold-paper,
+.about-page[data-unfold="done"] .about-unfold-rod,
+.about-page[data-unfold="done"] .about-unfold-curl,
+.about-page[data-unfold="done"] .page-intro::after,
+.about-page[data-unfold="done"] .about-essay,
+.about-page[data-unfold="done"] .about-colophon-seal,
+.about-page[data-unfold="done"] .about-colophon-seal::after,
+.about-page[data-unfold="done"] .about-colophon-brush,
+.about-page[data-unfold="done"] .about-colophon-info,
+.about-page[data-unfold="done"] .about-colophon-label,
+.about-page[data-unfold="done"] .about-avatar-wrap,
+.about-page[data-unfold="done"] .about-colophon-wash {
+  animation: none;
+}
+.about-page[data-unfold="done"] .about-unfold-rod,
+.about-page[data-unfold="done"] .about-unfold-curl {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* =========================================================================
+   5. 预览页自己的外壳：控制条 + 分镜表（不属于设计，看效果用的）
+   ========================================================================= */
+.spec-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 200;
+  width: 268px;
+  padding: 16px 18px 15px;
+  border: 1px solid rgba(133, 102, 60, 0.34);
+  border-radius: 3px;
+  background: rgba(248, 243, 229, 0.95);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 22px 48px -28px rgba(40, 28, 12, 0.7);
+  font-family: var(--font-kai);
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.spec-panel h2 {
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+}
+.spec-row { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+.spec-row > span:first-child { flex: none; width: 46px; color: var(--ink-faint); letter-spacing: 0.1em; }
+.spec-seg { display: inline-flex; border: 1px solid var(--rule-strong); border-radius: 999px; overflow: hidden; }
+.spec-seg button {
+  padding: 3px 11px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+.spec-seg button[aria-pressed="true"] { background: var(--seal); color: #fbf4e6; }
+.spec-readout {
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px dashed var(--rule-strong);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+}
+.spec-readout b { color: var(--seal-deep); font-weight: 400; }
+.spec-bar {
+  position: relative;
+  height: 3px;
+  margin-top: 8px;
+  background: rgba(44, 42, 36, 0.12);
+}
+.spec-bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--seal); }
+
+.spec-notes {
+  position: relative;
+  z-index: 2;
+  width: min(1080px, calc(100% - 40px));
+  margin: 0 auto 90px;
+  padding: 30px 34px 34px;
+  border: 1px solid rgba(133, 102, 60, 0.3);
+  border-radius: 3px;
+  background: rgba(248, 243, 229, 0.93);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  font-family: var(--font-kai);
+  color: var(--ink-soft);
+  font-size: 13.5px;
+  line-height: 1.95;
+}
+.spec-notes h2 {
+  margin: 0 0 6px;
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+}
+.spec-notes h3 {
+  margin: 26px 0 10px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+}
+.spec-notes h3::before { content: "卷 "; color: var(--seal); }
+.spec-notes p { margin: 0 0 10px; }
+.spec-notes ol, .spec-notes ul { margin: 0 0 10px; padding-left: 1.4em; }
+.spec-notes li { margin-bottom: 5px; }
+.spec-notes code {
+  padding: 1px 5px;
+  border-radius: 2px;
+  background: rgba(44, 42, 36, 0.07);
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 12px;
+  color: var(--seal-deep);
+}
+.beats { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 12.5px; }
+.beats th, .beats td { padding: 7px 9px; text-align: left; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.beats th { color: var(--ink-faint); font-weight: 400; letter-spacing: 0.1em; white-space: nowrap; }
+.beats td:nth-child(1) { color: var(--ink); white-space: nowrap; }
+.beats td:nth-child(2) { color: var(--seal-deep); white-space: nowrap; font-family: var(--font-latin); }
+.beats tr.is-now td { background: rgba(178, 58, 43, 0.07); }
+@media (max-width: 720px) {
+  .spec-panel { position: static; width: auto; margin: 0 12px 18px; }
+  .spec-notes { padding: 22px 18px; }
+  .page-intro { display: block; padding: 34px 24px 20px; }
+  .page-intro-mark { display: none; }
+  .content-sheet { padding: 8px 24px 38px; }
+}
+</style>
+</head>
+<body>
+<div class="bg-painting" aria-hidden="true"></div>
+<div class="bg-blend" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+
+<!-- ===================== 舞台：真实的关于页 ===================== -->
+<div class="stage" id="stage">
+  <div class="about-page" id="aboutPage">
+    <main class="about-scroll">
+      <!-- 纸面层：clip-path 作用在它身上；地杆是它的兄弟，才不会被一起裁掉 -->
+      <div class="about-unfold-paper">
+        <header class="page-intro">
+          <div class="page-intro-copy">
+            <div class="page-intro-meta">
+              <span class="page-intro-index">卷 <b>06</b></span>
+              <p class="eyebrow">ABOUT</p>
+            </div>
+            <h1>关于这间小屋<span class="article-seal" aria-hidden="true">记</span></h1>
+            <p class="page-intro-description">写代码，也写生活。</p>
+          </div>
+          <span class="page-intro-mark" aria-hidden="true">COLLECTED NOTES</span>
+        </header>
+
+        <article class="content-sheet">
+          <div class="about-essay">
+            <p>你好，我是这间小屋的主人。</p>
+            <p>平日里写代码，也写一些关于生活、成长和思考的文字。偶尔拍照，记录路过的风景；偶尔停下来，把那些不愿遗忘的瞬间整理成篇。</p>
+            <p>我喜欢简单而长久的事物：一本反复翻阅的书，一段认真完成的代码，一次没有目的的散步，以及人与人之间真诚的交流。</p>
+            <p>建立这个博客，并不是为了给生活下结论，只是想为走过的时间留下些许痕迹。这里有文章、闲语和光影，也可能有尚未想明白的问题。</p>
+            <p>如果其中某一段文字恰好与你产生共鸣，欢迎留下只言片语。山水有相逢，来日皆可期。</p>
+          </div>
+
+          <aside class="about-colophon" aria-label="博主落款">
+            <span class="about-colophon-wash" aria-hidden="true"></span>
+            <span class="about-colophon-label" aria-hidden="true">落款</span>
+            <span class="about-avatar-wrap">
+              <img class="about-avatar" src="../public/avatar-default.svg" alt="博主头像">
+            </span>
+            <div class="about-colophon-info">
+              <span class="about-name">ChoyChou</span>
+              <span class="about-role">博主 · 似水流年</span>
+            </div>
+            <span class="about-colophon-brush" aria-hidden="true"></span>
+            <span class="about-colophon-seal" aria-hidden="true">署</span>
+          </aside>
+        </article>
+      </div>
+
+      <!-- 立轴硬件：天杆（带轴头 + 两端丝绦）、卷边、地杆 -->
+      <span class="about-unfold-rod" data-rod="top" aria-hidden="true">
+        <i class="about-unfold-inlay" data-side="l"></i>
+        <i class="about-unfold-inlay" data-side="r"></i>
+        <i class="about-unfold-cord" data-side="l"></i>
+        <i class="about-unfold-cord" data-side="r"></i>
+      </span>
+      <span class="about-unfold-curl" aria-hidden="true"></span>
+      <span class="about-unfold-rod" data-rod="bottom" aria-hidden="true">
+        <i class="about-unfold-inlay" data-side="l"></i>
+        <i class="about-unfold-inlay" data-side="r"></i>
+      </span>
+    </main>
+  </div>
+</div>
+
+<!-- ===================== 控制面板（预览用，不属于设计） ===================== -->
+<aside class="spec-panel" aria-label="预览控制">
+  <h2>展立轴 · 25 拍</h2>
+  <div class="spec-row">
+    <span>重播</span>
+    <span class="spec-seg">
+      <button type="button" id="btnReplay">重播</button>
+      <button type="button" id="btnDone">终态</button>
+    </span>
+  </div>
+  <div class="spec-row">
+    <span>拍长</span>
+    <span class="spec-seg" role="group" aria-label="拍长">
+      <button type="button" data-beat="120" aria-pressed="true">120ms</button>
+      <button type="button" data-beat="240" aria-pressed="false">240ms</button>
+    </span>
+  </div>
+  <div class="spec-row">
+    <span>视图</span>
+    <span class="spec-seg" role="group" aria-label="视图">
+      <button type="button" data-view="fit" aria-pressed="true">全览</button>
+      <button type="button" data-view="actual" aria-pressed="false">原尺寸</button>
+    </span>
+  </div>
+  <div class="spec-readout">
+    当前 <b id="beatNow">第 0 / 25 拍</b> · <span id="beatPhase">I 立轴</span>
+    <div class="spec-bar"><i id="beatBar"></i></div>
+  </div>
+</aside>
+
+<!-- ===================== 分镜表与落地说明 ===================== -->
+<section class="spec-notes">
+  <h2>展立轴 · 动效分镜</h2>
+  <p>拍长沿用首页的 <code>--beat: 120ms</code>，全片 <strong>25 拍 = 3.00s</strong>。比首页 hero 的 37 拍短 12 拍 —— 关于页不是门厅，用户是特意点进来的；也比全站内页共用的 <code>page-scroll-arrive</code>（0.78s 淡入上浮）长得多，够把「展轴」这件事说清楚。</p>
+
+  <table class="beats">
+    <thead>
+      <tr><th>乐章</th><th>拍</th><th>时间(120ms)</th><th>做什么</th></tr>
+    </thead>
+    <tbody>
+      <tr data-from="0" data-to="1"><td>I 立轴</td><td>0–1</td><td>0–0.12s</td><td>静一拍。天杆在上端定住，纸卷成一卷（直径 64px）挂在它下面，地杆还在卷心里</td></tr>
+      <tr data-from="1" data-to="12"><td>II 展轴</td><td>1–12</td><td>0.12–1.44s</td><td>纸自上而下展开，地杆随笔的展开前沿下行；前沿是纸从轴上卷出来的柱面高光与贴合暗部</td></tr>
+      <tr data-from="2" data-to="8"><td>　└ 渗墨</td><td>2–8</td><td>0.24–0.96s</td><td>题头画心渗开（blur 9 → 0）。比展轴晚一拍起手，墨是<strong>跟着轴</strong>走的</td></tr>
+      <tr data-from="5" data-to="11"><td>　└ 落字</td><td>5–11</td><td>0.60–1.32s</td><td>正文显影。<strong>只显影、不位移</strong>，段落之间没有任何 translateY</td></tr>
+      <tr data-from="11" data-to="13"><td>III 落款</td><td>11–15</td><td>1.32–1.80s</td><td>落款、头像、名号、赭红水痕显影 —— 轴走到那儿就显</td></tr>
+      <tr data-from="13" data-to="18"><td>　└ 笔触</td><td>13–18</td><td>1.56–2.16s</td><td>朱红笔触自左扫开（scale 0 1 → 1 1）</td></tr>
+      <tr data-from="18" data-to="20"><td>IV 用印</td><td>18–20</td><td>2.16–2.40s</td><td>署 印顿下 —— 全场唯一的重音（scale 1.9 → 0.955 → 1，带回弹）</td></tr>
+      <tr data-from="19" data-to="22"><td>　└ 余晕</td><td>19–22</td><td>2.28–2.64s</td><td>印旁朱红向外晕开一次后消散</td></tr>
+      <tr data-from="22" data-to="25"><td>V 收轴</td><td>22–25</td><td>2.64–3.00s</td><td>天杆与地杆一起淡出，纸定住 —— <strong>动效不留痕</strong>，终态就是这张卡片本来的样子</td></tr>
+    </tbody>
+  </table>
+
+  <h3>三处是量出来才改对的</h3>
+  <p><strong>① 首页那条缓动不能直接搬。</strong>一开始我沿用了首页画卷的 <code>cubic-bezier(0.52, 0.02, 0.18, 1)</code>。逐拍量下来它把 <strong>82% 的行程压进第 4→6 拍（360ms）</strong>，剩下 600ms 停在 100%：放到横向 100vw 画卷上那是个漂亮的「甩」，放到竖向展一张 800px 的纸上就成了抽搐。</p>
+  <table class="beats">
+    <thead><tr><th>拍</th><th>0</th><th>2</th><th>4</th><th>6</th><th>8</th><th>11</th><th>13</th></tr></thead>
+    <tbody>
+      <tr><td>首页曲线</td><td>0%</td><td>7%</td><td>43%</td><td>82%</td><td>95%</td><td>100%</td><td>100%</td></tr>
+      <tr><td>本方案 <code>0.55,0.03,0.42,1</code></td><td>0%</td><td>2%</td><td>11%</td><td>33%</td><td>62%</td><td>96%</td><td>100%</td></tr>
+    </tbody>
+  </table>
+  <p>起手迟滞（纸有自重）、中段肯走、收尾长缓 —— 手卷被手拉着展开就是这个手感。</p>
+  <p><strong>② 卷太薄就读不出「卷」。</strong>第一版开场把纸裁到只剩 30px，1:1 放大一看，天杆与地杆几乎贴在一起，合成了一根粗木条。改成 <code>--roll: 64px</code>，两根轴之间才露得出那卷纸。</p>
+  <p><strong>③ 印盖在了空落款上。</strong>第一版把「用印」排在「落款显影」之前，顿印那一刻画面上只有一枚印，字还没出来 —— 顺序倒了。现在是先落款、再扫笔触、最后用印。</p>
+
+  <h3>木料与配饰</h3>
+  <p><strong>花纹</strong>：第一版木料用的是一圈等距条纹，后来虽换成噪声，缩到全览尺寸仍像一根光滑的棕色塑料棒。现在改为<strong>哑光胡桃木</strong>：纹理沿杆身缓慢弯曲，在节疤旁绕行，两端木色也不完全相同。</p>
+  <ul>
+    <li><code>wood-rod-grain.svg</code> 把不等距的长纹、两处不对称节疤、木色渐变与细纤维合成一块连续纹理；在不同杆宽下随杆身拉伸，不出现贴图接缝。</li>
+    <li>柱面保留上缘暖光和下缘暗部，中央不再铺整条亮白高光；低饱和棕眼与细纹使表面更接近未厚涂漆的木料。</li>
+  </ul>
+  <p><strong>配饰</strong>：</p>
+  <ul>
+    <li><strong>车木轴头</strong>（四端）：<code>clip-path</code> 雕出束腰、鼓腹、收尖的轮廓，贴杆处以暗氧化边和一线暖光表现旧铜包口；不再使用白色镜面反射。</li>
+    <li><strong>近端双刻线</strong>：杆身两端各压两道深浅不同的细刻线，随天杆、地杆一同移动和退场。</li>
+    <li><strong>朱红丝绦</strong>（天杆两端）：一颗小珠打的结、一根细绳、穗子上收下散。挂在天杆两端，位置落在<strong>卡片之外、山水之上</strong>，不压正文。</li>
+    <li>轴头与丝绦都比杆身大，所以投影没用 <code>box-shadow</code>（会被 <code>clip-path</code> 裁掉），改在杆身上用 <code>filter: drop-shadow()</code> —— 这样杆、轴头、丝绦各自投出自己的影子。</li>
+  </ul>
+  <p>配饰只在展开过程中在场：收轴时随两根轴一起淡出，静止状态下页面上不会多出任何硬件。</p>
+
+  <h3>为什么是立轴，不是长卷</h3>
+  <p>首页展的是长卷（横轴，木轴自左向右把画面卷走）。关于页若也用横轴就是首页的重复。关于页是一页自序 + 落款 + 用印，对应的物件是<strong>立轴</strong>：竖着挂起来、自上而下展开。同一套语汇与拍子，换一个物件、换一根轴。</p>
+  <p>顺带一提：站里 <code>globals.css</code> 那套 <code>.scroll-unfold / .su-paper / .su-roll</code>（约 400 行 + <code>opening-scroll-day/night.png</code>）目前没有任何 <code>.tsx</code> 渲染，是死代码。它里面的木料配方（<code>.su-roll-paper</code> / <code>.su-cap</code>）也是横向条纹那一类，本方案没有沿用。</p>
+
+  <h3>落地要动的位置</h3>
+  <ol>
+    <li><code>app/about/page.tsx</code>：把 <code>PageIntro</code> + <code>article.content-sheet</code> 包进 <code>&lt;div className="about-unfold-paper"&gt;</code>，并在 <code>main.about-scroll</code> 里补三个兄弟节点：天杆、卷边、地杆。<br>这一层包壳是必须的 —— <code>clip-path</code> 会把地杆一起裁掉，轴必须站在裁切区外面。</li>
+    <li><code>app/studio.css</code>：把第 2、3、4 节整段贴进「关于页」那一节末尾。</li>
+    <li><code>components/AboutUnfold.tsx</code>（新增，客户端组件，约 30 行）：
+      <ul>
+        <li><strong>不需要量任何尺寸</strong> —— 展轴、轴、卷边全部用百分比，卡片写多长都对得上，也不会因为字体晚加载而错位</li>
+        <li>「每次加载只完整播一次」：照 <code>ScrollFX</code> 里 <code>heroPlayedInThisLoad</code> 的模块标记法，客户端路由返回时给 <code>.about-page</code> 挂 <code>data-unfold="done"</code> 直接落终态</li>
+        <li>跳过：动画期间 scroll / keydown / pointerdown 任意一个，同样挂 <code>data-unfold="done"</code>，浏览器直接落到终态</li>
+      </ul>
+    </li>
+    <li><code>lib/motion-policy.ts</code>：直接复用现成的 <code>shouldPlayFullUnfold({ reduced })</code>，不新增判断。</li>
+  </ol>
+
+  <h3>降级</h3>
+  <ul>
+    <li><code>prefers-reduced-motion: reduce</code> → 全套 <code>animation: none</code>，零动画，直接是读完的样子（面板上的「终态」就是模拟这个）。</li>
+    <li><strong>坑</strong>：光摘动画还不够。让两根木轴退场的是 <code>about-rod-away</code> 这个动画<em>本身</em>，只写 <code>animation: none</code> 的话，木轴会<strong>永久留在页面上</strong> —— 降级态反而比动效态多出两根木头。所以 reduced-motion 里必须显式补 <code>opacity: 0; visibility: hidden</code>（已实测：<code>rodTop / rodBottom / curl</code> 均为 <code>0 / hidden</code>，<code>clipPath: none</code>）。</li>
+    <li>CSS 里动画是<strong>无条件声明 + <code>both</code></strong> 的，所以首帧就处在「合着」的状态，服务端直出的 HTML 不会先闪一下整张纸。这也是首页 hero 的做法。</li>
+    <li>唯一重音只有印，其余全是显影。若嫌 3.00s 长，把拍长调到 <code>96ms</code> 即 2.4s，节拍比例不变。</li>
+    <li>性能提示：卡片投影用的是外层 <code>filter: drop-shadow()</code>（只有这样影子才会跟着裁切后的轮廓走）；木轴也用 <code>drop-shadow</code> 是为了让轴头与丝绦各自投出自己的影子。低端机上若嫌开销大，可改成静态 <code>box-shadow</code> 配一次淡入。</li>
+  </ul>
+
+  <h3>配饰为什么是静止的</h3>
+  <p>丝绦挂上去之后，本来最容易顺手加的就是「让它轻轻摆」（死代码里 <code>.su-ribbon</code> 就有一整套摆动 keyframe）。没加 —— 那是第二条持续运动，会和主运动抢注意力。配饰该做的是<strong>把木料交代清楚</strong>，不是自己动起来。全片依然只有一个动作（向下展轴）和一个重音（用印）。</p>
+</section>
+
+<script>
+(function () {
+  var page = document.getElementById('aboutPage');
+  var stage = document.getElementById('stage');
+  var paper = page.querySelector('.about-unfold-paper');
+  var beatNow = document.getElementById('beatNow');
+  var beatPhase = document.getElementById('beatPhase');
+  var beatBar = document.getElementById('beatBar');
+  var rows = Array.prototype.slice.call(document.querySelectorAll('.beats tbody tr'));
+
+  var BEATS = 25;
+  var TIMER = null;
+  var PHASES = [
+    [0, 1, 'I 立轴'],
+    [1, 12, 'II 展轴'],
+    [12, 13, 'II 展轴（渗墨落字）'],
+    [13, 18, 'III 落款'],
+    [18, 20, 'IV 用印'],
+    [20, 22, 'IV 用印（余晕）'],
+    [22, 25, 'V 收轴']
+  ];
+
+  function beatMs() {
+    return parseFloat(getComputedStyle(page).getPropertyValue('--beat')) || 120;
+  }
+
+  // 只需要量高度来算「全览」的缩放；展轴本身用的是百分比，不依赖这个值
+  function measure() {
+    fitStage();
+  }
+
+  // 「全览」：把整张卡片缩到视口里，好一眼看完整个展开过程（含最下面的用印）
+  function fitStage() {
+    if (stage.dataset.view === 'actual') {
+      stage.style.height = '';
+      page.style.transform = '';
+      page.style.width = '';
+      return;
+    }
+    var avail = window.innerHeight - 96;
+    var h = paper.offsetHeight;
+    var w = page.offsetWidth;
+    var s = Math.min(1, avail / h);
+    page.style.transformOrigin = 'top center';
+    page.style.transform = 'scale(' + s + ')';
+    stage.style.height = (h * s + 40) + 'px';
+    page.style.width = w + 'px';
+  }
+
+  function stopTimer() {
+    if (TIMER) { window.clearInterval(TIMER); TIMER = null; }
+  }
+
+  function paint(beat) {
+    var b = Math.max(0, Math.min(BEATS, beat));
+    beatNow.textContent = '第 ' + b + ' / ' + BEATS + ' 拍';
+    var name = '—';
+    for (var i = 0; i < PHASES.length; i += 1) {
+      if (b >= PHASES[i][0] && b < PHASES[i][1]) { name = PHASES[i][2]; break; }
+    }
+    beatPhase.textContent = name;
+    beatBar.style.width = (b / BEATS * 100) + '%';
+    rows.forEach(function (tr) {
+      var from = Number(tr.dataset.from), to = Number(tr.dataset.to);
+      tr.classList.toggle('is-now', b >= from && b < to);
+    });
+  }
+
+  function replay() {
+    stopTimer();
+    page.removeAttribute('data-unfold');
+    // 强制重排，让 animation 从头开始
+    void page.offsetWidth;
+    paint(0);
+    var started = performance.now();
+    TIMER = window.setInterval(function () {
+      var elapsed = performance.now() - started;
+      var b = elapsed / beatMs();
+      paint(Math.floor(b));
+      if (b >= BEATS) { stopTimer(); paint(BEATS); }
+    }, 60);
+  }
+
+  function toDone() {
+    stopTimer();
+    page.setAttribute('data-unfold', 'done');
+    paint(BEATS);
+  }
+
+  document.getElementById('btnReplay').addEventListener('click', replay);
+  document.getElementById('btnDone').addEventListener('click', toDone);
+
+  document.querySelectorAll('[data-beat]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('[data-beat]').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
+      btn.setAttribute('aria-pressed', 'true');
+      page.style.setProperty('--beat', btn.dataset.beat + 'ms');
+      replay();
+    });
+  });
+
+  document.querySelectorAll('[data-view]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('[data-view]').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
+      btn.setAttribute('aria-pressed', 'true');
+      stage.dataset.view = btn.dataset.view;
+      fitStage();
+    });
+  });
+
+  // 跳过：动画期间用户一动手就落终态
+  function armSkip() {
+    var opts = { passive: true, once: true };
+    var skip = function () {
+      if (page.getAttribute('data-unfold') === 'done') return;
+      if (performance.now() - armedAt < 300) return;
+      toDone();
+    };
+    window.addEventListener('scroll', skip, opts);
+    window.addEventListener('keydown', skip, { once: true });
+    window.addEventListener('pointerdown', skip, { once: true });
+  }
+  var armedAt = performance.now();
+
+  window.addEventListener('resize', measure);
+  measure();
+  stage.dataset.view = 'fit';
+  replay();
+  armSkip();
+
+  // 字体加载会改变卡片高度，重新量一次
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { measure(); });
+  }
+})();
+</script>
+</body>
+</html>
