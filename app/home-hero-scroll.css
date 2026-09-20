@@ -24,10 +24,6 @@
   /* 披麻皴与云气：亮色纸面上用墨绿，暗色纸面上退成月白。 */
   --hero-stroke-strong: rgba(32, 40, 33, 0.82);
   --hero-stroke-soft: rgba(40, 48, 39, 0.42);
-  /* 换句钮的纸饼：高光、暗缘与环线墨色 */
-  --dq-paper-hi: #fbf6ea;
-  --dq-paper-lo: #e3d8bf;
-  --dq-ring: #8b8172;
   --hero-wash-far: 0.56;
   --hero-wash-near: 0.7;
   --hero-type-display: var(--font-display);
@@ -45,9 +41,6 @@
 :root[data-theme='dark'] .home-page .home-hero {
   --hero-stroke-strong: rgba(236, 223, 192, 0.72);
   --hero-stroke-soft: rgba(236, 223, 192, 0.34);
-  --dq-paper-hi: #3a3021;
-  --dq-paper-lo: #1d1810;
-  --dq-ring: #a99b7d;
   --hero-wash-far: 0.5;
   --hero-wash-near: 0.56;
 }
@@ -709,92 +702,140 @@
   padding: 0;
   border: 0;
   border-radius: 50%;
-  /* 纸饼：内凹的纸缘，而不是一块陶土粉渐变 */
-  background:
-    radial-gradient(circle at 36% 30%, var(--dq-paper-hi), transparent 62%),
-    linear-gradient(160deg, color-mix(in srgb, var(--paper) 88%, white), var(--dq-paper-lo));
-  color: var(--hero-ink);
+  isolation: isolate;
+  /* 朱砂残印：暖纸饼，右缘偏朱 */
+  background-color: #f5edda;
+  background-image: radial-gradient(circle at 27% 22%, #fff8e7, #efe0bf 66%, #dbbf95);
+  color: #332721;
   font-family: var(--font-latin);
   font-size: 12px;
-  isolation: isolate;
   box-shadow:
-    0 5px 13px -6px rgba(48, 35, 18, 0.4),
-    inset 0 1px 0 color-mix(in srgb, white 58%, transparent),
-    inset 0 -1px 2px color-mix(in srgb, var(--ink) 8%, transparent);
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+    0 6px 13px -6px rgba(66, 39, 26, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.76),
+    inset -2px -2px 4px rgba(144, 64, 45, 0.15);
+  transition: box-shadow 0.2s ease, translate 0.2s ease;
+}
+
+/* 纸缘：左侧留白、右缘偏朱 */
+.home-page .home-hero .dq-shuffle::after {
+  position: absolute;
+  z-index: 1;
+  inset: 2px;
+  border: 1px solid rgba(157, 59, 42, 0.24);
+  border-left-color: rgba(102, 76, 50, 0.13);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
 }
 
 /* 隐形热区：圆钮不大，但点击范围要够 */
 .home-page .home-hero .dq-shuffle::before {
   position: absolute;
-  inset: -6px;
+  inset: -15px;
   border-radius: 50%;
   content: "";
 }
 
-.home-page .home-hero .dq-orbit {
+/* 印泥在纸面上的晕染 */
+.home-page .home-hero .dq-disc-art {
   position: absolute;
-  inset: -5px;
-  width: 56px;
-  height: 56px;
-  overflow: visible;
+  z-index: 1;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(circle at 91% 79%, rgba(178, 57, 42, 0.15), transparent 46%);
+}
+
+/* 纸面闪光 */
+.home-page .home-hero .dq-disc-flash {
+  position: absolute;
+  z-index: 2;
+  inset: 2px;
+  border-radius: 50%;
+  background: linear-gradient(120deg, transparent 18%, rgba(255, 253, 231, 0.67) 49%, transparent 75%);
+  mix-blend-mode: screen;
+  opacity: 0;
   pointer-events: none;
 }
 
-/* 指针由 JS 每帧写 transform，这里不能加 transition，否则会与惯性打架 */
+/* 一笔成环的墨线：76 的视图铺到 76px，环身半径约 27px */
+.home-page .home-hero .dq-orbit {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: 76px;
+  height: 76px;
+  overflow: visible;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+/* 转角由 JS 每帧写入，这里不能加 transition，否则会与转动打架 */
 .home-page .home-hero .dq-orbit-rotor {
-  transform-origin: 27px 27px;
+  transform-box: view-box;
+  transform-origin: 38px 38px;
   will-change: transform;
 }
 
-.home-page .home-hero .dq-orbit-track {
-  fill: none;
-  stroke: var(--dq-ring);
-  stroke-width: 1;
-  stroke-opacity: 0.14;
+.home-page .home-hero .dq-orbit-ink {
+  fill: #4d423a;
+  opacity: 0.72;
 }
 
-/* 一支笔锋绕行：78% 周长的弧。要比环明确重一档，
-   否则两者重量接近，缺口会读成"接缝"而不是墨停。 */
-.home-page .home-hero .dq-orbit-arc {
-  stroke: var(--dq-ring);
-  stroke-width: 1.7;
-  stroke-opacity: 0.5;
-  stroke-dasharray: 103 29;
-  transition: stroke-opacity 0.22s ease;
+.home-page .home-hero .dq-orbit-cinnabar {
+  stroke: #a25440;
+  stroke-width: 0.8;
+  opacity: 0.43;
+}
+
+.home-page .home-hero .dq-orbit-faint {
+  stroke: #514941;
+  stroke-width: 0.65;
+  opacity: 0.38;
 }
 
 .home-page .home-hero .dq-orbit-dot {
-  fill: var(--seal);
-  filter: drop-shadow(0 1px 1px color-mix(in srgb, var(--seal-deep) 20%, transparent));
+  fill: #a83d2d;
+}
+
+/* 走完一圈时掠过的一抹余晕 */
+.home-page .home-hero .dq-turn-echo {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  width: 76px;
+  height: 76px;
+  overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 
 .home-page .home-hero .dq-shuffle-label {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   padding-left: 0.08em;
   font-family: var(--hero-type-display);
   font-size: 18px;
   line-height: 1;
-  color: var(--hero-ink);
-  text-shadow: 0 1px 4px color-mix(in srgb, var(--paper) 92%, transparent);
+  color: #332721;
+  text-shadow: 0 1px 3px rgba(255, 248, 228, 0.88);
   transform: translateY(-0.5px);
 }
 
 .home-page .home-hero .dq-shuffle:hover {
-  color: var(--hero-ink);
-  transform: translateY(-1px);
+  translate: 0 -1px;
   box-shadow:
-    0 9px 17px -7px rgba(48, 35, 18, 0.46),
-    inset 0 1px 0 color-mix(in srgb, white 62%, transparent);
-}
-
-.home-page .home-hero .dq-shuffle:hover .dq-orbit-arc {
-  stroke-opacity: 0.68;
+    0 9px 17px -7px rgba(66, 39, 26, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    inset -2px -2px 4px rgba(144, 64, 45, 0.18);
 }
 
 .home-page .home-hero .dq-shuffle:active {
-  transform: translateY(1px);
+  translate: 0 1px;
   box-shadow:
     inset 0 1px 4px rgba(65, 51, 28, 0.14),
     0 2px 6px rgba(54, 41, 23, 0.11);
@@ -1150,12 +1191,9 @@
 
   .home-page .home-hero .dq-shuffle,
   .home-page .home-hero .dq-orbit,
-  .home-page .home-hero .dq-orbit-track {
+  .home-page .home-hero .dq-turn-echo,
+  .home-page .home-hero .dq-disc-flash {
     transition: none;
-  }
-
-  .home-page .home-hero .dq-shuffle:hover .dq-orbit-track {
-    stroke: var(--hero-stroke-soft);
   }
 }
 

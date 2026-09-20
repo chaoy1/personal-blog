@@ -59,34 +59,76 @@ describe('P01 home page composition', () => {
     vi.unstubAllGlobals()
   })
 
-  it('gives every press its own spin instead of restarting one full turn', () => {
-    // 不模拟 rAF 时序：点击处理函数本身就应当立刻推动指针，
-    // 连点的连续加减速在浏览器里实测（见 effect-preview 说明）。
-    vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 1)
-    vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {})
-    // 注意：不能返回常量 —— 换句逻辑要一直抽到「与当前不同」的那条，
-    // 常量会让它的 while 永不退出。
+  /** 受控帧队列：由测试决定什么时候前进一帧，避免 rAF 递归把栈打满。 */
+  function installFrameQueue() {
+    let time = 0
+    let nextId = 1
+    let queue = new Map<number, FrameRequestCallback>()
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb: FrameRequestCallback) => {
+      const id = nextId++
+      queue.set(id, cb)
+      return id
+    })
+    vi.spyOn(window, 'cancelAnimationFrame').mockImplementation((id: number) => {
+      queue.delete(id)
+    })
+    return {
+      step(ms = 16) {
+        time += ms
+        const pending = Array.from(queue.entries())
+        queue = new Map()
+        pending.forEach(([, cb]) => cb(time))
+      },
+    }
+  }
+
+  it('turns the ink ring exactly one full lap per press', () => {
+    const frames = installFrameQueue()
     const randomValues = [0, 0.5, 0.99, 0.25]
     let randomCall = 0
     vi.spyOn(Math, 'random').mockImplementation(() => randomValues[randomCall++ % randomValues.length])
 
     const { container } = render(<DailyQuote />)
-    const shuffle = screen.getByRole('button', { name: '随机换一句' })
+    const shuffle = screen.getByRole('button', { name: '换一句，墨线转满一圈' })
     const rotor = container.querySelector<SVGGElement>('.dq-orbit-rotor')!
-
     const angle = () => Number(/rotate\(([-\d.]+)deg\)/.exec(rotor.style.transform)?.[1] ?? 0)
-    const turns = () => Number(rotor.style.getPropertyValue('--dq-turns'))
 
-    // 连点三次：每次只加一次速度，累计远小于「每点一次转一整圈」的 3 圈
+    frames.step() // 让 rAF 循环挂上
+    expect(angle()).toBe(0)
+
+    fireEvent.click(shuffle)
+    // 单击走满一圈要用 620ms
+    for (let t = 0; t < 700; t += 20) frames.step(20)
+
+    // 一次点击 = 整整 360°，且停在整圈上
+    expect(angle()).toBe(360)
+    frames.step(20)
+    expect(angle()).toBe(360)
+  })
+
+  it('speeds up instead of queueing when presses pile up', () => {
+    const frames = installFrameQueue()
+    // 同前：必须给一组会变的随机值，常量会让「换到不同一句」的 while 卡死
+    const randomValues = [0, 0.4, 0.8, 0.2, 0.6, 0.1]
+    let randomCall = 0
+    vi.spyOn(Math, 'random').mockImplementation(() => randomValues[randomCall++ % randomValues.length])
+
+    const { container } = render(<DailyQuote />)
+    const shuffle = screen.getByRole('button', { name: '换一句，墨线转满一圈' })
+    const rotor = container.querySelector<SVGGElement>('.dq-orbit-rotor')!
+    const angle = () => Number(/rotate\(([-\d.]+)deg\)/.exec(rotor.style.transform)?.[1] ?? 0)
+
+    frames.step()
+
+    // 连点三次都在 320ms 窗口内，所以第三次应当已经进入加速档
     fireEvent.click(shuffle)
     fireEvent.click(shuffle)
     fireEvent.click(shuffle)
 
-    expect(angle()).toBeGreaterThan(0)
-    expect(turns()).toBeCloseTo(angle() / 360, 5)
-    expect(turns()).toBeLessThan(1)
-    // 已经在转：按钮把旋转状态暴露给样式，供节流后的外部提示使用
-    expect(shuffle).toHaveAttribute('data-spinning', 'true')
+    // 累积目标是 3 圈；跑满 1.5s 后必须追上，不留积压
+    for (let t = 0; t < 1500; t += 20) frames.step(20)
+
+    expect(angle()).toBe(1080)
   })
 
   it('still switches to a different quote on every press', () => {
@@ -95,7 +137,7 @@ describe('P01 home page composition', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0)
 
     const { container } = render(<DailyQuote />)
-    const shuffle = screen.getByRole('button', { name: '随机换一句' })
+    const shuffle = screen.getByRole('button', { name: '换一句，墨线转满一圈' })
     const before = container.querySelector('.dq-text')!.textContent
 
     fireEvent.click(shuffle)

@@ -4401,88 +4401,138 @@ html.unfold-returning .wrap {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: linear-gradient(
-    160deg,
-    color-mix(in srgb, var(--paper) 92%, white),
-    color-mix(in srgb, var(--paper) 74%, var(--ink-faint))
-  );
-  color: var(--ink);
+  isolation: isolate;
+  background-color: #f5edda;
+  background-image: radial-gradient(circle at 27% 22%, #fff8e7, #efe0bf 66%, #dbbf95);
+  color: #332721;
   font-family: var(--font-kai);
   font-size: 12px;
   line-height: 1;
   cursor: pointer;
   box-shadow:
-    0 4px 9px -5px rgba(48, 35, 18, 0.35),
-    inset 0 1px 0 color-mix(in srgb, white 55%, transparent);
-  transition: box-shadow 0.22s ease, transform 0.22s ease;
+    0 4px 9px -4px rgba(66, 39, 26, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.76),
+    inset -1px -1px 3px rgba(144, 64, 45, 0.15);
+  transition: box-shadow 0.2s ease, translate 0.2s ease;
+}
+
+/* 纸缘：左侧留白、右缘偏朱 —— 印泥的缺损与纸缘分开处理 */
+.dq-shuffle::after {
+  position: absolute;
+  z-index: 1;
+  inset: 1px;
+  border: 1px solid rgba(157, 59, 42, 0.24);
+  border-left-color: rgba(102, 76, 50, 0.13);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
 }
 
 /* 隐形热区：小圆钮也要有够得着的点击范围 */
 .dq-shuffle::before {
   position: absolute;
-  inset: -9px;
+  inset: -15px;
   border-radius: 50%;
   content: "";
 }
 
 .dq-shuffle:hover {
-  transform: translateY(-1px);
+  translate: 0 -1px;
   box-shadow:
-    0 7px 14px -6px rgba(48, 35, 18, 0.4),
-    inset 0 1px 0 color-mix(in srgb, white 60%, transparent);
+    0 7px 14px -5px rgba(66, 39, 26, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    inset -1px -1px 3px rgba(144, 64, 45, 0.18);
 }
 
 .dq-shuffle:active {
-  transform: translateY(1px);
+  translate: 0 1px;
 }
 
-.dq-shuffle:hover .dq-orbit-arc {
-  stroke-opacity: 0.52;
-}
-
-/* 换字：点一下轻轻一颤，连点也不会被截断 */
-.dq-shuffle-label[data-pulse='true'] {
-  animation: dq-glyph-pulse 0.34s cubic-bezier(0.2, 0.9, 0.3, 1.4);
-}
-
-@keyframes dq-glyph-pulse {
-  0% { transform: scale(1); }
-  32% { transform: scale(0.88); }
-  68% { transform: scale(1.06); }
-  100% { transform: scale(1); }
-}
-
-.dq-orbit {
+/* 印泥在纸面上的晕染：红色留在按钮右缘 */
+.dq-disc-art {
   position: absolute;
-  inset: -5px;
-  width: 36px;
-  height: 36px;
-  overflow: visible;
+  z-index: 1;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(circle at 91% 79%, rgba(178, 57, 42, 0.15), transparent 46%);
+}
+
+/* 转动时掠过的一次纸面闪光 */
+.dq-disc-flash {
+  position: absolute;
+  z-index: 2;
+  inset: 1px;
+  border-radius: 50%;
+  background: linear-gradient(120deg, transparent 18%, rgba(255, 253, 231, 0.67) 49%, transparent 75%);
+  mix-blend-mode: screen;
+  opacity: 0;
   pointer-events: none;
 }
 
+/* 一笔成环的墨线：整圈 SVG 比按钮大一圈，环身压在纸缘上 */
+.dq-orbit {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: 62px;
+  height: 62px;
+  overflow: visible;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
 .dq-orbit-rotor {
-  transform-origin: 27px 27px;
+  transform-box: view-box;
+  transform-origin: 38px 38px;
   will-change: transform;
 }
 
-.dq-orbit-track {
-  stroke: var(--ink-faint);
-  stroke-width: 1;
-  stroke-opacity: 0.2;
+.dq-orbit-ink {
+  fill: #4d423a;
+  opacity: 0.72;
 }
 
-/* 一支笔锋：78% 周长的弧，尾端靠弧长收住 */
-.dq-orbit-arc {
-  stroke: var(--seal-deep);
-  stroke-width: 1.5;
-  stroke-opacity: 0.34;
-  stroke-dasharray: 103 29;
-  transition: stroke-opacity 0.22s ease;
+/* 未拓尽的边缘：一浅朱、一淡墨 */
+.dq-orbit-cinnabar {
+  stroke: #a25440;
+  stroke-width: 0.8;
+  opacity: 0.43;
+}
+
+.dq-orbit-faint {
+  stroke: #514941;
+  stroke-width: 0.65;
+  opacity: 0.38;
 }
 
 .dq-orbit-dot {
-  fill: var(--seal);
+  fill: #a83d2d;
+}
+
+/* 走完一圈时掠过的一抹余晕 */
+.dq-turn-echo {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  width: 62px;
+  height: 62px;
+  overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+/* 换字压在墨环之上 */
+.dq-shuffle-label {
+  position: relative;
+  z-index: 3;
+  color: #332721;
+  font-family: var(--font-kai);
+  text-shadow: 0 1px 3px rgba(255, 248, 228, 0.88);
 }
 
 
