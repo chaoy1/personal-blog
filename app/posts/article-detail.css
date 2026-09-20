@@ -689,11 +689,14 @@
    吸附范围因此等于整张纸——滚到评论、推荐那一段目录依旧留在屏幕里。
    窄屏（<=850px）整轨收起，改用正文顶部的卷内目录入口。 */
 .article-wrap .art-sheet .reading-companion-rail {
+  /* globals.css 里还留着纸外悬浮那版的 @media (max-width: 1399px){display:none}，
+     纸内的批注栏从 851px 起就该在，这里显式覆盖。 */
+  display: block;
   position: absolute;
   top: 0;
   bottom: 0;
-  /* globals.css 还留着纸外悬浮那版的 left: calc(100% + 40px)，
-     这里必须显式 left: auto，否则位置由它决定、right 被忽略。 */
+  /* 同一处还留着 left: calc(100% + 40px)，必须显式 left: auto，
+     否则位置由它决定、right 被忽略。 */
   left: auto;
   right: var(--art-rail-inset);
   width: var(--art-rail-width);
@@ -704,6 +707,9 @@
 
 /* 设计稿的 .rail-inner：整页吸附。 */
 .article-wrap .art-sheet .reading-companion {
+  /* globals.css 仍有 @media (max-width: 1200px){display:none}（旧版纸外轨道），
+     纸内批注栏从 851px 起就要显示。 */
+  display: block;
   position: sticky;
   top: calc(var(--nav-h) + 40px);
   max-height: calc(100vh - var(--nav-h) - 80px);
