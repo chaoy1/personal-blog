@@ -51,46 +51,51 @@ function renderArticleShell() {
   }
 }
 
+const articleStyles = () => readStyles('app/posts/article-detail.css')
+
 afterEach(() => {
   document.head.innerHTML = ''
   document.body.innerHTML = ''
 })
 
-describe('P03 reading layout recipe', () => {
-  it('keeps the paper on the shared inner-page width with a fixed reading measure', () => {
-    const { reading, body } = renderArticleShell()
+describe('P03 reading layout recipe（对齐设计稿 article-xuan-reading.html）', () => {
+  it('keeps the paper at the design width with a fixed reading measure', () => {
+    const { body } = renderArticleShell()
+    const css = articleStyles()
 
-    // 纸面取内页标准宽度（--container-page），阅读行宽固定，两者互不牵连。
-    const css = readFileSync(resolve(process.cwd(), 'app/posts/article-detail.css'), 'utf8')
-    expect(css).toContain('width: min(var(--container-page), 100%)')
+    // 设计稿 .page-shell / .prose：纸面 1120，正文栏上限 730（列宽由纸内网格决定）。
+    expect(css).toContain('width: min(1120px, calc(100% - 104px))')
     expect(getComputedStyle(body).maxWidth).toBe('730px')
-    // 纵向 flex 列：卷内目录入口靠 order: -1 落在正文之前。
-    expect(getComputedStyle(reading).display).toBe('flex')
-    expect(getComputedStyle(reading).flexDirection).toBe('column')
   })
 
-  it('floats the annotation rail outside the paper and falls back to the compact directory', () => {
-    const { rail } = renderArticleShell()
+  it('lays the reading area out as prose column + in-paper margin column', () => {
+    const { reading, rail } = renderArticleShell()
+    const css = articleStyles()
 
-    // 纸面收窄后纸内放不下整轨：轨道移到纸外，默认收起，
-    // 只在宽屏（>=1320px）显示，窄屏用卷内目录入口。
-    const css = readFileSync(resolve(process.cwd(), 'app/posts/article-detail.css'), 'utf8')
+    expect(getComputedStyle(reading).display).toBe('grid')
+    // jsdom 不解析 var()/简写，这里核对声明本身 + token 取值（设计稿：225 / 78）。
+    expect(getComputedStyle(reading).gridTemplateColumns).toContain('var(--art-rail-width)')
+    expect(css).toMatch(/\.art-reading \{[\s\S]*?gap: var\(--art-rail-gap\)/)
+    expect(css).toContain('--art-rail-width: 225px')
+    expect(css).toContain('--art-rail-gap: 78px')
+    // 批注栏在纸内右侧（设计稿 .margin-note），窄屏才收起。
     expect(getComputedStyle(rail).position).toBe('absolute')
-    expect(getComputedStyle(rail).display).toBe('none')
-    expect(css).toMatch(/@media \(min-width: 1320px\) \{[\s\S]*?\.reading-companion-rail \{\s*display: block/)
+    expect(css).toMatch(/@media \(max-width: 850px\) \{[\s\S]*?\.reading-companion-rail \{\s*display: none/)
+    expect(css).toMatch(/@media \(max-width: 850px\) \{[\s\S]*?\.reading-companion-compact \{\s*display: block/)
   })
 
   it('anchors the rail to the whole article body so the directory never scrolls away', () => {
     const { artBody, reading, rail, companion } = renderArticleShell()
+    const css = articleStyles()
 
-    // 轨道是绝对定位，它的包含块必须是 .art-body（正文 + 卷尾 + 推荐 + 评论 + 落款），
+    // 轨道是绝对定位，包含块必须是 .art-body（正文 + 卷尾 + 推荐 + 评论 + 落款），
     // 吸附范围才等于整张纸；.art-reading 一旦是定位元素就会把轨道截在正文那一段。
     expect(getComputedStyle(artBody).position).toBe('relative')
-    // jsdom 对未声明的 position 返回空串，所以断言「不是任何定位值」。
     expect(getComputedStyle(reading).position).not.toMatch(/relative|absolute|fixed|sticky/)
-    expect(reading.parentElement?.classList.contains('art-body')).toBe(true)
     expect(rail.closest('.art-body')).not.toBeNull()
     expect(getComputedStyle(companion).position).toBe('sticky')
+    // globals 里还留着纸外悬浮版的 left，这里必须显式 left: auto。
+    expect(css).toMatch(/\.reading-companion-rail \{[\s\S]*?left: auto;[\s\S]*?right: var\(--art-rail-inset\)/)
   })
 
   it('contains wide media inside the paper and gives tables their own scroll region', () => {

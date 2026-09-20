@@ -57,15 +57,41 @@ function pickRelated(all: Post[], slug: string): Post[] {
   return related
 }
 
-/** 标题在自然停顿处折成两行：前段用行书起笔，后段用楷书收束。 */
+/**
+ * 标题折成两行：前段行书起笔、后段楷书收束（设计稿的 brush-line + title-line）。
+ * 优先在自然停顿（标点）处折；没有标点就在最靠近中点的空格处折（不切断西文词）；
+ * 都没有才按字数从中间折——总之永远给出行书那一行。
+ */
 function splitTitle(title: string): { brush: string; line: string } | null {
-  const match = title.match(/[，,：:｜|]/)
-  if (!match || match.index === undefined) return null
-  const brush = title.slice(0, match.index + 1).trim()
-  const line = title.slice(match.index + 1).trim()
-  if (!brush || !line) return null
-  if (brush.length > 6 || line.length > 18) return null
-  return { brush, line }
+  const trimmed = title.trim()
+  if (trimmed.length < 2) return null
+
+  const punct = trimmed.match(/[，,：:！!？?｜|]/)
+  if (punct?.index !== undefined && punct.index > 0 && punct.index < trimmed.length - 1) {
+    return {
+      brush: trimmed.slice(0, punct.index + 1).trim(),
+      line: trimmed.slice(punct.index + 1).trim(),
+    }
+  }
+
+  const middle = Math.floor(trimmed.length / 2)
+  let spaceIndex = -1
+  for (let index = 0; index < trimmed.length; index += 1) {
+    if (trimmed[index] !== ' ') continue
+    if (spaceIndex === -1 || Math.abs(index - middle) < Math.abs(spaceIndex - middle)) spaceIndex = index
+  }
+  if (spaceIndex > 0) {
+    return { brush: trimmed.slice(0, spaceIndex).trim(), line: trimmed.slice(spaceIndex + 1).trim() }
+  }
+
+  return { brush: trimmed.slice(0, middle), line: trimmed.slice(middle) }
+}
+
+/** 行书题越长，字号收得越小，免得一行只挤得下三四个字。 */
+function brushSizeClass(brush: string): string {
+  if (brush.length > 9) return 'art-title-brush art-title-brush-sm'
+  if (brush.length > 5) return 'art-title-brush art-title-brush-md'
+  return 'art-title-brush'
 }
 
 /** 纸页右下角的竖排批注：取第一节标题当作眉批。 */
@@ -137,7 +163,7 @@ export default async function PostPage({ params }: Props) {
             <h1 className={heading ? 'art-title' : 'art-title art-title-plain'}>
               {heading ? (
                 <>
-                  <span className="art-title-brush">{heading.brush}</span>
+                  <span className={brushSizeClass(heading.brush)}>{heading.brush}</span>
                   <span className="art-title-line">{heading.line}</span>
                 </>
               ) : (
