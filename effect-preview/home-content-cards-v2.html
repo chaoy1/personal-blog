@@ -131,22 +131,36 @@
     .card-foot { display: flex; align-items: center; gap: 12px; width: 100%; margin-top: auto; padding-top: 16px; color: var(--seal-deep); font-size: 11px; letter-spacing: .1em; }
     .card-foot::before { content: ""; flex: 1; height: 1px; background: var(--paper-line); }
     .card-foot .arrow { display: inline-block; transition: transform .22s ease; }
-    .moment-card { display: grid; grid-template-columns: 76px minmax(0, 1fr) 148px; min-height: 188px; overflow: hidden; }
+    .moment-card { display: grid; grid-template-columns: 76px minmax(0, 1fr) 236px; min-height: 206px; overflow: hidden; }
     .moment-card::before { content: "“"; position: absolute; left: 100px; top: 25px; color: var(--seal); opacity: .10; font: 86px/1 var(--kai); transition: opacity .22s ease; }
     .moment-index { display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 26px 8px; border-right: 1px solid var(--paper-line); color: var(--seal-deep); font: 13px/1 var(--latin); }
     .moment-index i { display: grid; place-items: center; width: 27px; height: 27px; background: var(--seal); color: #f7ebd1; font: 14px/1 var(--kai); font-style: normal; transform: rotate(-3deg); transition: transform .22s ease; }
     .moment-body { position: relative; display: flex; flex-direction: column; min-width: 0; padding: 27px 26px 21px; }
     .moment-body p { margin: 21px 0 12px; font: 23px/1.55 var(--kai); }
     .moment-body .card-foot { padding-top: 0; }
-    .moment-art { display: grid; place-items: center; margin: 16px 16px 16px 0; border: 1px solid var(--paper-line); background: url("../public/bg/qianli-bridge.jpg") var(--art-x) 55% / auto 240% no-repeat; filter: saturate(.66); }
-    .moment-art span { padding: 4px 8px; background: rgba(244, 232, 198, .72); color: #3d4437; font: 10px/1.5 var(--kai); }
+    .moment-art { position: relative; display: block; min-width: 0; height: 162px; align-self: center; margin: 17px 21px 17px 0; }
+    .moment-art::before { content: "三帧入笺"; position: absolute; right: 8px; bottom: -2px; color: var(--ink-faint); font: 10px/1 var(--kai); letter-spacing: .16em; }
+    .moment-art img { position: absolute; display: block; height: 124px; object-fit: cover; object-position: var(--crop) center; border: 5px solid var(--paper-light); background: #cbbd97; box-shadow: 0 10px 20px -9px rgba(31, 23, 11, .7); filter: saturate(.76); transition: transform .26s ease, box-shadow .26s ease; }
+    .moment-art img:first-child { z-index: 1; top: 4px; left: 3px; width: 106px; transform: rotate(-7deg); }
+    .moment-art img:nth-child(2) { z-index: 2; top: 18px; left: 73px; width: 106px; transform: rotate(5deg); }
+    .moment-art img:nth-child(3) { z-index: 3; top: 49px; right: 0; width: 80px; height: 88px; transform: rotate(-5deg); }
     .moment-card.no-art { grid-template-columns: 76px minmax(0, 1fr); }
-    .photo-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; }
-    .photo-card { display: block; min-height: 272px; padding: 9px 9px 0; overflow: hidden; }
-    .photo-frame { display: block; height: 202px; overflow: hidden; background: #d0c29b; }
+    .photo-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-rows: 148px; gap: 13px; padding: 7px 4px; }
+    .photo-card { z-index: 1; display: grid; grid-template-rows: minmax(0, 1fr) auto; min-height: 0; padding: 8px 8px 0; transform: rotate(var(--tilt)); }
+    .photo-card:first-child { z-index: 2; grid-column: span 5; grid-row: span 2; --tilt: -1.1deg; }
+    .photo-card:nth-child(2) { grid-column: span 4; --tilt: 1.3deg; translate: -7px 6px; }
+    .photo-card:nth-child(3) { grid-column: span 3; --tilt: -1.4deg; translate: -11px -4px; }
+    .photo-card:nth-child(4) { grid-column: span 3; --tilt: 1.6deg; translate: 7px -9px; }
+    .photo-card:nth-child(5) { grid-column: span 4; --tilt: -.8deg; translate: 4px 6px; }
+    .photo-card:nth-child(n+6) { grid-column: span 4; }
+    .photo-card:nth-child(6) { --tilt: 1deg; translate: 5px -2px; }
+    .photo-card:nth-child(7) { --tilt: -1.4deg; translate: -3px 4px; }
+    .photo-card:nth-child(8) { --tilt: 1.1deg; translate: -9px -4px; }
+    :root[data-theme="dark"] .photo-card { border-color: rgba(229, 207, 161, .4); background-color: rgba(83, 68, 46, .98); box-shadow: 0 19px 30px -15px rgba(0, 0, 0, .72); }
+    .photo-frame { display: block; min-height: 0; overflow: hidden; background: #d0c29b; }
     .photo-frame img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: var(--photo-x) var(--photo-y); filter: saturate(.78); transition: transform .24s ease, filter .24s ease; }
-    .photo-caption { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 58px; padding: 8px 5px; }
-    .photo-caption b { font: 17px/1.2 var(--kai); font-weight: 400; }
+    .photo-caption { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 42px; padding: 7px 5px; }
+    .photo-caption b { font: 15px/1.2 var(--kai); font-weight: 400; }
     .photo-caption small { color: var(--ink-faint); font: 9px/1 var(--latin); letter-spacing: .14em; }
     .photo-caption .arrow { color: var(--seal-deep); transition: transform .22s ease; }
     .letter-card { display: grid; grid-template-columns: 72px minmax(0, 1fr) 38px; min-height: 150px; padding: 18px 22px 18px 0; overflow: hidden; border-left: 3px solid var(--ink-soft); }
@@ -165,6 +179,10 @@
       .article-card:hover h3 { color: var(--seal-deep); }
       .moment-card:hover::before, .letter-card:hover::before { opacity: .2; }
       .moment-card:hover .moment-index i { transform: rotate(5deg); }
+      .moment-card:hover .moment-art img:first-child { transform: translate(-5px, -2px) rotate(-9deg); }
+      .moment-card:hover .moment-art img:nth-child(2) { transform: translate(4px, -3px) rotate(7deg); }
+      .moment-card:hover .moment-art img:nth-child(3) { transform: translate(4px, 1px) rotate(-3deg); }
+      .photo-card:hover { z-index: 4; transform: translateY(-5px) rotate(0deg); }
       .photo-card:hover img { transform: scale(1.025); filter: saturate(.95); }
       .card:hover .arrow { transform: translate(3px, -2px); }
       .letter-card:hover { border-left-color: var(--seal); }
@@ -178,11 +196,16 @@
     @media (max-width: 760px) {
       main { width: min(680px, calc(100% - 32px)); padding-top: 48px; }
       .section { margin-bottom: 76px; }
-      .moment-card { grid-template-columns: 55px minmax(0, 1fr) 100px; }
+      .moment-card { grid-template-columns: 55px minmax(0, 1fr) 195px; }
       .moment-art { margin: 14px 14px 14px 0; }
+      .moment-art img:first-child { width: 95px; }
+      .moment-art img:nth-child(2) { left: 61px; width: 96px; }
+      .moment-art img:nth-child(3) { width: 70px; }
       .moment-body { padding: 22px 18px; }
-      .photo-frame { height: 155px; }
-      .photo-card { min-height: 220px; }
+      .photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 180px; }
+      .photo-card, .photo-card:nth-child(n) { grid-column: span 1; grid-row: span 1; translate: none; }
+      .photo-card:first-child { grid-column: 1 / -1; grid-row: span 2; }
+      .photo-card:last-child { grid-column: 1 / -1; }
     }
     @media (max-width: 520px) {
       .preview-bar { align-items: start; padding: 13px 16px; }
@@ -208,11 +231,13 @@
       .moment-index { padding: 19px 6px; }
       .moment-body { padding: 19px 15px; }
       .moment-body p { font-size: 20px; }
-      .moment-art { display: none; }
-      .photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
-      .photo-card { min-height: 190px; padding: 6px 6px 0; }
-      .photo-frame { height: 130px; }
-      .photo-caption { min-height: 50px; }
+      .moment-art { grid-column: 2; height: 147px; width: min(220px, calc(100% - 22px)); margin: -2px 14px 20px 15px; }
+      .moment-art img:first-child { width: 102px; height: 113px; }
+      .moment-art img:nth-child(2) { left: 72px; width: 101px; height: 112px; }
+      .moment-art img:nth-child(3) { width: 74px; height: 79px; }
+      .photo-grid { grid-auto-rows: 144px; gap: 11px; }
+      .photo-card { padding: 6px 6px 0; }
+      .photo-caption { min-height: 38px; }
       .photo-caption b { font-size: 14px; }
       .photo-caption small { display: none; }
       .letter-card { grid-template-columns: 38px minmax(0, 1fr) 20px; min-height: 138px; padding: 15px 12px 15px 0; }
@@ -225,7 +250,8 @@
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       *, *::before, *::after { animation: none !important; transition: none !important; }
-      .card:hover, .card .arrow, .photo-card img { transform: none !important; }
+      .card:hover, .card .arrow, .photo-card img, .moment-art img { transform: none !important; }
+      .photo-card { transform: none !important; }
     }
   </style>
 </head>
@@ -250,22 +276,27 @@
 
       <section class="section" id="moments" aria-labelledby="moments-title">
         <header class="section-head"><h2 id="moments-title">闲语</h2><small>MOMENTS</small><a class="more" href="#moments">更多闲语 →</a></header>
-        <p class="section-note">短句放在连续纸面上，保留原来的编号与小印；有配图时在右侧留一枚小景。</p>
+        <p class="section-note">短句仍写在纸笺上。配图预留三帧，以相纸轻叠在右侧；手机上移至文字下方。</p>
         <div class="stack">
-          <a class="card moment-card" href="#moments"><span class="moment-index">01<i>闲</i></span><span class="moment-body"><span class="meta"><b>片刻 · MOMENT</b><time datetime="2026-08-16">2026 年 8 月 16 日</time></span><p>山水有清音，心事落在纸上，也就轻了。</p><span class="card-foot">读这一则 <span class="arrow">↗</span></span></span><span class="moment-art" style="--art-x:18%" aria-hidden="true"><span>片刻入画</span></span></a>
+          <a class="card moment-card" href="#moments"><span class="moment-index">01<i>闲</i></span><span class="moment-body"><span class="meta"><b>片刻 · MOMENT</b><time datetime="2026-08-16">2026 年 8 月 16 日</time></span><p>山水有清音，心事落在纸上，也就轻了。</p><span class="card-foot">读这一则 <span class="arrow">↗</span></span></span><span class="moment-art" aria-hidden="true"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:5%" loading="lazy"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:51%" loading="lazy"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:96%" loading="lazy"></span></a>
           <a class="card moment-card no-art" href="#moments"><span class="moment-index">02<i>闲</i></span><span class="moment-body"><span class="meta"><b>片刻 · MOMENT</b><time datetime="2026-08-01">2026 年 8 月 1 日</time></span><p>风从长桥那头来，替我翻过旧日一页。</p><span class="card-foot">读这一则 <span class="arrow">↗</span></span></span></a>
         </div>
       </section>
 
       <section class="section" id="photos" aria-labelledby="photos-title">
         <header class="section-head"><h2 id="photos-title">光影</h2><small>FRAMES</small><a class="more" href="#photos">更多光影 →</a></header>
-        <p class="section-note">照片继续三联排列。悬停只轻抬相纸、微调图像，不增加发光效果。</p>
+        <p class="section-note">以一张主景带出七张小幅，错落排成可继续延展的相纸墙；悬停时当前照片轻抬到上层。</p>
         <div class="photo-grid">
-          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意" style="--photo-x:8%;--photo-y:42%"></span><span class="photo-caption"><b>山色入卷</b><small>FRAME 01</small><span class="arrow" aria-hidden="true">↗</span></span></a>
-          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意" style="--photo-x:52%;--photo-y:42%"></span><span class="photo-caption"><b>云过长桥</b><small>FRAME 02</small><span class="arrow" aria-hidden="true">↗</span></span></a>
-          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意" style="--photo-x:92%;--photo-y:42%"></span><span class="photo-caption"><b>水墨余晖</b><small>FRAME 03</small><span class="arrow" aria-hidden="true">↗</span></span></a>
+          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意：山色入卷" style="--photo-x:6%;--photo-y:45%" loading="lazy"></span><span class="photo-caption"><b>山色入卷</b><small>FRAME 01</small><span class="arrow" aria-hidden="true">↗</span></span></a>
+          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意：云过长桥" style="--photo-x:25%;--photo-y:45%" loading="lazy"></span><span class="photo-caption"><b>云过长桥</b><small>FRAME 02</small><span class="arrow" aria-hidden="true">↗</span></span></a>
+          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意：春山" style="--photo-x:42%;--photo-y:45%" loading="lazy"></span><span class="photo-caption"><b>春山</b><small>FRAME 03</small><span class="arrow" aria-hidden="true">↗</span></span></a>
+          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意：水岸" style="--photo-x:60%;--photo-y:45%" loading="lazy"></span><span class="photo-caption"><b>水岸</b><small>FRAME 04</small><span class="arrow" aria-hidden="true">↗</span></span></a>
+          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意：烟树" style="--photo-x:75%;--photo-y:45%" loading="lazy"></span><span class="photo-caption"><b>烟树</b><small>FRAME 05</small><span class="arrow" aria-hidden="true">↗</span></span></a>
+          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意：渡口" style="--photo-x:91%;--photo-y:45%" loading="lazy"></span><span class="photo-caption"><b>渡口</b><small>FRAME 06</small><span class="arrow" aria-hidden="true">↗</span></span></a>
+          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意：溪桥" style="--photo-x:34%;--photo-y:45%" loading="lazy"></span><span class="photo-caption"><b>溪桥</b><small>FRAME 07</small><span class="arrow" aria-hidden="true">↗</span></span></a>
+          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意：远岫" style="--photo-x:84%;--photo-y:45%" loading="lazy"></span><span class="photo-caption"><b>远岫</b><small>FRAME 08</small><span class="arrow" aria-hidden="true">↗</span></span></a>
         </div>
-        <p class="sample-note">画面仅为版式示意；正式页面仍展示原有照片。</p>
+        <p class="sample-note">此处用原有山水图的不同局部占位；正式页面将填入原有照片。</p>
       </section>
 
       <section class="section" id="letters" aria-labelledby="letters-title">
