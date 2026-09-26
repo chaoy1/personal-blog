@@ -131,38 +131,40 @@
     .card-foot { display: flex; align-items: center; gap: 12px; width: 100%; margin-top: auto; padding-top: 16px; color: var(--seal-deep); font-size: 11px; letter-spacing: .1em; }
     .card-foot::before { content: ""; flex: 1; height: 1px; background: var(--paper-line); }
     .card-foot .arrow { display: inline-block; transition: transform .22s ease; }
-    .moment-card { display: grid; grid-template-columns: 76px minmax(0, 1fr) 236px; min-height: 206px; overflow: hidden; }
+    .moment-card { display: grid; grid-template-columns: 76px minmax(0, 1fr); min-height: 194px; overflow: hidden; }
     .moment-card::before { content: "“"; position: absolute; left: 100px; top: 25px; color: var(--seal); opacity: .10; font: 86px/1 var(--kai); transition: opacity .22s ease; }
     .moment-index { display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 26px 8px; border-right: 1px solid var(--paper-line); color: var(--seal-deep); font: 13px/1 var(--latin); }
     .moment-index i { display: grid; place-items: center; width: 27px; height: 27px; background: var(--seal); color: #f7ebd1; font: 14px/1 var(--kai); font-style: normal; transform: rotate(-3deg); transition: transform .22s ease; }
     .moment-body { position: relative; display: flex; flex-direction: column; min-width: 0; padding: 27px 26px 21px; }
     .moment-body p { margin: 21px 0 12px; font: 23px/1.55 var(--kai); }
-    .moment-body .card-foot { padding-top: 0; }
-    .moment-art { position: relative; display: block; min-width: 0; height: 162px; align-self: center; margin: 17px 21px 17px 0; }
-    .moment-art::before { content: "三帧入笺"; position: absolute; right: 8px; bottom: -2px; color: var(--ink-faint); font: 10px/1 var(--kai); letter-spacing: .16em; }
-    .moment-art img { position: absolute; display: block; height: 124px; object-fit: cover; object-position: var(--crop) center; border: 5px solid var(--paper-light); background: #cbbd97; box-shadow: 0 10px 20px -9px rgba(31, 23, 11, .7); filter: saturate(.76); transition: transform .26s ease, box-shadow .26s ease; }
-    .moment-art img:first-child { z-index: 1; top: 4px; left: 3px; width: 106px; transform: rotate(-7deg); }
-    .moment-art img:nth-child(2) { z-index: 2; top: 18px; left: 73px; width: 106px; transform: rotate(5deg); }
-    .moment-art img:nth-child(3) { z-index: 3; top: 49px; right: 0; width: 80px; height: 88px; transform: rotate(-5deg); }
-    .moment-card.no-art { grid-template-columns: 76px minmax(0, 1fr); }
-    .photo-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-rows: 148px; gap: 13px; padding: 7px 4px; }
-    .photo-card { z-index: 1; display: grid; grid-template-rows: minmax(0, 1fr) auto; min-height: 0; padding: 8px 8px 0; transform: rotate(var(--tilt)); }
-    .photo-card:first-child { z-index: 2; grid-column: span 5; grid-row: span 2; --tilt: -1.1deg; }
-    .photo-card:nth-child(2) { grid-column: span 4; --tilt: 1.3deg; translate: -7px 6px; }
-    .photo-card:nth-child(3) { grid-column: span 3; --tilt: -1.4deg; translate: -11px -4px; }
-    .photo-card:nth-child(4) { grid-column: span 3; --tilt: 1.6deg; translate: 7px -9px; }
-    .photo-card:nth-child(5) { grid-column: span 4; --tilt: -.8deg; translate: 4px 6px; }
-    .photo-card:nth-child(n+6) { grid-column: span 4; }
-    .photo-card:nth-child(6) { --tilt: 1deg; translate: 5px -2px; }
-    .photo-card:nth-child(7) { --tilt: -1.4deg; translate: -3px 4px; }
-    .photo-card:nth-child(8) { --tilt: 1.1deg; translate: -9px -4px; }
-    :root[data-theme="dark"] .photo-card { border-color: rgba(229, 207, 161, .4); background-color: rgba(83, 68, 46, .98); box-shadow: 0 19px 30px -15px rgba(0, 0, 0, .72); }
-    .photo-frame { display: block; min-height: 0; overflow: hidden; background: #d0c29b; }
-    .photo-frame img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: var(--photo-x) var(--photo-y); filter: saturate(.78); transition: transform .24s ease, filter .24s ease; }
-    .photo-caption { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 42px; padding: 7px 5px; }
-    .photo-caption b { font: 15px/1.2 var(--kai); font-weight: 400; }
-    .photo-caption small { color: var(--ink-faint); font: 9px/1 var(--latin); letter-spacing: .14em; }
-    .photo-caption .arrow { color: var(--seal-deep); transition: transform .22s ease; }
+    .moment-body .card-foot { min-height: 27px; padding-top: 0; }
+    .moment-art { position: relative; display: block; width: min(470px, 100%); height: 150px; margin: 9px 0 19px 4px; }
+    .moment-art::before { content: "三帧入笺"; position: absolute; right: 4px; bottom: 1px; color: var(--ink-faint); font: 10px/1 var(--kai); letter-spacing: .16em; }
+    .moment-art img { position: absolute; display: block; height: 117px; object-fit: cover; object-position: var(--crop) center; border: 5px solid var(--paper-light); background: #cbbd97; box-shadow: 0 10px 20px -9px rgba(31, 23, 11, .7); filter: saturate(.76); transition: transform .26s ease, box-shadow .26s ease; }
+    .moment-art img:first-child { z-index: 1; top: 9px; left: 4px; width: 160px; transform: rotate(-5deg); }
+    .moment-art img:nth-child(2) { z-index: 2; top: 2px; left: 133px; width: 170px; height: 130px; transform: rotate(4deg); }
+    .moment-art img:nth-child(3) { z-index: 3; top: 22px; left: 273px; width: 145px; height: 105px; transform: rotate(-3deg); }
+    .album-list { display: grid; gap: 20px; }
+    .album-card { display: grid; grid-template-columns: minmax(235px, .8fr) minmax(0, 1.5fr); min-height: 274px; padding: 20px 25px; overflow: hidden; }
+    .album-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--seal); opacity: .8; }
+    .album-info { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; min-width: 0; padding: 19px 22px 15px 10px; }
+    .album-kicker { color: var(--seal-deep); font: 10px/1.3 var(--latin); letter-spacing: .15em; }
+    .album-info h3 { margin: 25px 0 9px; font: 28px/1.25 var(--kai); font-weight: 400; }
+    .album-info p { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.7; }
+    .album-meta { margin-top: 11px; color: var(--ink-faint); font-size: 11px; letter-spacing: .04em; }
+    .album-info .card-foot { margin-top: auto; white-space: nowrap; }
+    .album-stage { position: relative; display: block; min-width: 0; height: 232px; align-self: center; perspective: 900px; }
+    .album-stage::before { content: ""; position: absolute; inset: 21px 24px 18px 35px; border: 1px solid var(--paper-line); background: var(--paper-side); transform: rotate(2deg); }
+    .album-shot { position: absolute; display: block; overflow: hidden; border: 5px solid var(--paper-light); background: #cbbd97; box-shadow: 0 18px 22px -12px rgba(24, 20, 13, .65); transition: transform .28s ease, box-shadow .28s ease; }
+    .album-shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: var(--crop) center; filter: saturate(.78); transition: filter .28s ease; }
+    .album-shot:nth-child(1) { z-index: 1; left: 3%; top: 38px; width: 34%; height: 145px; transform: rotate(-8deg) translateZ(0); }
+    .album-shot:nth-child(2) { z-index: 2; left: 25%; top: 12px; width: 38%; height: 180px; transform: rotate(4deg) translateZ(12px); }
+    .album-shot:nth-child(3) { z-index: 3; right: 5%; top: 30px; width: 35%; height: 153px; transform: rotate(8deg) translateZ(22px); }
+    .album-shot:nth-child(4) { z-index: 4; right: 21%; bottom: 0; width: 27%; height: 102px; transform: rotate(-4deg) translateZ(33px); }
+    .album-card:nth-child(2) .album-shot:nth-child(1) { top: 31px; }
+    .album-card:nth-child(2) .album-shot:nth-child(3) { top: 41px; }
+    .album-card:nth-child(3) .album-shot:nth-child(2) { top: 23px; }
+    .album-card:nth-child(3) .album-shot:nth-child(4) { bottom: 9px; }
     .letter-card { display: grid; grid-template-columns: 72px minmax(0, 1fr) 38px; min-height: 150px; padding: 18px 22px 18px 0; overflow: hidden; border-left: 3px solid var(--ink-soft); }
     .letter-card::before { content: "“"; position: absolute; left: 91px; top: 4px; color: var(--seal); opacity: .09; font: 95px/1 var(--kai); transition: opacity .22s ease; }
     .letter-card::after { content: ""; position: absolute; left: 91px; right: 24px; bottom: 13px; height: 1px; background: linear-gradient(90deg, var(--paper-line), transparent); }
@@ -179,12 +181,15 @@
       .article-card:hover h3 { color: var(--seal-deep); }
       .moment-card:hover::before, .letter-card:hover::before { opacity: .2; }
       .moment-card:hover .moment-index i { transform: rotate(5deg); }
-      .moment-card:hover .moment-art img:first-child { transform: translate(-5px, -2px) rotate(-9deg); }
-      .moment-card:hover .moment-art img:nth-child(2) { transform: translate(4px, -3px) rotate(7deg); }
-      .moment-card:hover .moment-art img:nth-child(3) { transform: translate(4px, 1px) rotate(-3deg); }
-      .photo-card:hover { z-index: 4; transform: translateY(-5px) rotate(0deg); }
-      .photo-card:hover img { transform: scale(1.025); filter: saturate(.95); }
-      .card:hover .arrow { transform: translate(3px, -2px); }
+      .moment-card:hover .moment-art img:first-child { transform: translate(-5px, -2px) rotate(-7deg); }
+      .moment-card:hover .moment-art img:nth-child(2) { transform: translate(3px, -3px) rotate(6deg); }
+      .moment-card:hover .moment-art img:nth-child(3) { transform: translate(5px, 1px) rotate(-1deg); }
+      .album-card:hover .album-shot:nth-child(1) { transform: translate(-5px, -2px) rotate(-10deg); }
+      .album-card:hover .album-shot:nth-child(2) { transform: translate(2px, -4px) rotate(5deg); }
+      .album-card:hover .album-shot:nth-child(3) { transform: translate(5px, -2px) rotate(10deg); }
+      .album-card:hover .album-shot:nth-child(4) { transform: translate(2px, 3px) rotate(-2deg); }
+      .album-card:hover .album-shot img { filter: saturate(.94); }
+      .card:hover .arrow { transform: translateX(3px); }
       .letter-card:hover { border-left-color: var(--seal); }
     }
     .article-card:focus-visible::after { transform: scaleY(1); }
@@ -196,16 +201,18 @@
     @media (max-width: 760px) {
       main { width: min(680px, calc(100% - 32px)); padding-top: 48px; }
       .section { margin-bottom: 76px; }
-      .moment-card { grid-template-columns: 55px minmax(0, 1fr) 195px; }
-      .moment-art { margin: 14px 14px 14px 0; }
-      .moment-art img:first-child { width: 95px; }
-      .moment-art img:nth-child(2) { left: 61px; width: 96px; }
-      .moment-art img:nth-child(3) { width: 70px; }
+      .moment-card { grid-template-columns: 55px minmax(0, 1fr); }
+      .moment-art { width: min(430px, 100%); }
+      .moment-art img:first-child { width: 35%; }
+      .moment-art img:nth-child(2) { left: 28%; width: 37%; }
+      .moment-art img:nth-child(3) { left: auto; right: 9%; width: 31%; }
       .moment-body { padding: 22px 18px; }
-      .photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 180px; }
-      .photo-card, .photo-card:nth-child(n) { grid-column: span 1; grid-row: span 1; translate: none; }
-      .photo-card:first-child { grid-column: 1 / -1; grid-row: span 2; }
-      .photo-card:last-child { grid-column: 1 / -1; }
+      .album-card { grid-template-columns: minmax(170px, .8fr) minmax(0, 1.5fr); padding: 17px; }
+      .album-info { padding: 18px 10px 12px 4px; }
+      .album-stage { height: 210px; }
+      .album-shot:nth-child(1) { height: 128px; }
+      .album-shot:nth-child(2) { height: 155px; }
+      .album-shot:nth-child(3) { height: 136px; }
     }
     @media (max-width: 520px) {
       .preview-bar { align-items: start; padding: 13px 16px; }
@@ -227,19 +234,26 @@
       .article-body h3 { font-size: 23px; }
       .article-body p { font-size: 13px; }
       .article-index b { font-size: 13px; }
-      .moment-card, .moment-card.no-art { grid-template-columns: 47px minmax(0, 1fr); }
+      .moment-card { grid-template-columns: 47px minmax(0, 1fr); }
       .moment-index { padding: 19px 6px; }
       .moment-body { padding: 19px 15px; }
       .moment-body p { font-size: 20px; }
-      .moment-art { grid-column: 2; height: 147px; width: min(220px, calc(100% - 22px)); margin: -2px 14px 20px 15px; }
-      .moment-art img:first-child { width: 102px; height: 113px; }
-      .moment-art img:nth-child(2) { left: 72px; width: 101px; height: 112px; }
-      .moment-art img:nth-child(3) { width: 74px; height: 79px; }
-      .photo-grid { grid-auto-rows: 144px; gap: 11px; }
-      .photo-card { padding: 6px 6px 0; }
-      .photo-caption { min-height: 38px; }
-      .photo-caption b { font-size: 14px; }
-      .photo-caption small { display: none; }
+      .moment-art { height: 126px; width: 100%; margin: 2px 0 16px; }
+      .moment-art img:first-child { top: 10px; width: 39%; height: 94px; }
+      .moment-art img:nth-child(2) { top: 3px; left: 29%; width: 42%; height: 103px; }
+      .moment-art img:nth-child(3) { top: 28px; right: 0; width: 35%; height: 77px; }
+      .album-list { gap: 16px; }
+      .album-card { display: flex; flex-direction: column; min-height: 0; padding: 16px; }
+      .album-info { padding: 3px 4px 9px; }
+      .album-info h3 { margin: 12px 0 6px; font-size: 25px; }
+      .album-info p { font-size: 12px; }
+      .album-info .card-foot { margin-top: 14px; padding-top: 0; }
+      .album-stage { width: 100%; height: 176px; margin-top: 7px; }
+      .album-shot { border-width: 4px; }
+      .album-shot:nth-child(1) { top: 23px; height: 106px; }
+      .album-shot:nth-child(2) { top: 4px; height: 132px; }
+      .album-shot:nth-child(3) { top: 21px; height: 113px; }
+      .album-shot:nth-child(4) { height: 75px; }
       .letter-card { grid-template-columns: 38px minmax(0, 1fr) 20px; min-height: 138px; padding: 15px 12px 15px 0; }
       .letter-card::before { left: 51px; }
       .letter-card::after { left: 51px; right: 12px; }
@@ -250,8 +264,7 @@
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       *, *::before, *::after { animation: none !important; transition: none !important; }
-      .card:hover, .card .arrow, .photo-card img, .moment-art img { transform: none !important; }
-      .photo-card { transform: none !important; }
+      .card:hover, .card .arrow, .moment-art img, .album-shot { transform: none !important; }
     }
   </style>
 </head>
@@ -276,27 +289,31 @@
 
       <section class="section" id="moments" aria-labelledby="moments-title">
         <header class="section-head"><h2 id="moments-title">闲语</h2><small>MOMENTS</small><a class="more" href="#moments">更多闲语 →</a></header>
-        <p class="section-note">短句仍写在纸笺上。配图预留三帧，以相纸轻叠在右侧；手机上移至文字下方。</p>
+        <p class="section-note">短句先读，三张配图随后轻叠在纸笺上；阅读入口统一留在卡片末尾。</p>
         <div class="stack">
-          <a class="card moment-card" href="#moments"><span class="moment-index">01<i>闲</i></span><span class="moment-body"><span class="meta"><b>片刻 · MOMENT</b><time datetime="2026-08-16">2026 年 8 月 16 日</time></span><p>山水有清音，心事落在纸上，也就轻了。</p><span class="card-foot">读这一则 <span class="arrow">↗</span></span></span><span class="moment-art" aria-hidden="true"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:5%" loading="lazy"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:51%" loading="lazy"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:96%" loading="lazy"></span></a>
-          <a class="card moment-card no-art" href="#moments"><span class="moment-index">02<i>闲</i></span><span class="moment-body"><span class="meta"><b>片刻 · MOMENT</b><time datetime="2026-08-01">2026 年 8 月 1 日</time></span><p>风从长桥那头来，替我翻过旧日一页。</p><span class="card-foot">读这一则 <span class="arrow">↗</span></span></span></a>
+          <a class="card moment-card" href="#moments"><span class="moment-index">01<i>闲</i></span><span class="moment-body"><span class="meta"><b>片刻 · MOMENT</b><time datetime="2026-08-16">2026 年 8 月 16 日</time></span><p>山水有清音，心事落在纸上，也就轻了。</p><span class="moment-art" aria-hidden="true"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:5%" loading="lazy"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:51%" loading="lazy"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:96%" loading="lazy"></span><span class="card-foot">读这一则 <span class="arrow">→</span></span></span></a>
+          <a class="card moment-card" href="#moments"><span class="moment-index">02<i>闲</i></span><span class="moment-body"><span class="meta"><b>片刻 · MOMENT</b><time datetime="2026-08-01">2026 年 8 月 1 日</time></span><p>风从长桥那头来，替我翻过旧日一页。</p><span class="card-foot">读这一则 <span class="arrow">→</span></span></span></a>
         </div>
       </section>
 
       <section class="section" id="photos" aria-labelledby="photos-title">
         <header class="section-head"><h2 id="photos-title">光影</h2><small>FRAMES</small><a class="more" href="#photos">更多光影 →</a></header>
-        <p class="section-note">以一张主景带出七张小幅，错落排成可继续延展的相纸墙；悬停时当前照片轻抬到上层。</p>
-        <div class="photo-grid">
-          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意：山色入卷" style="--photo-x:6%;--photo-y:45%" loading="lazy"></span><span class="photo-caption"><b>山色入卷</b><small>FRAME 01</small><span class="arrow" aria-hidden="true">↗</span></span></a>
-          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意：云过长桥" style="--photo-x:25%;--photo-y:45%" loading="lazy"></span><span class="photo-caption"><b>云过长桥</b><small>FRAME 02</small><span class="arrow" aria-hidden="true">↗</span></span></a>
-          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意：春山" style="--photo-x:42%;--photo-y:45%" loading="lazy"></span><span class="photo-caption"><b>春山</b><small>FRAME 03</small><span class="arrow" aria-hidden="true">↗</span></span></a>
-          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意：水岸" style="--photo-x:60%;--photo-y:45%" loading="lazy"></span><span class="photo-caption"><b>水岸</b><small>FRAME 04</small><span class="arrow" aria-hidden="true">↗</span></span></a>
-          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意：烟树" style="--photo-x:75%;--photo-y:45%" loading="lazy"></span><span class="photo-caption"><b>烟树</b><small>FRAME 05</small><span class="arrow" aria-hidden="true">↗</span></span></a>
-          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意：渡口" style="--photo-x:91%;--photo-y:45%" loading="lazy"></span><span class="photo-caption"><b>渡口</b><small>FRAME 06</small><span class="arrow" aria-hidden="true">↗</span></span></a>
-          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意：溪桥" style="--photo-x:34%;--photo-y:45%" loading="lazy"></span><span class="photo-caption"><b>溪桥</b><small>FRAME 07</small><span class="arrow" aria-hidden="true">↗</span></span></a>
-          <a class="card photo-card" href="#photos"><span class="photo-frame"><img src="../public/bg/qianli-bridge.jpg" alt="山水画局部示意：远岫" style="--photo-x:84%;--photo-y:45%" loading="lazy"></span><span class="photo-caption"><b>远岫</b><small>FRAME 08</small><span class="arrow" aria-hidden="true">↗</span></span></a>
+        <p class="section-note">按最近更新展示三本相册。每本露出四张照片，以前后错位的相纸表现一本相册的厚度。</p>
+        <div class="album-list">
+          <a class="card album-card" href="#photos" aria-label="查看示意相册：山行手记，12 张照片">
+            <div class="album-info"><span class="album-kicker">最近相册 · ALBUM 01</span><h3>山行手记</h3><p>山色在纸上停驻，沿途的光也有了回声。</p><span class="album-meta">2026.09.18 · 12 张照片</span><span class="card-foot">进入相册 <span class="arrow">→</span></span></div>
+            <div class="album-stage" aria-hidden="true"><span class="album-shot"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:4%" loading="lazy"></span><span class="album-shot"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:22%" loading="lazy"></span><span class="album-shot"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:51%" loading="lazy"></span><span class="album-shot"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:84%" loading="lazy"></span></div>
+          </a>
+          <a class="card album-card" href="#photos" aria-label="查看示意相册：湖畔微雨，9 张照片">
+            <div class="album-info"><span class="album-kicker">最近相册 · ALBUM 02</span><h3>湖畔微雨</h3><p>水面轻皱，远山和树影慢慢相接。</p><span class="album-meta">2026.08.21 · 9 张照片</span><span class="card-foot">进入相册 <span class="arrow">→</span></span></div>
+            <div class="album-stage" aria-hidden="true"><span class="album-shot"><img src="../public/bg/about-ink-banner.png" alt="" style="--crop:7%" loading="lazy"></span><span class="album-shot"><img src="../public/bg/about-ink-banner.png" alt="" style="--crop:38%" loading="lazy"></span><span class="album-shot"><img src="../public/bg/about-ink-banner.png" alt="" style="--crop:72%" loading="lazy"></span><span class="album-shot"><img src="../public/bg/about-ink-banner.png" alt="" style="--crop:96%" loading="lazy"></span></div>
+          </a>
+          <a class="card album-card" href="#photos" aria-label="查看示意相册：暮色入卷，7 张照片">
+            <div class="album-info"><span class="album-kicker">最近相册 · ALBUM 03</span><h3>暮色入卷</h3><p>日色渐暗，江岸还留着一笔余温。</p><span class="album-meta">2026.07.30 · 7 张照片</span><span class="card-foot">进入相册 <span class="arrow">→</span></span></div>
+            <div class="album-stage" aria-hidden="true"><span class="album-shot"><img src="../public/bg/guestbook-ink-banner.webp" alt="" style="--crop:5%" loading="lazy"></span><span class="album-shot"><img src="../public/bg/guestbook-ink-banner.webp" alt="" style="--crop:36%" loading="lazy"></span><span class="album-shot"><img src="../public/bg/guestbook-ink-banner.webp" alt="" style="--crop:69%" loading="lazy"></span><span class="album-shot"><img src="../public/bg/guestbook-ink-banner.webp" alt="" style="--crop:95%" loading="lazy"></span></div>
+          </a>
         </div>
-        <p class="sample-note">此处用原有山水图的不同局部占位；正式页面将填入原有照片。</p>
+        <p class="sample-note">相册名称、数量与配图仅作版式示意；正式页面使用已有相册内容。</p>
       </section>
 
       <section class="section" id="letters" aria-labelledby="letters-title">
