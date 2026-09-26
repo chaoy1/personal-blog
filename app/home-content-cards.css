@@ -74,6 +74,7 @@
 
 .home-page .home-section .section-title .home-more-link .nav-back-mark {
   width: 30px;
+  transform: scaleX(-1);
   transition: transform 180ms ease;
 }
 
@@ -88,7 +89,7 @@
 
 .home-page .home-section .section-title .home-more-link:hover .nav-back-mark,
 .home-page .home-section .section-title .home-more-link:focus-visible .nav-back-mark {
-  transform: translateX(-2px);
+  transform: translateX(2px) scaleX(-1);
 }
 
 .home-page .home-section .section-title a.home-more-link:focus-visible {
