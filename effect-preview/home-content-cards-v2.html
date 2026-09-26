@@ -137,9 +137,9 @@
     .moment-index i { display: grid; place-items: center; width: 27px; height: 27px; background: var(--seal); color: #f7ebd1; font: 14px/1 var(--kai); font-style: normal; transform: rotate(-3deg); transition: transform .22s ease; }
     .moment-body { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 212px; padding: 27px 26px 55px; }
     .moment-body p { margin: 21px 0 12px; font: 23px/1.55 var(--kai); }
-    .moment-card.with-art .moment-body p { max-width: calc(100% - 310px); }
+    .moment-card.with-art .moment-body p { max-width: calc(100% - 344px); }
     .moment-body .card-foot { position: absolute; right: 26px; bottom: 19px; left: 26px; width: auto; min-height: 27px; padding-top: 0; }
-    .moment-art { position: absolute; top: 54px; right: 106px; display: block; width: 204px; height: 122px; }
+    .moment-art { position: absolute; top: 54px; right: 140px; display: block; width: 204px; height: 122px; }
     .moment-art::before { content: "三帧入笺"; position: absolute; right: 0; bottom: -2px; color: var(--ink-faint); font: 10px/1 var(--kai); letter-spacing: .16em; }
     .moment-art img { position: absolute; display: block; height: 98px; object-fit: cover; object-position: var(--crop) center; border: 5px solid var(--paper-light); background: #cbbd97; box-shadow: 0 10px 20px -9px rgba(31, 23, 11, .7); filter: saturate(.76); transition: transform .26s ease, box-shadow .26s ease; }
     .moment-art img:first-child { z-index: 1; top: 10px; left: 2px; width: 92px; transform: rotate(-6deg); }
@@ -160,9 +160,12 @@
     .album-shot:nth-child(1) { z-index: 1; left: 3%; top: 27px; width: 42%; height: 95px; transform: rotate(-8deg) translateZ(0); }
     .album-shot:nth-child(2) { z-index: 2; left: 27%; top: 3px; width: 46%; height: 114px; transform: rotate(4deg) translateZ(12px); }
     .album-shot:nth-child(3) { z-index: 3; right: 2%; top: 25px; width: 40%; height: 97px; transform: rotate(8deg) translateZ(22px); }
-    .album-card:nth-child(2) .album-shot:nth-child(1) { top: 22px; }
-    .album-card:nth-child(2) .album-shot:nth-child(3) { top: 31px; }
-    .album-card:nth-child(3) .album-shot:nth-child(2) { top: 9px; }
+    .album-card:nth-child(2) .album-shot:nth-child(1) { z-index: 3; left: 2%; top: 3px; width: 40%; height: 108px; transform: rotate(-5deg) translateZ(22px); }
+    .album-card:nth-child(2) .album-shot:nth-child(2) { z-index: 2; left: 32%; top: 18px; width: 42%; height: 97px; transform: rotate(3deg) translateZ(12px); }
+    .album-card:nth-child(2) .album-shot:nth-child(3) { z-index: 1; right: 1%; top: 38px; width: 38%; height: 82px; transform: rotate(10deg) translateZ(0); }
+    .album-card:nth-child(3) .album-shot:nth-child(1) { z-index: 1; left: 2%; top: 4px; width: 48%; height: 95px; transform: rotate(-6deg) translateZ(0); }
+    .album-card:nth-child(3) .album-shot:nth-child(2) { z-index: 2; left: auto; right: 2%; top: 12px; width: 48%; height: 91px; transform: rotate(6deg) translateZ(12px); }
+    .album-card:nth-child(3) .album-shot:nth-child(3) { z-index: 3; left: 25%; right: auto; top: 68px; width: 52%; height: 60px; transform: rotate(-1deg) translateZ(22px); }
     .letter-card { display: grid; grid-template-columns: 72px minmax(0, 1fr) 38px; min-height: 150px; padding: 18px 22px 18px 0; overflow: hidden; border-left: 3px solid var(--ink-soft); }
     .letter-card::before { content: "“"; position: absolute; left: 91px; top: 4px; color: var(--seal); opacity: .09; font: 95px/1 var(--kai); transition: opacity .22s ease; }
     .letter-card::after { content: ""; position: absolute; left: 91px; right: 24px; bottom: 13px; height: 1px; background: linear-gradient(90deg, var(--paper-line), transparent); }
@@ -185,6 +188,12 @@
       .album-card:hover .album-shot:nth-child(1) { transform: translate(-5px, -2px) rotate(-10deg); }
       .album-card:hover .album-shot:nth-child(2) { transform: translate(2px, -4px) rotate(5deg); }
       .album-card:hover .album-shot:nth-child(3) { transform: translate(5px, -2px) rotate(10deg); }
+      .album-card:nth-child(2):hover .album-shot:nth-child(1) { transform: translate(-5px, -3px) rotate(-7deg); }
+      .album-card:nth-child(2):hover .album-shot:nth-child(2) { transform: translate(2px, -4px) rotate(4deg); }
+      .album-card:nth-child(2):hover .album-shot:nth-child(3) { transform: translate(5px, 2px) rotate(12deg); }
+      .album-card:nth-child(3):hover .album-shot:nth-child(1) { transform: translate(-4px, -2px) rotate(-8deg); }
+      .album-card:nth-child(3):hover .album-shot:nth-child(2) { transform: translate(4px, -2px) rotate(8deg); }
+      .album-card:nth-child(3):hover .album-shot:nth-child(3) { transform: translateY(3px) rotate(1deg); }
       .album-card:hover .album-shot img { filter: saturate(.94); }
       .card:hover .arrow { transform: translateX(3px); }
       .letter-card:hover { border-left-color: var(--seal); }
@@ -204,13 +213,13 @@
       .section { margin-bottom: 76px; }
       .moment-card { grid-template-columns: 55px minmax(0, 1fr); }
       .moment-body { padding: 22px 18px 55px; }
-      .moment-card.with-art .moment-body p { max-width: calc(100% - 245px); }
+      .moment-card.with-art .moment-body p { max-width: calc(100% - 269px); }
       .moment-body .card-foot { right: 18px; left: 18px; }
-      .moment-art { right: 64px; width: 168px; }
+      .moment-art { right: 88px; width: 168px; }
     }
     @media (min-width: 521px) and (max-width: 600px) {
-      .moment-card.with-art .moment-body p { max-width: calc(100% - 205px); }
-      .moment-art { right: 48px; width: 138px; }
+      .moment-card.with-art .moment-body p { max-width: calc(100% - 222px); }
+      .moment-art { right: 64px; width: 138px; }
       .moment-art img:first-child { width: 67px; }
       .moment-art img:nth-child(2) { left: 44px; width: 75px; }
       .moment-art img:nth-child(3) { width: 57px; }
@@ -241,7 +250,7 @@
       .moment-body p { font-size: 20px; }
       .moment-card.with-art .moment-body p { max-width: calc(100% - 146px); }
       .moment-body .card-foot { right: 15px; bottom: 16px; left: 15px; }
-      .moment-art { top: 64px; right: 28px; width: 112px; height: 105px; }
+      .moment-art { top: 64px; right: 40px; width: 112px; height: 105px; }
       .moment-art img { border-width: 3px; }
       .moment-art img:first-child { top: 11px; width: 55px; height: 78px; }
       .moment-art img:nth-child(2) { top: 3px; left: 32px; width: 63px; height: 85px; }
@@ -288,7 +297,7 @@
 
       <section class="section" id="moments" aria-labelledby="moments-title">
         <header class="section-head"><h2 id="moments-title">闲语</h2><small>MOMENTS</small><a class="more" href="#moments">更多闲语 →</a></header>
-        <p class="section-note">短句居左，三张配图向内收拢，叠放在右侧；纸笺高度相近，右下的阅读入口留出空白。</p>
+        <p class="section-note">短句居左，三张配图再向纸笺内侧收拢；纸笺高度相近，右下的阅读入口留出空白。</p>
         <div class="stack">
           <a class="card moment-card with-art" href="#moments"><span class="moment-index">01<i>闲</i></span><span class="moment-body"><span class="meta"><b>片刻 · MOMENT</b><time datetime="2026-08-16">2026 年 8 月 16 日</time></span><p>山水有清音，心事落在纸上，也就轻了。</p><span class="moment-art" aria-hidden="true"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:5%" loading="lazy"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:51%" loading="lazy"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:96%" loading="lazy"></span><span class="card-foot">读这一则 <span class="arrow">→</span></span></span></a>
           <a class="card moment-card" href="#moments"><span class="moment-index">02<i>闲</i></span><span class="moment-body"><span class="meta"><b>片刻 · MOMENT</b><time datetime="2026-08-01">2026 年 8 月 1 日</time></span><p>风从长桥那头来，替我翻过旧日一页。</p><span class="card-foot">读这一则 <span class="arrow">→</span></span></span></a>
@@ -297,7 +306,7 @@
 
       <section class="section" id="photos" aria-labelledby="photos-title">
         <header class="section-head"><h2 id="photos-title">光影</h2><small>FRAMES</small><a class="more" href="#photos">更多光影 →</a></header>
-        <p class="section-note">三本最近相册收成紧凑的卡片。每本只露出三张局部裁切的照片，以重叠与错位表现相纸的厚度。</p>
+        <p class="section-note">三本最近相册各露出三张照片，分别以展开、斜列与前景压片摆放；相纸只保留自身的边框和阴影。</p>
         <div class="album-list">
           <a class="card album-card" href="#photos" aria-label="查看示意相册：山行手记，12 张照片">
             <div class="album-info"><span class="album-kicker">最近相册 · ALBUM 01</span><h3>山行手记</h3><p>山色在纸上停驻，沿途的光也有了回声。</p><span class="album-meta">2026.09.18 · 12 张照片</span></div>
