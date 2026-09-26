@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>文章 · 篇目长卷设计图</title>
+  <link rel="icon" href="data:,">
+  <style>
+    @import url("../public/fonts/hongleixingshu/font.css");
+    :root {
+      --paper:#eee0b9; --paper-bright:#f8edcf; --paper-deep:#d9c496;
+      --ink:#2c2922; --ink-soft:#5f5849; --ink-faint:#81745e;
+      --seal:#a83e30; --seal-dark:#812d23;
+      --line:rgba(91,65,36,.28); --line-soft:rgba(91,65,36,.16);
+      --brush:"hongleixingshu","STXingkai","KaiTi",serif;
+      --kai:"KaiTi","STKaiti","楷体","Songti SC",serif;
+      --song:"Songti SC","STSong","Noto Serif CJK SC","SimSun",serif;
+      --fiber:url("../public/bg/guestbook-paper-fibers.svg");
+      --ease:cubic-bezier(.22,.72,.18,1);
+    }
+    :root[data-theme="dark"] {
+      --paper:#3d3428; --paper-bright:#4b3e2d; --paper-deep:#29241f;
+      --ink:#f0dfbd; --ink-soft:#d1bd99; --ink-faint:#b39d79;
+      --seal:#d36c50; --seal-dark:#e18a68;
+      --line:rgba(229,198,146,.3); --line-soft:rgba(229,198,146,.17);
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; min-width:320px; color:var(--ink); font-family:var(--song); background:#6e6248; }
+    button { font:inherit; cursor:pointer; }
+    a { color:inherit; }
+    a:focus-visible,button:focus-visible { outline:2px solid var(--seal); outline-offset:3px; }
+    ::selection { background:var(--seal); color:#fff0d2; }
+    .preview-bar { position:relative; z-index:10; display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:64px; padding:10px clamp(16px,5vw,70px); border-bottom:1px solid var(--line); background:var(--paper-bright); box-shadow:0 7px 26px #271b1240; }
+    .preview-title { display:flex; align-items:center; gap:12px; min-width:0; }
+    .preview-mark { flex:none; width:12px; height:12px; transform:rotate(45deg); background:var(--seal); }
+    .preview-title strong { display:block; font:17px/1.3 var(--kai); letter-spacing:.1em; }
+    .preview-title small { display:block; margin-top:2px; color:var(--ink-faint); font:11px/1.4 var(--song); letter-spacing:.04em; }
+    .preview-controls { display:flex; gap:7px; flex:none; }
+    .preview-controls button { min-height:36px; padding:4px 11px; border:1px solid var(--line); background:transparent; color:var(--ink-soft); font:12px var(--kai); letter-spacing:.08em; }
+    .preview-controls button:hover,.preview-controls button[aria-pressed="true"] { border-color:var(--seal); background:color-mix(in srgb,var(--seal) 9%,transparent); color:var(--seal-dark); }
+    .preview-stage { container-type:inline-size; width:min(100%, 1500px); min-height:100vh; margin:auto; transition:width .45s var(--ease); }
+    .preview-stage.phone { width:min(390px,100%); box-shadow:0 0 0 1px #ddd5c04a,0 20px 70px #20181185; }
+    .canvas { position:relative; isolation:isolate; min-height:100vh; overflow:clip; background:#837557 url("../public/bg/qianli-bridge.jpg") center top / cover fixed no-repeat; }
+    .canvas::before { position:absolute; inset:0; z-index:-1; content:""; background:linear-gradient(180deg,#f1e6bf22 0%,#30261425 54%,#251b1280 100%); }
+    :root[data-theme="dark"] .canvas::before { background:linear-gradient(180deg,#100f0cac,#16120da8 55%,#0e0d0be8); }
+    .site-nav { height:66px; border-bottom:1px solid #eddfb128; background:#211c16d9; color:#e6d5af; backdrop-filter:blur(8px); }
+    .nav-inner { display:flex; align-items:center; gap:20px; width:min(1300px,calc(100% - 52px)); height:100%; margin:auto; }
+    .brand { display:flex; align-items:center; gap:10px; flex:none; text-decoration:none; }
+    .brand-mark { width:12px; height:12px; transform:rotate(45deg); border:1px solid var(--seal); }
+    .brand-name { font:23px var(--brush); letter-spacing:.18em; }
+    .brand-en { color:#b4a47e; font:9px Georgia,serif; letter-spacing:.16em; }
+    .nav-links { display:flex; align-items:center; justify-content:center; gap:29px; flex:1; }
+    .nav-links a { position:relative; font:12px var(--kai); letter-spacing:.18em; text-decoration:none; white-space:nowrap; }
+    .nav-links a[aria-current="page"] { color:#fff1cb; }
+    .nav-links a[aria-current="page"]::after { position:absolute; right:3px; bottom:-17px; left:3px; height:2px; content:""; background:var(--seal); }
+    .nav-theme { color:#d7c49a; font:17px var(--kai); white-space:nowrap; }
+    .page-shell { width:min(1100px,calc(100% - 72px)); margin:auto; padding-bottom:80px; }
+    .subnav { display:flex; justify-content:space-between; align-items:center; min-height:125px; gap:20px; color:#f2e0b9; font:13px var(--kai); letter-spacing:.16em; text-shadow:0 2px 12px #18130b; }
+    .subnav a { display:inline-flex; align-items:center; gap:17px; min-height:44px; text-decoration:none; }
+    .subnav a:hover { color:#fff7db; }
+    .back-arrow { font:27px Georgia,serif; line-height:1; }
+    .subnav-current { display:inline-flex; align-items:center; gap:10px; }
+    .small-seal { display:grid; place-items:center; width:21px; height:23px; transform:rotate(-5deg); border:1px solid #f3d0a6; background:#a83e30; color:#fff0d2; font:11px var(--kai); }
+    .sheet { position:relative; isolation:isolate; border:1px solid #7450295c; background-color:var(--paper); background-image:linear-gradient(122deg,#fffbea52,transparent 34%),radial-gradient(ellipse at 95% 0,#ae732d14,transparent 34%),var(--fiber); background-blend-mode:normal,normal,soft-light; box-shadow:0 34px 84px -28px #21180b7a; }
+    .sheet::before,.sheet::after { position:absolute; top:0; bottom:0; z-index:1; width:7px; content:""; pointer-events:none; }
+    .sheet::before { left:0; background:linear-gradient(90deg,#62411f24,transparent); }
+    .sheet::after { right:0; background:linear-gradient(270deg,#62411f24,transparent); }
+    .top-rule { height:5px; background:linear-gradient(90deg,var(--seal) 0 116px,#7d552a50 116px 52%,transparent 79%); }
+    /* 题头以现有文章页为基准；其他主页面沿用这套位置、比例、纸色与朱印。 */
+    .hero { position:relative; display:grid; grid-template-columns:minmax(0,1fr) 41%; min-height:352px; overflow:hidden; padding:56px 72px 48px 82px; border-bottom:1px solid var(--line); }
+    .hero::before { position:absolute; top:57px; bottom:49px; left:44px; width:1px; content:""; background:linear-gradient(var(--seal),var(--line-soft) 52%,transparent); }
+    .hero::after { position:absolute; top:53px; left:40px; width:9px; height:9px; transform:rotate(45deg); content:""; background:var(--seal); }
+    .hero-copy { position:relative; z-index:2; align-self:center; }
+    .hero-overline { display:flex; align-items:center; gap:14px; color:var(--seal-dark); font:12px var(--kai); letter-spacing:.19em; }
+    .hero-overline::after { width:28px; height:1px; content:""; background:var(--seal); }
+    .hero-overline small { color:var(--ink-faint); font:10px Georgia,serif; letter-spacing:.28em; }
+    h1 { display:flex; align-items:flex-end; gap:18px; margin:18px 0 16px; font-weight:400; white-space:nowrap; }
+    h1 .title { font:clamp(72px,7vw,108px)/1.15 var(--brush); letter-spacing:.07em; }
+    h1 .title-tail { margin-bottom:13px; color:var(--ink-soft); font:26px/1.5 var(--kai); letter-spacing:.19em; }
+    .hero-intro { margin:0 0 26px 4px; color:var(--ink-soft); font:17px/1.75 var(--kai); letter-spacing:.12em; }
+    .hero-intro b { color:var(--seal-dark); font-weight:400; }
+    .hero-index { display:flex; align-items:center; gap:12px; margin-left:4px; color:var(--ink-faint); font:10px Georgia,serif; letter-spacing:.17em; }
+    .hero-index i { width:27px; height:1px; background:var(--line); }
+    .hero-art { position:relative; min-height:260px; margin:-56px -72px -48px -86px; pointer-events:none; background:url("../public/bg/about-ink-banner.png") 59% 67% / auto 420px no-repeat; opacity:.8; -webkit-mask-image:linear-gradient(90deg,transparent,#000 38%); mask-image:linear-gradient(90deg,transparent,#000 38%); }
+    .hero-art::after { position:absolute; inset:0; content:""; background:linear-gradient(180deg,var(--paper),transparent 23%,transparent 72%,var(--paper)); }
+    :root[data-theme="dark"] .hero-art { filter:brightness(.57) sepia(.3); opacity:.55; }
+    .hero-stamp { position:absolute; top:69px; right:70px; z-index:2; display:grid; place-items:center; width:47px; height:51px; transform:rotate(7deg); border:3px double #eed9b1; outline:1px solid var(--seal); background:var(--seal); color:#fff0d2; font:21px var(--kai); box-shadow:3px 4px 0 #4e2b2626; }
+    .hero-aside { position:absolute; right:44px; bottom:43px; z-index:2; color:var(--ink-faint); writing-mode:vertical-rl; font:12px var(--kai); letter-spacing:.28em; }
+    .catalog { padding:0 70px 64px 82px; }
+    .catalog-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding:33px 0 24px; border-bottom:1px solid var(--line); }
+    .catalog-heading h2 { display:flex; align-items:baseline; gap:14px; margin:0; font:27px var(--kai); font-weight:400; letter-spacing:.15em; }
+    .catalog-heading h2 small { color:var(--ink-faint); font:10px Georgia,serif; letter-spacing:.23em; }
+    .catalog-count { color:var(--ink-faint); font:12px var(--kai); letter-spacing:.1em; white-space:nowrap; }
+    .catalog-count b { color:var(--seal-dark); font:25px Georgia,serif; font-weight:400; }
+    .catalog-intro { display:flex; justify-content:space-between; gap:22px; padding:16px 0 34px; color:var(--ink-faint); font:12px/1.65 var(--kai); letter-spacing:.08em; }
+    .catalog-intro span:last-child { color:var(--seal-dark); white-space:nowrap; }
+    .catalog-layout { display:grid; grid-template-columns:142px minmax(0,1fr); gap:36px; }
+    .year-rail { position:relative; align-self:stretch; }
+    .year-rail::after { position:absolute; top:16px; bottom:0; right:4px; width:1px; content:""; background:linear-gradient(var(--line),var(--line-soft) 70%,transparent); }
+    .rail-inner { position:sticky; top:26px; z-index:3; padding:1px 16px 0 0; }
+    .rail-label { display:block; margin:0 0 20px; color:var(--ink-faint); font:10px Georgia,serif; letter-spacing:.23em; }
+    .rail-link { position:relative; display:flex; align-items:baseline; justify-content:space-between; gap:8px; min-height:49px; padding:10px 0; color:var(--ink-soft); text-decoration:none; transition:color .25s ease,transform .3s var(--ease); }
+    .rail-link::after { position:absolute; top:24px; right:-20px; width:8px; height:8px; transform:rotate(45deg); border:1px solid var(--line); background:var(--paper); content:""; transition:background .25s ease,border-color .25s ease; }
+    .rail-link:hover,.rail-link:focus-visible { transform:translateX(3px); color:var(--seal-dark); }
+    .rail-link:hover::after,.rail-link:focus-visible::after { border-color:var(--seal); background:var(--seal); }
+    .rail-link strong { font:22px Georgia,serif; font-weight:400; letter-spacing:.07em; }
+    .rail-link small { font:11px var(--kai); white-space:nowrap; }
+    .rail-foot { margin-top:23px; color:var(--ink-faint); writing-mode:vertical-rl; font:11px var(--kai); letter-spacing:.35em; }
+    .year-block { scroll-margin-top:30px; margin-bottom:35px; }
+    .year-heading { display:flex; align-items:center; gap:13px; width:100%; min-height:43px; margin:0 0 15px; padding:0; border:0; background:transparent; color:var(--ink-soft); text-align:left; }
+    .year-heading .diamond { width:7px; height:7px; transform:rotate(45deg); border:1px solid var(--seal); }
+    .year-heading strong { color:var(--seal-dark); font:26px Georgia,serif; font-weight:400; letter-spacing:.12em; }
+    .year-heading small { font:12px var(--kai); letter-spacing:.13em; white-space:nowrap; }
+    .year-heading .rule { flex:1; height:1px; background:linear-gradient(90deg,var(--line),transparent); }
+    .year-heading .fold { color:var(--ink-faint); font:11px var(--kai); white-space:nowrap; }
+    .year-heading .fold::after { display:inline-block; margin-left:7px; content:"−"; color:var(--seal-dark); font:16px Georgia,serif; }
+    .year-heading[aria-expanded="false"] .fold::after { content:"+"; }
+    .year-list { display:grid; gap:12px; margin:0; padding:0; list-style:none; }
+    .year-list[hidden] { display:none; }
+    .entry { position:relative; isolation:isolate; display:grid; grid-template-columns:53px minmax(0,1fr) 98px; gap:16px; min-height:139px; overflow:hidden; padding:22px 23px 19px 18px; border:1px solid var(--line-soft); background:linear-gradient(105deg,#fffaf120,transparent 50%),color-mix(in srgb,var(--paper-bright) 40%,transparent); box-shadow:3px 4px 0 color-mix(in srgb,var(--paper-deep) 45%,transparent),0 13px 25px -26px #3a2518a0; transition:transform .35s var(--ease),background .3s ease,border-color .3s ease,box-shadow .35s ease; }
+    .entry::before { position:absolute; inset:0 auto 0 0; width:3px; content:""; background:var(--seal); box-shadow:0 0 22px 4px color-mix(in srgb,var(--seal) 20%,transparent); transition:width .45s var(--ease); }
+    .entry::after { position:absolute; top:0; right:0; width:25px; height:25px; content:""; background:linear-gradient(225deg,var(--paper) 0 49%,var(--line-soft) 50% 51%,transparent 52%); }
+    .entry:hover,.entry:focus-within { z-index:1; transform:translate(6px,-3px); border-color:color-mix(in srgb,var(--seal) 35%,var(--line)); background:linear-gradient(105deg,#fffaf130,transparent 55%),color-mix(in srgb,var(--paper-bright) 75%,transparent); box-shadow:4px 6px 0 color-mix(in srgb,var(--paper-deep) 60%,transparent),0 19px 30px -25px #3a2518b0; }
+    .entry:hover::before,.entry:focus-within::before { width:6px; }
+    .entry-number { padding-right:12px; border-right:1px solid var(--line-soft); color:var(--seal-dark); font:27px/1 Georgia,serif; }
+    .entry-number small { display:block; margin-top:12px; font:10px var(--kai); }
+    .entry-main { min-width:0; }
+    .entry-meta { display:flex; align-items:center; gap:9px; color:var(--seal-dark); font:10px Georgia,serif; letter-spacing:.18em; }
+    .entry-meta i { width:17px; height:1px; background:var(--seal); }
+    .entry-title { margin:11px 0 7px; font:clamp(21px,2.15vw,28px)/1.4 var(--kai); font-weight:400; letter-spacing:.035em; overflow-wrap:anywhere; }
+    .entry-title a { text-decoration:none; }
+    .entry-title a:hover { color:var(--seal-dark); }
+    .entry-excerpt { max-width:570px; margin:0; color:var(--ink-soft); font:13px/1.75 var(--song); letter-spacing:.03em; }
+    .entry-side { display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between; gap:14px; color:var(--ink-faint); text-align:right; }
+    .entry-side time { font:10px Georgia,serif; white-space:nowrap; }
+    .entry-link { display:inline-flex; align-items:center; gap:8px; padding-bottom:4px; border-bottom:1px solid var(--seal); color:var(--seal-dark); font:12px var(--kai); letter-spacing:.07em; text-decoration:none; white-space:nowrap; }
+    .entry-link span { font:17px Georgia,serif; transition:transform .3s var(--ease); }
+    .entry:hover .entry-link span,.entry-link:hover span { transform:translateX(4px); }
+    .entry.featured { min-height:174px; background:radial-gradient(circle at 85% 5%,color-mix(in srgb,var(--seal) 6%,transparent),transparent 34%),color-mix(in srgb,var(--paper-bright) 66%,transparent); }
+    .entry.featured .entry-title { font-size:clamp(25px,2.6vw,32px); }
+    .entry.featured .entry-meta::after { content:"选读"; margin-left:4px; padding:2px 6px; border:1px solid var(--seal); color:var(--seal-dark); font:10px var(--kai); transform:rotate(-3deg); }
+    .catalog-end { display:flex; align-items:center; gap:18px; margin-top:17px; color:var(--ink-faint); }
+    .catalog-end::before,.catalog-end::after { flex:1; height:1px; content:""; background:linear-gradient(90deg,transparent,var(--line)); }
+    .catalog-end::after { transform:rotate(180deg); }
+    .catalog-end span { display:grid; place-items:center; width:27px; height:29px; transform:rotate(5deg); border:3px double var(--seal); color:var(--seal-dark); font:13px var(--kai); }
+    .colophon { display:flex; align-items:center; justify-content:space-between; gap:15px; padding:28px 0 10px; color:var(--ink-faint); font:12px var(--kai); letter-spacing:.12em; }
+    .colophon strong { color:var(--seal-dark); font:21px var(--brush); font-weight:400; letter-spacing:.15em; }
+    .pagination { display:flex; justify-content:center; align-items:center; gap:13px; margin-top:19px; color:var(--ink-faint); font:12px var(--kai); }
+    .pagination button { min-width:67px; min-height:38px; border:1px solid var(--line); background:transparent; color:var(--ink-faint); }
+    .pagination button:disabled { cursor:default; opacity:.46; }
+    .page-footer { margin:28px 0 0; color:#f8e8c1; text-align:center; text-shadow:0 1px 8px #332619; font:12px var(--kai); letter-spacing:.18em; }
+    @container (max-width:850px) {
+      .nav-links { gap:15px; }
+      .nav-inner { width:calc(100% - 32px); }
+      .brand-en { display:none; }
+      .page-shell { width:calc(100% - 30px); }
+      .hero { padding:48px 40px 40px 62px; grid-template-columns:minmax(0,1fr) 28%; }
+      .hero::before { left:34px; }.hero::after { left:30px; }
+      .hero-art { margin-right:-40px; opacity:.62; }
+      .hero-stamp { right:40px; }.hero-aside { right:18px; }
+      .catalog { padding:0 40px 45px 52px; }
+      .catalog-layout { grid-template-columns:112px minmax(0,1fr); gap:22px; }
+      .entry { grid-template-columns:44px minmax(0,1fr); }
+      .entry-side { grid-column:2; flex-direction:row; align-items:center; text-align:left; }
+    }
+    @container (max-width:650px) {
+      .site-nav { height:60px; }.nav-links,.nav-theme { display:none; }
+      .brand-name { font-size:22px; }
+      .page-shell { width:calc(100% - 20px); padding-bottom:42px; }
+      .subnav { min-height:74px; padding:0 8px; font-size:12px; }
+      .hero { display:block; min-height:300px; padding:42px 25px 37px 43px; }
+      .hero::before { top:44px; bottom:40px; left:22px; }.hero::after { top:40px; left:18px; }
+      .hero-overline { font-size:11px; } h1 { gap:7px; margin:23px 0 14px; }
+      h1 .title { font-size:clamp(67px,16vw,84px); } h1 .title-tail { margin-bottom:8px; font-size:18px; }
+      .hero-intro { position:relative; z-index:2; max-width:250px; font-size:14px; }
+      .hero-index { position:relative; z-index:2; font-size:9px; }
+      .hero-art { position:absolute; right:-65px; bottom:-31px; width:90%; min-height:270px; margin:0; background-size:auto 330px; opacity:.28; }
+      .hero-stamp { top:34px; right:28px; width:38px; height:42px; font-size:17px; }.hero-aside { display:none; }
+      .catalog { padding:0 22px 39px; }.catalog-heading { padding:20px 0 17px; }
+      .catalog-heading h2 { gap:9px; font-size:20px; }.catalog-heading h2 small { display:none; }
+      .catalog-count { font-size:11px; }.catalog-count b { font-size:20px; }
+      .catalog-intro { padding:13px 0 16px; font-size:11px; }.catalog-intro span:last-child { display:none; }
+      .catalog-layout { display:block; }.year-rail { margin-bottom:10px; }.year-rail::after,.rail-label,.rail-foot { display:none; }
+      .rail-inner { position:static; display:flex; gap:9px; padding:0; }
+      .rail-link { justify-content:center; min-height:32px; padding:3px 9px; border:1px solid var(--line-soft); }
+      .rail-link::after,.rail-link small { display:none; }.rail-link strong { font-size:14px; }
+      .year-block { margin-bottom:21px; }.year-heading { gap:9px; min-height:37px; margin-bottom:8px; }
+      .year-heading strong { font-size:21px; }.year-heading small { font-size:11px; }.year-heading .fold { font-size:10px; }
+      .year-list { gap:10px; }.entry { grid-template-columns:34px minmax(0,1fr); gap:0 10px; min-height:0; padding:16px 12px 15px 10px; }
+      .entry-number { padding-right:7px; font-size:20px; }.entry-number small { margin-top:10px; font-size:9px; }
+      .entry-meta { font-size:9px; }.entry-title,.entry.featured .entry-title { margin:9px 0 6px; font-size:21px; }
+      .entry-excerpt { font-size:12px; }.entry-side { flex-wrap:wrap; gap:8px; margin-top:12px; }
+      .entry-side time { font-size:9px; }.entry-link { font-size:11px; }.entry.featured { min-height:0; }
+      .entry.featured .entry-meta::after { display:none; }
+      .colophon { align-items:flex-start; flex-direction:column; gap:6px; padding-top:20px; font-size:11px; }
+    }
+    @media (max-width:450px) { .preview-bar { align-items:flex-start; flex-direction:column; gap:9px; }.preview-controls { width:100%; }.preview-controls button { flex:1; } }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { transition-duration:.01ms!important; animation-duration:.01ms!important; } }
+  </style>
+</head>
+<body>
+  <div class="preview-bar" aria-label="设计图控制栏">
+    <div class="preview-title"><span class="preview-mark" aria-hidden="true"></span><div><strong>文章页 · 篇目长卷</strong><small>独立 HTML 设计图｜题头沿用现有文章页，正文展示新方案</small></div></div>
+    <div class="preview-controls"><button id="theme-button" type="button" aria-label="切换明暗主题">切换夜色</button><button id="size-button" type="button" aria-pressed="false">手机预览</button></div>
+  </div>
+  <div class="preview-stage" id="preview-stage"><div class="canvas">
+    <nav class="site-nav" aria-label="主导航"><div class="nav-inner"><a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"></span><span class="brand-name">似水流年</span><span class="brand-en">JOURNAL</span></a><div class="nav-links"><a href="#top">首页</a><a href="#catalog" aria-current="page">文章</a><a href="#catalog">闲语</a><a href="#catalog">光影</a><a href="#catalog">时间轴</a><a href="#catalog">留言</a><a href="#catalog">关于</a></div><span class="nav-theme" aria-hidden="true">☾</span></div></nav>
+    <main class="page-shell" id="top">
+      <div class="subnav"><a href="#top" aria-label="返回首页"><span class="back-arrow" aria-hidden="true">←</span><span>返回首页</span></a><span class="subnav-current"><span class="small-seal" aria-hidden="true">文</span>文章</span></div>
+      <section class="sheet" aria-labelledby="page-title"><div class="top-rule" aria-hidden="true"></div>
+        <header class="hero"><div class="hero-copy"><div class="hero-overline"><span>卷 01</span><small>THE WRITTEN PAGES</small></div><h1 id="page-title"><span class="title">文章</span><span class="title-tail">一册手记</span></h1><p class="hero-intro">把日子写成文字，<b>慢慢收进纸页。</b></p><div class="hero-index"><span>EST. 2024</span><i aria-hidden="true"></i><span>07 WRITINGS</span></div></div><div class="hero-art" aria-hidden="true"></div><span class="hero-stamp" aria-hidden="true">文</span><span class="hero-aside" aria-hidden="true">字字留痕 · 岁月成章</span></header>
+        <div class="catalog" id="catalog"><div class="catalog-heading"><h2>篇目 <small>CONTENTS / 目录</small></h2><span class="catalog-count">共收录 <b>07</b> 篇</span></div><div class="catalog-intro"><span>沿年份翻阅，把留在纸上的日子重新读一遍。</span><span>轻触年份，可收起篇目</span></div>
+          <div class="catalog-layout"><aside class="year-rail" aria-label="年份索引"><div class="rail-inner"><span class="rail-label">YEAR / 年序</span><a class="rail-link" href="#year-2026"><strong>2026</strong><small>五篇</small></a><a class="rail-link" href="#year-2025"><strong>2025</strong><small>一篇</small></a><a class="rail-link" href="#year-2024"><strong>2024</strong><small>一篇</small></a><span class="rail-foot" aria-hidden="true">年岁为序 · 文字作记</span></div></aside>
+            <div class="year-content">
+              <section class="year-block" id="year-2026" aria-label="2026 年文章"><button class="year-heading" type="button" aria-expanded="true" aria-controls="posts-2026"><span class="diamond" aria-hidden="true"></span><strong>2026</strong><small>丙午 · 五篇</small><span class="rule" aria-hidden="true"></span><span class="fold">收起</span></button><ol class="year-list" id="posts-2026">
+                <li class="entry"><span class="entry-number" aria-hidden="true">01<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第壹篇</div><h3 class="entry-title"><a href="#catalog">测试</a></h3></div><div class="entry-side"><time datetime="2026-08-01">2026.08.01</time><a class="entry-link" href="#catalog" aria-label="读此篇：测试">读此篇 <span aria-hidden="true">→</span></a></div></li>
+                <li class="entry featured"><span class="entry-number" aria-hidden="true">02<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第贰篇</div><h3 class="entry-title"><a href="#catalog">摄影是按下快门的那一秒</a></h3><p class="entry-excerpt">相机不重要，重要的永远是那一秒你在场，并且愿意停下来。</p></div><div class="entry-side"><time datetime="2026-07-30">2026.07.30</time><a class="entry-link" href="#catalog" aria-label="读此篇：摄影是按下快门的那一秒">读此篇 <span aria-hidden="true">→</span></a></div></li>
+                <li class="entry"><span class="entry-number" aria-hidden="true">03<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第叁篇</div><h3 class="entry-title"><a href="#catalog">一个人的深夜书房</a></h3><p class="entry-excerpt">深夜读书的意义，大概是把白天借出去的时间，一点一点赎回来。</p></div><div class="entry-side"><time datetime="2026-07-28">2026.07.28</time><a class="entry-link" href="#catalog" aria-label="读此篇：一个人的深夜书房">读此篇 <span aria-hidden="true">→</span></a></div></li>
+                <li class="entry"><span class="entry-number" aria-hidden="true">04<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第肆篇</div><h3 class="entry-title"><a href="#catalog">写点什么，比写得完美更重要</a></h3><p class="entry-excerpt">完美是动笔之后慢慢逼近的，不是动笔之前等来的。</p></div><div class="entry-side"><time datetime="2026-07-26">2026.07.26</time><a class="entry-link" href="#catalog" aria-label="读此篇：写点什么，比写得完美更重要">读此篇 <span aria-hidden="true">→</span></a></div></li>
+                <li class="entry"><span class="entry-number" aria-hidden="true">05<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第伍篇</div><h3 class="entry-title"><a href="#catalog">开篇：把文字安放在自己的屋檐下</a></h3><p class="entry-excerpt">第一篇文字，说说这个博客的来由，以及写作这件事本身。</p></div><div class="entry-side"><time datetime="2026-07-20">2026.07.20</time><a class="entry-link" href="#catalog" aria-label="读此篇：开篇：把文字安放在自己的屋檐下">读此篇 <span aria-hidden="true">→</span></a></div></li>
+              </ol></section>
+              <section class="year-block" id="year-2025" aria-label="2025 年文章"><button class="year-heading" type="button" aria-expanded="true" aria-controls="posts-2025"><span class="diamond" aria-hidden="true"></span><strong>2025</strong><small>乙巳 · 一篇</small><span class="rule" aria-hidden="true"></span><span class="fold">收起</span></button><ol class="year-list" id="posts-2025"><li class="entry"><span class="entry-number" aria-hidden="true">06<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第陆篇</div><h3 class="entry-title"><a href="#catalog">从零搭一个免费博客：Next.js 与 Supabase 的组合</a></h3><p class="entry-excerpt">不买服务器、不申请公网 IP，十分钟让博客上线，还自带管理后台。</p></div><div class="entry-side"><time datetime="2025-07-23">2025.07.23</time><a class="entry-link" href="#catalog" aria-label="读此篇：从零搭一个免费博客">读此篇 <span aria-hidden="true">→</span></a></div></li></ol></section>
+              <section class="year-block" id="year-2024" aria-label="2024 年文章"><button class="year-heading" type="button" aria-expanded="true" aria-controls="posts-2024"><span class="diamond" aria-hidden="true"></span><strong>2024</strong><small>甲辰 · 一篇</small><span class="rule" aria-hidden="true"></span><span class="fold">收起</span></button><ol class="year-list" id="posts-2024"><li class="entry"><span class="entry-number" aria-hidden="true">07<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第柒篇</div><h3 class="entry-title"><a href="#catalog">秋日山行记</a></h3><p class="entry-excerpt">沿着落叶铺满的小径上山，秋天的山是会慢慢变红的。</p></div><div class="entry-side"><time datetime="2024-08-01">2024.08.01</time><a class="entry-link" href="#catalog" aria-label="读此篇：秋日山行记">读此篇 <span aria-hidden="true">→</span></a></div></li></ol></section>
+            </div></div><div class="catalog-end" aria-hidden="true"><span>终</span></div><div class="colophon"><span>七篇已收录 · 新篇将续写于此</span><strong>似水流年</strong></div><nav class="pagination" aria-label="文章分页展示"><button type="button" disabled>前一页</button><span>第 1 / 1 页</span><button type="button" disabled>后一页</button></nav>
+        </div>
+      </section><p class="page-footer">山水有尽 · 文字无涯</p>
+    </main>
+  </div></div>
+  <script>
+    const root=document.documentElement;
+    const themeButton=document.getElementById('theme-button');
+    const sizeButton=document.getElementById('size-button');
+    const stage=document.getElementById('preview-stage');
+    // 预览中的篇目可打开现有线上文章；正式页面仍沿用原有路由和数据。
+    const articleSlugs=['测试','photography-moment','midnight-study','write-something','hello-world','build-a-free-blog','autumn-mountain-walk'];
+    document.querySelectorAll('.entry').forEach((entry,index)=>entry.querySelectorAll('a').forEach(link=>{
+      link.href=`https://personal-blog-phi-eosin.vercel.app/posts/${encodeURIComponent(articleSlugs[index])}`;
+      link.target='_blank';
+      link.rel='noopener noreferrer';
+    }));
+    const navPaths=['/','/posts','/moments','/album','/timeline','/guestbook','/about'];
+    document.querySelectorAll('.nav-links a').forEach((link,index)=>{
+      if(index!==1) link.href=`https://personal-blog-phi-eosin.vercel.app${navPaths[index]}`;
+    });
+    document.querySelector('.brand').href='https://personal-blog-phi-eosin.vercel.app/';
+    document.querySelector('.subnav a').href='https://personal-blog-phi-eosin.vercel.app/';
+    themeButton.addEventListener('click',()=>{ const dark=root.dataset.theme!=='dark'; root.dataset.theme=dark?'dark':'light'; themeButton.textContent=dark?'切换日色':'切换夜色'; });
+    sizeButton.addEventListener('click',()=>{ const phone=stage.classList.toggle('phone'); sizeButton.setAttribute('aria-pressed',String(phone)); sizeButton.textContent=phone?'桌面预览':'手机预览'; window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}); });
+    document.querySelectorAll('.year-heading').forEach(button=>button.addEventListener('click',()=>{ const expanded=button.getAttribute('aria-expanded')==='true'; const list=document.getElementById(button.getAttribute('aria-controls')); button.setAttribute('aria-expanded',String(!expanded)); button.querySelector('.fold').textContent=expanded?'展开':'收起'; list.hidden=expanded; }));
+  </script>
+</body>
+</html>
