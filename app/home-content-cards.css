@@ -50,6 +50,57 @@
   letter-spacing: 0.12em;
 }
 
+.home-page .home-section .section-title a.home-more-link {
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 6px 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--color-text-primary);
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+  text-shadow: none;
+  transition: color 180ms ease, transform 180ms ease;
+}
+
+.home-page .home-section .section-title .home-more-link .nav-back-mark {
+  width: 30px;
+  transition: transform 180ms ease;
+}
+
+.home-page .home-section .section-title .home-more-link .nav-back-mark::before {
+  width: 29px;
+}
+
+.home-page .home-section .section-title a.home-more-link:hover {
+  color: var(--color-primary-strong);
+  transform: translateY(-1px);
+}
+
+.home-page .home-section .section-title .home-more-link:hover .nav-back-mark,
+.home-page .home-section .section-title .home-more-link:focus-visible .nav-back-mark {
+  transform: translateX(-2px);
+}
+
+.home-page .home-section .section-title a.home-more-link:focus-visible {
+  outline: 2px solid var(--seal);
+  outline-offset: 3px;
+}
+
+:root[data-theme='dark'] .home-page .home-section .home-more-link .article-nav-label::before {
+  background: radial-gradient(ellipse at center, rgba(35, 28, 19, 0.78) 0 38%, rgba(35, 28, 19, 0.48) 64%, transparent 100%);
+  opacity: 1;
+}
+
 .home-page .home-post-card,
 .home-page .hm-card,
 .home-page .home-album-card,
@@ -491,6 +542,9 @@
   .home-page .home-section::before { bottom: -32px; width: 126px; }
   .home-page .home-section::after { bottom: -36px; }
   .home-page .home-section .section-title { font-size: 29px; }
+  .home-page .home-section .section-title a.home-more-link { gap: 8px; padding: 5px 2px; font-size: 15px; letter-spacing: 0.12em; }
+  .home-page .home-section .section-title .home-more-link .nav-back-mark { width: 24px; }
+  .home-page .home-section .section-title .home-more-link .nav-back-mark::before { width: 23px; }
   .home-page .home-post-card { grid-template-columns: 48px minmax(0, 1fr); }
   .home-page .home-post-card::after { left: 48px; }
   .home-page .hpc-copy { padding: 19px 16px 16px; }
@@ -542,6 +596,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .home-page .home-section .section-title a.home-more-link,
+  .home-page .home-section .section-title .home-more-link .nav-back-mark,
   .home-page .home-post-card,
   .home-page .hm-card,
   .home-page .hm-thumbs img,

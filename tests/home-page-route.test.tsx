@@ -67,10 +67,10 @@ describe('P01 home page route', () => {
     expect(screen.getByRole('main')).toHaveClass('home-page')
     expect(screen.getByRole('navigation', { name: '站点内容概览' })).toBeInTheDocument()
     expect(screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent)).toEqual([
-      '文章更多 →',
-      '闲语更多 →',
-      '光影更多 →',
-      '留言更多 →',
+      '文章更多',
+      '闲语更多',
+      '光影更多',
+      '留言更多',
     ])
 
     const feedback = screen.getByRole('alert')

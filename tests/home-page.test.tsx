@@ -198,10 +198,10 @@ describe('P01 home page composition', () => {
     )
 
     expect(screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent)).toEqual([
-      '文章更多 →',
-      '闲语更多 →',
-      '光影更多 →',
-      '留言更多 →',
+      '文章更多',
+      '闲语更多',
+      '光影更多',
+      '留言更多',
     ])
     expect(screen.getByRole('link', { name: /山中一日/ })).toHaveAttribute(
       'href',

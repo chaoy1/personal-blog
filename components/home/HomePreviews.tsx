@@ -22,7 +22,7 @@ export type HomePreviewsProps = {
 }
 
 function SectionTitle({ title, href }: { title: string; href: string }) {
-  return <h2 className="section-title"><span>{title}</span><Link href={href}>更多 →</Link></h2>
+  return <h2 className="section-title"><span>{title}</span><Link href={href} className="home-more-link" aria-label={`更多${title}`}><span className="nav-back-mark" aria-hidden="true" /><span className="article-nav-label">更多</span></Link></h2>
 }
 
 export default function HomePreviews({ posts, moments, albums, guestbook, errors = {} }: HomePreviewsProps) {

@@ -105,8 +105,16 @@
     .section-head::before { content: ""; width: 8px; height: 8px; margin-right: 3px; border: 1px solid var(--seal); transform: rotate(45deg); }
     .section-head h2 { margin: 0; font: 33px/1.1 var(--kai); font-weight: 400; letter-spacing: .12em; }
     .section-head small { margin-left: 6px; align-self: end; padding-bottom: 5px; color: var(--ink-soft); font: 9px/1 var(--latin); letter-spacing: .17em; }
-    .section-head .more { margin-left: auto; padding: 10px 1px 7px; border-bottom: 1px solid var(--rule); color: var(--ink); font-size: 12px; white-space: nowrap; transition: color .22s, border-color .22s, translate .22s; }
-    .section-head .more:hover { color: var(--seal-deep); border-color: var(--seal); translate: 2px 0; }
+    .section-head .more { isolation: isolate; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; margin-left: auto; padding: 6px 4px; color: var(--ink); font: 600 16px/1 var(--kai); letter-spacing: .15em; white-space: nowrap; transition: color .18s ease, transform .18s ease; }
+    .section-head .more:hover { color: var(--seal-deep); transform: translateY(-1px); }
+    .more-mark { position: relative; display: inline-block; flex: none; width: 30px; height: 10px; transition: transform .18s ease; }
+    .more-mark::before, .more-mark::after { content: ""; position: absolute; left: 0; top: 50%; }
+    .more-mark::before { width: 29px; height: 1px; background: currentColor; }
+    .more-mark::after { width: 7px; height: 7px; border-left: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: translateY(-3px) rotate(45deg); }
+    .more:hover .more-mark, .more:focus-visible .more-mark { transform: translateX(-2px); }
+    .more-label { position: relative; z-index: 0; display: inline-block; padding: 4px 5px 5px; }
+    .more-label::before { content: ""; position: absolute; inset: 1px -4px 0; z-index: -1; background: radial-gradient(ellipse at 18% 58%, rgba(250, 241, 216, .36) 0 28%, transparent 58%), radial-gradient(ellipse at 52% 42%, rgba(244, 231, 199, .28) 0 32%, transparent 64%), radial-gradient(ellipse at 84% 55%, rgba(250, 241, 216, .32) 0 26%, transparent 58%); opacity: .54; transform: rotate(-.35deg); pointer-events: none; }
+    :root[data-theme="dark"] .more-label::before { background: radial-gradient(ellipse at center, rgba(35, 28, 19, .78) 0 38%, rgba(35, 28, 19, .48) 64%, transparent 100%); opacity: 1; }
     .section-head::after { content: ""; position: absolute; left: 0; bottom: -2px; width: 54px; height: 2px; background: var(--seal); transform-origin: left; transition: width .42s ease; }
     .section:hover .section-head::after, .section:focus-within .section-head::after { width: 78px; }
     .section-note { width: fit-content; max-width: 100%; margin: -8px 0 19px; padding: 5px 15px 5px 11px; border-left: 2px solid var(--seal); background: var(--paper); color: var(--ink-soft); font-size: 13px; line-height: 1.75; box-shadow: 0 9px 18px -14px rgba(31, 24, 11, .58); }
@@ -266,7 +274,9 @@
       .section-head { flex-wrap: wrap; }
       .section-head h2 { font-size: 29px; }
       .section-head small { display: none; }
-      .section-head .more { font-size: 11px; }
+      .section-head .more { gap: 8px; padding: 5px 2px; font-size: 15px; letter-spacing: .12em; }
+      .more-mark { width: 24px; }
+      .more-mark::before { width: 23px; }
       .article-card { grid-template-columns: 48px minmax(0, 1fr); }
       .article-card::after { left: 48px; }
       .article-body { padding: 19px 16px 16px; }
@@ -340,7 +350,7 @@
       <p class="boundary"><span>走下 · 入卷<small>CONTINUE THE SCROLL</small></span></p>
 
       <section class="section" id="posts" aria-labelledby="posts-title">
-        <header class="section-head"><h2 id="posts-title">文章</h2><small>ARTICLES</small><a class="more" href="#posts">更多文章 →</a></header>
+        <header class="section-head"><h2 id="posts-title">文章</h2><small>ARTICLES</small><a class="more" href="#posts" aria-label="更多文章"><span class="more-mark" aria-hidden="true"></span><span class="more-label">更多</span></a></header>
         <p class="section-note">纸面仍是原来的书目条目。悬停时，只让朱砂边线顺着书脊展开。</p>
         <div class="stack">
           <a class="card article-card" href="#posts"><span class="article-index"><b>01</b><i>文</i></span><span class="article-body"><span class="meta"><b>长文 · ARTICLE</b><time datetime="2026-08-01">2026 年 8 月 1 日</time></span><h3>测试</h3><span class="card-foot">阅读全文 <span class="arrow">→</span></span></span></a>
@@ -350,7 +360,7 @@
       </section>
 
       <section class="section" id="moments" aria-labelledby="moments-title">
-        <header class="section-head"><h2 id="moments-title">闲语</h2><small>MOMENTS</small><a class="more" href="#moments">更多闲语 →</a></header>
+        <header class="section-head"><h2 id="moments-title">闲语</h2><small>MOMENTS</small><a class="more" href="#moments" aria-label="更多闲语"><span class="more-mark" aria-hidden="true"></span><span class="more-label">更多</span></a></header>
         <p class="section-note">短句居左，三张配图贴近文字并稍稍放大；纸笺高度相近，右下的阅读入口留出空白。</p>
         <div class="stack">
           <a class="card moment-card" href="#moments"><span class="moment-index">01<i>闲</i></span><span class="moment-body"><span class="meta"><b>片刻 · MOMENT</b><time datetime="2026-08-16">2026 年 8 月 16 日</time></span><p>山水有清音，心事落在纸上，也就轻了。</p><span class="moment-art" aria-hidden="true"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:5%" loading="lazy"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:51%" loading="lazy"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:96%" loading="lazy"></span><span class="card-foot">读这一则 <span class="arrow">→</span></span></span></a>
@@ -359,7 +369,7 @@
       </section>
 
       <section class="section" id="photos" aria-labelledby="photos-title">
-        <header class="section-head"><h2 id="photos-title">光影</h2><small>FRAMES</small><a class="more" href="#photos">更多光影 →</a></header>
+        <header class="section-head"><h2 id="photos-title">光影</h2><small>FRAMES</small><a class="more" href="#photos" aria-label="更多光影"><span class="more-mark" aria-hidden="true"></span><span class="more-label">更多</span></a></header>
         <p class="section-note">三本最近相册各露出三张照片，分别以展开、斜列与前景压片摆放；相纸只保留自身的边框和阴影。</p>
         <div class="album-list">
           <a class="card album-card" href="#photos" aria-label="查看示意相册：山行手记，12 张照片">
@@ -382,7 +392,7 @@
       </section>
 
       <section class="section" id="letters" aria-labelledby="letters-title">
-        <header class="section-head"><h2 id="letters-title">留言</h2><small>GUESTBOOK</small><a class="more" href="#letters">进入留言簿 →</a></header>
+        <header class="section-head"><h2 id="letters-title">留言</h2><small>GUESTBOOK</small><a class="more" href="#letters" aria-label="更多留言"><span class="more-mark" aria-hidden="true"></span><span class="more-label">更多</span></a></header>
         <p class="section-note">留言保持纵向短笺。每张纸只强调正文和署名，鼠标经过时朱砂线替代左侧墨线。</p>
         <div class="stack">
           <a class="card letter-card" href="#letters"><span class="letter-index">01</span><span class="letter-body"><span class="kicker">来信 · NOTE</span><p>山水相逢过，也不过是纸一行。</p><span class="sender">— 旅人 <time datetime="2026-09-15">2026.09.15</time></span></span><span class="letter-arrow arrow" aria-hidden="true">↗</span></a>
