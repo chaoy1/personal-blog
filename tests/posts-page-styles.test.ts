@@ -24,7 +24,7 @@ function renderPostsShell() {
         </header>
         <div class="catalog-heading"><div class="left"><h2>篇目</h2></div><div class="count">共收录 <b>02</b> 篇</div></div>
         <ol class="entries" aria-label="文章目录">
-          <li class="entry" data-post-row="true">
+          <li class="entry reveal" data-post-row="true">
             <div class="entry-number"><strong>01</strong><i>文</i></div>
             <div class="entry-body">
               <div class="entry-meta"><span>ARTICLE</span><i class="meta-line"></i><span>第壹篇</span></div>
@@ -32,7 +32,7 @@ function renderPostsShell() {
             </div>
             <div class="entry-info"><time>2026.09.01</time><a class="entry-link" href="/posts/a">读此篇 <span>→</span></a></div>
           </li>
-          <li class="entry featured" data-post-row="true">
+          <li class="entry reveal" data-post-row="true">
             <div class="entry-number"><strong>02</strong><i>文</i></div>
             <div class="entry-body">
               <div class="entry-meta"><span>ARTICLE</span><i class="meta-line"></i><span>第贰篇</span></div>
@@ -53,9 +53,8 @@ function renderPostsShell() {
     hero: document.querySelector<HTMLElement>('.posts-hero')!,
     stamp: document.querySelector<HTMLElement>('.posts-hero-stamp')!,
     entry: document.querySelector<HTMLElement>('.entry')!,
-    featured: document.querySelector<HTMLElement>('.entry.featured')!,
     number: document.querySelector<HTMLElement>('.entry-number')!,
-    title: document.querySelector<HTMLElement>('.entry.featured .entry-title')!,
+    title: document.querySelector<HTMLElement>('.entry-title')!,
     link: document.querySelector<HTMLElement>('.entry-link')!,
     entries: document.querySelector<HTMLElement>('.entries')!,
   }
@@ -90,22 +89,31 @@ describe('P02 xuan paper collection recipe', () => {
     const { entry, number, entries } = renderPostsShell()
 
     expect(getComputedStyle(entries).listStyleType).toBe('none')
-    expect(getComputedStyle(entry).gridTemplateColumns).toBe('74px minmax(0, 1fr) 123px')
-    expect(getComputedStyle(entry).columnGap).toBe('23px')
-    expect(getComputedStyle(entry).minHeight).toBe('166px')
-    // 左侧朱线是条目的起首标记，不是厚卡片
-    expect(getComputedStyle(entry).borderLeftWidth).toBe('0px')
+    expect(getComputedStyle(entry).gridTemplateColumns).toBe('53px minmax(0, 1fr) 98px')
+    expect(getComputedStyle(entry).columnGap).toBe('16px')
+    expect(getComputedStyle(entry).minHeight).toBe('211px')
+    expect(getComputedStyle(entry).opacity).toBe('1')
+    expect(getComputedStyle(entry).backgroundColor).toBe('var(--pp-paper)')
     expect(getComputedStyle(number).flexDirection).toBe('column')
   })
 
-  it('gives the featured leaf more room and a corner fold', () => {
-    const { featured, title } = renderPostsShell()
+  it('keeps every card in a single-column grid with hover, keyboard and low-motion states', () => {
+    const { entry, entries, title } = renderPostsShell()
     const styles = readStyles('app/posts.css')
 
-    expect(getComputedStyle(featured).minHeight).toBe('198px')
-    expect(getComputedStyle(title).fontSize).toContain('clamp(28px, 3vw, 37px)')
-    // 折角只在 featured 上出现
-    expect(styles).toMatch(/\.entry\.featured::after\s*\{[\s\S]*border-top:\s*1px solid var\(--pp-seal\)/)
+    expect(getComputedStyle(entries).display).toBe('grid')
+    expect(getComputedStyle(entries).gridTemplateColumns).toBe('minmax(0, 1fr)')
+    expect(getComputedStyle(entry).minHeight).toBe('211px')
+    expect(getComputedStyle(title).fontSize).toContain('clamp(21px, 2.15vw, 28px)')
+    expect(styles).toMatch(/\.entry:hover,\s*\.posts-page \.entry:focus-within\s*\{[\s\S]*background-color:\s*var\(--pp-paper-bright\)/)
+    expect(styles).toContain('var(--mx, 75%) var(--my, 35%)')
+    expect(styles).toContain('@media (prefers-reduced-motion: reduce)')
+    expect(styles).toMatch(/\.posts-page \.entries\[hidden\]\s*\{\s*display:\s*none/)
+    expect(styles).toMatch(/html\.motion-ready \.posts-page \.entry\.reveal\s*\{[^}]*opacity:\s*0/)
+    expect(styles).not.toMatch(/^\.posts-page \.entry\.reveal\s*\{[^}]*opacity:\s*0/m)
+    expect(styles).toMatch(/\.posts-page \.year-heading\s*\{[^}]*scroll-margin-top:\s*82px/)
+    expect(styles).toMatch(/\.posts-page \.catalog-intro\s*\{[^}]*justify-content:\s*space-between/)
+    expect(styles).toMatch(/\.posts-page \.catalog-intro span:last-child\s*\{\s*display:\s*none/)
   })
 
   it('keeps the reading action and the mobile pager reachable', () => {

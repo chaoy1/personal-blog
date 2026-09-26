@@ -67,11 +67,11 @@ describe('P02 posts index page', () => {
 
     expect(screen.getByRole('heading', { level: 2, name: '篇目' })).toBeInTheDocument()
     expect(screen.getByText(/共收录/)).toHaveTextContent('02')
-    expect(screen.getByRole('list', { name: '文章目录' })).toBeInTheDocument()
+    expect(screen.getByRole('list', { name: '2026 年文章目录' })).toBeInTheDocument()
     expect(container.querySelectorAll('[data-post-row]')).toHaveLength(2)
-    // 单一年份时条目是二级标题（年份题头不出现）
-    expect(screen.getByRole('heading', { level: 2, name: '山中一日' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { level: 2, name: '桥边晚照' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: /2026.*丙午/ })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: '山中一日' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: '桥边晚照' })).toBeInTheDocument()
     expect(screen.getByText('山中一日').closest('a')).toHaveAttribute(
       'href',
       '/posts/a-day-in-the-mountains',
@@ -87,12 +87,45 @@ describe('P02 posts index page', () => {
     expect(fixtures.listPublishedPosts).toHaveBeenCalledWith()
   })
 
-  it('marks the first entry that carries an excerpt as the featured leaf', async () => {
+  it('keeps excerpt and non-excerpt entries in the same card style', async () => {
+    fixtures.listPublishedPosts.mockResolvedValueOnce([
+      fixtures.posts[0],
+      { ...fixtures.posts[1], excerpt: '' },
+    ])
     const { container } = render(await PostsPage())
 
-    const featured = container.querySelectorAll('.entry.featured')
-    expect(featured).toHaveLength(1)
-    expect(featured[0]).toHaveTextContent('山中一日')
+    const entries = [...container.querySelectorAll('.entry')]
+    expect(entries).toHaveLength(2)
+    expect(entries.every((entry) => entry.classList.contains('entry') && entry.classList.contains('reveal')))
+      .toBe(true)
+    expect(entries.some((entry) => entry.classList.contains('featured'))).toBe(false)
+    expect(entries[0].querySelector('.entry-excerpt')).toHaveTextContent('沿着溪声走进一页春山。')
+    expect(entries[1].querySelector('.entry-excerpt')).not.toBeInTheDocument()
+  })
+
+  it('keeps the current-page year index and collapsible year controls accessible', () => {
+    const { container } = render(<PostList posts={fixtures.posts} />)
+    const yearLink = screen.getByRole('link', { name: /2026/ })
+    const toggle = screen.getByRole('button', { name: /2026.*丙午.*收起/ })
+    const list = container.querySelector<HTMLOListElement>('#posts-2026')!
+
+    expect(yearLink).toHaveAttribute('href', '#year-2026')
+    expect(toggle).toHaveAttribute('aria-controls', 'posts-2026')
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    expect(toggle.querySelector('.rule')).toBeTruthy()
+    expect(toggle.querySelector('.fold')).toBeTruthy()
+    expect(toggle.querySelector('.rule')!.compareDocumentPosition(toggle.querySelector('.fold')!))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(list).not.toHaveAttribute('hidden')
+
+    fireEvent.click(toggle)
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    expect(list).toHaveAttribute('hidden')
+    expect(list).toHaveAttribute('inert')
+
+    fireEvent.click(toggle)
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    expect(list).not.toHaveAttribute('hidden')
   })
 
   it('groups entries by year with a ganzhi heading when the list spans years', () => {
@@ -105,19 +138,24 @@ describe('P02 posts index page', () => {
 
     expect(container.querySelectorAll('.year-group')).toHaveLength(2)
     // 2026 是丙午年，2025 是乙巳年；每个年份题头写明这一年收了几篇
-    expect(screen.getByText('丙午 · 一篇')).toBeInTheDocument()
-    expect(screen.getByText('乙巳 · 一篇')).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: '2026 年' })).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: '2025 年' })).toBeInTheDocument()
+    expect(screen.getAllByText('丙午 · 一篇')).toHaveLength(2)
+    expect(screen.getAllByText('乙巳 · 一篇')).toHaveLength(2)
+    expect(screen.getByRole('region', { name: /2026.*丙午/ })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: /2025.*乙巳/ })).toBeInTheDocument()
     // 跨年份时条目降为三级标题，让年份题头统领
     expect(screen.getByRole('heading', { level: 3, name: '今年一篇' })).toBeInTheDocument()
   })
 
-  it('falls back to a flat list inside one year instead of a lone year heading', () => {
+  it('shows the year heading and index even when the page contains a single year', () => {
     const { container } = render(<PostList posts={fixtures.posts} />)
 
-    expect(container.querySelectorAll('.year-group')).toHaveLength(0)
-    expect(screen.getByRole('list', { name: '文章目录' })).toBeInTheDocument()
+    expect(container.querySelectorAll('.year-group')).toHaveLength(1)
+    expect(screen.getByRole('navigation', { name: '本页年份' })).toHaveTextContent('2026')
+    expect(screen.getByRole('list', { name: '2026 年文章目录' })).toBeInTheDocument()
+    expect(screen.getByText('沿年份翻阅，把留在纸上的日子重新读一遍。')).toBeInTheDocument()
+    expect(screen.getByText('轻触年份，可收起篇目')).toBeInTheDocument()
+    expect(screen.getByText('循字而往')).toBeInTheDocument()
+    expect(screen.getByText('从近作启卷，沿年序读到旧时。')).toBeInTheDocument()
   })
 
   it('shows a resource error instead of mislabelling a failed request as empty', async () => {
@@ -151,7 +189,7 @@ describe('P02 posts index page', () => {
       id: `post-${index + 1}`,
       slug: `post-${index + 1}`,
       title: `文章 ${index + 1}`,
-      created_at: `2026-0${(index % 9) + 1}-01T08:00:00Z`,
+      created_at: index < 10 ? `2026-0${(index % 9) + 1}-01T08:00:00Z` : '2025-01-01T08:00:00Z',
     }))
 
     const { container } = render(<PostList posts={posts} />)
@@ -164,5 +202,7 @@ describe('P02 posts index page', () => {
     expect(container.querySelectorAll('[data-post-row]')).toHaveLength(1)
     expect(container.querySelectorAll('.entry')).toHaveLength(1)
     expect(screen.getByText('文章 11')).toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: '本页年份' })).toHaveTextContent('2025')
+    expect(screen.getByRole('navigation', { name: '本页年份' })).not.toHaveTextContent('2026')
   })
 })

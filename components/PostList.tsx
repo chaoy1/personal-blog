@@ -84,19 +84,14 @@ function groupByYear(posts: Post[], pagePosts: Post[], offset: number): CatalogG
 function Entry({
   post,
   index,
-  featured,
-  headingLevel,
 }: {
   post: Post
   index: number
-  featured: boolean
-  headingLevel: 2 | 3
 }) {
   const href = `/posts/${post.slug}`
-  const Title = headingLevel === 2 ? 'h2' : 'h3'
 
   return (
-    <li className={`entry${featured ? ' featured' : ''}`} data-post-row="true">
+    <li className="entry reveal" data-post-row="true">
       <div className="entry-number" aria-hidden="true">
         <strong>
           <CnNum i={index} />
@@ -110,7 +105,7 @@ function Entry({
           <i className="meta-line" aria-hidden="true" />
           <span>第{classicalOrdinal(index + 1)}篇</span>
         </div>
-        <Title className="entry-title">
+        <h3 className="entry-title">
           <ResourcePrefetchLink
             href={href}
             resourceKey={`comments:${post.slug}`}
@@ -118,7 +113,7 @@ function Entry({
           >
             {post.title}
           </ResourcePrefetchLink>
-        </Title>
+        </h3>
         {post.excerpt ? <p className="entry-excerpt">{post.excerpt}</p> : null}
       </div>
 
@@ -140,6 +135,7 @@ function Entry({
 
 export default function PostList({ posts }: { posts: Post[] }) {
   const [page, setPage] = useState(1)
+  const [collapsedYears, setCollapsedYears] = useState<Set<number>>(() => new Set())
 
   const totalPages = Math.max(1, Math.ceil(posts.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
@@ -154,24 +150,10 @@ export default function PostList({ posts }: { posts: Post[] }) {
     [posts, pagePosts, offset],
   )
 
-  // 带摘要的首篇做成加重的卷首条目，和设计稿的 featured 一致
-  const featuredId = pagePosts.find((post) => post.excerpt)?.id
-  // 只有一个年份时不再套一层年份题头，页面更紧凑
-  const singleGroup = groups.length <= 1
-
-  const renderEntries = (items: Item[], headingLevel: 2 | 3, labelled: boolean) => (
-    <ol className="entries" aria-label={labelled ? '文章目录' : undefined}>
-      {items.map(({ post, index }) => (
-        <Entry
-          key={post.id}
-          post={post}
-          index={index}
-          featured={post.id === featuredId}
-          headingLevel={headingLevel}
-        />
-      ))}
-    </ol>
-  )
+  const changePage = (nextPage: number) => {
+    setPage(nextPage)
+    setCollapsedYears(new Set())
+  }
 
   return (
     <>
@@ -185,29 +167,79 @@ export default function PostList({ posts }: { posts: Post[] }) {
         </div>
       </div>
 
-      {singleGroup ? (
-        renderEntries(groups[0]?.items ?? [], 2, true)
-      ) : (
-        groups.map((group) => (
-          <section
-            key={group.year}
-            className="year-group"
-            aria-label={`${group.year} 年`}
-          >
-            <div
-              className="year-heading"
-              id={`year-${group.year}`}
-              role="heading"
-              aria-level={2}
-            >
-              <span className="diamond" aria-hidden="true" />
-              <span className="year">{group.year}</span>
-              <span className="translation">{group.translation}</span>
+      <div className="catalog-intro">
+        <span>沿年份翻阅，把留在纸上的日子重新读一遍。</span>
+        <span>轻触年份，可收起篇目</span>
+      </div>
+
+      <div className="catalog-layout">
+        <aside className="year-rail" aria-label="年份索引">
+          <div className="rail-inner">
+            <div className="rail-preface">
+              <small>IN THIS VOLUME</small>
+              <strong>循字而往</strong>
+              <p>从近作启卷，沿年序读到旧时。</p>
             </div>
-            {renderEntries(group.items, 3, false)}
-          </section>
-        ))
-      )}
+            <span className="rail-label">YEAR / 年序</span>
+            <nav aria-label="本页年份">
+              {groups.map((group) => (
+                <a key={group.year} className="rail-link" href={`#year-${group.year}`}>
+                  <strong>{group.year}</strong>
+                  <small>{group.translation}</small>
+                </a>
+              ))}
+            </nav>
+            <small className="rail-foot" aria-hidden="true">年岁为序 · 文字作记</small>
+          </div>
+        </aside>
+
+        <div className="catalog-years">
+          {groups.map((group) => {
+            const collapsed = collapsedYears.has(group.year)
+            const listId = `posts-${group.year}`
+
+            return (
+              <section
+                key={group.year}
+                className="year-group"
+                aria-labelledby={`year-${group.year}`}
+              >
+                <h2 className="year-heading" id={`year-${group.year}`}>
+                  <button
+                    className="year-toggle"
+                    type="button"
+                    aria-expanded={!collapsed}
+                    aria-controls={listId}
+                    onClick={() => setCollapsedYears((current) => {
+                      const next = new Set(current)
+                      if (next.has(group.year)) next.delete(group.year)
+                      else next.add(group.year)
+                      return next
+                    })}
+                  >
+                    <span className="diamond" aria-hidden="true" />
+                    <span className="year">{group.year}</span>
+                    <span className="translation">{group.translation}</span>
+                    <span className="rule" aria-hidden="true" />
+                    <span className="fold">{collapsed ? '展开' : '收起'}</span>
+                  </button>
+                </h2>
+                <ol
+                  id={listId}
+                  className="entries"
+                  aria-label={`${group.year} 年文章目录`}
+                  hidden={collapsed}
+                  inert={collapsed}
+                >
+                  {group.items.map(({ post, index }) => (
+                    <Entry key={post.id} post={post} index={index} />
+                  ))}
+                </ol>
+              </section>
+            )
+          })}
+        </div>
+      </div>
 
       <div className="catalog-end" aria-hidden="true">
         <span>终</span>
@@ -222,7 +254,7 @@ export default function PostList({ posts }: { posts: Post[] }) {
         page={safePage}
         totalPages={totalPages}
         totalItems={posts.length}
-        onPageChange={setPage}
+        onPageChange={changePage}
         summary={`第 ${safePage} / ${totalPages} 页 · 共 ${posts.length} 篇`}
       />
     </>

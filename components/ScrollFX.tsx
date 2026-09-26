@@ -112,6 +112,8 @@ export default function ScrollFX() {
         },
         { threshold: 0.12, rootMargin: '0px 0px -4% 0px' }
       )
+      // Hide list cards only after the observer is ready to reveal them.
+      root.classList.add('motion-ready')
     }
 
     scan(document)
@@ -128,7 +130,7 @@ export default function ScrollFX() {
     // ---------- 卡片墨光跟随 ----------
     const onPointerMove = (e: PointerEvent) => {
       if (e.pointerType === 'touch') return
-      const target = (e.target as HTMLElement | null)?.closest?.('.item')
+      const target = (e.target as HTMLElement | null)?.closest?.('.item, .posts-page .entry')
       if (!(target instanceof HTMLElement)) return
       const rect = target.getBoundingClientRect()
       target.style.setProperty('--mx', `${((e.clientX - rect.left) / rect.width) * 100}%`)
@@ -169,6 +171,7 @@ export default function ScrollFX() {
       }
       mo.disconnect()
       io?.disconnect()
+      root.classList.remove('motion-ready')
     }
   }, [active])
 
