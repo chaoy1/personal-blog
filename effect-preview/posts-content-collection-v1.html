@@ -97,16 +97,21 @@
     .catalog-intro span:last-child { color:var(--seal-dark); white-space:nowrap; }
     .catalog-layout { display:grid; grid-template-columns:142px minmax(0,1fr); gap:36px; }
     .year-rail { position:relative; align-self:stretch; }
-    .year-rail::after { position:absolute; top:16px; bottom:0; right:4px; width:1px; content:""; background:linear-gradient(var(--line),var(--line-soft) 70%,transparent); }
-    .rail-inner { position:sticky; top:26px; z-index:3; padding:1px 16px 0 0; }
-    .rail-label { display:block; margin:0 0 20px; color:var(--ink-faint); font:10px Georgia,serif; letter-spacing:.23em; }
-    .rail-link { position:relative; display:flex; align-items:baseline; justify-content:space-between; gap:8px; min-height:49px; padding:10px 0; color:var(--ink-soft); text-decoration:none; transition:color .25s ease,transform .3s var(--ease); }
-    .rail-link::after { position:absolute; top:24px; right:-20px; width:8px; height:8px; transform:rotate(45deg); border:1px solid var(--line); background:var(--paper); content:""; transition:background .25s ease,border-color .25s ease; }
-    .rail-link:hover,.rail-link:focus-visible { transform:translateX(3px); color:var(--seal-dark); }
-    .rail-link:hover::after,.rail-link:focus-visible::after { border-color:var(--seal); background:var(--seal); }
+    .year-rail::after { position:absolute; top:174px; bottom:0; right:4px; width:1px; content:""; background:linear-gradient(var(--line),var(--line-soft) 70%,transparent); }
+    .rail-inner { position:sticky; top:38px; z-index:3; padding:1px 16px 0 0; }
+    .rail-preface { position:relative; min-height:152px; padding:3px 5px 18px 0; border-bottom:1px solid var(--line-soft); }
+    .rail-preface::after { position:absolute; top:27px; right:4px; color:var(--seal); content:"卷"; font:65px/.9 var(--brush); opacity:.12; transform:rotate(-11deg); pointer-events:none; }
+    .rail-preface small { display:block; color:var(--seal-dark); font:10px Georgia,serif; letter-spacing:.19em; }
+    .rail-preface strong { display:block; position:relative; z-index:1; margin:13px 0 6px; color:var(--ink); font:24px var(--brush); font-weight:400; letter-spacing:.07em; }
+    .rail-preface p { position:relative; z-index:1; max-width:110px; margin:0; color:var(--ink-faint); font:11px/1.75 var(--kai); letter-spacing:.08em; }
+    .rail-label { display:block; margin:23px 0 12px; color:var(--ink-faint); font:10px Georgia,serif; letter-spacing:.23em; }
+    .rail-link { position:relative; display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:58px; padding:13px 1px; border-bottom:1px solid var(--line-soft); color:var(--ink-soft); text-decoration:none; transition:color .25s ease,background .25s ease; }
+    .rail-link::after { position:absolute; top:25px; right:-20px; width:8px; height:8px; transform:rotate(45deg); border:1px solid var(--line); background:var(--paper); content:""; transition:background .25s ease,border-color .25s ease; }
+    .rail-link:hover,.rail-link:focus-visible { background:linear-gradient(90deg,color-mix(in srgb,var(--paper-bright) 45%,transparent),transparent); color:var(--seal-dark); }
+    .rail-link:hover::after,.rail-link:focus-visible::after { border-color:var(--seal); background:var(--paper-bright); }
     .rail-link strong { font:22px Georgia,serif; font-weight:400; letter-spacing:.07em; }
     .rail-link small { font:11px var(--kai); white-space:nowrap; }
-    .rail-foot { margin-top:23px; color:var(--ink-faint); writing-mode:vertical-rl; font:11px var(--kai); letter-spacing:.35em; }
+    .rail-foot { display:block; margin-top:25px; color:var(--ink-faint); writing-mode:vertical-rl; font:11px var(--kai); letter-spacing:.35em; }
     .year-block { scroll-margin-top:30px; margin-bottom:35px; }
     .year-heading { display:flex; align-items:center; gap:13px; width:100%; min-height:43px; margin:0 0 15px; padding:0; border:0; background:transparent; color:var(--ink-soft); text-align:left; }
     .year-heading .diamond { width:7px; height:7px; transform:rotate(45deg); border:1px solid var(--seal); }
@@ -118,12 +123,12 @@
     .year-heading[aria-expanded="false"] .fold::after { content:"+"; }
     .year-list { display:grid; gap:12px; margin:0; padding:0; list-style:none; }
     .year-list[hidden] { display:none; }
-    .entry { position:relative; isolation:isolate; display:grid; grid-template-columns:53px minmax(0,1fr) 98px; gap:16px; min-height:139px; overflow:hidden; padding:22px 23px 19px 18px; border:1px solid var(--line-soft); background:linear-gradient(105deg,#fffaf120,transparent 50%),color-mix(in srgb,var(--paper-bright) 40%,transparent); box-shadow:3px 4px 0 color-mix(in srgb,var(--paper-deep) 45%,transparent),0 13px 25px -26px #3a2518a0; transition:transform .35s var(--ease),background .3s ease,border-color .3s ease,box-shadow .35s ease; }
-    .entry::before { position:absolute; inset:0 auto 0 0; width:3px; content:""; background:var(--seal); box-shadow:0 0 22px 4px color-mix(in srgb,var(--seal) 20%,transparent); transition:width .45s var(--ease); }
-    .entry::after { position:absolute; top:0; right:0; width:25px; height:25px; content:""; background:linear-gradient(225deg,var(--paper) 0 49%,var(--line-soft) 50% 51%,transparent 52%); }
-    .entry:hover,.entry:focus-within { z-index:1; transform:translate(6px,-3px); border-color:color-mix(in srgb,var(--seal) 35%,var(--line)); background:linear-gradient(105deg,#fffaf130,transparent 55%),color-mix(in srgb,var(--paper-bright) 75%,transparent); box-shadow:4px 6px 0 color-mix(in srgb,var(--paper-deep) 60%,transparent),0 19px 30px -25px #3a2518b0; }
-    .entry:hover::before,.entry:focus-within::before { width:6px; }
-    .entry-number { padding-right:12px; border-right:1px solid var(--line-soft); color:var(--seal-dark); font:27px/1 Georgia,serif; }
+    .entry { position:relative; isolation:isolate; display:grid; grid-template-columns:53px minmax(0,1fr) 98px; gap:16px; min-height:139px; overflow:hidden; padding:22px 23px 19px 18px; border:1px solid var(--line-soft); background:linear-gradient(108deg,color-mix(in srgb,var(--paper-bright) 70%,transparent),color-mix(in srgb,var(--paper) 82%,transparent) 75%),var(--fiber); background-blend-mode:normal,soft-light; box-shadow:inset 0 1px 0 #fff8df40,2px 3px 0 color-mix(in srgb,var(--paper-deep) 43%,transparent),0 13px 25px -27px #3a2518a0; transition:transform .35s var(--ease),background-color .3s ease,border-color .3s ease,box-shadow .35s ease; }
+    .entry::before { position:absolute; inset:0; z-index:-1; content:""; pointer-events:none; background:radial-gradient(ellipse at 90% 15%,color-mix(in srgb,var(--ink) 6%,transparent),transparent 48%); opacity:.35; transition:opacity .4s var(--ease); }
+    .entry::after { position:absolute; top:0; right:0; width:21px; height:21px; content:""; background:linear-gradient(225deg,var(--paper) 0 49%,var(--line-soft) 50% 51%,transparent 52%); }
+    .entry:hover,.entry:focus-within { z-index:1; transform:translateY(-3px); border-color:var(--line); background-color:var(--paper-bright); box-shadow:inset 0 1px 0 #fff8df55,3px 5px 0 color-mix(in srgb,var(--paper-deep) 45%,transparent),0 20px 32px -26px #3a2518b0; }
+    .entry:hover::before,.entry:focus-within::before { opacity:.75; }
+    .entry-number { padding-right:12px; border-right:1px solid var(--line-soft); color:var(--ink-faint); font:27px/1 Georgia,serif; }
     .entry-number small { display:block; margin-top:12px; font:10px var(--kai); }
     .entry-main { min-width:0; }
     .entry-meta { display:flex; align-items:center; gap:9px; color:var(--seal-dark); font:10px Georgia,serif; letter-spacing:.18em; }
@@ -137,9 +142,19 @@
     .entry-link { display:inline-flex; align-items:center; gap:8px; padding-bottom:4px; border-bottom:1px solid var(--seal); color:var(--seal-dark); font:12px var(--kai); letter-spacing:.07em; text-decoration:none; white-space:nowrap; }
     .entry-link span { font:17px Georgia,serif; transition:transform .3s var(--ease); }
     .entry:hover .entry-link span,.entry-link:hover span { transform:translateX(4px); }
-    .entry.featured { min-height:174px; background:radial-gradient(circle at 85% 5%,color-mix(in srgb,var(--seal) 6%,transparent),transparent 34%),color-mix(in srgb,var(--paper-bright) 66%,transparent); }
-    .entry.featured .entry-title { font-size:clamp(25px,2.6vw,32px); }
+    .entry--short { min-height:99px; align-items:center; padding-top:17px; padding-bottom:16px; }
+    .entry--short .entry-title { margin-bottom:0; }
+    .entry--short .entry-side { align-self:stretch; }
+    .entry--quiet { margin-left:13px; border-color:transparent transparent var(--line-soft); background:linear-gradient(105deg,color-mix(in srgb,var(--paper-bright) 17%,transparent),transparent 75%); box-shadow:none; }
+    .entry--quiet::after { display:none; }
+    .entry--quiet:hover,.entry--quiet:focus-within { border-color:var(--line-soft); background-color:color-mix(in srgb,var(--paper-bright) 28%,transparent); box-shadow:0 14px 24px -26px #3a2518b0; }
+    .entry.featured { min-height:205px; padding-top:31px; padding-bottom:28px; border-color:var(--line); background:linear-gradient(90deg,var(--paper-bright) 0 47%,color-mix(in srgb,var(--paper-bright) 80%,transparent) 78%,transparent),url("../public/bg/about-ink-banner.png") right center / auto 255px no-repeat,var(--paper-bright); box-shadow:inset 0 1px 0 #fff8df55,4px 5px 0 color-mix(in srgb,var(--paper-deep) 55%,transparent),0 17px 30px -26px #3a2518a0; }
+    .entry.featured::before { background:linear-gradient(90deg,transparent 45%,color-mix(in srgb,var(--paper) 15%,transparent)); }
+    .entry.featured .entry-title { max-width:420px; font-size:clamp(25px,2.6vw,32px); }
+    .entry.featured .entry-excerpt { max-width:440px; }
     .entry.featured .entry-meta::after { content:"选读"; margin-left:4px; padding:2px 6px; border:1px solid var(--seal); color:var(--seal-dark); font:10px var(--kai); transform:rotate(-3deg); }
+    .entry--archive { border-color:var(--line); background:linear-gradient(105deg,color-mix(in srgb,var(--paper-deep) 32%,var(--paper-bright)),var(--paper-bright) 60%); }
+    .entry--archive::before { background:radial-gradient(ellipse at 91% 80%,color-mix(in srgb,var(--ink) 9%,transparent),transparent 47%); }
     .catalog-end { display:flex; align-items:center; gap:18px; margin-top:17px; color:var(--ink-faint); }
     .catalog-end::before,.catalog-end::after { flex:1; height:1px; content:""; background:linear-gradient(90deg,transparent,var(--line)); }
     .catalog-end::after { transform:rotate(180deg); }
@@ -181,13 +196,15 @@
       .catalog-heading h2 { gap:9px; font-size:20px; }.catalog-heading h2 small { display:none; }
       .catalog-count { font-size:11px; }.catalog-count b { font-size:20px; }
       .catalog-intro { padding:13px 0 16px; font-size:11px; }.catalog-intro span:last-child { display:none; }
-      .catalog-layout { display:block; }.year-rail { margin-bottom:10px; }.year-rail::after,.rail-label,.rail-foot { display:none; }
+      .catalog-layout { display:block; }.year-rail { margin-bottom:10px; }.year-rail::after,.rail-preface,.rail-label,.rail-foot { display:none; }
       .rail-inner { position:static; display:flex; gap:9px; padding:0; }
       .rail-link { justify-content:center; min-height:32px; padding:3px 9px; border:1px solid var(--line-soft); }
       .rail-link::after,.rail-link small { display:none; }.rail-link strong { font-size:14px; }
       .year-block { margin-bottom:21px; }.year-heading { gap:9px; min-height:37px; margin-bottom:8px; }
       .year-heading strong { font-size:21px; }.year-heading small { font-size:11px; }.year-heading .fold { font-size:10px; }
       .year-list { gap:10px; }.entry { grid-template-columns:34px minmax(0,1fr); gap:0 10px; min-height:0; padding:16px 12px 15px 10px; }
+      .entry--quiet { margin-left:0; border-color:var(--line-soft); background:color-mix(in srgb,var(--paper-bright) 24%,transparent); }
+      .entry.featured { background:linear-gradient(90deg,var(--paper-bright) 0 55%,color-mix(in srgb,var(--paper-bright) 68%,transparent)),url("../public/bg/about-ink-banner.png") right bottom / auto 190px no-repeat,var(--paper-bright); }
       .entry-number { padding-right:7px; font-size:20px; }.entry-number small { margin-top:10px; font-size:9px; }
       .entry-meta { font-size:9px; }.entry-title,.entry.featured .entry-title { margin:9px 0 6px; font-size:21px; }
       .entry-excerpt { font-size:12px; }.entry-side { flex-wrap:wrap; gap:8px; margin-top:12px; }
@@ -211,17 +228,17 @@
       <section class="sheet" aria-labelledby="page-title"><div class="top-rule" aria-hidden="true"></div>
         <header class="hero"><div class="hero-copy"><div class="hero-overline"><span>卷 01</span><small>THE WRITTEN PAGES</small></div><h1 id="page-title"><span class="title">文章</span><span class="title-tail">一册手记</span></h1><p class="hero-intro">把日子写成文字，<b>慢慢收进纸页。</b></p><div class="hero-index"><span>EST. 2024</span><i aria-hidden="true"></i><span>07 WRITINGS</span></div></div><div class="hero-art" aria-hidden="true"></div><span class="hero-stamp" aria-hidden="true">文</span><span class="hero-aside" aria-hidden="true">字字留痕 · 岁月成章</span></header>
         <div class="catalog" id="catalog"><div class="catalog-heading"><h2>篇目 <small>CONTENTS / 目录</small></h2><span class="catalog-count">共收录 <b>07</b> 篇</span></div><div class="catalog-intro"><span>沿年份翻阅，把留在纸上的日子重新读一遍。</span><span>轻触年份，可收起篇目</span></div>
-          <div class="catalog-layout"><aside class="year-rail" aria-label="年份索引"><div class="rail-inner"><span class="rail-label">YEAR / 年序</span><a class="rail-link" href="#year-2026"><strong>2026</strong><small>五篇</small></a><a class="rail-link" href="#year-2025"><strong>2025</strong><small>一篇</small></a><a class="rail-link" href="#year-2024"><strong>2024</strong><small>一篇</small></a><span class="rail-foot" aria-hidden="true">年岁为序 · 文字作记</span></div></aside>
+          <div class="catalog-layout"><aside class="year-rail" aria-label="年份索引"><div class="rail-inner"><div class="rail-preface"><small>IN THIS VOLUME</small><strong>循字而往</strong><p>从近作启卷，沿年序读到旧时。</p></div><span class="rail-label">YEAR / 年序</span><a class="rail-link" href="#year-2026"><strong>2026</strong><small>五篇</small></a><a class="rail-link" href="#year-2025"><strong>2025</strong><small>一篇</small></a><a class="rail-link" href="#year-2024"><strong>2024</strong><small>一篇</small></a><span class="rail-foot" aria-hidden="true">年岁为序 · 文字作记</span></div></aside>
             <div class="year-content">
               <section class="year-block" id="year-2026" aria-label="2026 年文章"><button class="year-heading" type="button" aria-expanded="true" aria-controls="posts-2026"><span class="diamond" aria-hidden="true"></span><strong>2026</strong><small>丙午 · 五篇</small><span class="rule" aria-hidden="true"></span><span class="fold">收起</span></button><ol class="year-list" id="posts-2026">
-                <li class="entry"><span class="entry-number" aria-hidden="true">01<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第壹篇</div><h3 class="entry-title"><a href="#catalog">测试</a></h3></div><div class="entry-side"><time datetime="2026-08-01">2026.08.01</time><a class="entry-link" href="#catalog" aria-label="读此篇：测试">读此篇 <span aria-hidden="true">→</span></a></div></li>
+                <li class="entry entry--short"><span class="entry-number" aria-hidden="true">01<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第壹篇</div><h3 class="entry-title"><a href="#catalog">测试</a></h3></div><div class="entry-side"><time datetime="2026-08-01">2026.08.01</time><a class="entry-link" href="#catalog" aria-label="读此篇：测试">读此篇 <span aria-hidden="true">→</span></a></div></li>
                 <li class="entry featured"><span class="entry-number" aria-hidden="true">02<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第贰篇</div><h3 class="entry-title"><a href="#catalog">摄影是按下快门的那一秒</a></h3><p class="entry-excerpt">相机不重要，重要的永远是那一秒你在场，并且愿意停下来。</p></div><div class="entry-side"><time datetime="2026-07-30">2026.07.30</time><a class="entry-link" href="#catalog" aria-label="读此篇：摄影是按下快门的那一秒">读此篇 <span aria-hidden="true">→</span></a></div></li>
-                <li class="entry"><span class="entry-number" aria-hidden="true">03<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第叁篇</div><h3 class="entry-title"><a href="#catalog">一个人的深夜书房</a></h3><p class="entry-excerpt">深夜读书的意义，大概是把白天借出去的时间，一点一点赎回来。</p></div><div class="entry-side"><time datetime="2026-07-28">2026.07.28</time><a class="entry-link" href="#catalog" aria-label="读此篇：一个人的深夜书房">读此篇 <span aria-hidden="true">→</span></a></div></li>
+                <li class="entry entry--quiet"><span class="entry-number" aria-hidden="true">03<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第叁篇</div><h3 class="entry-title"><a href="#catalog">一个人的深夜书房</a></h3><p class="entry-excerpt">深夜读书的意义，大概是把白天借出去的时间，一点一点赎回来。</p></div><div class="entry-side"><time datetime="2026-07-28">2026.07.28</time><a class="entry-link" href="#catalog" aria-label="读此篇：一个人的深夜书房">读此篇 <span aria-hidden="true">→</span></a></div></li>
                 <li class="entry"><span class="entry-number" aria-hidden="true">04<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第肆篇</div><h3 class="entry-title"><a href="#catalog">写点什么，比写得完美更重要</a></h3><p class="entry-excerpt">完美是动笔之后慢慢逼近的，不是动笔之前等来的。</p></div><div class="entry-side"><time datetime="2026-07-26">2026.07.26</time><a class="entry-link" href="#catalog" aria-label="读此篇：写点什么，比写得完美更重要">读此篇 <span aria-hidden="true">→</span></a></div></li>
-                <li class="entry"><span class="entry-number" aria-hidden="true">05<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第伍篇</div><h3 class="entry-title"><a href="#catalog">开篇：把文字安放在自己的屋檐下</a></h3><p class="entry-excerpt">第一篇文字，说说这个博客的来由，以及写作这件事本身。</p></div><div class="entry-side"><time datetime="2026-07-20">2026.07.20</time><a class="entry-link" href="#catalog" aria-label="读此篇：开篇：把文字安放在自己的屋檐下">读此篇 <span aria-hidden="true">→</span></a></div></li>
+                <li class="entry entry--quiet"><span class="entry-number" aria-hidden="true">05<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第伍篇</div><h3 class="entry-title"><a href="#catalog">开篇：把文字安放在自己的屋檐下</a></h3><p class="entry-excerpt">第一篇文字，说说这个博客的来由，以及写作这件事本身。</p></div><div class="entry-side"><time datetime="2026-07-20">2026.07.20</time><a class="entry-link" href="#catalog" aria-label="读此篇：开篇：把文字安放在自己的屋檐下">读此篇 <span aria-hidden="true">→</span></a></div></li>
               </ol></section>
               <section class="year-block" id="year-2025" aria-label="2025 年文章"><button class="year-heading" type="button" aria-expanded="true" aria-controls="posts-2025"><span class="diamond" aria-hidden="true"></span><strong>2025</strong><small>乙巳 · 一篇</small><span class="rule" aria-hidden="true"></span><span class="fold">收起</span></button><ol class="year-list" id="posts-2025"><li class="entry"><span class="entry-number" aria-hidden="true">06<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第陆篇</div><h3 class="entry-title"><a href="#catalog">从零搭一个免费博客：Next.js 与 Supabase 的组合</a></h3><p class="entry-excerpt">不买服务器、不申请公网 IP，十分钟让博客上线，还自带管理后台。</p></div><div class="entry-side"><time datetime="2025-07-23">2025.07.23</time><a class="entry-link" href="#catalog" aria-label="读此篇：从零搭一个免费博客">读此篇 <span aria-hidden="true">→</span></a></div></li></ol></section>
-              <section class="year-block" id="year-2024" aria-label="2024 年文章"><button class="year-heading" type="button" aria-expanded="true" aria-controls="posts-2024"><span class="diamond" aria-hidden="true"></span><strong>2024</strong><small>甲辰 · 一篇</small><span class="rule" aria-hidden="true"></span><span class="fold">收起</span></button><ol class="year-list" id="posts-2024"><li class="entry"><span class="entry-number" aria-hidden="true">07<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第柒篇</div><h3 class="entry-title"><a href="#catalog">秋日山行记</a></h3><p class="entry-excerpt">沿着落叶铺满的小径上山，秋天的山是会慢慢变红的。</p></div><div class="entry-side"><time datetime="2024-08-01">2024.08.01</time><a class="entry-link" href="#catalog" aria-label="读此篇：秋日山行记">读此篇 <span aria-hidden="true">→</span></a></div></li></ol></section>
+              <section class="year-block" id="year-2024" aria-label="2024 年文章"><button class="year-heading" type="button" aria-expanded="true" aria-controls="posts-2024"><span class="diamond" aria-hidden="true"></span><strong>2024</strong><small>甲辰 · 一篇</small><span class="rule" aria-hidden="true"></span><span class="fold">收起</span></button><ol class="year-list" id="posts-2024"><li class="entry entry--archive"><span class="entry-number" aria-hidden="true">07<small>文</small></span><div class="entry-main"><div class="entry-meta">ARTICLE <i aria-hidden="true"></i> 第柒篇</div><h3 class="entry-title"><a href="#catalog">秋日山行记</a></h3><p class="entry-excerpt">沿着落叶铺满的小径上山，秋天的山是会慢慢变红的。</p></div><div class="entry-side"><time datetime="2024-08-01">2024.08.01</time><a class="entry-link" href="#catalog" aria-label="读此篇：秋日山行记">读此篇 <span aria-hidden="true">→</span></a></div></li></ol></section>
             </div></div><div class="catalog-end" aria-hidden="true"><span>终</span></div><div class="colophon"><span>七篇已收录 · 新篇将续写于此</span><strong>似水流年</strong></div><nav class="pagination" aria-label="文章分页展示"><button type="button" disabled>前一页</button><span>第 1 / 1 页</span><button type="button" disabled>后一页</button></nav>
         </div>
       </section><p class="page-footer">山水有尽 · 文字无涯</p>
