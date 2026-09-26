@@ -13,11 +13,14 @@ const fixtures = vi.hoisted(() => ({
     created_at: '2026-09-01T08:00:00Z',
     updated_at: '2026-09-01T08:00:00Z',
   },
-  photo: {
-    id: 'photo-1',
-    url: '/photo.jpg',
-    caption: '桥边晚照',
+  album: {
+    id: 'album-1',
+    title: '山行手记',
+    description: '',
+    cover_url: '/photo.jpg',
     created_at: '2026-09-02T08:00:00Z',
+    photoCount: 1,
+    photos: [{ id: 'photo-1', url: '/photo.jpg', caption: '桥边晚照' }],
   },
   guestbookEntry: {
     id: 'guestbook-1',
@@ -38,7 +41,7 @@ vi.mock('@/lib/posts', () => ({
 vi.mock('@/lib/timeline', () => ({
   listAllMoments: vi.fn().mockRejectedValue(new Error('offline')),
   countMoments: vi.fn().mockResolvedValue(0),
-  listAllPhotos: vi.fn().mockResolvedValue([fixtures.photo]),
+  listRecentAlbumPreviews: vi.fn().mockResolvedValue([fixtures.album]),
   countPhotos: vi.fn().mockResolvedValue(5),
 }))
 
@@ -52,7 +55,7 @@ vi.mock('@/lib/supabase', () => ({
 
 import HomePage from '@/app/page'
 import { countPosts, listPublishedPosts } from '@/lib/posts'
-import { countMoments, countPhotos, listAllMoments, listAllPhotos } from '@/lib/timeline'
+import { countMoments, countPhotos, listAllMoments, listRecentAlbumPreviews } from '@/lib/timeline'
 import { listRecentGuestbook } from '@/lib/guestbook'
 
 describe('P01 home page route', () => {
@@ -74,14 +77,14 @@ describe('P01 home page route', () => {
     expect(feedback).toHaveTextContent('闲语暂时未能载入。')
     expect(feedback.closest('[data-home-section]')).toHaveAttribute('data-home-section', 'moments')
     expect(screen.getByRole('link', { name: /山中一日/ })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /桥边晚照/ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /山行手记/ })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /从山水间路过/ })).toBeInTheDocument()
 
     expect(listPublishedPosts).toHaveBeenCalledWith(3)
     expect(countPosts).toHaveBeenCalledWith()
     expect(listAllMoments).toHaveBeenCalledWith(3)
     expect(countMoments).toHaveBeenCalledWith()
-    expect(listAllPhotos).toHaveBeenCalledWith(3)
+    expect(listRecentAlbumPreviews).toHaveBeenCalledWith(3)
     expect(countPhotos).toHaveBeenCalledWith()
     expect(listRecentGuestbook).toHaveBeenCalledWith(3)
   })

@@ -8,7 +8,7 @@ import ResourcePrefetchLink from '@/components/ResourcePrefetchLink'
 import Section from '@/components/Section'
 import type { GuestbookRow } from '@/lib/guestbook'
 import { formatDate, type Post } from '@/lib/posts'
-import type { TimelineMoment, TimelinePhoto } from '@/lib/timeline'
+import type { HomeAlbumPreview, TimelineMoment } from '@/lib/timeline'
 
 const CN_WM = ['壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖', '拾']
 type HomePreviewKey = 'posts' | 'moments' | 'photos' | 'guestbook'
@@ -16,7 +16,7 @@ type HomePreviewKey = 'posts' | 'moments' | 'photos' | 'guestbook'
 export type HomePreviewsProps = {
   posts: Post[]
   moments: TimelineMoment[]
-  photos: TimelinePhoto[]
+  albums: HomeAlbumPreview[]
   guestbook: GuestbookRow[]
   errors?: Partial<Record<HomePreviewKey, string>>
 }
@@ -25,9 +25,9 @@ function SectionTitle({ title, href }: { title: string; href: string }) {
   return <h2 className="section-title"><span>{title}</span><Link href={href}>更多 →</Link></h2>
 }
 
-export default function HomePreviews({ posts, moments, photos, guestbook, errors = {} }: HomePreviewsProps) {
+export default function HomePreviews({ posts, moments, albums, guestbook, errors = {} }: HomePreviewsProps) {
   const hasResourceError = Object.values(errors).some(Boolean)
-  const isCompletelyEmpty = posts.length === 0 && moments.length === 0 && photos.length === 0 && guestbook.length === 0 && !hasResourceError
+  const isCompletelyEmpty = posts.length === 0 && moments.length === 0 && albums.length === 0 && guestbook.length === 0 && !hasResourceError
 
   if (isCompletelyEmpty) {
     return <EmptyState title="长卷尚待落墨" description="文章、闲语、光影与来信会依次在这里展开。" />
@@ -59,36 +59,37 @@ export default function HomePreviews({ posts, moments, photos, guestbook, errors
           <SectionTitle title="闲语" href="/moments" />
           {errors.moments ? <InlineFeedback tone="error" message={errors.moments} /> : null}
           {moments.length > 0 ? <div className="home-moments">{moments.map((moment, index) => (
-            <Link key={moment.id} href="/moments" className={`hm-card${moment.images.length > 0 ? '' : ' no-image'}`}>
+            <Link key={moment.id} href="/moments" className={`hm-card${moment.images.length > 0 ? '' : ' no-image'}`} data-photo-count={Math.min(moment.images.length, 3)}>
               <span className="hm-index" aria-hidden="true"><b>{String(index + 1).padStart(2, '0')}</b><i>闲</i></span>
               <span className="hm-copy">
                 <span className="hm-meta"><span>片刻 · MOMENT</span><time dateTime={moment.created_at}>{formatDate(moment.created_at)}</time></span>
                 <span className="hm-text">{moment.content || '一张图，胜过千言。'}</span>
-                <span className="hm-action">读这一则 <i aria-hidden="true">↗</i></span>
+                <span className="hm-action">读这一则 <i aria-hidden="true">→</i></span>
               </span>
-              {moment.images.length > 0 ? <span className={`hm-thumbs count-${Math.min(moment.images.length, 3)}`}>{moment.images.slice(0, 3).map((url, imageIndex) => (
+              {moment.images.length > 0 ? <span className={`hm-thumbs count-${Math.min(moment.images.length, 3)}`} aria-hidden="true">{moment.images.slice(0, 3).map((url) => (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img key={url} src={url} alt={`闲语配图 ${imageIndex + 1}`} loading="lazy" />
+                <img key={url} src={url} alt="" loading="lazy" />
               ))}</span> : null}
             </Link>
           ))}</div> : null}
         </Section>
       ) : null}
 
-      {photos.length > 0 || errors.photos ? (
+      {albums.length > 0 || errors.photos ? (
         <Section as="section" space="loose" className="home-section reveal" id="photos" data-home-section="photos">
           <SectionTitle title="光影" href="/album" />
           {errors.photos ? <InlineFeedback tone="error" message={errors.photos} /> : null}
-          {photos.length > 0 ? <div className="home-photos">{photos.map((photo, index) => (
-            <Link key={photo.id} href="/album" className="hp-item">
-              <span className="hp-frame">
+          {albums.length > 0 ? <div className="home-albums">{albums.map((album, index) => {
+            const shots = album.photos.length > 0 ? album.photos.slice(0, 3) : album.cover_url ? [{ id: `cover-${album.id}`, url: album.cover_url, caption: '' }] : []
+            return <Link key={album.id} href="/album" className="home-album-card" data-photo-count={shots.length} aria-label={`查看相册：${album.title}，${album.photoCount} 张照片`}>
+              <span className="home-album-info"><span className="home-album-kicker">最近相册 · ALBUM {String(index + 1).padStart(2, '0')}</span><span className="home-album-title">{album.title}</span><span className="home-album-meta">{formatDate(album.created_at)} · {album.photoCount} 张照片</span></span>
+              {shots.length > 0 ? <span className="home-album-stage" aria-hidden="true">{shots.map((shot) => <span className="home-album-shot" key={shot.id}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photo.url} alt={photo.caption || '照片'} loading="lazy" />
-                <i className="hp-seal" aria-hidden="true">影</i>
-              </span>
-              <span className="hp-copy"><span className="hp-kicker">FRAME {String(index + 1).padStart(2, '0')}</span><b>{photo.caption || '未题之景'}</b><i aria-hidden="true">↗</i></span>
+                <img src={shot.url} alt="" loading="lazy" />
+              </span>)}</span> : <span className="home-album-empty" aria-hidden="true">尚待光影</span>}
+              <span className="home-album-foot">打开相册 <i aria-hidden="true">→</i></span>
             </Link>
-          ))}</div> : null}
+          })}</div> : null}
         </Section>
       ) : null}
 

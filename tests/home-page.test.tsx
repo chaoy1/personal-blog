@@ -17,11 +17,18 @@ const post = {
   updated_at: '2026-09-01T08:00:00Z',
 }
 
-const photo = {
-  id: 'photo-1',
-  url: '/photo.jpg',
-  caption: '桥边晚照',
+const album = {
+  id: 'album-1',
+  title: '山行手记',
+  description: '沿途的光',
+  cover_url: '/photo.jpg',
   created_at: '2026-09-02T08:00:00Z',
+  photoCount: 5,
+  photos: [
+    { id: 'photo-1', url: '/photo.jpg', caption: '桥边晚照' },
+    { id: 'photo-2', url: '/photo-2.jpg', caption: '山路' },
+    { id: 'photo-3', url: '/photo-3.jpg', caption: '暮色' },
+  ],
 }
 
 const guestbookEntry = {
@@ -184,7 +191,7 @@ describe('P01 home page composition', () => {
       <HomePreviews
         posts={[post]}
         moments={[]}
-        photos={[photo]}
+        albums={[album]}
         guestbook={[guestbookEntry]}
         errors={{ moments: '闲语暂时未能载入。' }}
       />,
@@ -200,7 +207,7 @@ describe('P01 home page composition', () => {
       'href',
       '/posts/a-day-in-the-mountains',
     )
-    expect(screen.getByRole('link', { name: /桥边晚照/ })).toHaveAttribute('href', '/album')
+    expect(screen.getByRole('link', { name: /山行手记/ })).toHaveAttribute('href', '/album')
     expect(screen.getByRole('link', { name: /从山水间路过/ })).toHaveAttribute('href', '/guestbook')
 
     const feedback = screen.getByRole('alert')
@@ -213,7 +220,7 @@ describe('P01 home page composition', () => {
       <HomePreviews
         posts={[]}
         moments={[]}
-        photos={[]}
+        albums={[]}
         guestbook={[]}
         errors={{ posts: undefined, moments: undefined, photos: undefined, guestbook: undefined }}
       />,
@@ -222,5 +229,29 @@ describe('P01 home page composition', () => {
     expect(screen.getByText('长卷尚待落墨')).toBeInTheDocument()
     expect(screen.getAllByText('空')).toHaveLength(1)
     expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument()
+  })
+
+  it('renders recent albums as photo stacks and leaves missing shots empty', () => {
+    render(<HomePreviews posts={[]} moments={[]} albums={[
+      album,
+      { ...album, id: 'album-2', title: '湖畔微雨', photos: album.photos.slice(0, 2), photoCount: 2 },
+      { ...album, id: 'album-3', title: '空册', cover_url: '', photos: [], photoCount: 0 },
+    ]} guestbook={[]} />)
+
+    const cards = screen.getAllByRole('link', { name: /查看相册/ })
+    expect(cards).toHaveLength(3)
+    expect(cards.map((card) => card.querySelectorAll('.home-album-shot').length)).toEqual([3, 2, 0])
+    expect(cards.map((card) => card.getAttribute('data-photo-count'))).toEqual(['3', '2', '0'])
+    expect(cards.every((card) => card.getAttribute('href') === '/album')).toBe(true)
+  })
+
+  it('keeps moment photo groups at the available count', () => {
+    const moment = { id: 'moment-1', content: '山水有清音。', images: ['/one.jpg', '/two.jpg', '/three.jpg'], created_at: '2026-09-01T08:00:00Z' }
+    render(<HomePreviews posts={[]} moments={[3, 2, 1, 0].map((count) => ({ ...moment, id: `moment-${count}`, images: moment.images.slice(0, count) }))} albums={[]} guestbook={[]} />)
+
+    const cards = Array.from(document.querySelectorAll('.hm-card'))
+    expect(cards.map((card) => card.getAttribute('data-photo-count'))).toEqual(['3', '2', '1', '0'])
+    expect(cards.map((card) => card.querySelectorAll('.hm-thumbs img').length)).toEqual([3, 2, 1, 0])
+    expect(cards.every((card) => card.textContent?.includes('读这一则'))).toBe(true)
   })
 })
