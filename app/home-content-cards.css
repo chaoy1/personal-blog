@@ -2,11 +2,15 @@
 .home-page {
   --home-card-wash: rgba(175, 63, 46, 0.08);
   --home-card-shadow: 0 15px 32px -24px rgba(31, 24, 11, 0.58);
+  --home-card-paper: rgba(248, 240, 216, 0.95);
+  --home-card-line: rgba(92, 72, 43, 0.28);
 }
 
 :root[data-theme='dark'] .home-page {
   --home-card-wash: rgba(210, 105, 80, 0.1);
   --home-card-shadow: 0 15px 32px -24px rgba(11, 10, 7, 0.7);
+  --home-card-paper: rgba(67, 53, 34, 0.96);
+  --home-card-line: rgba(229, 207, 161, 0.28);
 }
 
 .home-page .home-section {
@@ -46,23 +50,24 @@
   letter-spacing: 0.12em;
 }
 
-.home-page .home-section .section-title a {
-  font-family: var(--font-kai);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-}
-
 .home-page .home-post-card,
 .home-page .hm-card,
 .home-page .home-album-card,
 .home-page .hg-item {
-  border: 1px solid var(--card-border);
+  border: 1px solid var(--home-card-line);
   border-radius: 1px;
-  background-color: var(--card-bg);
-  background-image: radial-gradient(ellipse at 100% 0, var(--home-card-wash), transparent 49%), var(--card-paper);
+  background-color: var(--home-card-paper);
+  background-image: radial-gradient(ellipse at 100% 0, var(--home-card-wash), transparent 49%), url('/bg/guestbook-paper-fibers.svg');
   background-size: auto, 220px auto;
   box-shadow: var(--home-card-shadow);
   color: var(--ink);
+}
+
+:root[data-theme='dark'] .home-page .home-post-card,
+:root[data-theme='dark'] .home-page .hm-card,
+:root[data-theme='dark'] .home-page .home-album-card,
+:root[data-theme='dark'] .home-page .hg-item {
+  background-color: var(--home-card-paper);
 }
 
 .home-page .home-post-card {
