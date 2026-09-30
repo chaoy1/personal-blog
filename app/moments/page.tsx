@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import ScrollFX from '@/components/ScrollFX'
 import { useAuth } from '@/lib/auth-context'
@@ -9,6 +9,7 @@ import Avatar from '@/components/Avatar'
 import CommentThread from '@/components/CommentThread'
 import ArticleNav from '@/components/ArticleNav'
 import { useConfirmDialog } from '@/components/ConfirmDialog'
+import type { MomentItem } from '@/lib/store-types'
 import '../moments.css'
 
 const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
@@ -67,6 +68,36 @@ export default function MomentsPage() {
   const [localError, setLocalError] = useState('')
   const { confirm, dialog } = useConfirmDialog()
 
+  const groups = useMemo(() => {
+    const grouped = new Map<string, { key: string; year: string; month: string; monthName: string; items: MomentItem[] }>()
+    const sorted = [...moments].sort((a,b) => (Date.parse(b.created_at)||0)-(Date.parse(a.created_at)||0))
+    const monthNames = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月']
+    for (const moment of sorted) {
+      const date = new Date(moment.created_at), valid = !Number.isNaN(date.getTime())
+      const year = valid ? String(date.getFullYear()) : '未注明', month = valid ? pad(date.getMonth()+1) : '--'
+      const key = `${year}-${month}`
+      if (!grouped.has(key)) grouped.set(key, {key,year,month,monthName:valid ? monthNames[date.getMonth()] : '日期待补',items:[]})
+      grouped.get(key)!.items.push(moment)
+    }
+    return [...grouped.values()]
+  }, [moments])
+  const years = [...new Set(groups.map(g => g.year))]
+  const [activeYear, setActiveYear] = useState('')
+  const [expandedYear, setExpandedYear] = useState<string | null | undefined>(undefined)
+  const selectedYear = activeYear || years[0]
+  const openYear = expandedYear === undefined ? years[0] : expandedYear
+  useEffect(() => {
+    if (!groups.length) return
+    const locate = () => {
+      let id = location.hash.slice(1)
+      try { id = decodeURIComponent(id) } catch { return }
+      const group = groups.find(g => id === `month-${g.key}` || id === `year-${g.year}`)
+      if (group) {setActiveYear(group.year);setExpandedYear(group.year);document.getElementById(id)?.scrollIntoView({block:'start'})}
+    }
+    locate();window.addEventListener('hashchange', locate)
+    return () => window.removeEventListener('hashchange', locate)
+  }, [groups])
+
   const pageState = !hasData && isInitialLoading
     ? 'loading'
     : !hasData && error
@@ -76,7 +107,7 @@ export default function MomentsPage() {
         : 'ready'
 
   function toggleComments(id: string) {
-    setOpenPanels((prev) => ({ ...prev, [id]: !(prev[id] ?? true) }))
+    setOpenPanels((prev) => ({ ...prev, [id]: !(prev[id] ?? false) }))
   }
 
   async function remove(id: string) {
@@ -117,36 +148,22 @@ export default function MomentsPage() {
 
       <main className="moments-page" data-page-state={pageState}>
         <section className="moments-sheet" aria-labelledby="moments-title">
+          <div className="top-rule" aria-hidden="true" />
           <header className="moments-hero">
-            <div className="moments-hero-wash" aria-hidden="true" />
-            <span className="moments-postmark" aria-hidden="true">
-              COLLECTED
-              <br />
-              NOTES
-            </span>
-            <div className="moments-hero-copy">
-              <p className="moments-hero-meta">
-                <span>卷 02</span>
-                <i aria-hidden="true" />
-                <small>MUSINGS</small>
-              </p>
-              <h1 className="moments-hero-title" id="moments-title">
-                <span className="moments-hero-char">闲</span>
-                <span className="moments-hero-char">语</span>
-                <span className="article-seal" aria-hidden="true">言</span>
-              </h1>
-              <p className="moments-hero-lede">片言只语，也是一日光景。</p>
-              <span className="moments-hero-rule" aria-hidden="true" />
+            <div className="hero-copy">
+              <div className="hero-overline"><span>卷 02</span><small>THE EVERYDAY NOTES</small></div>
+              <h1 id="moments-title"><span className="title">闲语</span><span className="title-tail">日常札记</span></h1>
+              <p className="hero-intro">片言只语，<b>也是一日光景。</b></p>
+              <div className="hero-index"><span>EST. 2024</span><i aria-hidden="true" /><span>{hasData ? `${pad(moments.length)} NOTES` : 'NOTES'}</span></div>
             </div>
+            <div className="hero-art" aria-hidden="true" />
+            <span className="hero-stamp" aria-hidden="true">言</span>
+            <span className="hero-aside" aria-hidden="true">纸短情长 · 来日续写</span>
           </header>
 
           <div className="moments-sheet-content">
-            <div className="collection-heading">
-              <h2>近来所记</h2>
-              <span>
-                {hasData ? `${pad(moments.length)} NOTES　·　按时序展卷` : 'NOTES　·　按时序展卷'}
-              </span>
-            </div>
+            <div className="collection-heading"><h2>近来所记<small aria-hidden="true">NOTES / 片刻</small></h2><span>共收录 <b>{hasData ? pad(moments.length) : '—'}</b> 则</span></div>
+            <div className="collection-intro"><span>把细碎的光阴，轻轻收进这一页。</span><span>一则闲语 · 一段回声</span></div>
 
             {!hasData && isInitialLoading ? <p className="moments-empty">正在加载闲语…</p> : null}
             {!hasData && error ? (
@@ -168,8 +185,28 @@ export default function MomentsPage() {
               </p>
             ) : null}
 
+            {localError ? <p className="error-text" role="alert">{localError}</p> : null}
+
+            <div className="notes-layout">
+              {years.length > 0 ? <aside className="month-rail" aria-label="年份和月份索引"><div className="rail-inner">
+                <div className="rail-preface"><small>IN THE MARGINS</small><strong>片刻有声</strong><p>山间一阵风，窗前一盏茶，都是值得记下的日常。</p></div>
+                <span className="rail-label">年份 / 月序</span>
+                {years.map(year => <div className="year-directory" key={year}>
+                  <button type="button" className="year-toggle" aria-pressed={selectedYear === year} aria-expanded={openYear === year} aria-controls={`months-${year}`} onClick={() => {
+                    setActiveYear(year); setExpandedYear(openYear === year ? null : year)
+                    document.getElementById(`year-${year}`)?.scrollIntoView({ block: 'start', behavior: 'auto' })
+                  }}>{year} <small>{pad(groups.filter(g => g.year === year).reduce((n,g) => n+g.items.length,0))} 则</small></button>
+                  <div className="year-months" id={`months-${year}`} hidden={openYear !== year}>
+                    {groups.filter(g => g.year === year).map(g => <a className="month-link" key={g.key} href={`#month-${g.key}`} onClick={() => {setActiveYear(year);setExpandedYear(year)}}><b>{g.month}</b><span>{g.monthName}</span></a>)}
+                  </div>
+                </div>)}
+                <span className="rail-foot" aria-hidden="true">心有所记 · 日有所思</span>
+              </div></aside> : null}
             <div className="moments-list" aria-label="闲语列表" role="region">
-              {moments.map((m) => {
+              {years.map(year => <div className="year-notes" id={`year-${year}`} key={year}>
+                {groups.filter(g => g.year === year).map(group => <section className="month-group" key={group.key} aria-labelledby={`month-${group.key}`}>
+                  <h2 className="month-heading" id={`month-${group.key}`}>{group.month}<small>{group.monthName} · {year}</small></h2>
+                  <div className="note-list">{group.items.map((m) => {
                 const likeCount = momentLikes.filter((l) => l.moment_id === m.id).length
                 const liked = user
                   ? momentLikes.some((l) => l.moment_id === m.id && l.user_id === user.id)
@@ -178,15 +215,20 @@ export default function MomentsPage() {
                 const date = dateParts(m.created_at)
                 const paragraphs = m.content ? contentParagraphs(m.content) : []
                 const images = m.images ?? []
-                const panelOpen = openPanels[m.id] ?? true
+                const panelOpen = openPanels[m.id] ?? false
                 const canDelete = Boolean(user?.id === m.user_id && isOwner)
 
                 return (
-                  <article key={m.id} className="moment reveal" data-moment-id={m.id}>
+                  <article key={m.id} className="moment reveal" data-moment-id={m.id} data-count={images.length} onPointerMove={event => {
+                    if (event.pointerType === 'touch' || window.matchMedia('(prefers-reduced-motion: reduce)').matches || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+                    const box = event.currentTarget.getBoundingClientRect()
+                    event.currentTarget.style.setProperty('--mx', `${event.clientX-box.left}px`)
+                    event.currentTarget.style.setProperty('--my', `${event.clientY-box.top}px`)
+                  }}>
                     <div className="date-rail" aria-label={date.label}>
                       <span className="day">{date.day}</span>
                       <span className="month">{date.month}</span>
-                      <span className="year">{date.year}</span>
+                      <span className="year">{date.year}</span><span className="date-seal" aria-hidden="true">言</span>
                     </div>
 
                     <div className="moment-inner">
@@ -217,47 +259,14 @@ export default function MomentsPage() {
                           </div>
                         ) : null}
 
-                        {images.length === 1 ? (
-                          <figure className="photo-leaf">
+                        {images.length > 0 ? <div className="moment-images photos" role="group" aria-label={`${images.length} 张配图`}>
+                          {images.map((url, index) => <figure className="photo" key={`${url}-${index}`} hidden={index >= 3}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={images[0]}
-                              alt="闲语配图"
-                              data-lightbox-date={date.label}
-                            />
-                            <figcaption>{date.tail}</figcaption>
-                          </figure>
-                        ) : null}
+                            <img src={url} alt="闲语配图" loading="lazy" data-lightbox-date={date.label} />
+                            {index === 2 && images.length > 3 ? <span className="photo-more" aria-hidden="true">+{images.length-3}</span> : null}
+                          </figure>)}
+                        </div> : null}
 
-                        {images.length === 2 ? (
-                          <div className="paired-photos">
-                            {images.map((u, i) => (
-                              <figure key={i}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={u}
-                                  alt="闲语配图"
-                                  data-lightbox-date={date.label}
-                                />
-                                <figcaption>{`${date.month} · ${pad(i + 1)}`}</figcaption>
-                              </figure>
-                            ))}
-                          </div>
-                        ) : null}
-
-                        {images.length > 2 ? (
-                          <div className="moment-images" data-count={images.length}>
-                            {images.map((u, i) => (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                key={i}
-                                src={u}
-                                alt="闲语配图"
-                                data-lightbox-date={date.label}
-                              />
-                            ))}
-                          </div>
-                        ) : null}
                       </div>
 
                       <div className="moment-actions">
@@ -269,7 +278,7 @@ export default function MomentsPage() {
                           aria-pressed={liked}
                         >
                           <span className="heart" aria-hidden="true">{liked ? '♥' : '♡'}</span>
-                          喜欢 · {likeCount}
+                          <span className="action-label">喜欢 · {likeCount}</span>
                         </button>
                         <span className="action-separator" aria-hidden="true" />
                         <button
@@ -279,7 +288,7 @@ export default function MomentsPage() {
                           aria-expanded={panelOpen}
                           aria-controls={`moment-comments-${m.id}`}
                         >
-                          评论 · {mComments.length}
+                          <span className="action-label">回应 · {mComments.length}</span>
                         </button>
                         <span className="action-tail" aria-hidden="true">{date.tail}</span>
                       </div>
@@ -336,11 +345,14 @@ export default function MomentsPage() {
                     </div>
                   </article>
                 )
-              })}
+              })}</div></section>)}
+              </div>)}
 
               {hasData && moments.length === 0 && !error ? (
                 <p className="moments-empty">还没有闲语。</p>
               ) : null}
+            </div>
+
             </div>
 
             {!user && ready ? (

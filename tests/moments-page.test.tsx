@@ -77,6 +77,7 @@ describe('P04 moments page', () => {
     fixtures.useMoments.mockReturnValue(context({ addMomentComment }))
     render(<MomentsPage />)
 
+    fireEvent.click(screen.getByRole('button', { name: /回应 · 0/ }))
     const input = screen.getByRole('textbox', { name: '评论' })
     fireEvent.change(input, { target: { value: '中文评论' } })
     fireEvent.keyDown(input, { key: 'Enter', isComposing: true })
@@ -91,7 +92,7 @@ describe('P04 moments page', () => {
 
     const title = screen.getByRole('heading', { level: 1 })
     expect(title).toHaveTextContent('闲语')
-    expect(screen.getByRole('heading', { level: 2, name: '近来所记' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 2, name: /近来所记/ })).toBeInTheDocument()
     expect(screen.getByLabelText('2026年9月1日')).toBeInTheDocument()
     expect(screen.getByText('SEP')).toBeInTheDocument()
   })
@@ -99,17 +100,48 @@ describe('P04 moments page', () => {
   it('collapses and reopens a note comment panel from its action row', () => {
     render(<MomentsPage />)
 
-    const toggle = screen.getByRole('button', { name: /评论 · 0/ })
+    const toggle = screen.getByRole('button', { name: /回应 · 0/ })
     const panel = document.getElementById('moment-comments-moment-1')
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    expect(panel).toHaveAttribute('hidden')
+    fireEvent.click(toggle)
     expect(toggle).toHaveAttribute('aria-expanded', 'true')
     expect(panel).not.toHaveAttribute('hidden')
-
     fireEvent.click(toggle)
     expect(toggle).toHaveAttribute('aria-expanded', 'false')
     expect(panel).toHaveAttribute('hidden')
-
-    fireEvent.click(toggle)
-    expect(toggle).toHaveAttribute('aria-expanded', 'true')
-    expect(panel).not.toHaveAttribute('hidden')
   })
+  it('locates years without removing notes and folds only the month directory', () => {
+    const scrollIntoView = vi.fn()
+    HTMLElement.prototype.scrollIntoView = scrollIntoView
+    fixtures.useMoments.mockReturnValue(context({ moments: [moments[0], { ...moments[0], id: 'older', created_at: '2025-08-12T08:00:00Z' }] }))
+    render(<MomentsPage />)
+    const year = screen.getByRole('button', { name: /2025.*01/ })
+    fireEvent.click(year)
+    expect(scrollIntoView).toHaveBeenCalled()
+    expect(screen.getAllByRole('article')).toHaveLength(2)
+    expect(year).toHaveAttribute('aria-expanded', 'true')
+    fireEvent.click(year)
+    expect(year).toHaveAttribute('aria-expanded', 'false')
+    expect(document.getElementById('months-2025')).toHaveAttribute('hidden')
+    expect(screen.getAllByRole('article')).toHaveLength(2)
+  })
+
+  it('shows three stacked previews while keeping every photo available to the gallery', () => {
+    fixtures.useMoments.mockReturnValue(context({ moments: [{ ...moments[0], images: ['/a.jpg','/b.jpg','/c.jpg','/d.jpg','/e.jpg'] }] }))
+    render(<MomentsPage />)
+    expect(screen.getAllByRole('img', { name: '闲语配图' })).toHaveLength(3)
+    expect(document.querySelectorAll('.moment-images img')).toHaveLength(5)
+    expect(screen.getByText('+2')).toBeInTheDocument()
+    expect(document.querySelectorAll('.moment-images figcaption')).toHaveLength(0)
+  })
+
+  it.each([0,1,2,3])('adapts a note with %i photos without captions or missing content', count => {
+    fixtures.useMoments.mockReturnValue(context({moments:[{...moments[0],images:Array.from({length:count},(_,i)=>`/image-${i}.jpg`)}]}))
+    render(<MomentsPage />)
+    expect(screen.queryAllByRole('img', {name:'闲语配图'})).toHaveLength(count)
+    expect(screen.getByRole('article')).toHaveTextContent(moments[0].content)
+    expect(document.querySelectorAll('figcaption')).toHaveLength(0)
+  })
+
 })
