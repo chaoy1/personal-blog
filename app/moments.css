@@ -215,3 +215,16 @@
 .moments-page .month-heading,.moments-page .year-notes {scroll-margin-top:90px;}
 .moments-page .colophon {margin:0 40px 24px;}
 @container moments (max-width:550px) {.moments-page .colophon {margin:0 17px 20px;}}
+
+/* 为年月目录增加横向空间；左侧借用纸面留白，避免过度挤压札记。 */
+@container moments (min-width:761px) {
+  .moments-page .notes-layout {
+    grid-template-columns:156px minmax(0,1fr);
+    gap:24px;
+    margin-left:-16px;
+  }
+  .moments-page .rail-inner {padding-right:18px;}
+  .moments-page .rail-preface p {max-width:130px;}
+  .moments-page .year-toggle {gap:8px;}
+  .moments-page .year-toggle small {white-space:nowrap;}
+}

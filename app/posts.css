@@ -1375,3 +1375,11 @@ html.motion-static .posts-page .entry.reveal:focus-within {
   transform: none;
   transition: none;
 }
+
+/* 桌面年份索引向纸页左侧留白移动，保持文章卡片原有对齐。 */
+@media (min-width: 571px) {
+  .posts-page .year-rail nav,
+  .posts-page .year-rail .rail-label {
+    transform: translateX(-12px);
+  }
+}
