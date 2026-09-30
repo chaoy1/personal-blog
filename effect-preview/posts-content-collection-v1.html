@@ -67,7 +67,10 @@
     .sheet::before,.sheet::after { position:absolute; top:0; bottom:0; z-index:1; width:7px; content:""; pointer-events:none; }
     .sheet::before { left:0; background:linear-gradient(90deg,#62411f24,transparent); }
     .sheet::after { right:0; background:linear-gradient(270deg,#62411f24,transparent); }
-    .top-rule { height:5px; background:linear-gradient(90deg,var(--seal) 0 116px,#7d552a50 116px 52%,transparent 79%); }
+    /* 题头朱线：六个子页面按页序取页宽的 1/6 … 6/6（文章 1/6、闲语 2/6、光影 3/6、时间轴 4/6、留言 5/6、关于 6/6），
+       文章是第 1 页，朱线占 1/6；余下部分用淡墨细线延续，整条线不分段、不随滚动变化。 */
+    .top-rule {--rule-span:16.6667%;position:relative;height:5px;background:var(--line-soft);}
+    .top-rule::after {display:block;width:var(--rule-span);height:100%;content:"";background:var(--seal);}
     /* 题头以现有文章页为基准；其他主页面沿用这套位置、比例、纸色与朱印。 */
     .hero { position:relative; display:grid; grid-template-columns:minmax(0,1fr) 41%; min-height:352px; overflow:hidden; padding:56px 72px 48px 82px; border-bottom:1px solid var(--line); }
     .hero::before { position:absolute; top:57px; bottom:49px; left:44px; width:1px; content:""; background:linear-gradient(var(--seal),var(--line-soft) 52%,transparent); }
