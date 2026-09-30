@@ -82,9 +82,12 @@
   background: linear-gradient(270deg, var(--sheet-edge), transparent);
 }
 
+/* 卷首朱线：与文章列表页同一套递进规则（六个子页面按页序取页宽的 1/6 … 6/6），
+   详情页属于文章页，所以同为 1/6；余下部分用淡墨细线延续，整条线不分段、不随滚动变化。 */
 .art-sheet-edge {
+  --sheet-rule-span: 16.6667%;
   height: 5px;
-  background: linear-gradient(90deg, var(--seal) 0 104px, var(--sheet-tick) 104px 46%, transparent 72%);
+  background: linear-gradient(90deg, var(--seal) 0 var(--sheet-rule-span), var(--sheet-rule-soft) var(--sheet-rule-span));
 }
 
 /* ---------- 卷首（设计稿 .hero 取值） ---------- */

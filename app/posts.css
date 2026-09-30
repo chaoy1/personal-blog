@@ -102,10 +102,13 @@
   background: linear-gradient(270deg, rgba(98, 65, 31, 0.13), transparent);
 }
 
-/* 卷首最上面那道朱线 */
+/* 卷首最上面那道朱线：六个子页面按页序取页宽的 1/6 … 6/6（文章 1/6、闲语 2/6、光影 3/6、
+   时间轴 4/6、留言 5/6、关于 6/6）。文章是第 1 页，朱线占 1/6；余下部分用淡墨细线延续，
+   整条线不分段、不突出当前页面、不随滚动变化。 */
 .posts-page .top-rule {
+  --pp-rule-span: 16.6667%;
   height: 5px;
-  background: linear-gradient(90deg, var(--pp-seal) 0 116px, rgba(125, 85, 42, 0.31) 116px 52%, transparent 79%);
+  background: linear-gradient(90deg, var(--pp-seal) 0 var(--pp-rule-span), var(--pp-line-soft) var(--pp-rule-span));
 }
 
 /* ---------- 卷首 ---------- */
