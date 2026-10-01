@@ -264,6 +264,7 @@ export default function GuestbookPage() {
     >
       <ScrollFX />
       <ArticleNav current="留言" />
+      <div className="guestbook-paper">
       <div className="guestbook-masthead"><PageIntro
         index="05"
         eyebrow="GUESTBOOK"
@@ -329,6 +330,7 @@ export default function GuestbookPage() {
         </div>
         <footer className="sheet-tail"><span>纸上留音，山水知意。</span><span>LETTERS WITH TIME · 卷五</span></footer>
       </article>
+      </div>
 
       {user && composeOpen
         ? createPortal(
