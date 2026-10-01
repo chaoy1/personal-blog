@@ -10,11 +10,22 @@
     {id:6,name:'南风',mark:'风',date:'2026.08.21',text:'不赶路的时候，看看山，写写字，也很好。',replies:[]}
   ];
   const data = structuredClone(original);
+  const paperNames=['apricot','moss','moon','lotus','rose','oat'];
+  let paperBag=[];
+  function nextPaper() {
+    if(!paperBag.length){paperBag=[...paperNames];for(let i=paperBag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[paperBag[i],paperBag[j]]=[paperBag[j],paperBag[i]];}}
+    return paperBag.pop();
+  }
+  data.forEach(item=>item.paper=nextPaper());
   let page = 1, nextId = 7, busy = false, returnFocus = null, timer = null, pendingDelete = null;
   const reduced = () => matchMedia('(prefers-reduced-motion:reduce)').matches;
   const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const bodyText = value => value.split('\n').map(line => `<p>${escape(line) || '<br>'}</p>`).join('');
   const pad = value => String(value).padStart(2,'0');
+  const digits='〇一二三四五六七八九';
+  function chineseNumber(value) {if(value<10)return digits[value];if(value<20)return '十'+(value%10?digits[value%10]:'');if(value<100)return digits[Math.floor(value/10)]+'十'+(value%10?digits[value%10]:'');return String(value).split('').map(n=>digits[Number(n)]).join('');}
+  function chineseDate(value) {const [year,month,day]=value.split('.').map(Number);const yearText=String(year).split('').map(n=>digits[Number(n)]).join('')+'年';const dayText=day>20&&day<30?'廿'+(day%10?digits[day%10]:''):chineseNumber(day);return {year:yearText,day:chineseNumber(month)+'月'+dayText,full:yearText+chineseNumber(month)+'月'+dayText+'日'};}
+  const today=new Date();$('composer-date').textContent=chineseDate(`${today.getFullYear()}.${pad(today.getMonth()+1)}.${pad(today.getDate())}`).full;
   function notify(text) { clearTimeout(timer);$('toast').textContent=text;$('toast').classList.add('visible');timer=setTimeout(()=>$('toast').classList.remove('visible'),3200); }
   function replyHTML(reply) { return `<div class="reply"><span class="reply-seal" aria-hidden="true">复</span><span class="reply-name">${escape(reply.name)}${reply.owner ? '<small>博主回信</small>' : '<small>访客回信</small>'}</span><p>${escape(reply.text).replace(/\n/g,'<br>')}</p></div>`; }
   function letterCraft(item, index) {
@@ -32,7 +43,7 @@
       stateBox.innerHTML=`<span class="state-symbol" aria-hidden="true">${symbol}</span><h3>${title}</h3><p>${copy}</p>${state==='error'?'<button type="button" id="retry-list">重新收信</button>':''}`;
       stateBox.toggleAttribute('data-loading',state==='loading');
     } else {
-      list.innerHTML=data.slice((page-1)*3,page*3).map((item,index)=>`<article class="letter crafted-letter${item.replies.length?' has-reply':''}" data-id="${item.id}" aria-label="${escape(item.name)}的来信">${letterCraft(item,index)}<header class="letter-head"><span class="avatar" aria-hidden="true">${escape(item.mark)}</span><span class="author">${escape(item.name)}<small class="author-tag">山窗来客 · 留笺</small></span><time class="letter-postmark" datetime="${item.date.replaceAll('.','-')}" aria-label="${item.date}"><span>${item.date.slice(0,4)}</span><b>${item.date.slice(5)}</b><i aria-hidden="true">山窗来信</i></time></header><div class="letter-body">${bodyText(item.text)}</div><div class="replies">${item.replies.map(replyHTML).join('')}</div><footer class="letter-foot"><span>来信 / ${pad((page-1)*3+index+1)}${item.replies.length?` · ${pad(item.replies.length)} 回信`:''}</span><div class="letter-actions">${!guest?`<button class="text-action reply-toggle" type="button" aria-expanded="false" aria-controls="reply-${item.id}"><span>回信</span><b aria-hidden="true">↗</b></button>`:''}${owner?'<button class="text-action delete-button" type="button">收起</button>':''}</div></footer><form class="reply-input" id="reply-${item.id}" hidden><label class="sr-only" for="reply-text-${item.id}">回复${escape(item.name)}</label><textarea id="reply-text-${item.id}" maxlength="500" placeholder="写一封简短的回信……" required></textarea><div><small>示意回信 · 最多500字</small><button type="submit">寄出回信</button></div></form></article>`).join('');
+      list.innerHTML=data.slice((page-1)*3,page*3).map((item,index)=>{const date=chineseDate(item.date);return `<article class="letter crafted-letter${item.replies.length?' has-reply':''}" data-paper="${item.paper}" data-id="${item.id}" aria-label="${escape(item.name)}的来信">${letterCraft(item,index)}<header class="letter-head"><span class="avatar" aria-hidden="true">${escape(item.mark)}</span><span class="author">${escape(item.name)}<small class="author-tag">山窗来客 · 留笺</small></span><time class="letter-postmark" datetime="${item.date.replaceAll('.','-')}" aria-label="${date.full}"><span>${date.year}</span><b>${date.day}</b><i aria-hidden="true">山窗来信</i></time></header><div class="letter-body">${bodyText(item.text)}</div><div class="replies">${item.replies.map(replyHTML).join('')}</div><footer class="letter-foot"><span>来信 / ${pad((page-1)*3+index+1)}${item.replies.length?` · ${pad(item.replies.length)} 回信`:''}</span><div class="letter-actions">${!guest?`<button class="text-action reply-toggle" type="button" aria-expanded="false" aria-controls="reply-${item.id}"><span>回信</span><b aria-hidden="true">↗</b></button>`:''}${owner?'<button class="text-action delete-button" type="button">收起</button>':''}</div></footer><form class="reply-input" id="reply-${item.id}" hidden><label class="sr-only" for="reply-text-${item.id}">回复${escape(item.name)}</label><textarea id="reply-text-${item.id}" maxlength="500" placeholder="写一封简短的回信……" required></textarea><div><small>示意回信 · 最多500字</small><button type="submit">寄出回信</button></div></form></article>`;}).join('');
     }
     document.querySelector('.pagination').hidden=list.hidden||pages<2;
     $('page-caption').textContent=`第 ${pad(page)} / ${pad(pages)} 页`;
@@ -49,13 +60,13 @@
     document.querySelectorAll('.letter').forEach(letter=>observer.observe(letter));
   }
   function openComposer(trigger) {returnFocus=trigger;$('form-error').hidden=true;$('composer').showModal();$('message').focus();resizeMessage();}
-  function resizeMessage() {const message=$('message');message.style.height='auto';message.style.height=Math.max(245,message.scrollHeight)+'px';const lines=Math.ceil(parseInt(message.style.height)/35);document.querySelector('.line-numbers').innerHTML=Array.from({length:lines},(_,i)=>pad(i+1)).join('<br>');$('char-count').textContent=`${message.value.length} / 500`;$('send-button').disabled=busy||!message.value.trim();}
+  function resizeMessage(followTail=false) {const message=$('message'),line=parseFloat(getComputedStyle(message).lineHeight)||36;message.style.height='auto';message.style.height=Math.max(line*7,message.scrollHeight)+'px';const lines=Math.ceil(parseInt(message.style.height)/line);document.querySelector('.line-numbers').innerHTML=Array.from({length:lines},(_,i)=>chineseNumber(i+1)).join('<br>');$('char-count').textContent=`${message.value.length} / 500`;$('send-button').disabled=busy||!message.value.trim();if(followTail&&message.selectionStart===message.value.length){const paper=document.querySelector('.manuscript');paper.scrollTop=paper.scrollHeight;}}
   $('write-button').addEventListener('click',event=>openComposer(event.currentTarget));
   $('close-composer').addEventListener('click',()=>$('composer').close());
   $('composer').addEventListener('cancel',event=>{if(busy)event.preventDefault()});
   $('composer').addEventListener('close',()=>{returnFocus?.focus()});
   $('composer').addEventListener('click',event=>{const r=$('composer').getBoundingClientRect();if(!busy&&event.target===$('composer')&&(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom))$('composer').close()});
-  $('message').addEventListener('input',resizeMessage);
+  $('message').addEventListener('input',()=>resizeMessage(true));
   [$('composer'),$('delete-dialog')].forEach(dialog=>dialog.addEventListener('keydown',event=>{
     if(event.key!=='Tab')return;
     const stops=[...dialog.querySelectorAll('button:not(:disabled),textarea:not(:disabled),a[href],select:not(:disabled),[tabindex="0"]')].filter(element=>element.getClientRects().length);
@@ -65,11 +76,11 @@
     else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
   }));
   $('composer-form').addEventListener('submit',event=>{
-    event.preventDefault();if(busy||!$('message').value.trim())return;busy=true;$('message').readOnly=true;$('form-error').hidden=true;$('composer').setAttribute('aria-busy','true');$('send-button').textContent='寄送中…';$('send-button').disabled=true;$('close-composer').disabled=true;
-    setTimeout(()=>{busy=false;$('message').readOnly=false;$('composer').removeAttribute('aria-busy');$('close-composer').disabled=false;$('send-button').textContent='寄出留言 ↗';
+    event.preventDefault();if(busy||!$('message').value.trim())return;busy=true;$('message').readOnly=true;$('form-error').hidden=true;$('composer').setAttribute('aria-busy','true');$('send-label').textContent='寄送中…';$('send-button').disabled=true;$('close-composer').disabled=true;
+    setTimeout(()=>{busy=false;$('message').readOnly=false;$('composer').removeAttribute('aria-busy');$('close-composer').disabled=false;$('send-label').textContent='寄出留言';
       if($('demo-state').value==='send-error') {$('form-error').textContent='示意寄送失败，内容已保留。切换到“来信往来”后可重试。';$('form-error').hidden=false;resizeMessage();$('message').focus();return;}
       const now=new Date();const date=`${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}`;
-      data.unshift({id:nextId++,name:$('signature-name').textContent,mark:'客',date,text:$('message').value.trim(),replies:[]});$('message').value='';page=1;$('demo-state').value='normal';render();$('composer').close();resizeMessage();notify('信已收好 · 本页演示留言');
+      data.unshift({id:nextId++,name:$('signature-name').textContent,mark:'客',date,text:$('message').value.trim(),replies:[],paper:nextPaper()});$('message').value='';page=1;$('demo-state').value='normal';render();$('composer').close();resizeMessage();notify('信已收好 · 本页演示留言');
     },650);
   });
   $('letter-list').addEventListener('click',event=>{
