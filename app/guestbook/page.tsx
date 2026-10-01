@@ -11,16 +11,17 @@ import PageIntro from '@/components/PageIntro'
 import ArticleNav from '@/components/ArticleNav'
 import Pagination from '@/components/Pagination'
 import { useConfirmDialog } from '@/components/ConfirmDialog'
+import { formatGuestbookDate } from '@/lib/guestbook-design'
 import './guestbook.css'
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 6
 /** 信笺最少保留的行数：写几行都不会让笺纸塌下去 */
 const MIN_ROWS = 7
 const MAX_LEN = 500
 type FormState = 'idle' | 'submitting' | 'success' | 'error'
 
 export default function GuestbookPage() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const {
     guestbook,
     ready,
@@ -41,15 +42,11 @@ export default function GuestbookPage() {
   const [localError, setLocalError] = useState('')
   const [formError, setFormError] = useState('')
   const [success, setSuccess] = useState('')
-  /** 行号栏要显示几行：跟着正文的实际视觉行数走 */
-  const [rowCount, setRowCount] = useState(MIN_ROWS)
-  /** 每个行号的实测位置；与行数一起更新，新节点首帧就有定位 */
-  const [rowTops, setRowTops] = useState<number[]>([])
+  const listTitleRef = useRef<HTMLHeadingElement>(null)
   const submissionId = useRef(0)
   const composeTriggerRef = useRef<HTMLButtonElement>(null)
   const composeDialogRef = useRef<HTMLElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const gutterRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const followComposerTailRef = useRef(false)
   const busy = formState === 'submitting'
@@ -64,118 +61,18 @@ export default function GuestbookPage() {
     composeTriggerRef.current?.focus()
   }, [])
 
-  /**
-   * 行号跟着正文的实际视觉行数走。
-   * 用 scrollHeight 量：默认的 soft wrap 只在视觉上折行、不在 value 里插换行，
-   * 所以只有量渲染高度才能同时算对「手动换行」和「自动折行」。
-   * 再把 textarea 的高度顶到内容高度，行号栏与格线才是同一套行。
-   */
+  // 正文撑高后由外层书写区滚动，末尾继续输入才追随光标。
   const measureRows = useCallback(() => {
     const el = textareaRef.current
     if (!el) return
-    const styles = window.getComputedStyle(el)
-
-    // getComputedStyle 在某些环境（jsdom、未挂样式时）会给出空字符串，
-    // 所以每个值都要有兜底，别让 NaN 把整条测量打断。
-    const parsedFont = Number.parseFloat(styles.fontSize)
-    const fontSize = Number.isFinite(parsedFont) && parsedFont > 0 ? parsedFont : 16
-
-    // line-height 可能是 px、也可能是无单位倍数（CSS 里写的就是 2.1）
-    const raw = styles.lineHeight?.trim() ?? ''
-    const computedLineHeight = raw.endsWith('px')
-      ? Number.parseFloat(raw)
-      : /^[\d.]+$/.test(raw)
-        ? Number.parseFloat(raw) * fontSize
-        : fontSize * 2.1 // 'normal'/空值兜底：按本站设定的 2.1 倍算
-    if (!Number.isFinite(computedLineHeight) || computedLineHeight <= 0) return
-
-    // 行高钉成一个整数 px，正文与行号同源，不再各自取整
-    const lineHeight = Math.round(computedLineHeight)
-    const snapped = `${lineHeight}px`
-    if (el.style.lineHeight !== snapped) el.style.lineHeight = snapped
-
-    // 先松开旧高度再量，删除内容时行数也能缩回；正文自身不保留滚动偏移。
-    const previousHeight = el.style.height
+    const parsed = Number.parseFloat(getComputedStyle(el).lineHeight)
+    const lineHeight = Number.isFinite(parsed) && parsed > 0 ? parsed : 36
     el.style.height = 'auto'
-    el.scrollTop = 0
-    const contentHeight = el.scrollHeight
-    if (!Number.isFinite(contentHeight) || contentHeight <= 0) {
-      el.style.height = previousHeight
-      return
-    }
-    const lines = Math.max(MIN_ROWS, Math.round(contentHeight / lineHeight))
-
-    /**
-     * 用与 textarea 同度量的镜像元素生成足量的单行标记，再向浏览器读取每行 top。
-     * 镜像不再复刻正文：正文里的软换行与手动换行都已经体现在 scrollHeight / lines，
-     * 单行标记则保证每一个视觉行（不只是每个手动换行）都有对应位置。
-     */
-    const mirror = document.createElement('div')
-    mirror.setAttribute('aria-hidden', 'true')
-    mirror.style.cssText = [
-      'position:absolute',
-      'left:0',
-      'top:0',
-      'visibility:hidden',
-      'pointer-events:none',
-      'margin:0',
-      `width:${el.clientWidth}px`,
-      'white-space:pre-wrap',
-      'overflow-wrap:break-word',
-      'word-break:normal',
-      `font-family:${styles.fontFamily}`,
-      `font-size:${styles.fontSize}`,
-      `line-height:${snapped}`,
-      `letter-spacing:${styles.letterSpacing}`,
-      'box-sizing:content-box',
-    ].join(';')
-    for (let index = 0; index < lines; index += 1) {
-      const marker = document.createElement('span')
-      marker.textContent = 'M'
-      mirror.appendChild(marker)
-      if (index < lines - 1) mirror.appendChild(document.createElement('br'))
-    }
-    const placement = el.parentElement
-    if (!placement) {
-      el.style.height = previousHeight
-      return
-    }
-    placement.appendChild(mirror)
-    // 镜像用 offsetTop 取值：它是 layout 值，不受祖先 transform 与滚动影响
-    const spans = Array.from(mirror.querySelectorAll('span'))
-    const lineTops = spans.map((span) => (span as HTMLElement).offsetTop)
-    mirror.remove()
-
-    const nextHeight = `${lines * lineHeight}px`
-    if (el.style.height !== nextHeight) el.style.height = nextHeight
-
-    /**
-     * 逐行落位：把每个行号绝对定位到它那一行的真实位置，
-     * 而不是用"每格等高"去凑——等高只要有一点点误差就会逐行累积。
-     * transform 位移不影响 offsetTop，所以这里量与用都在 layout 坐标系里。
-     */
-    const gutter = gutterRef.current
-    if (gutter) {
-      gutter.style.height = `${lines * lineHeight}px`
-    }
-
-    // textarea 自身被撑高后，浏览器不会替外层滚动容器追随光标。
-    // 仅在用户从正文末尾继续书写时跟到底部，避免编辑中间内容时被强行拉走。
-    const scroll = scrollRef.current
-    if (followComposerTailRef.current && scroll) {
-      scroll.scrollTop = scroll.scrollHeight
+    el.style.height = Math.max(lineHeight * MIN_ROWS, el.scrollHeight) + 'px'
+    if (followComposerTailRef.current && scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
       followComposerTailRef.current = false
     }
-
-    const nextTops = lineTops.map((measuredTop, index) => {
-      if (index === 0) return Number.isFinite(measuredTop) ? measuredTop : 0
-      const previousTop = lineTops[index - 1]
-      return Number.isFinite(measuredTop) && measuredTop > previousTop
-        ? measuredTop
-        : index * lineHeight
-    })
-    setRowTops(nextTops)
-    setRowCount(lines)
   }, [])
 
   // 打开弹层、或正文变化时重新量（useLayoutEffect：避免先画错再跳一下）
@@ -211,15 +108,13 @@ export default function GuestbookPage() {
     }
   }, [composeOpen, measureRows])
 
-  // 关掉弹层时复位，下次打开是干净的一张笺
+  // 关闭时复位光标跟随状态，下次打开仍保留未寄出的草稿。
   useEffect(() => {
     if (!composeOpen) {
       followComposerTailRef.current = false
-      setRowCount(MIN_ROWS)
-      setRowTops([])
       return
     }
-    // 重新开笺：原生滚动位置回到顶端；行号与正文同处这个滚动容器。
+    // 重新开笺时回到正文顶端。
     if (scrollRef.current) scrollRef.current.scrollTop = 0
   }, [composeOpen])
 
@@ -369,62 +264,32 @@ export default function GuestbookPage() {
     >
       <ScrollFX />
       <ArticleNav current="留言" />
-      <PageIntro
+      <div className="guestbook-masthead"><PageIntro
         index="05"
         eyebrow="GUESTBOOK"
         title="留言"
         seal="留"
         description="来者有言，皆收于此。"
-      />
+      /><span className="hero-inscription" aria-hidden="true"><span>山窗常开<br/>来信有声</span><i>往来</i></span><span className="hero-tail" aria-hidden="true">A FEW WORDS, A SMALL ENCOUNTER</span></div>
 
       <article className="article content-sheet guestbook-sheet">
         <div className="guestbook-layout">
           <aside className="guestbook-window-panel" aria-label="山窗寄语">
-            {user ? (
-              <div className="guestbook-window-entry">
-                <span className="guestbook-write-kicker">BY THE WINDOW</span>
-                <span className="guestbook-window-title">山窗寄语</span>
-                <span className="guestbook-window-copy">窗外有山，纸上有话。</span>
-                <span className="guestbook-window-space" aria-hidden="true">
-                  <span>展笺书写</span>
-                </span>
-                <button
-                  ref={composeTriggerRef}
-                  type="button"
-                  className="guestbook-window-action"
-                  onClick={toggleComposer}
-                  aria-label="写留言"
-                  aria-expanded={composeOpen}
-                  aria-haspopup="dialog"
-                  aria-controls="guestbook-immersive-sheet"
-                >
-                  <span className="gb-write-mark" aria-hidden="true" />
-                  写留言
-                </button>
-              </div>
-            ) : (
-              <Link
-                href="/login"
-                className="guestbook-window-entry guestbook-window-login"
-                aria-label="登录后写留言"
-              >
-                <span className="guestbook-write-kicker">BY THE WINDOW</span>
-                <span className="guestbook-window-title">山窗寄语</span>
-                <span className="guestbook-window-copy">窗外有山，纸上有话。</span>
-                <span className="guestbook-window-space" aria-hidden="true">
-                  <span>候君展笺</span>
-                </span>
-                <span className="guestbook-window-action">
-                  <span className="gb-write-mark" aria-hidden="true" />
-                  登录后写留言
-                </span>
-              </Link>
-            )}
-
+            <div className="guestbook-window-entry">
+              <span className="guestbook-write-kicker">BY THE WINDOW</span>
+              <h2 className="guestbook-window-title">山窗寄语</h2>
+              <p className="guestbook-window-copy">窗外有山，纸上有话。</p>
+              <div className="mountain-window" aria-hidden="true"><div className="window-view"/><i className="window-mullion"/><span className="window-note">且坐书窗下</span></div>
+              <div className="invitation"><span>致 · 途经这里的你</span><p>一声问候，一段近况，<br/>或是此刻想说的话。</p></div>
+              {user ? <button ref={composeTriggerRef} type="button" className="guestbook-window-action" onClick={toggleComposer} aria-label="写留言" aria-expanded={composeOpen} aria-haspopup="dialog" aria-controls="guestbook-immersive-sheet"><svg viewBox="0 0 44 30" aria-hidden="true"><path d="M1 1H43V29H1Z"/><path className="envelope-flap" d="M1 1L22 17L43 1"/><path d="M1 29L16 15M43 29L28 15"/></svg><span>展笺书写</span><b aria-hidden="true">↗</b></button> : <Link href="/login" className="guestbook-window-action" aria-label="登录后写留言">登录后写留言 <span aria-hidden="true">↗</span></Link>}
+              <p className="writing-note">{user ? '以你的名字落款 · 最多 500 字' : '登录后以你的名字落款'}</p>
+              <div className="panel-tail" aria-hidden="true"><span>一言一笺</span><i>寄</i><span>收于山窗</span></div>
+            </div>
             {success ? <p className="notice-text" role="status">{success}</p> : null}
           </aside>
 
           <section className="guestbook-messages" aria-label="已收留言" data-list-state={pageState}>
+            <header className="section-head"><div><span className="eyebrow">LETTERS / 往来</span><h2 ref={listTitleRef} tabIndex={-1}>山窗来信</h2></div><p>共 <b>{String(parents.length).padStart(2,'0')}</b> 封<small>字短情长，皆有回响。</small></p></header>
             {!resourceHasData && resourceIsInitialLoading ? <p className="moments-empty">正在加载留言…</p> : null}
             {!resourceHasData && (error || localError) ? (
               <p className="error-text" role="alert">
@@ -440,8 +305,11 @@ export default function GuestbookPage() {
             ) : null}
 
             {/* 留言内容优先展示 */}
-            <div className="comment-list guestbook-list">
+            <div className="comment-list guestbook-list book-body">
+              <span className="binding" aria-hidden="true"><i/><i/><i/><i/></span>
               <CommentThread
+                variant="letters"
+                rootOffset={(safePage - 1) * PAGE_SIZE}
                 items={threadItems}
                 userId={user?.id ?? null}
                 emptyText={resourceHasData && !error ? '还没有人留言，来写第一句吧。' : undefined}
@@ -454,11 +322,12 @@ export default function GuestbookPage() {
               page={safePage}
               totalPages={totalPages}
               totalItems={parents.length}
-              onPageChange={setPage}
+              onPageChange={(nextPage) => { setPage(nextPage); queueMicrotask(() => { listTitleRef.current?.focus(); listTitleRef.current?.scrollIntoView?.({ block: 'start', behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }) }) }}
               summary={`第 ${safePage} / ${totalPages} 页 · 共 ${parents.length} 条`}
             />
           </section>
         </div>
+        <footer className="sheet-tail"><span>纸上留音，山水知意。</span><span>LETTERS WITH TIME · 卷五</span></footer>
       </article>
 
       {user && composeOpen
@@ -480,73 +349,12 @@ export default function GuestbookPage() {
               aria-busy={busy}
               data-form-state={formState}
             >
-              <div className="guestbook-sheet-scenery" aria-hidden="true" />
-
-              <header className="guestbook-sheet-head">
-                <span className="guestbook-sheet-mark">
-                  <b aria-hidden="true">05</b>
-                  <span className="guestbook-sheet-eyebrow">BY THE WINDOW</span>
-                </span>
-                <button type="button" className="guestbook-sheet-close" onClick={closeComposer}>
-                  <span>收笺</span>
-                  <span className="guestbook-sheet-close-mark" aria-hidden="true">×</span>
-                </button>
-              </header>
-
-              <div className="guestbook-sheet-title">
-                <h2 id="guestbook-compose-title">山窗寄语</h2>
-                <p id="guestbook-compose-description">窗外有山，纸上有话。</p>
-              </div>
-
-              <div
-                className="guestbook-sheet-write"
-                ref={scrollRef}
-              >
-                <div className="guestbook-sheet-inner">
-                  <div className="guestbook-sheet-gutter" aria-hidden="true" ref={gutterRef}>
-                    {Array.from({ length: rowCount }, (_, index) => (
-                      <i
-                        key={index}
-                        style={{ top: rowTops[index] === undefined ? `calc(${index} * var(--sheet-line))` : `${rowTops[index]}px` }}
-                      >
-                        {String(index + 1).padStart(2, '0')}
-                      </i>
-                    ))}
-                  </div>
-                  <div className="guestbook-sheet-paperline">
-                    <textarea
-                      ref={textareaRef}
-                      className="guestbook-immersive-textarea"
-                      aria-label="留言内容"
-                      value={content}
-                      onChange={(event) => updateContent(
-                        event.target.value,
-                        event.target.selectionStart === event.target.value.length,
-                      )}
-                      placeholder="写下此刻想说的话……"
-                      maxLength={MAX_LEN}
-                      autoFocus
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <footer className="guestbook-immersive-foot">
-                <span className="moments-counter">{content.length} / {MAX_LEN}</span>
-                <div className="guestbook-immersive-actions">
-                  {formError ? <p className="error-text" role="alert">{formError}</p> : null}
-                  <button
-                    type="button"
-                    className="btn guestbook-submit"
-                    onClick={post}
-                    disabled={busy || !content.trim()}
-                  >
-                    {busy ? '寄送中…' : formState === 'error' ? '重试寄出' : '寄出留言'}
-                  </button>
-                </div>
-              </footer>
-
-              <span className="guestbook-sheet-seal" aria-hidden="true">寄</span>
+              <header className="guestbook-sheet-head"><div><span className="guestbook-sheet-eyebrow">卷五 / 山窗书笺</span><h2 id="guestbook-compose-title">山窗寄语</h2></div><button type="button" className="guestbook-sheet-close" onClick={closeComposer}>收笺 <span aria-hidden="true">×</span></button></header>
+              <div className="composer-to"><p id="guestbook-compose-description">见字如面，写下此刻想说的话。</p><span>{formatGuestbookDate(new Date().toISOString()).full}</span></div>
+              <div className="guestbook-sheet-write" ref={scrollRef}><div className="guestbook-sheet-inner"><textarea ref={textareaRef} className="guestbook-immersive-textarea" aria-label="留言内容" value={content} onChange={event => updateContent(event.target.value,event.target.selectionStart===event.target.value.length)} placeholder="写下此刻想说的话……" maxLength={MAX_LEN} readOnly={busy} autoFocus/></div></div>
+              <div className="signature"><span>落款 · <b>{profile?.nickname || '山窗访客'}</b><i>敬上</i></span><span className="moments-counter">{content.length} / {MAX_LEN}</span></div>
+              {formError ? <p className="error-text" role="alert">{formError}</p> : null}
+              <footer className="guestbook-immersive-foot"><small>以你的名字，收于山窗。</small><button type="button" className="btn guestbook-submit" onClick={post} disabled={busy || !content.trim()}><span>{busy ? '寄送中…' : formState === 'error' ? '重试寄出' : '寄出留言'}</span><svg viewBox="0 0 38 26" aria-hidden="true"><path d="M1 1H37V25H1Z M1 1L19 15L37 1 M1 25L14 13 M37 25L24 13"/></svg></button></footer>
             </section>
           </div>,
           document.body,

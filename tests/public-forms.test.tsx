@@ -132,14 +132,16 @@ describe('public form feedback', () => {
     expect(screen.getByRole('complementary', { name: '山窗寄语' })).toBeInTheDocument()
   })
 
-  it('turns the full writing card into a login entry for signed-out visitors', () => {
+  it('offers a login entry in the writing panel for signed-out visitors', () => {
     Object.assign(store, { user: null })
     render(<GuestbookPage />)
 
     const loginEntry = screen.getByRole('link', { name: '登录后写留言' })
     expect(loginEntry).toHaveAttribute('href', '/login')
-    expect(loginEntry).toHaveTextContent('山窗寄语')
-    expect(loginEntry).toHaveTextContent('窗外有山，纸上有话。')
+    const writingPanel = screen.getByRole('complementary', { name: '山窗寄语' })
+    expect(writingPanel).toContainElement(loginEntry)
+    expect(writingPanel).toHaveTextContent('山窗寄语')
+    expect(writingPanel).toHaveTextContent('窗外有山，纸上有话。')
     expect(screen.queryByLabelText('留言内容')).not.toBeInTheDocument()
   })
 
@@ -161,21 +163,16 @@ describe('public form feedback', () => {
     expect(trigger).toHaveFocus()
   })
 
-  it('renders one letter-paper row marker per line, zero-padded', () => {
+  it('opens a clean writing sheet with seven lines of space', () => {
     render(<GuestbookPage />)
     fireEvent.click(screen.getByRole('button', { name: '写留言' }))
 
-    const labels = Array.from(document.querySelectorAll('.guestbook-sheet-gutter i')).map((el) => el.textContent)
-
-    // 空笺至少保留 7 行，编号连续且左补零
-    expect(labels.length).toBeGreaterThanOrEqual(7)
-    expect(labels[0]).toBe('01')
-    expect(labels[1]).toBe('02')
-    expect(labels[6]).toBe('07')
-    expect(labels[labels.length - 1]).toBe(String(labels.length).padStart(2, '0'))
+    expect(document.querySelector('.guestbook-sheet-gutter')).toBeNull()
+    expect(screen.getByLabelText('留言内容')).toHaveStyle({ height: '252px' })
+    expect(screen.getByText('敬上')).toBeInTheDocument()
   })
 
-  it('positions every row marker from measured pixels after one multi-line textarea update', async () => {
+  it('expands the writing area after one multi-line paste', async () => {
     render(<GuestbookPage />)
     const textarea = openGuestbookComposer() as HTMLTextAreaElement
 
@@ -183,18 +180,17 @@ describe('public form feedback', () => {
     // placeholder rows to twelve rows in a single React render.
     Object.defineProperty(textarea, 'scrollHeight', {
       configurable: true,
-      get: () => 12 * 34,
+      get: () => 12 * 36,
     })
     fireEvent.change(textarea, {
       target: { value: Array.from({ length: 12 }, (_, index) => `第 ${index + 1} 行`).join('\n') },
     })
 
     await waitFor(() => {
-      expect(document.querySelectorAll('.guestbook-sheet-gutter i')).toHaveLength(12)
+      expect(textarea).toHaveStyle({ height: '432px' })
     })
 
-    const rows = Array.from(document.querySelectorAll<HTMLElement>('.guestbook-sheet-gutter i'))
-    expect(rows.every((row) => /^\d+px$/.test(row.style.top))).toBe(true)
+    expect(document.querySelector('.guestbook-sheet-gutter')).toBeNull()
   })
 
   it('keeps the newest line visible when writing grows past the viewport', async () => {
@@ -221,17 +217,16 @@ describe('public form feedback', () => {
     })
   })
 
-  it('lets native outer scrolling move text and row numbers together', () => {
+  it('keeps the textarea in the outer writing scroll area', () => {
     render(<GuestbookPage />)
     openGuestbookComposer()
 
     const write = document.querySelector<HTMLElement>('.guestbook-sheet-write')!
-    const gutter = document.querySelector<HTMLElement>('.guestbook-sheet-gutter')!
+    const textarea = screen.getByLabelText('留言内容')
     fireEvent.scroll(write, { target: { scrollTop: 200 } })
 
-    // Both nodes are descendants of `write`, so a second JS translation would
-    // move only the numbers and recreate the accumulating mismatch.
-    expect(gutter.style.transform).toBe('')
+    expect(write).toContainElement(textarea)
+    expect(textarea.style.transform).toBe('')
   })
 
   it('remeasures visual rows when the writing font finishes loading', async () => {
@@ -252,14 +247,14 @@ describe('public form feedback', () => {
       let measuredRows = 7
       Object.defineProperty(textarea, 'scrollHeight', {
         configurable: true,
-        get: () => measuredRows * 34,
+        get: () => measuredRows * 36,
       })
 
       measuredRows = 10
       listeners.get('loadingdone')?.(new Event('loadingdone'))
 
       await waitFor(() => {
-        expect(document.querySelectorAll('.guestbook-sheet-gutter i')).toHaveLength(10)
+        expect(textarea).toHaveStyle({ height: '360px' })
       })
     } finally {
       if (originalFonts) Object.defineProperty(document, 'fonts', originalFonts)

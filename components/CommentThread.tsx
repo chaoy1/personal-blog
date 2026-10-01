@@ -3,6 +3,8 @@
 import { useMemo, useRef, useState } from 'react'
 import { formatDate } from '@/lib/blog'
 import Avatar from '@/components/Avatar'
+import GuestbookLetter from '@/components/GuestbookLetter'
+import { formatGuestbookDate } from '@/lib/guestbook-design'
 
 export type ThreadItem = {
   id: string
@@ -14,6 +16,8 @@ export type ThreadItem = {
 }
 
 type Props = {
+  variant?: 'default' | 'letters'
+  rootOffset?: number
   /** 同一上下文（某篇文章 / 留言板当页 / 某条闲语）的全部评论，顺序即顶层展示顺序 */
   items: ThreadItem[]
   userId: string | null
@@ -30,7 +34,7 @@ type FormState = 'idle' | 'submitting' | 'success' | 'error'
  * 所有回复都挂在顶层评论之下；回复楼中楼时，自动在新回复里 @被回复的人，
  * 因此可以在一条评论下持续追评，不受层级限制。
  */
-export default function CommentThread({ items, userId, emptyText, onReply, onDelete }: Props) {
+export default function CommentThread({ items, userId, emptyText, onReply, onDelete, variant = 'default', rootOffset = 0 }: Props) {
   const [replyTo, setReplyTo] = useState<ThreadItem | null>(null)
   const [replyText, setReplyText] = useState('')
   const [replyState, setReplyState] = useState<FormState>('idle')
@@ -143,13 +147,37 @@ export default function CommentThread({ items, userId, emptyText, onReply, onDel
   }
 
   function renderItem(it: ThreadItem, isReply: boolean) {
+    if (variant === 'letters' && !isReply) {
+      const replies = childrenOf.get(it.id) ?? []
+      return <GuestbookLetter
+        key={it.id}
+        name={it.profiles?.nickname || '旅人'}
+        date={it.created_at}
+        number={rootOffset + roots.indexOf(it) + 1}
+        replyCount={replies.length}
+        actions={<>
+          {userId ? (
+            <button type="button" className="link-btn comment-reply-btn" onClick={() => toggleReply(it)}>
+              {replyTo?.id === it.id ? '取消回信' : '回信'} <b aria-hidden="true">↗</b>
+            </button>
+          ) : null}
+          {onDelete && userId === it.user_id ? (
+            <button type="button" className="link-btn guestbook-del" onClick={() => onDelete(it.id)}>删除</button>
+          ) : null}
+        </>}
+      >
+        <p className="comment-content">{it.content}</p>
+        {replyTo?.id === it.id ? renderReplyForm(it) : null}
+        {replies.length ? <div className="comment-replies">{replies.map(child => renderItem(child, true))}</div> : null}
+      </GuestbookLetter>
+    }
     return (
       <div key={it.id} className={`comment${isReply ? ' reply' : ' reveal'}`}>
         <Avatar className={`c-avatar ${isReply ? 'sm' : 'md'}`} src={it.profiles?.avatar_url} />
         <div className="comment-body">
           <div className="comment-meta">
             <span className="comment-name">{it.profiles?.nickname || '旅人'}</span>
-            <span className="comment-date">{formatDate(it.created_at)}</span>
+            <span className="comment-date">{variant === 'letters' ? formatGuestbookDate(it.created_at).full : formatDate(it.created_at)}</span>
             {userId ? (
               <button
                 type="button"

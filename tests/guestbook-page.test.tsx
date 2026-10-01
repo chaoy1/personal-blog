@@ -39,7 +39,7 @@ vi.mock('@/components/CommentThread', () => ({
     <>{items.map((item) => <article key={item.id}>{item.content}</article>)}{items.length === 0 && emptyText ? <p className="comment-empty">{emptyText}</p> : null}</>
   ),
 }))
-vi.mock('@/components/Pagination', () => ({ default: () => null }))
+vi.mock('@/components/Pagination', () => ({ default: ({ onPageChange }: { onPageChange: (page: number) => void }) => <button onClick={() => onPageChange(2)}>下一页留言</button> }))
 vi.mock('@/components/ConfirmDialog', () => ({
   useConfirmDialog: () => ({ confirm: vi.fn(), dialog: null }),
 }))
@@ -125,5 +125,36 @@ describe('P07 guestbook page', () => {
 
     fireEvent.keyDown(document, { key: 'Escape' })
     await waitFor(() => expect(document.activeElement).toBe(trigger))
+  })
+
+  it('shows six roots per page with their replies and moves focus back to the list on paging', async () => {
+    fixtures.guestbook.guestbook = Array.from({ length: 8 }, (_, index) => ({ ...entry, id: `root-${index}`, content: `来信 ${index}`, created_at: `2026-09-${String(28-index).padStart(2,'0')}T08:00:00Z` }))
+    fixtures.guestbook.guestbook.push({ ...entry, id: 'reply', parent_id: 'root-0', content: '随信回复' })
+    render(<GuestbookPage />)
+    const region = screen.getByRole('region', { name: '已收留言' })
+    expect(region).toHaveTextContent('来信 5')
+    expect(region).not.toHaveTextContent('来信 6')
+    expect(region).toHaveTextContent('随信回复')
+    fireEvent.click(screen.getByText('下一页留言'))
+    expect(region).toHaveTextContent('来信 6')
+    expect(region).not.toHaveTextContent('随信回复')
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('heading', { name: '山窗来信' })))
+  })
+
+  it('keeps the draft after closing and keeps content when posting fails', async () => {
+    fixtures.auth.user = { id: 'visitor-1' }
+    fixtures.guestbook.addGuestbook.mockResolvedValueOnce('暂时无法寄出')
+    render(<GuestbookPage />)
+    fireEvent.click(screen.getByRole('button', { name: '写留言' }))
+    const input = screen.getByRole('textbox', { name: '留言内容' })
+    fireEvent.change(input, { target: { value: '保留这封信' } })
+    fireEvent.keyDown(document, { key: 'Escape' })
+    fireEvent.click(screen.getByRole('button', { name: '写留言' }))
+    expect(screen.getByRole('textbox', { name: '留言内容' })).toHaveValue('保留这封信')
+    expect(document.querySelector('.guestbook-sheet-gutter')).toBeNull()
+    expect(screen.getByText('敬上')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '寄出留言' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('暂时无法寄出')
+    expect(screen.getByRole('textbox', { name: '留言内容' })).toHaveValue('保留这封信')
   })
 })
