@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>时间轴 · 岁月长卷设计稿</title><link rel="icon" href="data:,"><style>
+
+    @import url("../public/fonts/hongleixingshu/font.css");
+    :root {
+      --paper:#eee0b9; --paper-bright:#f8edcf; --paper-deep:#d9c496;
+      --ink:#2c2922; --ink-soft:#5f5849; --ink-faint:#81745e;
+      --seal:#a83e30; --seal-dark:#812d23;
+      --line:rgba(91,65,36,.28); --line-soft:rgba(91,65,36,.16);
+      --brush:"hongleixingshu","STXingkai","KaiTi",serif;
+      --kai:"KaiTi","STKaiti","楷体","Songti SC",serif;
+      --song:"Songti SC","STSong","Noto Serif CJK SC","SimSun",serif;
+      --fiber:url("../public/bg/guestbook-paper-fibers.svg");
+      --ease:cubic-bezier(.22,.72,.18,1); --card-wash:rgba(168,62,48,.085); --card-spot:rgba(255,251,223,.62);
+    }
+    :root[data-theme="dark"] {
+      --paper:#3d3428; --paper-bright:#4b3e2d; --paper-deep:#29241f;
+      --ink:#f0dfbd; --ink-soft:#d1bd99; --ink-faint:#b39d79;
+      --seal:#d36c50; --seal-dark:#e18a68;
+      --line:rgba(229,198,146,.3); --line-soft:rgba(229,198,146,.17);
+      --card-wash:rgba(211,108,80,.105); --card-spot:rgba(255,220,169,.13);
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; min-width:320px; color:var(--ink); font-family:var(--song); background:#6e6248; }
+    button { font:inherit; cursor:pointer; }
+    a { color:inherit; }
+    a:focus-visible,button:focus-visible { outline:2px solid var(--seal); outline-offset:3px; }
+    ::selection { background:var(--seal); color:#fff0d2; }
+    .preview-bar { position:relative; z-index:10; display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:64px; padding:10px clamp(16px,5vw,70px); border-bottom:1px solid var(--line); background:var(--paper-bright); box-shadow:0 7px 26px #271b1240; }
+    .preview-title { display:flex; align-items:center; gap:12px; min-width:0; }
+    .preview-mark { flex:none; width:12px; height:12px; transform:rotate(45deg); background:var(--seal); }
+    .preview-title strong { display:block; font:17px/1.3 var(--kai); letter-spacing:.1em; }
+    .preview-title small { display:block; margin-top:2px; color:var(--ink-faint); font:11px/1.4 var(--song); letter-spacing:.04em; }
+    .preview-controls { display:flex; gap:7px; flex:none; }
+    .preview-controls button { min-height:36px; padding:4px 11px; border:1px solid var(--line); background:transparent; color:var(--ink-soft); font:12px var(--kai); letter-spacing:.08em; }
+    .preview-controls button:hover,.preview-controls button[aria-pressed="true"] { border-color:var(--seal); background:color-mix(in srgb,var(--seal) 9%,transparent); color:var(--seal-dark); }
+    .preview-stage { container-type:inline-size; width:min(100%, 1500px); min-height:100vh; margin:auto; transition:width .45s var(--ease); }
+    .preview-stage.phone { width:min(390px,100%); box-shadow:0 0 0 1px #ddd5c04a,0 20px 70px #20181185; }
+    .canvas { position:relative; isolation:isolate; min-height:100vh; overflow:clip; background:#837557 url("../public/bg/qianli-bridge.jpg") center top / cover fixed no-repeat; }
+    .canvas::before { position:absolute; inset:0; z-index:-1; content:""; background:linear-gradient(180deg,#f1e6bf22 0%,#30261425 54%,#251b1280 100%); }
+    :root[data-theme="dark"] .canvas::before { background:linear-gradient(180deg,#100f0cac,#16120da8 55%,#0e0d0be8); }
+    .site-nav { height:66px; border-bottom:1px solid #eddfb128; background:#211c16d9; color:#e6d5af; backdrop-filter:blur(8px); }
+    .nav-inner { display:flex; align-items:center; gap:20px; width:min(1300px,calc(100% - 52px)); height:100%; margin:auto; }
+    .brand { display:flex; align-items:center; gap:10px; flex:none; text-decoration:none; }
+    .brand-mark { width:12px; height:12px; transform:rotate(45deg); border:1px solid var(--seal); }
+    .brand-name { font:23px var(--brush); letter-spacing:.18em; }
+    .brand-en { color:#b4a47e; font:9px Georgia,serif; letter-spacing:.16em; }
+    .nav-links { display:flex; align-items:center; justify-content:center; gap:29px; flex:1; }
+    .nav-links a { position:relative; font:12px var(--kai); letter-spacing:.18em; text-decoration:none; white-space:nowrap; }
+    .nav-links a[aria-current="page"] { color:#fff1cb; }
+    .nav-links a[aria-current="page"]::after { position:absolute; right:3px; bottom:-17px; left:3px; height:2px; content:""; background:var(--seal); }
+    .nav-theme { color:#d7c49a; font:17px var(--kai); white-space:nowrap; }
+    .page-shell { width:min(960px,calc(100% - 72px)); margin:auto; padding-bottom:80px; }
+    .subnav { display:flex; justify-content:space-between; align-items:center; min-height:125px; gap:20px; color:#f2e0b9; font:13px var(--kai); letter-spacing:.16em; text-shadow:0 2px 12px #18130b; }
+    .subnav a { display:inline-flex; align-items:center; gap:17px; min-height:44px; text-decoration:none; }
+    .subnav a:hover { color:#fff7db; }
+    .back-arrow { font:27px Georgia,serif; line-height:1; }
+    .subnav-current { display:inline-flex; align-items:center; gap:10px; }
+    .small-seal { display:grid; place-items:center; width:21px; height:23px; transform:rotate(-5deg); border:1px solid #f3d0a6; background:#a83e30; color:#fff0d2; font:11px var(--kai); }
+    .sheet { position:relative; isolation:isolate; border:1px solid #7450295c; background-color:var(--paper); background-image:linear-gradient(122deg,#fffbea52,transparent 34%),radial-gradient(ellipse at 95% 0,#ae732d14,transparent 34%),var(--fiber); background-blend-mode:normal,normal,soft-light; box-shadow:0 34px 84px -28px #21180b7a; }
+    .sheet::before,.sheet::after { position:absolute; top:0; bottom:0; z-index:1; width:7px; content:""; pointer-events:none; }
+    .sheet::before { left:0; background:linear-gradient(90deg,#62411f24,transparent); }
+    .sheet::after { right:0; background:linear-gradient(270deg,#62411f24,transparent); }
+    /* 题头朱线：六个子页面按页序取页宽的 1/6 … 6/6（文章 1/6、闲语 2/6、光影 3/6、时间轴 4/6、留言 5/6、关于 6/6），
+       时间轴是第 4 页，朱线占 4/6；余下部分用淡墨细线延续，整条线不分段、不随滚动变化。 */
+    .top-rule {--rule-span:66.6667%;position:relative;height:5px;background:var(--line-soft);}
+    .top-rule::after {display:block;width:var(--rule-span);height:100%;content:"";background:var(--seal);}
+    /* 题头以现有文章页为基准；其他主页面沿用这套位置、比例、纸色与朱印。 */
+    .hero { position:relative; display:grid; grid-template-columns:minmax(0,1fr) 41%; min-height:352px; overflow:hidden; padding:56px 72px 48px 82px; border-bottom:1px solid var(--line); }
+    .hero::before { position:absolute; top:57px; bottom:49px; left:44px; width:1px; content:""; background:linear-gradient(var(--seal),var(--line-soft) 52%,transparent); }
+    .hero::after { position:absolute; top:53px; left:40px; width:9px; height:9px; transform:rotate(45deg); content:""; background:var(--seal); }
+    .hero-copy { position:relative; z-index:2; align-self:center; }
+    .hero-overline { display:flex; align-items:center; gap:14px; color:var(--seal-dark); font:12px var(--kai); letter-spacing:.19em; }
+    .hero-overline::after { width:28px; height:1px; content:""; background:var(--seal); }
+    .hero-overline small { color:var(--ink-faint); font:10px Georgia,serif; letter-spacing:.28em; }
+    h1 { display:flex; align-items:flex-end; gap:18px; margin:18px 0 16px; font-weight:400; white-space:nowrap; }
+    h1 .title { font:clamp(72px,7vw,108px)/1.15 var(--brush); letter-spacing:.07em; }
+    h1 .title-tail { margin-bottom:13px; color:var(--ink-soft); font:26px/1.5 var(--kai); letter-spacing:.19em; }
+    .hero-intro { margin:0 0 26px 4px; color:var(--ink-soft); font:17px/1.75 var(--kai); letter-spacing:.12em; }
+    .hero-intro b { color:var(--seal-dark); font-weight:400; }
+    .hero-index { display:flex; align-items:center; gap:12px; margin-left:4px; color:var(--ink-faint); font:10px Georgia,serif; letter-spacing:.17em; }
+    .hero-index i { width:27px; height:1px; background:var(--line); }
+    .hero-art { position:relative; min-height:260px; margin:-56px -72px -48px -86px; pointer-events:none; background:url("../public/bg/about-ink-banner.png") 59% 67% / auto 420px no-repeat; opacity:.8; -webkit-mask-image:linear-gradient(90deg,transparent,#000 38%); mask-image:linear-gradient(90deg,transparent,#000 38%); }
+    .hero-art::after { position:absolute; inset:0; content:""; background:linear-gradient(180deg,var(--paper),transparent 23%,transparent 72%,var(--paper)); }
+    :root[data-theme="dark"] .hero-art { filter:brightness(.57) sepia(.3); opacity:.55; }
+    .hero-stamp { position:absolute; top:69px; right:70px; z-index:2; display:grid; place-items:center; width:47px; height:51px; transform:rotate(7deg); border:3px double #eed9b1; outline:1px solid var(--seal); background:var(--seal); color:#fff0d2; font:21px var(--kai); box-shadow:3px 4px 0 #4e2b2626; }
+    .hero-aside { position:absolute; right:44px; bottom:43px; z-index:2; color:var(--ink-faint); writing-mode:vertical-rl; font:12px var(--kai); letter-spacing:.28em; }
+
+
+/* 统一题头，卷四的朱线占纸宽 4/6。正文保留年卷与左右交错。 */
+.site-nav {background:var(--paper-bright);color:var(--ink);border-color:var(--line-soft);box-shadow:0 2px 18px #211b1512;}
+.nav-links a[aria-current="page"] {color:var(--seal-dark);}
+.brand-en,.nav-theme {color:var(--ink-faint);}
+.nav-theme {min-width:44px;min-height:44px;border:1px solid var(--line-soft);border-radius:50%;background:transparent;cursor:pointer;}
+.nav-menu {display:none;}
+.preview-bar {box-shadow:none;min-height:66px;}
+.preview-title small {max-width:420px;}
+.preview-controls {align-items:center;flex-wrap:wrap;}
+.preview-controls select {max-width:145px;min-height:36px;padding:4px 6px;background:var(--paper-bright);border:1px solid var(--line);color:var(--ink-soft);font:12px var(--kai);}
+.preview-controls a {font:12px var(--kai);text-underline-offset:4px;min-height:36px;display:inline-flex;align-items:center;padding:4px 7px;}
+.preview-stage {width:100%;}
+.hero {padding-left:58px;padding-right:48px;}
+.hero::before {left:29px;}.hero::after {left:25px;}
+h1 .title {font-size:clamp(72px,7vw,100px);letter-spacing:.035em;}
+h1 .title-tail {font-size:23px;letter-spacing:.12em;}
+.hero-art {margin-right:-48px;opacity:.65;}
+.hero-intro {max-width:430px;}
+.collection {padding:0 48px 40px 58px;}
+.collection-heading {display:flex;align-items:baseline;justify-content:space-between;gap:20px;padding:30px 0 22px;border-bottom:1px solid var(--line);}
+.collection-heading h2 {margin:0;font:27px var(--kai);font-weight:400;letter-spacing:.12em;}
+.collection-heading small {margin-left:12px;color:var(--ink-faint);font:10px Georgia,serif;letter-spacing:.2em;}
+.collection-heading > span {color:var(--ink-faint);font:12px var(--kai);white-space:nowrap;}
+.collection-heading b {color:var(--seal-dark);font:25px Georgia,serif;font-weight:400;}
+.collection-intro {display:flex;justify-content:space-between;align-items:center;gap:15px;margin:16px 0 25px;color:var(--ink-faint);font:12px/1.7 var(--kai);letter-spacing:.07em;}
+.type-legend {display:flex;align-items:center;gap:15px;white-space:nowrap;font:11px var(--kai);color:var(--ink-soft);}
+.type-legend span {display:flex;align-items:center;gap:6px;}
+.type-legend i {font-style:normal;color:var(--seal-dark);font-size:13px;}
+.year-index {display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:15px;border-bottom:1px dashed var(--line-soft);}
+.year-index > span {margin-right:auto;color:var(--ink-faint);font:10px var(--kai);letter-spacing:.1em;}
+.year-index button {min-width:65px;min-height:44px;padding:5px 10px;border:0;border-bottom:1px solid transparent;background:transparent;color:var(--ink-faint);font:16px Georgia,serif;letter-spacing:.05em;}
+.year-index button[aria-current="true"],.year-index button:hover {border-bottom-color:var(--seal);color:var(--seal-dark);}
+.year-index button small {margin-left:4px;font:9px var(--kai);color:var(--ink-faint);}
+.chronicle {position:relative;isolation:isolate;padding:28px 0 0;}
+.chronicle::before {position:absolute;top:37px;bottom:0;left:50%;width:1px;content:"";background:repeating-linear-gradient(180deg,var(--line) 0 5px,transparent 5px 10px);z-index:-1;}
+.year-group {position:relative;margin:0 0 35px;}
+.year-heading {position:relative;display:flex;align-items:center;justify-content:center;gap:16px;margin:0 0 27px;scroll-margin-top:25px;}
+.year-heading .year-number {position:relative;display:flex;flex-direction:column;align-items:center;background:var(--paper);padding:7px 20px;}
+.year-heading b {color:var(--seal-dark);font:48px/.95 Georgia,serif;letter-spacing:.03em;font-weight:400;}
+.year-heading small {margin-top:8px;color:var(--ink-faint);font:10px var(--kai);letter-spacing:.2em;}
+.year-heading .year-note {position:absolute;left:calc(50% + 87px);top:22px;color:var(--ink-faint);font:10px/1.7 var(--kai);white-space:nowrap;letter-spacing:.05em;}
+.year-heading:focus {outline:none;}
+.events {display:grid;grid-template-columns:minmax(0,1fr) 68px minmax(0,1fr);gap:22px 0;}
+.entry {position:relative;grid-row:var(--row);grid-column:1;align-self:start;min-width:0;}
+.entry:nth-child(even) {grid-column:3;margin-top:57px;}
+.entry::before {position:absolute;right:-34px;top:13px;width:34px;height:1px;content:"";background:var(--line);}
+.entry:nth-child(even)::before {right:auto;left:-34px;}
+.entry::after {position:absolute;top:9px;right:-38px;width:9px;height:9px;border:1px solid var(--seal);background:var(--paper);content:"";transform:rotate(45deg);transition:background .3s,box-shadow .3s;}
+.entry:nth-child(even)::after {right:auto;left:-38px;}
+.entry-meta {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px;color:var(--ink-faint);font:9px Georgia,serif;letter-spacing:.12em;}
+.entry-meta time {color:var(--seal-dark);font:16px Georgia,serif;letter-spacing:.05em;}
+.entry-meta time small {margin:0 6px;color:var(--ink-faint);font:10px var(--kai);}
+.record {position:relative;isolation:isolate;min-width:0;padding:16px 17px 12px;border:1px solid var(--line-soft);background:color-mix(in srgb,var(--paper-bright) 36%,var(--paper));box-shadow:0 12px 23px -23px #30271990;transition:border-color .35s,box-shadow .35s;}
+.record::before {position:absolute;inset:0;z-index:-1;content:"";background:radial-gradient(ellipse 170px 150px at var(--mx,75%) var(--my,25%),var(--card-spot),transparent 76%),var(--fiber);background-size:auto,220px auto;opacity:.3;pointer-events:none;transition:opacity .4s;}
+.record-kicker {display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;color:var(--ink-faint);font:8px Georgia,serif;letter-spacing:.15em;}
+.record-kicker i {display:grid;place-items:center;width:21px;height:23px;border:1px solid var(--seal);color:var(--seal-dark);font:11px var(--kai);font-style:normal;transform:rotate(-4deg);transition:background .3s,color .3s,transform .3s;}
+.record-body {display:flex;align-items:center;gap:14px;min-width:0;}
+.record-copy {flex:1;min-width:0;}
+.record h3 {margin:0;font:24px/1.4 var(--brush);font-weight:400;letter-spacing:.03em;overflow-wrap:anywhere;}
+.record h3 a {text-decoration:none;transition:color .3s;}
+.record h3 a:hover {color:var(--seal-dark);}
+.record p {margin:8px 0 0;color:var(--ink-soft);font:13px/1.8 var(--kai);overflow-wrap:anywhere;}
+.moment-quote {position:relative;padding-left:17px;border-left:1px solid var(--line);}
+.record .moment-quote p {margin:0;font:18px/1.8 var(--kai);color:var(--ink);letter-spacing:.04em;}
+.moment-quote::before {position:absolute;top:-14px;left:4px;color:var(--seal);opacity:.15;content:"“";font:44px Georgia,serif;z-index:-1;}
+.photo-open {flex:none;position:relative;width:124px;aspect-ratio:4/3;padding:4px 4px 13px;border:1px solid var(--line);background:var(--paper-bright);box-shadow:0 8px 12px -10px #30271980;transform:rotate(-3deg);cursor:zoom-in;transition:transform .4s var(--ease),box-shadow .4s;}
+.photo-open img {display:block;width:100%;height:100%;object-fit:cover;object-position:var(--crop,50%) center;}
+.photo-open::after {position:absolute;left:6px;bottom:4px;content:"ONE FRAME";font:5px Georgia,serif;letter-spacing:.14em;color:var(--ink-faint);}
+.photo-open .image-fallback {width:100%;height:100%;display:grid;place-items:center;background:var(--paper-deep);color:var(--ink-faint);font:28px var(--brush);}
+.photo-open:disabled {cursor:default;}
+.record-foot {display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:13px;padding-top:8px;border-top:1px dashed var(--line-soft);font:10px var(--kai);color:var(--ink-faint);}
+.record-foot > span {letter-spacing:.03em;}
+.record-foot a {display:inline-flex;align-items:center;gap:8px;min-height:30px;color:var(--seal-dark);text-decoration:none;white-space:nowrap;font:11px var(--kai);}
+.record-foot a b {font:inherit;transition:transform .35s;}
+.entry:focus-within .record {border-color:var(--seal);box-shadow:0 16px 26px -24px #302719a0;}
+.entry:focus-within::after {background:var(--seal);box-shadow:0 0 0 4px color-mix(in srgb,var(--seal) 10%,transparent);}
+.entry:focus-within .record-kicker i {background:var(--seal);color:var(--paper-bright);transform:rotate(0deg);}
+@media (hover:hover) and (pointer:fine) {
+ .entry:hover .record {border-color:var(--seal);box-shadow:0 16px 26px -24px #302719a0;}
+ .entry:hover .record::before {opacity:.65;}
+ .entry:hover::after {background:var(--seal);box-shadow:0 0 0 4px color-mix(in srgb,var(--seal) 10%,transparent);}
+ .entry:hover .record-kicker i {background:var(--seal);color:var(--paper-bright);transform:rotate(0deg);}
+ .entry:hover .record-foot a b {transform:translateX(3px);}
+ .photo-open:hover {transform:translateY(-2px) rotate(0deg);box-shadow:0 12px 16px -10px #30271980;}
+}
+.year-enter {animation:open-year .6s var(--ease) both;transform-origin:top;}
+@keyframes open-year {from {opacity:0;clip-path:inset(0 0 100% 0);}to {opacity:1;clip-path:inset(0);}}
+.unfold-area {position:relative;margin:5px auto 0;padding:25px 0 19px;text-align:center;border-top:1px dashed var(--line);}
+.unfold-area::before {position:absolute;left:calc(50% - 2px);top:-3px;width:5px;height:5px;background:var(--seal);transform:rotate(45deg);content:"";}
+.unfold-button {display:inline-flex;align-items:center;justify-content:center;gap:16px;min-height:68px;padding:7px 20px;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);color:var(--ink);background:color-mix(in srgb,var(--paper-bright) 25%,transparent);transform:translateY(var(--pull,0px));transition:transform .35s var(--ease),border-color .3s;}
+.unfold-button:hover {border-color:var(--seal);}
+.unfold-button i {display:grid;place-items:center;width:29px;height:32px;border:1px solid var(--seal);color:var(--seal-dark);font:16px var(--kai);transform:rotate(-5deg);font-style:normal;}
+.unfold-button b {display:block;font:21px var(--brush);font-weight:400;letter-spacing:.08em;}
+.unfold-button small {display:block;margin-top:6px;color:var(--ink-faint);font:10px var(--kai);}
+.unfold-arrow {color:var(--seal-dark);font:22px Georgia,serif;}
+.unfold-hint {margin:16px 0 0;color:var(--ink-faint);font:11px/1.8 var(--kai);letter-spacing:.08em;}
+.unfold-button:disabled {opacity:.65;cursor:wait;}
+.end-note {display:flex;align-items:center;justify-content:center;gap:15px;min-height:60px;margin-top:28px;border-top:1px dashed var(--line);color:var(--ink-faint);font:12px var(--kai);}
+.end-note i {color:var(--seal-dark);font:17px var(--brush);font-style:normal;}
+.colophon {display:flex;justify-content:space-between;gap:16px;margin-top:32px;color:var(--ink-faint);font:11px/1.8 var(--kai);letter-spacing:.08em;}
+.colophon span:last-child {font:9px/1.8 Georgia,serif;letter-spacing:.15em;}
+.page-footer {margin:28px 0 0;text-align:center;color:#f2e0b9;font:12px var(--kai);letter-spacing:.2em;text-shadow:0 2px 9px #18130b;}
+.preview-note {margin:20px auto 0;max-width:900px;text-align:center;color:#f2e0b9;font:11px/1.9 var(--kai);text-shadow:0 2px 9px #18130b;}
+.state {min-height:330px;display:grid;place-content:center;text-align:center;padding:35px 15px;}
+.state-symbol {margin:0 0 20px;color:var(--seal-dark);font:54px var(--brush);opacity:.6;}
+.state h2 {margin:0 0 13px;font:24px var(--kai);font-weight:400;}
+.state p {margin:0;color:var(--ink-faint);font:13px/1.9 var(--kai);}
+.state button {justify-self:center;margin-top:22px;min-height:44px;padding:4px 22px;border:1px solid var(--line);background:transparent;color:var(--seal-dark);font:13px var(--kai);}
+.loading-line {height:2px;margin:20px auto 0;width:120px;background:var(--line-soft);overflow:hidden;}
+.loading-line::after {display:block;content:"";width:45px;height:2px;background:var(--seal);animation:loading 1.7s ease-in-out infinite alternate;}
+@keyframes loading {to {transform:translateX(75px);}}
+dialog {border:0;}
+.lightbox {position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:22px 40px;background:#181815f5;color:#eedfc1;}
+.lightbox::backdrop {background:#171612e8;}
+.lightbox[open] {display:flex;flex-direction:column;}
+.lightbox-top {display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:15px;border-bottom:1px solid #eedfc125;}
+.lightbox-top div {font:13px var(--kai);letter-spacing:.12em;}
+.lightbox-top small {display:block;margin-top:6px;color:#b8ab8d;font:9px Georgia,serif;letter-spacing:.16em;}
+.close-lightbox {width:44px;height:44px;background:transparent;border:1px solid #eedfc144;color:#eedfc1;font:25px Georgia,serif;}
+.lightbox-view {flex:1;min-height:0;display:grid;place-items:center;padding:24px 0;}
+.lightbox-view img {display:block;max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;}
+.lightbox-bottom {display:flex;align-items:center;gap:22px;padding-top:15px;border-top:1px solid #eedfc125;}
+.lightbox-caption {flex:1;min-width:0;font:15px/1.7 var(--kai);}
+.lightbox-caption time {display:block;font:10px/1.8 Georgia,serif;color:#b8ab8d;}
+.lightbox-step {display:flex;align-items:center;gap:15px;flex:none;font:12px Georgia,serif;}
+.lightbox-step button {width:44px;height:44px;color:#eedfc1;background:transparent;border:1px solid #eedfc144;font:20px Georgia,serif;}
+.lightbox-step button:disabled {opacity:.25;cursor:default;}
+:root[data-theme="dark"] .sheet {background-image:linear-gradient(122deg,#fff0cd0f,transparent 34%),radial-gradient(ellipse at 95% 0,#d9aa590f,transparent 34%),var(--fiber);}
+:root[data-theme="dark"] .subnav,:root[data-theme="dark"] .page-footer,:root[data-theme="dark"] .preview-note {color:#ddc69f;}
+.sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+[hidden] {display:none!important;}
+@container (max-width:1100px) {
+ .hero {padding-left:58px;padding-right:48px;}.hero::before {left:29px;}.hero::after {left:25px;}
+ .nav-links {gap:17px;}.brand-en {display:none;}
+}
+@container (max-width:850px) {
+ .nav-links {display:none;position:absolute;left:0;right:0;top:66px;background:var(--paper-bright);z-index:5;padding:15px;flex-wrap:wrap;gap:12px 22px;border-bottom:1px solid var(--line);}
+ .site-nav {position:relative;}.nav-links.open {display:flex;}.nav-links a {display:flex;align-items:center;min-height:44px;}.nav-links a[aria-current="page"]::after {bottom:2px;}
+ .nav-menu {display:block;width:44px;height:44px;border:1px solid var(--line);background:transparent;color:var(--ink);font:20px var(--kai);margin-left:auto;}.brand {margin-right:auto;}
+ .page-shell {width:calc(100% - 44px);}.collection {padding:0 32px 32px;}.hero {padding-left:48px;}.hero-overline small {letter-spacing:.13em;}
+ h1 {gap:12px;}h1 .title {font-size:80px;}h1 .title-tail {font-size:20px;}
+ .chronicle::before {left:13px;}.year-heading {justify-content:flex-start;margin-left:33px;}.year-heading .year-number {align-items:flex-start;padding-left:0;}.year-heading .year-note {position:static;margin-left:0;}
+ .events {display:block;padding-left:40px;}.entry,.entry:nth-child(even) {margin:0 0 24px;}
+ .entry::before,.entry:nth-child(even)::before {right:auto;left:-27px;width:27px;}.entry::after,.entry:nth-child(even)::after {right:auto;left:-31px;}
+ .record-body {gap:20px;}.photo-open {width:155px;}
+}
+@container (max-width:550px) {
+ .page-shell {width:calc(100% - 22px);padding-bottom:35px;}.subnav {min-height:92px;font-size:12px;}.nav-inner {width:calc(100% - 28px);gap:10px;}.brand-name {font-size:22px;}
+ .hero {grid-template-columns:1fr;min-height:320px;padding:44px 25px 32px 32px;}.hero::before {left:18px;top:47px;bottom:34px;}.hero::after {left:14px;top:43px;}
+ .hero-overline {font-size:10px;gap:10px;}.hero-overline small {font-size:8px;letter-spacing:.16em;}.hero-overline::after {width:16px;}
+ h1 {gap:0;flex-direction:column;align-items:flex-start;margin:15px 0 17px;}h1 .title {font-size:68px;}h1 .title-tail {font-size:18px;margin:2px 0 0 5px;letter-spacing:.12em;}
+ .hero-intro {font-size:15px;max-width:270px;margin-bottom:23px;letter-spacing:.04em;}.hero-index {font-size:8px;gap:9px;}
+ .hero-art {position:absolute;right:-25px;bottom:0;width:88%;height:220px;margin:0;min-height:0;background-size:auto 230px;opacity:.36;}
+ .hero-stamp {top:44px;right:20px;width:32px;height:35px;font-size:16px;}.hero-aside {display:none;}
+ .collection {padding:0 20px 28px;}.collection-heading {padding:24px 0 17px;}.collection-heading h2 {font-size:23px;}.collection-heading small {display:none;}.collection-heading > span {font-size:10px;}.collection-heading b {font-size:21px;}
+ .collection-intro {align-items:flex-start;flex-direction:column;gap:10px;font-size:11px;margin-bottom:15px;}.type-legend {gap:18px;font-size:10px;}.type-legend i {font-size:12px;}
+ .year-index {gap:3px;}.year-index > span {font-size:9px;}.year-index button {min-width:57px;padding:5px 7px;font-size:14px;}.year-index button small {font-size:8px;}
+ .chronicle {padding-top:23px;}.chronicle::before {left:5px;top:35px;}.year-heading {margin:0 0 22px 27px;gap:12px;}.year-heading b {font-size:38px;}.year-heading small {font-size:9px;}.year-heading .year-note {font-size:9px;}
+ .events {padding-left:27px;}.entry,.entry:nth-child(even) {margin-bottom:24px;}.entry::before,.entry:nth-child(even)::before {left:-22px;width:22px;}.entry::after,.entry:nth-child(even)::after {left:-26px;}
+ .entry-meta {font-size:7px;}.entry-meta time {font-size:15px;}
+ .record {padding:13px 13px 10px;}.record-kicker {font-size:7px;margin-bottom:11px;}.record h3 {font-size:23px;}.record p {font-size:12px;}.record-body {gap:12px;}.record .moment-quote p {font-size:17px;line-height:1.8;}
+ .entry-photo .record-body {align-items:flex-start;flex-direction:column;gap:14px;}.photo-open {width:calc(100% - 7px);aspect-ratio:16/9;margin:2px 0 0 4px;transform:rotate(-2deg);padding-bottom:15px;}
+ .record-foot {font-size:9px;gap:6px;margin-top:11px;}.record-foot a {min-height:44px;font-size:11px;}
+ .unfold-button {gap:14px;padding:7px 16px;}.unfold-button b {font-size:20px;}.unfold-hint {font-size:10px;}
+ .colophon {gap:12px;font-size:10px;}.colophon span:last-child {font-size:8px;}
+}
+@media (max-width:950px) {.preview-bar {align-items:flex-start;flex-direction:column;gap:10px;padding:12px 16px;}.preview-controls {gap:6px;}.preview-controls button,.preview-controls select {min-height:40px;}}
+@media (max-width:600px) {
+ .lightbox {padding:12px 15px max(18px,env(safe-area-inset-bottom));}.lightbox-view {padding:20px 0;}.lightbox-bottom {align-items:flex-start;flex-direction:column;gap:12px;}.lightbox-step {align-self:center;}.lightbox-caption {font-size:13px;}
+}
+@media (prefers-reduced-motion:reduce) {html {scroll-behavior:auto;}*,*::before,*::after {transition:none!important;animation:none!important;}.photo-open:hover {transform:rotate(-3deg);}}
+</style></head><body><div class="preview-bar"><div class="preview-title"><span class="preview-mark" aria-hidden="true"></span><div><strong>时间轴 · 岁月长卷</strong><small>独立 HTML 设计稿 · 文字、日期与站内山水配图均为示意</small></div></div><div class="preview-controls" aria-label="设计稿查看工具"><button id="theme-button" type="button" aria-pressed="false">切换夜色</button><button id="size-button" type="button" aria-pressed="false">手机预览</button><label class="sr-only" for="state-select">演示页面状态</label><select id="state-select"><option value="ready">时间轴有内容</option><option value="empty">整页无记录</option><option value="error">首次载入失败</option><option value="loading">正在整理时序</option><option value="more-loading">旧卷展开中</option><option value="broken">图片加载失败</option></select><a href="screenshots/timeline-before-desktop.jpg" target="_blank" rel="noopener">原页面对照 ↗</a></div></div>
+<div class="sr-only" role="status" aria-live="polite" id="preview-status"></div>
+<div class="preview-stage" id="preview-stage"><div class="canvas">
+<nav class="site-nav" aria-label="主导航"><div class="nav-inner"><a class="brand" href="http://127.0.0.1:3015/"><span class="brand-mark" aria-hidden="true"></span><span class="brand-name">似水流年</span><small class="brand-en">JOURNAL</small></a><div class="nav-links" id="nav-links"><a href="http://127.0.0.1:3015/">首页</a><a href="posts-content-collection-v1.html">文章</a><a href="moments-content-notes-v1.html">闲语</a><a href="album-collected-light-v1.html">光影</a><a href="#collection" aria-current="page">时间轴</a><a href="guestbook-refinement-v1.html">留言</a><a href="about-scroll-unfold.html">关于</a></div><button class="nav-theme" id="nav-theme" type="button" aria-label="切换到夜色" aria-pressed="false">☾</button><button class="nav-menu" id="nav-menu" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="展开导航">☰</button></div></nav>
+<main class="page-shell"><div class="subnav"><a href="http://127.0.0.1:3015/"><span class="back-arrow" aria-hidden="true">←</span>返回首页</a><span class="subnav-current"><i class="small-seal" aria-hidden="true">岁</i>时间轴</span></div>
+<section class="sheet" aria-labelledby="page-title"><div class="top-rule" aria-hidden="true"></div><header class="hero"><div class="hero-copy"><div class="hero-overline">卷 04 <small>THE CHRONICLE OF DAYS</small></div><h1 id="page-title"><span class="title">时间轴</span><span class="title-tail">岁月长卷</span></h1><p class="hero-intro">按时而录，<b>让来路有迹可循。</b></p><div class="hero-index"><span id="hero-since">SINCE 2024</span><i aria-hidden="true"></i><span id="hero-count">03 YEARS / 12 ENTRIES</span></div></div><div class="hero-art" aria-hidden="true"></div><span class="hero-stamp" aria-hidden="true">岁</span><span class="hero-aside" aria-hidden="true">时光不语 · 落笔成章</span></header>
+<div class="collection" id="collection">
+<div class="collection-heading"><h2>岁月有迹 <small>CHRONICLE / 时序</small></h2><span id="collection-count">凡 <b>12</b> 事 · <b>03</b> 年</span></div>
+<div class="collection-intro"><span>文字、片刻与光影，循着时间相逢。</span><div class="type-legend" aria-label="记录类型"><span><i aria-hidden="true">文</i>文章</span><span><i aria-hidden="true">言</i>闲语</span><span><i aria-hidden="true">影</i>光影</span></div></div>
+<nav class="year-index" id="year-index" aria-label="年卷索引"><span>循年翻卷</span><button type="button" data-year="2026" aria-current="true" aria-controls="year-2026">2026<small>06</small></button><button type="button" data-year="2025" aria-controls="year-2025">2025<small>04</small></button><button type="button" data-year="2024" aria-controls="year-2024">2024<small>02</small></button></nav>
+<div class="chronicle" id="chronicle" aria-label="时间轴记录"><section class="year-group" data-year="2026" aria-labelledby="year-2026"><h2 class="year-heading" id="year-2026" tabindex="-1"><span class="year-number"><b>2026</b><small>二〇二六</small></span><span class="year-note">年卷 / 01<br>收存 06 事</span></h2><div class="events"><article class="entry entry-post" style="--row:1" data-date="2026-09-28"><div class="entry-meta"><time datetime="2026-09-28" aria-label="2026-09-28">09<small>月</small>28<small>日</small></time><span>记录 / 01</span></div><div class="record"><div class="record-kicker"><span>ARTICLE / 文章</span><i aria-hidden="true">文</i></div><div class="record-body"><div class="record-copy"><h3><a href="http://127.0.0.1:3015/posts/hello-world">把日子写进山水之间</a></h3><p>走过一些路，才明白平常的日子，也值得认真落笔。</p></div></div><div class="record-foot"><span>文字一篇</span><a href="http://127.0.0.1:3015/posts/hello-world">阅读全文<b aria-hidden="true">↗</b></a></div></div></article><article class="entry entry-moment" style="--row:1" data-date="2026-09-18"><div class="entry-meta"><time datetime="2026-09-18" aria-label="2026-09-18">09<small>月</small>18<small>日</small></time><span>记录 / 02</span></div><div class="record"><div class="record-kicker"><span>MOMENT / 闲语</span><i aria-hidden="true">言</i></div><div class="record-body"><div class="record-copy moment-quote"><p>今日的风，带着一点秋天的凉。窗前坐一会儿，什么也不赶。</p></div></div><div class="record-foot"><span>随笔一则</span><a href="http://127.0.0.1:3015/moments">翻阅闲语<b aria-hidden="true">↗</b></a></div></div></article><article class="entry entry-photo" style="--row:2" data-date="2026-09-07"><div class="entry-meta"><time datetime="2026-09-07" aria-label="2026-09-07">09<small>月</small>07<small>日</small></time><span>记录 / 03</span></div><div class="record"><div class="record-kicker"><span>FRAME / 光影</span><i aria-hidden="true">影</i></div><div class="record-body"><button class="photo-open" type="button" aria-label="查看原幅：湖畔微雨" data-caption="湖畔微雨" data-date="2026-09-07"><img src="../public/bg/about-ink-banner.png" alt="湖畔微雨" loading="lazy"><span class="image-fallback" role="img" aria-label="照片暂缺" hidden>影</span></button><div class="record-copy"><h3><a href="http://127.0.0.1:3015/album">湖畔微雨</a></h3><p>水面轻皱，远山渐渐隐入云烟。</p></div></div><div class="record-foot"><span>光影一帧</span><a href="http://127.0.0.1:3015/album">打开影集<b aria-hidden="true">↗</b></a></div></div></article><article class="entry entry-post" style="--row:2" data-date="2026-08-30"><div class="entry-meta"><time datetime="2026-08-30" aria-label="2026-08-30">08<small>月</small>30<small>日</small></time><span>记录 / 04</span></div><div class="record"><div class="record-kicker"><span>ARTICLE / 文章</span><i aria-hidden="true">文</i></div><div class="record-body"><div class="record-copy"><h3><a href="http://127.0.0.1:3015/posts/midnight-study">一盏灯下的慢时光</a></h3><p>灯亮起的时候，白日的喧声退去，留一页书和一点安静。</p></div></div><div class="record-foot"><span>文字一篇</span><a href="http://127.0.0.1:3015/posts/midnight-study">阅读全文<b aria-hidden="true">↗</b></a></div></div></article><article class="entry entry-photo" style="--row:3" data-date="2026-08-21"><div class="entry-meta"><time datetime="2026-08-21" aria-label="2026-08-21">08<small>月</small>21<small>日</small></time><span>记录 / 05</span></div><div class="record"><div class="record-kicker"><span>FRAME / 光影</span><i aria-hidden="true">影</i></div><div class="record-body"><button class="photo-open" type="button" aria-label="查看原幅：暮色里的远山" data-caption="暮色里的远山" data-date="2026-08-21"><img src="../public/bg/qianli-bridge.jpg" alt="暮色里的远山" loading="lazy"><span class="image-fallback" role="img" aria-label="照片暂缺" hidden>影</span></button><div class="record-copy"><h3><a href="http://127.0.0.1:3015/album">暮色里的远山</a></h3><p>日色渐暗，山水仍有余温。</p></div></div><div class="record-foot"><span>光影一帧</span><a href="http://127.0.0.1:3015/album">打开影集<b aria-hidden="true">↗</b></a></div></div></article><article class="entry entry-moment" style="--row:3" data-date="2026-08-14"><div class="entry-meta"><time datetime="2026-08-14" aria-label="2026-08-14">08<small>月</small>14<small>日</small></time><span>记录 / 06</span></div><div class="record"><div class="record-kicker"><span>MOMENT / 闲语</span><i aria-hidden="true">言</i></div><div class="record-body"><div class="record-copy moment-quote"><p>愿走过的每段路，都留下一点光。</p></div></div><div class="record-foot"><span>随笔一则</span><a href="http://127.0.0.1:3015/moments">翻阅闲语<b aria-hidden="true">↗</b></a></div></div></article></div></section><section class="year-group" data-year="2025" aria-labelledby="year-2025" hidden><h2 class="year-heading" id="year-2025" tabindex="-1"><span class="year-number"><b>2025</b><small>二〇二五</small></span><span class="year-note">年卷 / 02<br>收存 04 事</span></h2><div class="events"><article class="entry entry-post" style="--row:1" data-date="2025-12-12"><div class="entry-meta"><time datetime="2025-12-12" aria-label="2025-12-12">12<small>月</small>12<small>日</small></time><span>记录 / 01</span></div><div class="record"><div class="record-kicker"><span>ARTICLE / 文章</span><i aria-hidden="true">文</i></div><div class="record-body"><div class="record-copy"><h3><a href="http://127.0.0.1:3015/posts/write-something">写点什么，便有了来处</a></h3><p>把那些细小却不愿忘记的时刻，安放在自己的屋檐下。</p></div></div><div class="record-foot"><span>文字一篇</span><a href="http://127.0.0.1:3015/posts/write-something">阅读全文<b aria-hidden="true">↗</b></a></div></div></article><article class="entry entry-moment" style="--row:1" data-date="2025-10-06"><div class="entry-meta"><time datetime="2025-10-06" aria-label="2025-10-06">10<small>月</small>06<small>日</small></time><span>记录 / 02</span></div><div class="record"><div class="record-kicker"><span>MOMENT / 闲语</span><i aria-hidden="true">言</i></div><div class="record-body"><div class="record-copy moment-quote"><p>入秋了。路边的树，慢慢换上一身温柔的颜色。</p></div></div><div class="record-foot"><span>随笔一则</span><a href="http://127.0.0.1:3015/moments">翻阅闲语<b aria-hidden="true">↗</b></a></div></div></article><article class="entry entry-photo" style="--row:2" data-date="2025-08-16"><div class="entry-meta"><time datetime="2025-08-16" aria-label="2025-08-16">08<small>月</small>16<small>日</small></time><span>记录 / 03</span></div><div class="record"><div class="record-kicker"><span>FRAME / 光影</span><i aria-hidden="true">影</i></div><div class="record-body"><button class="photo-open" type="button" aria-label="查看原幅：溪山清远" data-caption="溪山清远" data-date="2025-08-16"><img src="../public/bg/guestbook-ink-banner.webp" alt="溪山清远" loading="lazy"><span class="image-fallback" role="img" aria-label="照片暂缺" hidden>影</span></button><div class="record-copy"><h3><a href="http://127.0.0.1:3015/album">溪山清远</a></h3><p>沿着一条小径，听水声走远。</p></div></div><div class="record-foot"><span>光影一帧</span><a href="http://127.0.0.1:3015/album">打开影集<b aria-hidden="true">↗</b></a></div></div></article><article class="entry entry-post" style="--row:2" data-date="2025-04-02"><div class="entry-meta"><time datetime="2025-04-02" aria-label="2025-04-02">04<small>月</small>02<small>日</small></time><span>记录 / 04</span></div><div class="record"><div class="record-kicker"><span>ARTICLE / 文章</span><i aria-hidden="true">文</i></div><div class="record-body"><div class="record-copy"><h3><a href="http://127.0.0.1:3015/posts/photography-moment">摄影是停下来的那一秒</a></h3><p>重要的是那一秒你在场，并且愿意停下来。</p></div></div><div class="record-foot"><span>文字一篇</span><a href="http://127.0.0.1:3015/posts/photography-moment">阅读全文<b aria-hidden="true">↗</b></a></div></div></article></div></section><section class="year-group" data-year="2024" aria-labelledby="year-2024" hidden><h2 class="year-heading" id="year-2024" tabindex="-1"><span class="year-number"><b>2024</b><small>二〇二四</small></span><span class="year-note">年卷 / 03<br>收存 02 事</span></h2><div class="events"><article class="entry entry-moment" style="--row:1" data-date="2024-11-19"><div class="entry-meta"><time datetime="2024-11-19" aria-label="2024-11-19">11<small>月</small>19<small>日</small></time><span>记录 / 01</span></div><div class="record"><div class="record-kicker"><span>MOMENT / 闲语</span><i aria-hidden="true">言</i></div><div class="record-body"><div class="record-copy moment-quote"><p>从这里开始，试着给每一个普通的日子留一点痕迹。</p></div></div><div class="record-foot"><span>随笔一则</span><a href="http://127.0.0.1:3015/moments">翻阅闲语<b aria-hidden="true">↗</b></a></div></div></article><article class="entry entry-photo" style="--row:1" data-date="2024-06-08"><div class="entry-meta"><time datetime="2024-06-08" aria-label="2024-06-08">06<small>月</small>08<small>日</small></time><span>记录 / 02</span></div><div class="record"><div class="record-kicker"><span>FRAME / 光影</span><i aria-hidden="true">影</i></div><div class="record-body"><button class="photo-open" type="button" aria-label="查看原幅：初见青绿" data-caption="初见青绿" data-date="2024-06-08"><img src="../public/bg/qianli-bridge.jpg" alt="初见青绿" loading="lazy"><span class="image-fallback" role="img" aria-label="照片暂缺" hidden>影</span></button><div class="record-copy"><h3><a href="http://127.0.0.1:3015/album">初见青绿</a></h3><p>山河入镜，故事刚刚开始。</p></div></div><div class="record-foot"><span>光影一帧</span><a href="http://127.0.0.1:3015/album">打开影集<b aria-hidden="true">↗</b></a></div></div></article></div></section></div>
+<div class="unfold-area" id="unfold-area"><button type="button" class="unfold-button" id="unfold-button" aria-controls="chronicle" aria-label="续展旧卷" aria-busy="false"><i aria-hidden="true">续</i><span><b>续展旧卷</b><small id="unfold-copy">尚余 2 年时光</small></span><span class="unfold-arrow" aria-hidden="true">↓</span></button><p class="unfold-hint" id="unfold-hint">已展 06 / 12 事 · 继续下拉，旧卷自展</p></div>
+<div class="end-note" id="end-note" role="status" aria-label="时间轴已到卷尾" tabindex="-1" hidden><i aria-hidden="true">卷尾</i>已阅尽这一卷的旧时光。</div>
+<div class="state" id="page-state" hidden></div>
+<div class="colophon"><span>一程一记，岁月留痕。</span><span>CHRONICLE WITH TIME · 卷四</span></div>
+</div></section>
+<p class="page-footer">山水有尽 · 时光无涯</p><p class="preview-note">本页为待确认设计稿。正式时间轴将继续使用文章、闲语和照片的真实混合时间顺序。</p>
+</main></div></div>
+<dialog class="lightbox" id="lightbox" aria-label="光影原幅预览"><div class="lightbox-top"><div>这一帧光影<small>FRAME IN THE CHRONICLE</small></div><button type="button" class="close-lightbox" id="close-lightbox" aria-label="关闭照片预览">×</button></div><div class="lightbox-view"><img id="lightbox-image" alt=""></div><div class="lightbox-bottom"><div class="lightbox-caption"><span id="lightbox-caption"></span><time id="lightbox-date"></time></div><div class="lightbox-step"><button type="button" id="prev-photo" aria-label="上一张">←</button><span id="photo-index"></span><button type="button" id="next-photo" aria-label="下一张">→</button></div></div></dialog>
+<noscript><style>#unfold-area,#year-index{display:none}.year-group[hidden]{display:block!important}</style><p style="text-align:center;padding:20px;background:var(--paper-bright);color:var(--ink-soft)">当前展示全部年卷。启用 JavaScript 可体验渐进展开和照片原幅预览。</p></noscript>
+<script>(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const groups = [...document.querySelectorAll('.year-group')];
+  const entries = [...document.querySelectorAll('.entry')];
+  const photos = [...document.querySelectorAll('.photo-open')];
+  const yearButtons = [...document.querySelectorAll('[data-year][aria-controls]')];
+  const reduced = () => matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const storageKey = 'preview:timeline-years-scroll-v1';
+  let shown = 1, mode = 'ready', busy = false, revealTimer = null, wheelTimer = null, wheelInput = 0, scrollFrame = null;
+  const announce = message => { $('preview-status').textContent = message; };
+  const countVisible = () => groups.slice(0, shown).reduce((count, group) => count + group.querySelectorAll('.entry').length, 0);
+  const markYear = year => yearButtons.forEach(button => { if (button.dataset.year === year) button.setAttribute('aria-current', 'true'); else button.removeAttribute('aria-current'); });
+  const updateYear = () => {
+    scrollFrame = null;
+    const visible = groups.slice(0, shown);
+    const current = visible.filter(group => group.getBoundingClientRect().top < innerHeight * .35).at(-1) || visible[0];
+    markYear(current.dataset.year);
+  };
+  const paintYears = () => {
+    groups.forEach((group, index) => { group.hidden = index >= shown; });
+    const hasMore = shown < groups.length;
+    $('unfold-area').hidden = !hasMore;
+    $('end-note').hidden = hasMore;
+    $('unfold-copy').textContent = busy ? `正在展开 ${groups[shown]?.dataset.year || ''} 年卷…` : `尚余 ${groups.length - shown} 年时光`;
+    $('unfold-button').disabled = busy;
+    $('unfold-button').setAttribute('aria-busy', String(busy));
+    $('unfold-hint').textContent = `已展 ${String(countVisible()).padStart(2,'0')} / ${entries.length} 事 · ${reduced() ? '轻触纸签，续展旧卷' : '继续下拉，旧卷自展'}`;
+    updateYear();
+  };
+  const resetPull = () => { wheelInput = 0; $('unfold-button').style.removeProperty('--pull'); clearTimeout(wheelTimer); wheelTimer = null; };
+  const openNext = () => {
+    if (busy || shown >= groups.length || !['ready','broken'].includes(mode)) return;
+    const hadFocus = document.activeElement === $('unfold-button');
+    busy = true; resetPull(); paintYears();
+    revealTimer = setTimeout(() => {
+      revealTimer = null;
+      const group = groups[shown++]; busy = false;
+      if (!reduced()) { group.classList.add('year-enter'); group.addEventListener('animationend', () => group.classList.remove('year-enter'), {once:true}); }
+      paintYears();
+      if (hadFocus) (shown === groups.length ? $('end-note') : $('unfold-button')).focus({preventScroll:true});
+      announce(`已展开 ${group.dataset.year} 年卷，当前共 ${countVisible()} 条记录。`);
+    }, reduced() ? 0 : 320);
+  };
+  $('unfold-button').addEventListener('click', openNext);
+  yearButtons.forEach(button => button.addEventListener('click', () => {
+    if (busy) return;
+    const index = groups.findIndex(group => group.dataset.year === button.dataset.year);
+    shown = Math.max(shown, index + 1); resetPull(); paintYears();
+    const heading = groups[index].querySelector('h2');
+    heading.focus({preventScroll:true});
+    heading.scrollIntoView({behavior:reduced() ? 'instant' : 'smooth',block:'start'});
+    markYear(button.dataset.year);
+    announce(`翻至 ${button.dataset.year} 年卷。`);
+  }));
+  addEventListener('scroll', () => { if (scrollFrame === null) scrollFrame = requestAnimationFrame(updateYear); }, {passive:true});
+  addEventListener('wheel', event => {
+    if (reduced() || shown >= groups.length || !['ready','broken'].includes(mode) || event.deltaY <= 0 || innerHeight + scrollY < document.documentElement.scrollHeight - 2) return;
+    event.preventDefault(); if (busy) return;
+    clearTimeout(wheelTimer);
+    wheelInput += Math.min(100,event.deltaY) * .45;
+    $('unfold-button').style.setProperty('--pull', `${Math.min(36,Math.floor(wheelInput / 24) * 12)}px`);
+    if (wheelInput >= 144) openNext(); else wheelTimer = setTimeout(resetPull, 260);
+  }, {passive:false});
+
+  const spotFrames = new Map();
+  document.querySelectorAll('.record').forEach(record => {
+    const clear = () => { if (spotFrames.has(record)) cancelAnimationFrame(spotFrames.get(record));spotFrames.delete(record);record.style.removeProperty('--mx');record.style.removeProperty('--my'); };
+    record.addEventListener('pointermove', event => {
+      if (event.pointerType === 'touch' || reduced() || !matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+      const rect = record.getBoundingClientRect(), x = event.clientX - rect.left, y = event.clientY - rect.top;
+      if (spotFrames.has(record)) cancelAnimationFrame(spotFrames.get(record));
+      spotFrames.set(record, requestAnimationFrame(() => { record.style.setProperty('--mx',`${x}px`);record.style.setProperty('--my',`${y}px`);spotFrames.delete(record); }));
+    });
+    record.addEventListener('pointerleave', clear);record.addEventListener('pointercancel', clear);record.addEventListener('focusout', clear);
+  });
+  const paintPhoto = button => {
+    const broken = mode === 'broken' || button.querySelector('img').dataset.failed === 'true';
+    button.querySelector('img').hidden = broken;
+    button.querySelector('.image-fallback').hidden = !broken;
+    button.disabled = broken;
+    button.setAttribute('aria-label', `${broken ? '照片暂缺' : '查看原幅'}：${button.dataset.caption}`);
+  };
+  photos.forEach(button => button.querySelector('img').addEventListener('error', () => { button.querySelector('img').dataset.failed = 'true'; paintPhoto(button); }));
+
+  const applyState = () => {
+    mode = $('state-select').value;
+    clearTimeout(revealTimer); revealTimer = null; busy = mode === 'more-loading'; shown = 1; resetPull();
+    const showRecords = ['ready','broken','more-loading'].includes(mode);
+    $('chronicle').hidden = !showRecords; $('year-index').hidden = !showRecords; $('page-state').hidden = showRecords;
+    $('page-state').removeAttribute('role');
+    $('hero-since').textContent = showRecords ? 'SINCE 2024' : mode === 'empty' ? 'WAITING FOR DAYS' : 'CHRONICLE';
+    $('hero-count').textContent = showRecords ? '03 YEARS / 12 ENTRIES' : mode === 'empty' ? '00 YEARS / 00 ENTRIES' : 'CHRONICLE / 整理时序';
+    $('collection-count').innerHTML = showRecords ? '凡 <b>12</b> 事 · <b>03</b> 年' : mode === 'empty' ? '凡 <b>00</b> 事' : '<span>待载入</span>';
+    $('page-state').innerHTML = mode === 'empty' ? '<div class="state-symbol" aria-hidden="true">空</div><h2>这一卷，还待落笔。</h2><p>文章、闲语与光影，会在这里慢慢汇成来路。</p>' : mode === 'error' ? '<div class="state-symbol" aria-hidden="true">岁</div><h2>时间轴暂时未能载入。</h2><p>请稍后再试，旧时光仍在来处。</p><button type="button" id="retry-state">重试时间轴</button>' : mode === 'loading' ? '<div class="state-symbol" aria-hidden="true">序</div><h2>正在整理时序…</h2><p>让一程程光阴，循年归卷。</p><div class="loading-line" aria-hidden="true"></div>' : '';
+    if (mode === 'error') $('page-state').setAttribute('role','alert');
+    if (mode === 'loading') $('page-state').setAttribute('role','status');
+    const retry = $('retry-state'); if (retry) retry.addEventListener('click', () => { $('state-select').value = 'ready'; applyState(); $('year-index').querySelector('button').focus({preventScroll:true}); announce('时间轴已重新载入。'); });
+    photos.forEach(paintPhoto); paintYears();
+    if (!showRecords) { $('unfold-area').hidden = true; $('end-note').hidden = true; }
+    announce(`设计稿状态：${$('state-select').selectedOptions[0].textContent}`);
+  };
+  $('state-select').addEventListener('change',applyState);
+  const themeButtons = [$('theme-button'),$('nav-theme')];
+  const changeTheme = () => {
+    const dark = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    themeButtons.forEach(button => button.setAttribute('aria-pressed',String(dark)));
+    $('theme-button').textContent = dark ? '切换日色' : '切换夜色';
+    $('nav-theme').textContent = dark ? '☀' : '☾';$('nav-theme').setAttribute('aria-label',dark ? '切换到日色' : '切换到夜色');announce(dark ? '已切换夜色。' : '已切换日色。');
+  };
+  themeButtons.forEach(button => button.addEventListener('click',changeTheme));
+  $('size-button').addEventListener('click', () => { const phone = $('preview-stage').classList.toggle('phone');$('size-button').setAttribute('aria-pressed',String(phone));announce(phone ? '手机预览，宽度390像素。' : '已恢复桌面预览。'); });
+  $('nav-menu').addEventListener('click', () => { const open = $('nav-links').classList.toggle('open');$('nav-menu').setAttribute('aria-expanded',String(open));$('nav-menu').setAttribute('aria-label',open ? '收起导航' : '展开导航'); });
+  $('nav-links').addEventListener('click', () => { $('nav-links').classList.remove('open');$('nav-menu').setAttribute('aria-expanded','false');$('nav-menu').setAttribute('aria-label','展开导航'); });
+
+  const dialog = $('lightbox'); let imageList = [], imageIndex = 0, previousFocus = null, previousOverflow = '';
+  const showImage = () => {
+    const button = imageList[imageIndex], img = button.querySelector('img');
+    $('lightbox-image').src = img.src; $('lightbox-image').alt = button.dataset.caption;
+    $('lightbox-caption').textContent = button.dataset.caption; $('lightbox-date').textContent = button.dataset.date; $('lightbox-date').dateTime = button.dataset.date;
+    $('photo-index').textContent = `${String(imageIndex+1).padStart(2,'0')} / ${String(imageList.length).padStart(2,'0')}`;
+    $('prev-photo').disabled = imageIndex === 0; $('next-photo').disabled = imageIndex === imageList.length - 1;
+  };
+  photos.forEach(button => button.addEventListener('click', () => {
+    if (button.disabled) return;
+    imageList = photos.filter(photo => !photo.closest('.year-group').hidden && !photo.disabled);imageIndex = imageList.indexOf(button);
+    previousFocus = button; previousOverflow = document.body.style.overflow;
+    showImage();dialog.showModal();document.body.style.overflow = 'hidden';$('close-lightbox').focus();
+  }));
+  $('close-lightbox').addEventListener('click', () => dialog.close());
+  $('prev-photo').addEventListener('click', () => { if (imageIndex > 0) { imageIndex--;showImage(); } });
+  $('next-photo').addEventListener('click', () => { if (imageIndex < imageList.length - 1) { imageIndex++;showImage(); } });
+  dialog.addEventListener('close', () => { document.body.style.overflow = previousOverflow;previousFocus?.focus({preventScroll:true}); });
+  dialog.addEventListener('cancel', event => { event.preventDefault();dialog.close(); });
+  dialog.addEventListener('keydown', event => {
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') { event.preventDefault();imageIndex = Math.max(0,Math.min(imageList.length-1,imageIndex+(event.key==='ArrowRight'?1:-1)));showImage(); }
+    if (event.key === 'Tab') {
+      const buttons = [...dialog.querySelectorAll('button:not(:disabled)')], first = buttons[0], last = buttons.at(-1);
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault();last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault();first.focus(); }
+    }
+  });
+  $('lightbox-image').addEventListener('error', () => { $('lightbox-caption').textContent = `${imageList[imageIndex]?.dataset.caption || '照片'}（原幅暂未载入）`; });
+
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(storageKey) || 'null');
+    if (saved) { shown = Math.max(1,Math.min(groups.length,Number(saved.shown)||1));paintYears();if (saved.scroll > 0) requestAnimationFrame(() => scrollTo({top:saved.scroll,behavior:'instant'})); }
+  } catch { /* Preview still works without session storage. */ }
+  paintYears();
+  addEventListener('pagehide', () => {
+    clearTimeout(revealTimer);clearTimeout(wheelTimer);if (scrollFrame !== null) cancelAnimationFrame(scrollFrame);spotFrames.forEach(cancelAnimationFrame);spotFrames.clear();
+    try { if (mode === 'ready') sessionStorage.setItem(storageKey,JSON.stringify({shown,scroll:scrollY})); } catch { /* Optional preview persistence. */ }
+  });
+})();
+</script></body></html>
