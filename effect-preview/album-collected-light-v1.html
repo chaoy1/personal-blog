@@ -67,8 +67,8 @@
     .sheet::before { left:0; background:linear-gradient(90deg,#62411f24,transparent); }
     .sheet::after { right:0; background:linear-gradient(270deg,#62411f24,transparent); }
     /* 题头朱线：六个子页面按页序取页宽的 1/6 … 6/6（文章 1/6、闲语 2/6、光影 3/6、时间轴 4/6、留言 5/6、关于 6/6），
-       闲语是第 2 页，朱线占 2/6；余下部分用淡墨细线延续，整条线不分段、不随滚动变化。 */
-    .top-rule {--rule-span:33.3333%;position:relative;height:5px;background:var(--line-soft);}
+       光影是第 3 页，朱线占 3/6；余下部分用淡墨细线延续，整条线不分段、不随滚动变化。 */
+    .top-rule {--rule-span:50%;position:relative;height:5px;background:var(--line-soft);}
     .top-rule::after {display:block;width:var(--rule-span);height:100%;content:"";background:var(--seal);}
     /* 题头以现有文章页为基准；其他主页面沿用这套位置、比例、纸色与朱印。 */
     .hero { position:relative; display:grid; grid-template-columns:minmax(0,1fr) 41%; min-height:352px; overflow:hidden; padding:56px 72px 48px 82px; border-bottom:1px solid var(--line); }
@@ -114,42 +114,71 @@
 .collection-heading b {color:var(--seal-dark);font:25px Georgia,serif;font-weight:400;}
 .collection-intro {display:flex;justify-content:space-between;gap:20px;margin:15px 0 24px;color:var(--ink-faint);font:12px/1.7 var(--kai);letter-spacing:.07em;}
 .collection-intro span:last-child {color:var(--seal-dark);}
-.shelf {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px;}
-.album-card {position:relative;display:block;min-width:0;width:100%;padding:0 0 20px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;color:var(--ink);cursor:pointer;}
-.album-card:hover .album-title,.album-card:focus-visible .album-title {color:var(--seal-dark);}
+.shelf {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:34px 30px;}
+.album-card {
+  --album-active:0; --spot-opacity:0; --spot-x:50%; --spot-y:36%;
+  position:relative;isolation:isolate;display:block;min-width:0;width:100%;
+  padding:0 0 20px;border:0;border-bottom:1px solid var(--line);
+  background:transparent;text-align:left;color:var(--ink);cursor:pointer;
+}
+/* 亮斑落在纸面上；相纸保持各自的摆放角度，不让整块内容跟随鼠标倾斜。 */
+.album-card::before {
+  position:absolute;inset:-12px;z-index:-1;content:"";pointer-events:none;
+  background:radial-gradient(ellipse 200px 170px at var(--spot-x) var(--spot-y),var(--card-spot),transparent 76%),
+             linear-gradient(140deg,transparent 40%,var(--card-wash));
+  opacity:var(--spot-opacity);transition:opacity .45s var(--ease);
+}
+.album-card::after {
+  position:absolute;bottom:-1px;left:0;width:100%;height:1px;content:"";pointer-events:none;
+  background:var(--seal);transform:scaleX(var(--album-active));transform-origin:left;
+  transition:transform .55s var(--ease);
+}
 .album-kicker {display:flex;justify-content:space-between;gap:10px;color:var(--ink-faint);font:9px Georgia,serif;letter-spacing:.12em;padding:12px 0 4px;}
 .album-kicker span:last-child {font:11px var(--kai);letter-spacing:.04em;}
 .album-stage {position:relative;display:block;height:230px;isolation:isolate;margin:6px -2px 15px;}
-.album-stage::after {position:absolute;left:10%;right:10%;bottom:15px;height:30px;background:#30271922;filter:blur(14px);content:"";z-index:-1;}
-.shot {position:absolute;display:block;width:76%;height:154px;padding:7px 7px 19px;background:var(--paper-bright);border:1px solid var(--line);box-shadow:0 9px 17px -10px #30271980;transition:transform .5s var(--ease),box-shadow .5s var(--ease);}
-.shot img {display:block;width:100%;height:100%;object-fit:cover;object-position:var(--crop,50%) center;filter:saturate(.85) contrast(.96);transition:filter .5s;}
+.album-stage::after {position:absolute;left:10%;right:10%;bottom:15px;height:30px;background:#30271922;filter:blur(14px);content:"";z-index:-1;transition:opacity .5s;opacity:calc(1 - var(--album-active) * .3);}
+.shot {
+  --rest-angle:0deg;--fan-angle:0deg;--fan-x:0px;--fan-y:-8px;
+  position:absolute;display:block;width:76%;height:154px;padding:7px 7px 19px;
+  background:var(--paper-bright);border:1px solid var(--line);
+  box-shadow:0 9px 17px -10px #30271980;
+  transform:translate(calc(var(--album-active) * var(--fan-x)),calc(var(--album-active) * var(--fan-y)))
+            rotate(calc(var(--rest-angle) + var(--album-active) * (var(--fan-angle) - var(--rest-angle))));
+  transition:transform .65s var(--ease),box-shadow .55s var(--ease);
+}
+.shot img {display:block;width:100%;height:100%;object-fit:cover;object-position:var(--crop,50%) center;filter:saturate(.85) contrast(.96);transition:filter .55s;}
 .shot::after {position:absolute;left:9px;bottom:6px;content:attr(data-frame);font:7px Georgia,serif;letter-spacing:.16em;color:var(--ink-faint);}
-.layout-open .shot:nth-child(1) {top:28px;left:2%;transform:rotate(-10deg);}
-.layout-open .shot:nth-child(2) {top:42px;right:1%;transform:rotate(9deg);}
-.layout-open .shot:nth-child(3) {top:60px;left:12%;transform:rotate(-2deg);}
-.layout-diagonal .shot:nth-child(1) {top:17px;left:0;transform:rotate(-6deg);}
-.layout-diagonal .shot:nth-child(2) {top:44px;left:12%;transform:rotate(-3deg);}
-.layout-diagonal .shot:nth-child(3) {top:71px;right:0;transform:rotate(2deg);}
-.layout-inset .shot:nth-child(1) {top:20px;left:0;transform:rotate(-7deg);}
-.layout-inset .shot:nth-child(2) {top:36px;right:1%;transform:rotate(8deg);}
-.layout-inset .shot:nth-child(3) {top:71px;left:31%;width:55%;height:145px;transform:rotate(-3deg);}
-.album-card:hover .shot:nth-child(1),.album-card:focus-visible .shot:nth-child(1) {transform:translate(-3px,-5px) rotate(-9deg);}
-.album-card:hover .shot:nth-child(2),.album-card:focus-visible .shot:nth-child(2) {transform:translate(3px,-5px) rotate(6deg);}
-.album-card:hover .shot:nth-child(3),.album-card:focus-visible .shot:nth-child(3) {transform:translateY(-8px) rotate(0);box-shadow:0 17px 23px -14px #302719a0;}
-.album-card:hover .shot img {filter:saturate(1) contrast(1);}
-.album-title {display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 9px;font:25px var(--brush);letter-spacing:.06em;transition:color .2s;}
-.album-title i {display:grid;place-items:center;flex:none;width:21px;height:23px;border:1px solid var(--seal);color:var(--seal-dark);font:11px var(--kai);font-style:normal;transform:rotate(-4deg);}
+.layout-open .shot:nth-child(1) {top:28px;left:2%;--rest-angle:-10deg;--fan-x:-8px;--fan-y:-9px;--fan-angle:-14deg;}
+.layout-open .shot:nth-child(2) {top:42px;right:1%;--rest-angle:9deg;--fan-x:8px;--fan-y:-8px;--fan-angle:13deg;}
+.layout-open .shot:nth-child(3) {top:60px;left:12%;--rest-angle:-2deg;--fan-y:-15px;--fan-angle:0deg;}
+.layout-diagonal .shot:nth-child(1) {top:17px;left:0;--rest-angle:-6deg;--fan-x:-7px;--fan-y:-9px;--fan-angle:-8deg;}
+.layout-diagonal .shot:nth-child(2) {top:44px;left:12%;--rest-angle:-3deg;--fan-y:-3px;--fan-angle:-3deg;}
+.layout-diagonal .shot:nth-child(3) {top:71px;right:0;--rest-angle:2deg;--fan-x:8px;--fan-y:4px;--fan-angle:4deg;}
+.layout-inset .shot:nth-child(1) {top:20px;left:0;--rest-angle:-7deg;--fan-x:-6px;--fan-y:-4px;--fan-angle:-10deg;}
+.layout-inset .shot:nth-child(2) {top:36px;right:1%;--rest-angle:8deg;--fan-x:6px;--fan-y:-5px;--fan-angle:10deg;}
+.layout-inset .shot:nth-child(3) {top:71px;left:31%;width:55%;height:145px;--rest-angle:-3deg;--fan-y:-17px;--fan-angle:0deg;}
+.layout-pair .shot:nth-child(1) {top:30px;left:5%;--rest-angle:-8deg;--fan-x:-7px;--fan-y:-8px;--fan-angle:-12deg;}
+.layout-pair .shot:nth-child(2) {top:61px;right:3%;--rest-angle:5deg;--fan-x:7px;--fan-y:-12px;--fan-angle:8deg;}
+.album-title {display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 9px;font:25px var(--brush);letter-spacing:.06em;transition:color .35s;}
+.album-title i {display:grid;place-items:center;flex:none;width:21px;height:23px;border:1px solid var(--seal);color:var(--seal-dark);font:11px var(--kai);font-style:normal;transform:rotate(-4deg);transition:transform .4s,background .4s,color .4s;}
 .album-desc {display:block;min-height:43px;color:var(--ink-soft);font:12px/1.8 var(--kai);letter-spacing:.035em;}
 .album-foot {display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:17px;color:var(--ink-faint);font:10px Georgia,serif;letter-spacing:.02em;}
-.album-foot span:last-child {font:12px var(--kai);color:var(--seal-dark);}
-.loose-collection {display:flex;align-items:center;gap:22px;width:100%;margin-top:32px;padding:18px 0;border:0;border-top:1px dashed var(--line);border-bottom:1px solid var(--line-soft);background:transparent;color:var(--ink);text-align:left;}
-.loose-pictures {position:relative;display:block;width:83px;height:72px;flex:none;}
-.loose-pictures img {position:absolute;top:4px;left:0;width:59px;height:60px;padding:5px 5px 12px;background:var(--paper-bright);border:1px solid var(--line);object-fit:cover;transform:rotate(-8deg);}
-.loose-pictures img:last-child {top:9px;left:23px;transform:rotate(7deg);}
-.loose-copy {flex:1;min-width:0;}
-.loose-copy strong {display:block;font:20px var(--kai);font-weight:400;letter-spacing:.06em;}
-.loose-copy small {display:block;margin-top:7px;color:var(--ink-faint);font:12px var(--kai);}
-.loose-action {color:var(--seal-dark);font:12px var(--kai);white-space:nowrap;}
+.album-action {display:inline-flex;align-items:center;gap:8px;font:12px var(--kai);color:var(--seal-dark);}
+.album-action b {font:inherit;font-weight:400;opacity:.75;transition:transform .4s var(--ease),opacity .4s;}
+.album-card:focus-visible {--album-active:1;--spot-opacity:.8;}
+.album-card:focus-visible .shot {box-shadow:0 18px 26px -15px #302719a0;}
+.album-card:focus-visible .shot img {filter:saturate(1) contrast(1);}
+.album-card:focus-visible .album-title {color:var(--seal-dark);}
+.album-card:focus-visible .album-title i {background:var(--seal);color:var(--paper-bright);transform:rotate(0deg);}
+.album-card:focus-visible .album-action b {transform:translate(3px,-3px);opacity:1;}
+@media (hover:hover) and (pointer:fine) {
+  .album-card:hover {--album-active:1;--spot-opacity:.8;}
+  .album-card:hover .shot {box-shadow:0 18px 26px -15px #302719a0;}
+  .album-card:hover .shot img {filter:saturate(1) contrast(1);}
+  .album-card:hover .album-title {color:var(--seal-dark);}
+  .album-card:hover .album-title i {background:var(--seal);color:var(--paper-bright);transform:rotate(0deg);}
+  .album-card:hover .album-action b {transform:translate(3px,-3px);opacity:1;}
+}
 .colophon {display:flex;justify-content:space-between;gap:20px;margin-top:34px;color:var(--ink-faint);font:11px/1.8 var(--kai);letter-spacing:.08em;}
 .colophon span:last-child {font:9px/1.8 Georgia,serif;letter-spacing:.17em;}
 .page-footer {margin:28px 0 0;text-align:center;color:#f2e0b9;font:12px var(--kai);letter-spacing:.2em;text-shadow:0 2px 9px #18130b;}
@@ -227,7 +256,6 @@ dialog {border:0;}
   .collection-intro {font-size:11px;}.collection-intro span:last-child {display:none;}.shelf {grid-template-columns:1fr;gap:22px;}
   .album-stage {height:258px;max-width:340px;width:100%;margin:6px auto 14px;}.shot {height:178px;}.layout-inset .shot:nth-child(3) {height:167px;}
   .album-title {font-size:27px;}.album-desc {min-height:0;font-size:13px;}.album-foot {font-size:11px;}.album-kicker {font-size:10px;}
-  .loose-collection {gap:14px;padding:18px 0;}.loose-copy strong {font-size:18px;}.loose-copy small {font-size:11px;line-height:1.8;}.loose-action {font-size:11px;}.loose-pictures {width:65px;height:65px;}.loose-pictures img {width:48px;height:54px;}.loose-pictures img:last-child {left:16px;}
   .colophon {gap:12px;font-size:10px;}.colophon span:last-child {font-size:8px;}
   .detail-head {flex-direction:column;gap:12px;padding:20px 0;}.detail-copy h2 {font-size:29px;}.view-hint {font-size:11px;line-height:1.8;}.photo-grid {grid-template-columns:1fr;gap:23px;}.photo figcaption {min-height:0;font-size:14px;}
 }
@@ -235,7 +263,7 @@ dialog {border:0;}
 @media (max-width:600px) {
   .lightbox {padding:12px 15px max(18px,env(safe-area-inset-bottom));}.lightbox-view {padding:20px 0;}.lightbox-bottom {align-items:flex-start;flex-direction:column;gap:12px;}.lightbox-step {align-self:center;}.lightbox-caption {font-size:13px;}.lightbox-note {font-size:9px;}
 }
-@media (prefers-reduced-motion:reduce) {html {scroll-behavior:auto;}*,*::before,*::after {transition:none!important;animation:none!important;}.album-card:hover .shot,.album-card:focus-visible .shot {transform:none!important;}.photo button:hover img {transform:none;}}
+@media (prefers-reduced-motion:reduce) {html {scroll-behavior:auto;}*,*::before,*::after {transition:none!important;animation:none!important;}.album-card:hover,.album-card:focus-visible {--album-active:0;} .album-card::after {transform:none;opacity:0;}.photo button:hover img {transform:none;}}
 </style>
 </head>
 <body>
@@ -244,10 +272,10 @@ dialog {border:0;}
 <div class="preview-stage" id="preview-stage"><div class="canvas">
 <nav class="site-nav" aria-label="主导航"><div class="nav-inner"><a class="brand" href="https://personal-blog-phi-eosin.vercel.app/"><span class="brand-mark" aria-hidden="true"></span><span class="brand-name">似水流年</span><small class="brand-en">JOURNAL</small></a><div class="nav-links" id="nav-links"><a href="https://personal-blog-phi-eosin.vercel.app/">首页</a><a href="posts-content-collection-v1.html">文章</a><a href="moments-content-notes-v1.html">闲语</a><a href="#collection" aria-current="page">光影</a><a href="https://personal-blog-phi-eosin.vercel.app/timeline">时间轴</a><a href="guestbook-refinement-v1.html">留言</a><a href="about-scroll-unfold.html">关于</a></div><button class="nav-theme" id="nav-theme" type="button" aria-label="切换到夜色" aria-pressed="false">☾</button><button class="nav-menu" id="nav-menu" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="展开导航">☰</button></div></nav>
 <main class="page-shell"><div class="subnav"><a href="https://personal-blog-phi-eosin.vercel.app/"><span class="back-arrow" aria-hidden="true">←</span>返回首页</a><span class="subnav-current"><i class="small-seal" aria-hidden="true">影</i>光影</span></div>
-<section class="sheet" aria-labelledby="page-title"><div class="top-rule" aria-hidden="true"></div><header class="hero"><div class="hero-copy"><div class="hero-overline">卷 03 <small>THE COLLECTED FRAMES</small></div><h1 id="page-title"><span class="title">光影</span><span class="title-tail">沿途影集</span></h1><p class="hero-intro">收存沿途光影，<b>与未题之景。</b></p><div class="hero-index">EST. 2024 <i aria-hidden="true"></i><span id="hero-count">03 ALBUMS / 12 FRAMES</span></div></div><div class="hero-art" aria-hidden="true"></div><span class="hero-stamp" aria-hidden="true">影</span><span class="hero-aside" aria-hidden="true">山河入镜 · 岁月留影</span></header>
+<section class="sheet" aria-labelledby="page-title"><div class="top-rule" aria-hidden="true"></div><header class="hero"><div class="hero-copy"><div class="hero-overline">卷 03 <small>THE COLLECTED FRAMES</small></div><h1 id="page-title"><span class="title">光影</span><span class="title-tail">沿途影集</span></h1><p class="hero-intro">收存沿途光影，<b>与未题之景。</b></p><div class="hero-index">EST. 2024 <i aria-hidden="true"></i><span id="hero-count">04 ALBUMS / 12 FRAMES</span></div></div><div class="hero-art" aria-hidden="true"></div><span class="hero-stamp" aria-hidden="true">影</span><span class="hero-aside" aria-hidden="true">山河入镜 · 岁月留影</span></header>
 <div class="collection" id="collection"><p class="sync-notice" id="sync-notice" role="status" hidden>同步暂未完成，仍可继续翻阅已收存的光影。<button type="button" id="retry-sync">重试同步</button></p>
-<div id="list-view"><div class="collection-heading"><h2>沿途所见<small>ALBUMS / 收存</small></h2><span>共 <b>03</b> 册 · <b>12</b> 帧</span></div><div class="collection-intro"><span>一册一段路，一帧一时光。</span><span>轻触封面 · 展开影集</span></div><div class="shelf" id="shelf"><button type="button" class="album-card" data-album="0" aria-label="打开相册：山行手记"><span class="album-kicker"><span>ALBUM / 01</span><span>山间 · 行旅</span></span><span class="album-stage layout-open" aria-hidden="true"><span class="shot" data-frame="FRAME 01"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:8%" loading="lazy"></span><span class="shot" data-frame="FRAME 02"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:48%" loading="lazy"></span><span class="shot" data-frame="FRAME 03"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:90%" loading="lazy"></span></span><span class="album-title">山行手记<i aria-hidden="true">影</i></span><span class="album-desc">把远山和小桥，收进走过的路。</span><span class="album-foot"><span>2026.09.18 · 04 张</span><span>开卷 ↗</span></span></button><button type="button" class="album-card" data-album="1" aria-label="打开相册：湖畔微雨"><span class="album-kicker"><span>ALBUM / 02</span><span>湖畔 · 云烟</span></span><span class="album-stage layout-diagonal" aria-hidden="true"><span class="shot" data-frame="FRAME 01"><img src="../public/bg/about-ink-banner.png" alt="" style="--crop:15%" loading="lazy"></span><span class="shot" data-frame="FRAME 02"><img src="../public/bg/about-ink-banner.png" alt="" style="--crop:55%" loading="lazy"></span><span class="shot" data-frame="FRAME 03"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:76%" loading="lazy"></span></span><span class="album-title">湖畔微雨<i aria-hidden="true">影</i></span><span class="album-desc">水面轻皱，远山渐渐隐入云烟。</span><span class="album-foot"><span>2026.08.21 · 03 张</span><span>开卷 ↗</span></span></button><button type="button" class="album-card" data-album="2" aria-label="打开相册：暮色入卷"><span class="album-kicker"><span>ALBUM / 03</span><span>暮色 · 日常</span></span><span class="album-stage layout-inset" aria-hidden="true"><span class="shot" data-frame="FRAME 01"><img src="../public/bg/guestbook-ink-banner.webp" alt="" style="--crop:22%" loading="lazy"></span><span class="shot" data-frame="FRAME 02"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:84%" loading="lazy"></span><span class="shot" data-frame="FRAME 03"><img src="../public/bg/about-ink-banner.png" alt="" style="--crop:68%" loading="lazy"></span></span><span class="album-title">暮色入卷<i aria-hidden="true">影</i></span><span class="album-desc">日色渐暗，江岸还留着一笔余温。</span><span class="album-foot"><span>2026.07.30 · 03 张</span><span>开卷 ↗</span></span></button></div>
-<button class="loose-collection" id="loose-button" type="button" aria-label="打开相册：全部照片"><span class="loose-pictures" aria-hidden="true"><img src="../public/bg/qianli-bridge.jpg" alt=""><img src="../public/bg/about-ink-banner.png" alt=""></span><span class="loose-copy"><strong>全部照片</strong><small>未归入相册的片刻 · 02 张</small></span><span class="loose-action">随手拾光 ↗</span></button></div>
+<div id="list-view"><div class="collection-heading"><h2>沿途所见<small>ALBUMS / 收存</small></h2><span>共 <b>04</b> 册 · <b>12</b> 帧</span></div><div class="collection-intro"><span>一册一段路，一帧一时光。</span><span>轻触封面 · 展开影集</span></div><div class="shelf" id="shelf"><button type="button" class="album-card" data-album="0" aria-label="打开相册：山行手记" style=""><span class="album-kicker"><span>ALBUM / 01</span><span>山间 · 行旅</span></span><span class="album-stage layout-open" aria-hidden="true"><span class="shot" data-frame="FRAME 01"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:8%" loading="lazy"></span><span class="shot" data-frame="FRAME 02"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:48%" loading="lazy"></span><span class="shot" data-frame="FRAME 03"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:90%" loading="lazy"></span></span><span class="album-title">山行手记<i aria-hidden="true">影</i></span><span class="album-desc">把远山和小桥，收进走过的路。</span><span class="album-foot"><span>2026.09.18 · 04 张</span><span class="album-action">开卷 <b aria-hidden="true">↗</b></span></span></button><button type="button" class="album-card" data-album="1" aria-label="打开相册：湖畔微雨" style=""><span class="album-kicker"><span>ALBUM / 02</span><span>湖畔 · 云烟</span></span><span class="album-stage layout-diagonal" aria-hidden="true"><span class="shot" data-frame="FRAME 01"><img src="../public/bg/about-ink-banner.png" alt="" style="--crop:15%" loading="lazy"></span><span class="shot" data-frame="FRAME 02"><img src="../public/bg/about-ink-banner.png" alt="" style="--crop:55%" loading="lazy"></span><span class="shot" data-frame="FRAME 03"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:76%" loading="lazy"></span></span><span class="album-title">湖畔微雨<i aria-hidden="true">影</i></span><span class="album-desc">水面轻皱，远山渐渐隐入云烟。</span><span class="album-foot"><span>2026.08.21 · 03 张</span><span class="album-action">开卷 <b aria-hidden="true">↗</b></span></span></button><button type="button" class="album-card" data-album="2" aria-label="打开相册：暮色入卷" style=""><span class="album-kicker"><span>ALBUM / 03</span><span>暮色 · 日常</span></span><span class="album-stage layout-inset" aria-hidden="true"><span class="shot" data-frame="FRAME 01"><img src="../public/bg/guestbook-ink-banner.webp" alt="" style="--crop:22%" loading="lazy"></span><span class="shot" data-frame="FRAME 02"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:84%" loading="lazy"></span><span class="shot" data-frame="FRAME 03"><img src="../public/bg/about-ink-banner.png" alt="" style="--crop:68%" loading="lazy"></span></span><span class="album-title">暮色入卷<i aria-hidden="true">影</i></span><span class="album-desc">日色渐暗，江岸还留着一笔余温。</span><span class="album-foot"><span>2026.07.30 · 03 张</span><span class="album-action">开卷 <b aria-hidden="true">↗</b></span></span></button><button type="button" class="album-card" data-album="3" aria-label="打开相册：全部照片" style=""><span class="album-kicker"><span>ALBUM / 04</span><span>随手 · 拾光</span></span><span class="album-stage layout-pair" aria-hidden="true"><span class="shot" data-frame="FRAME 01"><img src="../public/bg/qianli-bridge.jpg" alt="" style="--crop:65%" loading="lazy"></span><span class="shot" data-frame="FRAME 02"><img src="../public/bg/about-ink-banner.png" alt="" style="--crop:80%" loading="lazy"></span></span><span class="album-title">全部照片<i aria-hidden="true">影</i></span><span class="album-desc">未归入相册的片刻，也值得好好收存。</span><span class="album-foot"><span>2026.09.24 · 02 张</span><span class="album-action">开卷 <b aria-hidden="true">↗</b></span></span></button></div>
+</div>
 <div id="detail-view" hidden><header class="detail-head"><button class="back-to-list" id="back-to-list" type="button">← 全部相册</button><div class="detail-copy"><small id="detail-overline">ALBUM / 01</small><h2 id="detail-title" tabindex="-1"></h2><p id="detail-description"></p><span class="detail-meta" id="detail-meta"></span></div></header><p class="view-hint" id="view-hint">轻触一帧，展开原幅。照片说明和日期留在相纸下方。</p><div class="photo-grid" id="photo-grid"></div><div class="state" id="album-empty" hidden><div class="state-symbol" aria-hidden="true">影</div><h2>这本相册还没有照片。</h2><p>先留一页空白，等下次出发。</p></div></div>
 <div class="state" id="page-state" hidden></div>
 <footer class="colophon"><span>光有来处，影有归处。</span><span>COLLECTED WITH TIME · 卷三</span></footer></div></section>
@@ -265,15 +293,44 @@ const albums=[
   {title:'湖畔微雨',description:'水面轻皱，远山渐渐隐入云烟。',date:'2026.08.21',layout:'diagonal',label:'湖畔 · 云烟',photos:[photo(1,'烟水之间，留一处安静。','2026.08.21','15%'),photo(1,'远处的山，近处的水。','2026.08.21','55%'),photo(0,'雨后江岸，青绿仍在。','2026.08.21','76%')]},
   {title:'暮色入卷',description:'日色渐暗，江岸还留着一笔余温。',date:'2026.07.30',layout:'inset',label:'暮色 · 日常',photos:[photo(2,'一抹淡墨，收住晚来的天色。','2026.07.30','22%'),photo(0,'暮色落在山水之间。','2026.07.30','84%'),photo(1,'薄暮里的水面，安静如旧。','2026.07.30','68%')]}
 ];
-const loose={title:'全部照片',description:'未归入相册的照片，也有自己的光阴。',date:'',photos:[photo(0,'偶然经过的一段江岸。','2026.09.24','65%'),photo(1,'随手收存的一片云烟。','2026.08.06','80%')]};
-function makeCard(album,index){const button=document.createElement('button');button.type='button';button.className='album-card';button.dataset.album=String(index);button.setAttribute('aria-label',`打开相册：${album.title}`);button.innerHTML=`<span class="album-kicker"><span>ALBUM / ${String(index+1).padStart(2,'0')}</span><span>${album.label}</span></span><span class="album-stage layout-${album.layout}" aria-hidden="true">${Array.from({length:3},(_,n)=>{const p=album.photos[n%album.photos.length];return `<span class="shot" data-frame="FRAME ${String(n+1).padStart(2,'0')}"><img src="${p.src}" alt="" style="--crop:${p.crop}" loading="lazy"></span>`;}).join('')}</span><span class="album-title">${album.title}<i aria-hidden="true">影</i></span><span class="album-desc">${album.description}</span><span class="album-foot"><span>${album.date} · ${String(album.photos.length).padStart(2,'0')} 张</span><span>开卷 ↗</span></span>`;button.addEventListener('click',()=>openAlbum(album,button,index));return button;}
-if ($('shelf').children.length) {document.querySelectorAll('[data-album]').forEach(button=>{const i=Number(button.dataset.album);button.addEventListener('click',()=>openAlbum(albums[i],button,i));});} else {albums.forEach((album,i)=>$('shelf').append(makeCard(album,i)));}
+const loose={title:'全部照片',description:'未归入相册的片刻，也值得好好收存。',date:'',layout:'pair',label:'随手 · 拾光',photos:[photo(0,'偶然经过的一段江岸。','2026.09.24','65%'),photo(1,'随手收存的一片云烟。','2026.08.06','80%')]};
+const shelfAlbums=[...albums,loose];
+function makeCard(album,index){
+  const button=document.createElement('button');
+  button.type='button';button.className='album-card';button.dataset.album=String(index);
+  button.setAttribute('aria-label',`打开相册：${album.title}`);
+  const date=album.date||album.photos[0]?.date||'未题日期';
+  const shots=album.photos.slice(0,3).map((p,n)=>`<span class="shot" data-frame="FRAME ${String(n+1).padStart(2,'0')}"><img src="${p.src}" alt="" style="--crop:${p.crop}" loading="lazy"></span>`).join('');
+  button.innerHTML=`<span class="album-kicker"><span>ALBUM / ${String(index+1).padStart(2,'0')}</span><span>${album.label}</span></span><span class="album-stage layout-${album.layout}" aria-hidden="true">${shots}</span><span class="album-title">${album.title}<i aria-hidden="true">影</i></span><span class="album-desc">${album.description}</span><span class="album-foot"><span>${date} · ${String(album.photos.length).padStart(2,'0')} 张</span><span class="album-action">开卷 <b aria-hidden="true">↗</b></span></span>`;
+  button.addEventListener('click',()=>openAlbum(album,button,index));
+  return button;
+}
+$('shelf').replaceChildren(...shelfAlbums.map(makeCard));
+// Only the local paper highlight follows the pointer; card dimensions remain stable.
+const hoverMedia=matchMedia('(hover:hover) and (pointer:fine)');
+const reducedMedia=matchMedia('(prefers-reduced-motion:reduce)');
+document.querySelectorAll('.album-card').forEach(button=>{
+  let pointerFrame=0,point=null;
+  button.addEventListener('pointermove',event=>{
+    if(!hoverMedia.matches||reducedMedia.matches)return;
+    const rect=button.getBoundingClientRect();
+    point={x:event.clientX-rect.left+12,y:event.clientY-rect.top+12};
+    if(!pointerFrame)pointerFrame=requestAnimationFrame(()=>{
+      button.style.setProperty('--spot-x',`${point.x}px`);
+      button.style.setProperty('--spot-y',`${point.y}px`);
+      pointerFrame=0;
+    });
+  },{passive:true});
+  button.addEventListener('pointerleave',()=>{
+    cancelAnimationFrame(pointerFrame);pointerFrame=0;
+    button.style.removeProperty('--spot-x');button.style.removeProperty('--spot-y');
+  });
+});
 let currentAlbum=null,returnTrigger=null,listScroll=0,photoIndex=0,photoTrigger=null;
 function scrollToPosition(top){window.scrollTo({top,behavior:'instant'});}
 function renderPhotos(){const grid=$('photo-grid');grid.replaceChildren();currentAlbum.photos.forEach((p,i)=>{const figure=document.createElement('figure');figure.className='photo';figure.innerHTML=`<button type="button" aria-label="放大照片：${p.caption}" aria-haspopup="dialog"><img src="${p.src}" alt="${p.caption}" style="--crop:${p.crop}" loading="lazy"></button><span class="photo-number" aria-hidden="true">FRAME ${String(i+1).padStart(2,'0')}</span><figcaption>${p.caption}</figcaption><time>${p.date}</time>`;const image=figure.querySelector('img');image.addEventListener('error',()=>{image.replaceWith(fallback());const button=figure.querySelector('button');button.disabled=true;button.removeAttribute('aria-haspopup');button.setAttribute('aria-label','照片暂缺');});figure.querySelector('button').addEventListener('click',e=>{photoTrigger=e.currentTarget;photoIndex=i;showPhoto();$('lightbox').showModal();document.body.style.overflow='hidden';});grid.append(figure);});}
 function fallback(){const span=document.createElement('span');span.className='photo-fallback';span.setAttribute('role','img');span.setAttribute('aria-label','照片暂缺');span.innerHTML='影<small>照片暂缺，留待重逢</small>';return span;}
-function openAlbum(album,trigger,index=0){listScroll=window.scrollY;returnTrigger=trigger;currentAlbum=album;$('list-view').hidden=true;$('page-state').hidden=true;$('detail-view').hidden=false;$('detail-title').textContent=album.title;$('detail-description').textContent=album.description;$('detail-overline').textContent=album===loose?'LOOSE FRAMES / 随手收存':`ALBUM / ${String(index+1).padStart(2,'0')}`;$('detail-meta').textContent=`${album.photos.length} 张${album.date?' · '+album.date:''}`;$('album-empty').hidden=album.photos.length>0;$('view-hint').hidden=album.photos.length===0;renderPhotos();const top=$('collection').getBoundingClientRect().top+window.scrollY-24;scrollToPosition(top);$('detail-title').focus({preventScroll:true});$('preview-status').textContent=`已展开${album.title}，共 ${album.photos.length} 张照片。`;}
-$('loose-button').addEventListener('click',e=>openAlbum(loose,e.currentTarget));
+function openAlbum(album,trigger,index=0){listScroll=window.scrollY;returnTrigger=trigger;currentAlbum=album;$('list-view').hidden=true;$('page-state').hidden=true;$('detail-view').hidden=false;$('detail-title').textContent=album.title;$('detail-description').textContent=album.description;$('detail-overline').textContent=`ALBUM / ${String(index+1).padStart(2,'0')}`;$('detail-meta').textContent=`${album.photos.length} 张${album.date?' · '+album.date:''}`;$('album-empty').hidden=album.photos.length>0;$('view-hint').hidden=album.photos.length===0;renderPhotos();const top=$('collection').getBoundingClientRect().top+window.scrollY-24;scrollToPosition(top);$('detail-title').focus({preventScroll:true});$('preview-status').textContent=`已展开${album.title}，共 ${album.photos.length} 张照片。`;}
 $('back-to-list').addEventListener('click',()=>{$('detail-view').hidden=true;$('list-view').hidden=false;currentAlbum=null;setState('ready',false);requestAnimationFrame(()=>{scrollToPosition(listScroll);returnTrigger?.focus({preventScroll:true});});});
 function showPhoto(){const p=currentAlbum.photos[photoIndex];$('lightbox-image').src=p.src;$('lightbox-image').alt=p.caption;$('lightbox-caption').textContent=p.caption;$('lightbox-date').textContent=p.date;$('lightbox-album').firstChild.textContent=currentAlbum.title;$('photo-index').textContent=`${String(photoIndex+1).padStart(2,'0')} / ${String(currentAlbum.photos.length).padStart(2,'0')}`;$('prev-photo').disabled=photoIndex===0;$('next-photo').disabled=photoIndex===currentAlbum.photos.length-1;}
 function movePhoto(delta){photoIndex=Math.max(0,Math.min(currentAlbum.photos.length-1,photoIndex+delta));showPhoto();}
@@ -285,7 +342,7 @@ function toggleTheme(){const dark=document.documentElement.dataset.theme!=='dark
 $('theme-button').addEventListener('click',toggleTheme);$('nav-theme').addEventListener('click',toggleTheme);
 $('size-button').addEventListener('click',()=>{const phone=$('preview-stage').classList.toggle('phone');$('size-button').setAttribute('aria-pressed',String(phone));$('size-button').textContent=phone?'桌面预览':'手机预览';});
 $('nav-menu').addEventListener('click',()=>{const open=$('nav-links').classList.toggle('open');$('nav-menu').setAttribute('aria-expanded',String(open));$('nav-menu').setAttribute('aria-label',open?'收起导航':'展开导航');});
-function setState(state,resetView=true){$('state-select').value=state;$('sync-notice').hidden=state!=='cached-error';$('page-state').hidden=true;if(resetView){$('detail-view').hidden=true;$('list-view').hidden=false;currentAlbum=null;}const noContent=['empty','error','loading'].includes(state);$('hero-count').textContent=state==='empty'?'00 ALBUMS / 00 FRAMES':(state==='error'?'FRAMES NOT AVAILABLE':(state==='loading'?'COLLECTING FRAMES':'03 ALBUMS / 12 FRAMES'));if(noContent){$('list-view').hidden=true;$('detail-view').hidden=true;$('page-state').hidden=false;const states={empty:['影','相册还空着。','等下一段路，带回一些新的光影。'],error:['影','光影暂时未能载入。','稍后再来，或试着重新收存这一页。'],loading:['影','正在展开影集…','请稍候，让光影慢慢显现。']};const [symbol,title,desc]=states[state];$('page-state').innerHTML=`<div class="state-symbol" aria-hidden="true">${symbol}</div><h2>${title}</h2><p ${state==='error'?'role="alert"':''}>${desc}</p>${state==='error'?'<button type="button" id="retry-load">重试</button>':''}${state==='loading'?'<div class="loading-line" aria-hidden="true"></div>':''}`;$('retry-load')?.addEventListener('click',()=>setState('ready'));}if(state==='album-empty')openAlbum({title:'未题之景',description:'一本留给下一次出发的空册。',date:'2026.09.30',photos:[]},$('state-select'));if(state==='broken'){openAlbum(albums[0],$('state-select'));$('photo-grid').querySelectorAll('button').forEach(button=>{button.replaceChildren(fallback());button.disabled=true;button.removeAttribute('aria-haspopup');button.setAttribute('aria-label','照片暂缺');});}$('preview-status').textContent=`当前演示：${$('state-select').selectedOptions[0].textContent}。`;}
+function setState(state,resetView=true){$('state-select').value=state;$('sync-notice').hidden=state!=='cached-error';$('page-state').hidden=true;if(resetView){$('detail-view').hidden=true;$('list-view').hidden=false;currentAlbum=null;}const noContent=['empty','error','loading'].includes(state);$('hero-count').textContent=state==='empty'?'00 ALBUMS / 00 FRAMES':(state==='error'?'FRAMES NOT AVAILABLE':(state==='loading'?'COLLECTING FRAMES':'04 ALBUMS / 12 FRAMES'));if(noContent){$('list-view').hidden=true;$('detail-view').hidden=true;$('page-state').hidden=false;const states={empty:['影','相册还空着。','等下一段路，带回一些新的光影。'],error:['影','光影暂时未能载入。','稍后再来，或试着重新收存这一页。'],loading:['影','正在展开影集…','请稍候，让光影慢慢显现。']};const [symbol,title,desc]=states[state];$('page-state').innerHTML=`<div class="state-symbol" aria-hidden="true">${symbol}</div><h2>${title}</h2><p ${state==='error'?'role="alert"':''}>${desc}</p>${state==='error'?'<button type="button" id="retry-load">重试</button>':''}${state==='loading'?'<div class="loading-line" aria-hidden="true"></div>':''}`;$('retry-load')?.addEventListener('click',()=>setState('ready'));}if(state==='album-empty')openAlbum({title:'未题之景',description:'一本留给下一次出发的空册。',date:'2026.09.30',photos:[]},$('state-select'));if(state==='broken'){openAlbum(albums[0],$('state-select'));$('photo-grid').querySelectorAll('button').forEach(button=>{button.replaceChildren(fallback());button.disabled=true;button.removeAttribute('aria-haspopup');button.setAttribute('aria-label','照片暂缺');});}$('preview-status').textContent=`当前演示：${$('state-select').selectedOptions[0].textContent}。`;}
 $('state-select').addEventListener('change',e=>setState(e.target.value));$('retry-sync').addEventListener('click',()=>setState('ready',false));
 </script>
 </body>

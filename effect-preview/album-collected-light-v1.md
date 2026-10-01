@@ -12,24 +12,25 @@
 | --- | --- | --- |
 | 题头 | 山水上方的简短标题，内容纸页独立 | 与文章、闲语同一套宣纸题头，题签“沿途影集”，卷号 03 |
 | 顶部朱线 | 相册纸页没有对应卷序的朱线 | 连续静态朱线占纸宽 3/6，剩余为淡墨线，不分段、不随滚动变化 |
-| 相册封面 | 一张封面与说明组成卡片 | 三张相纸有轻微交叠，三册分别展开、斜列、前景压片；悬停时轻轻松开 |
+| 相册封面 | 一张封面与说明组成卡片 | 相纸有轻微交叠，三册分别展开、斜列、前景压片；悬停时按各自摆放方向松开，辅以纸面亮斑、朱印着色和底边朱线 |
 | 册内照片 | 现有照片网格及灯箱 | 有序相纸网格，说明和日期放在下方；灯箱完整展示原幅 |
-| 未归档照片 | 单独的“全部照片”卡片 | 保留同名入口，用纸页底部的小叠片与题签呈现 |
+| 未归档照片 | 单独的“全部照片”卡片 | 同名入口作为第 04 册进入相同网格；封面、题签、说明、数量和开卷按钮与其他册完全同构 |
 | 手机 | 原有单列封面 | 单列影集保留叠片层次，题头与手机导航随内容容器宽度收拢 |
 
 ## 如何审阅
 
 - 点击顶部“切换夜色”与“手机预览”，查看昼夜和窄屏效果。
 - 点击各册的封面或“开卷”进入详情；“全部相册”恢复列表浏览位置与焦点。
+- 在桌面悬停相册：展开式向两侧舒展、斜列式沿原方向错开、压片式抬起前景照片；第 04 册的两张相纸向两侧松开。纸面亮斑随鼠标位置移动，朱印着色、开卷箭头前移、底边朱线渐现。
 - 点击册内照片打开灯箱，使用前后按钮或左右方向键翻看，Escape 关闭；手机可横向滑动原幅。
 - 顶部状态选择器可查看整页空相册、册内空相册、首次失败、缓存同步失败、加载和照片失败。
 - “原页面对照”打开本轮实拍的原页面桌面截图。
 
-册名、说明、日期与数量仅用于展示版式。配图复用已有 `qianli-bridge.jpg`、`about-ink-banner.png` 和 `guestbook-ink-banner.webp`，没有新增相册数据或网络写入。示例为三册共 10 张，加未归档 2 张，总计 12 张；正式实现沿用现有真实数据。
+册名、说明、日期与数量仅用于展示版式。配图复用已有 `qianli-bridge.jpg`、`about-ink-banner.png` 和 `guestbook-ink-banner.webp`，没有新增相册数据或网络写入。示例为三册共 10 张，加未归档 2 张，总计 12 张；展示为四个同构的影集入口，未归档照片仍保持原来的归属，正式实现沿用现有真实数据。
 
 ## 对照截图
 
-[原页面桌面截图](screenshots/album-before-desktop.jpg) · [本稿桌面截图](screenshots/album-design-desktop.jpg) · [本稿手机截图](screenshots/album-design-mobile.jpg)
+[原页面桌面截图](screenshots/album-before-desktop.jpg) · [本稿桌面截图](screenshots/album-design-desktop.jpg) · [本稿手机截图](screenshots/album-design-mobile.jpg) · [湖畔微雨悬停截图](screenshots/album-hover-desktop.jpg)
 
 ![桌面设计稿](screenshots/album-design-desktop.jpg)
 
@@ -39,10 +40,12 @@
 - 通过：朱线宽度为纸面 50%；桌面内置手机预览真正触发容器断点。
 - 通过：开册、未归档入口、返回后恢复滚动和焦点、手机导航、灯箱焦点循环、背景滚动锁定、左右方向键、Escape、手机前后按钮。
 - 通过：六种状态在桌面和 360px 下可见且无溢出；重试按钮恢复演示内容；低动态模式关闭动画。
-- 通过：JavaScript 关闭时仍显示题头与三册封面；交互需开启 JavaScript。
+- 通过：四个入口采用相同的相册结构；鼠标悬停时各册相纸变换路径不同、卡片尺寸稳定、亮斑随鼠标移动并在离开时复位。
+- 通过：低动态模式保留原来的摆放角度，不播放展开动画；触屏不启用鼠标悬停效果，点击仍可开册。
+- 通过：JavaScript 关闭时仍显示题头与四册封面；交互需开启 JavaScript。
 - 通过：预览没有页面脚本异常；`npx tsc --noEmit` 和 `npx next build` 均退出 0。
 - 未全通过：`npx vitest run` 的 67 个测试文件、335 个用例均通过，但出现 5 个既有 `echo.animate is not a function` 异常，命令退出 1。异常位于 `components/DailyQuote.tsx`，由首页测试触发，本轮未修改这些源文件。
 
-浏览器检查与闸门日志保留在本地 `.design/album-preview-qa.cjs`、`.design/album-qa-results.json`、`.design/album-typecheck.log`、`.design/album-vitest.log`、`.design/album-build.log`；`.design/` 按仓库规则不提交。
+浏览器检查与闸门日志保留在本地 `.design/album-preview-qa.cjs`、`.design/album-qa-results.json`、`.design/album-review-qa.cjs`、`.design/album-hover-qa-results.json`、`.design/album-typecheck.log`、`.design/album-vitest.log`、`.design/album-build.log`；`.design/` 按仓库规则不提交。
 
 确认本稿后，再将相册的真实内容映射到确认的版式；本轮仅交付预览。
