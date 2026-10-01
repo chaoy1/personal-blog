@@ -86,37 +86,43 @@ describe('AboutPage', () => {
     expect(navigation.querySelector('.article-nav-paper')).not.toBeInTheDocument()
   })
 
-  it('uses the flowing calligraphy face only for the about heading copy', () => {
+  it('keeps display type separate from the readable prose', () => {
     const layout = readFileSync(resolve(process.cwd(), 'app/layout.tsx'), 'utf8')
-    const studio = readFileSync(resolve(process.cwd(), 'app/studio.css'), 'utf8')
+    const styles = readFileSync(resolve(process.cwd(), 'app/about/about.css'), 'utf8')
 
     expect(layout).toContain("import '@fontsource/zhi-mang-xing/400.css'")
-    // 手写体只用于「手写题字」这一类：文章页卷首、关于页题头、时间轴题头，
-    // 正文一律走 var(--font-kai)，不整页上毛笔字。
-    const calligraphy = studio.match(/"Zhi Mang Xing"/g) ?? []
-    expect(calligraphy.length).toBeGreaterThanOrEqual(2)
-    expect(studio).not.toContain('"Ma Shan Zheng"')
-    // 每次使用都必须带楷体兜底
-    for (const rule of studio.match(/[^{}]*\{[^}]*"Zhi Mang Xing"[^}]*\}/g) ?? []) {
-      expect(rule).toContain('var(--font-kai)')
-    }
+    expect(styles).toContain("--brush: 'hongleixingshu'")
+    expect(styles).toMatch(/\.about-preface-prose\s*\{[^}]*var\(--song\)/)
   })
 
-  it('renders the owner signature with a dedicated brush stroke', async () => {
+  it('uses saved owner details in the photo and signature', async () => {
     render(await AboutPage())
 
     const colophon = screen.getByRole('complementary', { name: '博主落款' })
 
-    expect(colophon).toHaveClass('about-colophon', 'about-colophon-casual')
-    expect(within(colophon).getByText('落款')).toHaveClass('about-colophon-label')
-    expect(colophon.querySelector('.about-colophon-rule')).not.toBeInTheDocument()
     expect(within(colophon).getByRole('img', { name: '博主头像' })).toBeInTheDocument()
     expect(within(colophon).getByRole('img', { name: '博主头像' })).not.toHaveAttribute('src', expect.stringContaining('undefined'))
     expect(within(colophon).getByRole('img', { name: '博主头像' })).not.toHaveAttribute('src', expect.stringContaining('undefined'))
     expect(within(colophon).getByText('ChoyChou')).toBeInTheDocument()
     expect(within(colophon).getByText('博主 · 似水流年')).toBeInTheDocument()
-    expect(within(colophon).getByText('署')).toHaveClass('about-colophon-seal')
-    expect(colophon.querySelector('.about-colophon-wash')).toBeInTheDocument()
-    expect(colophon.querySelector('.about-colophon-brush')).toBeInTheDocument()
+    expect(within(colophon).getByText('小屋主人')).toBeInTheDocument()
+    expect(screen.getByLabelText('关于页落款')).toHaveTextContent('ChoyChou')
+  })
+
+  it('offers the confirmed collection and guestbook destinations with no chapter index', async () => {
+    render(await AboutPage())
+    const records = screen.getByLabelText('小屋里的记录')
+    expect(within(records).getByRole('link', { name: /文章/ })).toHaveAttribute('href', '/posts')
+    expect(within(records).getByRole('link', { name: /闲语/ })).toHaveAttribute('href', '/moments')
+    expect(within(records).getByRole('link', { name: /光影/ })).toHaveAttribute('href', '/album')
+    expect(screen.getByRole('link', { name: /去山窗/ })).toHaveAttribute('href', '/guestbook')
+    expect(screen.queryByRole('navigation', { name: '卷中索引' })).not.toBeInTheDocument()
+  })
+
+  it('reports an API error response as a failure rather than an empty biography', async () => {
+    supabase.maybeSingle.mockResolvedValueOnce({ data: null, error: { message: 'offline' } })
+    render(await AboutPage())
+    expect(screen.getByRole('main', { name: '关于' })).toHaveAttribute('data-profile-state', 'error')
+    expect(screen.getByRole('alert')).toBeInTheDocument()
   })
 })

@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 const globals = readFileSync(resolve(process.cwd(), 'app/globals.css'), 'utf8')
 const refinement = readFileSync(resolve(process.cwd(), 'app/refinement.css'), 'utf8')
 const studio = readFileSync(resolve(process.cwd(), 'app/studio.css'), 'utf8')
+const about = readFileSync(resolve(process.cwd(), 'app/about/about.css'), 'utf8')
 
 describe('design system foundation', () => {
   it('defines semantic tokens and retains legacy compatibility variables', () => {
@@ -54,8 +55,8 @@ describe('design system foundation', () => {
     expect(refinement).toMatch(
       /\.page-intro-index\s*\{[\s\S]*?font-family:\s*"STXingkai"[\s\S]*?font-size:\s*14px;/,
     )
-    const aboutSealRule = studio.match(
-      /\.about-page \.article-nav > span:last-child::before\s*\{([^{}]*)\}/,
+    const aboutSealRule = about.match(
+      /\.about-page \.article-nav\s*>\s*\.article-nav-current::before\s*\{([^{}]*)\}/,
     )?.[1] ?? ''
     expect(aboutSealRule).toMatch(/width:\s*22px;/)
     expect(aboutSealRule).toMatch(/height:\s*22px;/)
