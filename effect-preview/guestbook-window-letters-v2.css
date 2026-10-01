@@ -23,9 +23,9 @@ html.motion-ready .hero-landscape{animation:landscape-reveal 1.5s var(--ease) bo
 
 /* 来信装帧：封笺、背纸、落款邮戳与附笺回信。 */
 :root {
-  --letter-paper:#fff6e1;
-  --letter-back:#e7dbc0;
-  --letter-border:#b29b72;
+  --letter-paper:#fff2d9;
+  --letter-back:#e7d6b3;
+  --letter-border:#b49b73;
   --letter-rule:#caba9859;
   --reply-paper:#ebeddc;
   --reply-border:#abb298;
@@ -35,7 +35,7 @@ html.motion-ready .hero-landscape{animation:landscape-reveal 1.5s var(--ease) bo
   --letter-light:#d5b56926;
 }
 :root[data-theme=dark] {
-  --letter-paper:#564934;
+  --letter-paper:#584a35;
   --letter-back:#3f3528;
   --letter-border:#a28a61;
   --letter-rule:#c5b18330;
@@ -58,7 +58,6 @@ html.motion-ready .hero-landscape{animation:landscape-reveal 1.5s var(--ease) bo
   transform-origin:15% 30%;
   transition:transform .45s var(--ease),box-shadow .45s,border-color .4s;
 }
-.crafted-letter.has-reply {--letter-accent:var(--seal);}
 .crafted-letter::before {
   inset:0;width:auto;
   opacity:.08;
@@ -194,21 +193,22 @@ html.motion-ready .hero-landscape{animation:landscape-reveal 1.5s var(--ease) bo
   .crafted-letter .avatar::after {display:none;}
 }
 
-/* 与山水底纸同调的六种纸色，随机分配并随来信保留。 */
-.crafted-letter[data-paper=rice] {--letter-paper:#fff2d9;--letter-back:#e7d6b3;--letter-border:#b49b73;}
-.crafted-letter[data-paper=tea] {--letter-paper:#f3e6cd;--letter-back:#dcc9a7;--letter-border:#ae9570;}
-.crafted-letter[data-paper=linen] {--letter-paper:#f5eedb;--letter-back:#e0d5bb;--letter-border:#b2a17f;}
-.crafted-letter[data-paper=sage] {--letter-paper:#ecebd5;--letter-back:#d1d0b3;--letter-border:#9fa080;}
-.crafted-letter[data-paper=sand] {--letter-paper:#f8e9d1;--letter-back:#dfcdb0;--letter-border:#b39a7b;}
-.crafted-letter[data-paper=oat] {--letter-paper:#f4ecd8;--letter-back:#ded0b1;--letter-border:#b2a07a;}
-.crafted-letter[data-paper] {--fold-shadow:color-mix(in srgb,var(--letter-back) 72%,#6e5d43);--fold-paper:var(--letter-back);--fold-light:var(--letter-paper);--reply-paper:color-mix(in srgb,var(--letter-paper) 80%,#cbd0b5);}
-:root[data-theme=dark] .crafted-letter[data-paper=rice] {--letter-paper:#584a35;--letter-back:#3c3022;--letter-border:#a28861;}
-:root[data-theme=dark] .crafted-letter[data-paper=tea] {--letter-paper:#544531;--letter-back:#372e22;--letter-border:#988365;}
-:root[data-theme=dark] .crafted-letter[data-paper=linen] {--letter-paper:#554d3b;--letter-back:#373326;--letter-border:#9d9173;}
-:root[data-theme=dark] .crafted-letter[data-paper=sage] {--letter-paper:#4b4c37;--letter-back:#303223;--letter-border:#919573;}
-:root[data-theme=dark] .crafted-letter[data-paper=sand] {--letter-paper:#594936;--letter-back:#3c3024;--letter-border:#a58b6c;}
-:root[data-theme=dark] .crafted-letter[data-paper=oat] {--letter-paper:#504833;--letter-back:#362f22;--letter-border:#9c916f;}
-:root[data-theme=dark] .crafted-letter[data-paper] {--reply-paper:color-mix(in srgb,var(--letter-paper) 80%,#33472d);}
+/* 统一暖米纸；随机色只用于悬停时的竖线、笺签与方印。 */
+.crafted-letter {--fold-shadow:color-mix(in srgb,var(--letter-back) 72%,#6e5d43);--fold-paper:var(--letter-back);--fold-light:var(--letter-paper);--reply-paper:color-mix(in srgb,var(--letter-paper) 80%,#cbd0b5);}
+.crafted-letter[data-hover-tone=cinnabar] {--letter-hover:#a43b2b;}
+.crafted-letter[data-hover-tone=pine] {--letter-hover:#586a52;}
+.crafted-letter[data-hover-tone=ochre] {--letter-hover:#8d6c38;}
+.crafted-letter[data-hover-tone=indigo] {--letter-hover:#526d73;}
+.crafted-letter[data-hover-tone=tea] {--letter-hover:#85604a;}
+.crafted-letter[data-hover-tone=plum] {--letter-hover:#77596b;}
+:root[data-theme=dark] .crafted-letter {--reply-paper:color-mix(in srgb,var(--letter-paper) 80%,#33472d);}
+:root[data-theme=dark] .crafted-letter[data-hover-tone=cinnabar] {--letter-hover:#dfa08a;}
+:root[data-theme=dark] .crafted-letter[data-hover-tone=pine] {--letter-hover:#abb99a;}
+:root[data-theme=dark] .crafted-letter[data-hover-tone=ochre] {--letter-hover:#ceb27c;}
+:root[data-theme=dark] .crafted-letter[data-hover-tone=indigo] {--letter-hover:#9cb7b9;}
+:root[data-theme=dark] .crafted-letter[data-hover-tone=tea] {--letter-hover:#c4a38b;}
+:root[data-theme=dark] .crafted-letter[data-hover-tone=plum] {--letter-hover:#bea0b1;}
+.crafted-letter:hover,.crafted-letter:focus-within {--letter-accent:var(--letter-hover,var(--pine));}
 /* 中文日期直接落款，不加框线或印戳。 */
 .crafted-letter .letter-date {display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding:0;flex:none;color:var(--soft);}
 .letter-date span {font:10px/1.2 var(--brush);letter-spacing:.05em;color:var(--faint);}

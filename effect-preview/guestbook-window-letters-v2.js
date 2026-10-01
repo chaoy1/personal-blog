@@ -7,17 +7,23 @@
     {id:3,name:'听雨',mark:'雨',date:'2026.09.18',text:'见字如面。\n把一句问候留在这里，祝你秋日安好。',replies:[]},
     {id:4,name:'远川',mark:'川',date:'2026.09.10',text:'喜欢这里的山水，也喜欢文字里慢慢展开的日常。',replies:[{name:'博主',text:'日子虽平常，记录下来便有了来处。',owner:true}]},
     {id:5,name:'木末',mark:'木',date:'2026.09.02',text:'偶然路过，读了很久。希望以后还能在这里看到新的故事。',replies:[]},
-    {id:6,name:'南风',mark:'风',date:'2026.08.21',text:'不赶路的时候，看看山，写写字，也很好。',replies:[]}
+    {id:6,name:'南风',mark:'风',date:'2026.08.21',text:'不赶路的时候，看看山，写写字，也很好。',replies:[]},
+    {id:7,name:'青岚',mark:'岚',date:'2026.08.16',text:'晚饭后沿河走了一会儿。带着一点风，也带着一句问候来这里。',replies:[]},
+    {id:8,name:'溪桥',mark:'溪',date:'2026.08.08',text:'看到你写的旧物，想起了家里的木书桌。那些细小的记忆，读起来很亲切。',replies:[{name:'博主',text:'有些东西用得久了，就和日子连在一起了。',owner:true}]},
+    {id:9,name:'白露',mark:'露',date:'2026.07.30',text:'收藏了几篇文章，打算有空再慢慢读。愿你写作顺心。',replies:[]},
+    {id:10,name:'松间',mark:'松',date:'2026.07.22',text:'在这里坐了一会儿。今日无事，山窗有风。',replies:[]}
   ];
   const data = structuredClone(original);
-  const paperNames=['rice','tea','linen','sage','sand','oat'];
-  let paperBag=[];
-  function nextPaper() {
-    if(!paperBag.length){paperBag=[...paperNames];for(let i=paperBag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[paperBag[i],paperBag[j]]=[paperBag[j],paperBag[i]];}}
-    return paperBag.pop();
+  const PREVIEW_PAGE_SIZE=6;
+  const accentNames=['cinnabar','pine','ochre','indigo','tea','plum'];
+  let accentBag=[];
+  function nextAccent(previous) {
+    if(!accentBag.length){accentBag=[...accentNames];for(let i=accentBag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[accentBag[i],accentBag[j]]=[accentBag[j],accentBag[i]];}}
+    const last=accentBag.length-1;
+    if(accentBag[last]===previous&&last>0)[accentBag[0],accentBag[last]]=[accentBag[last],accentBag[0]];
+    return accentBag.pop();
   }
-  data.forEach(item=>item.paper=nextPaper());
-  let page = 1, nextId = 7, busy = false, returnFocus = null, timer = null, pendingDelete = null;
+  let page = 1, nextId = 11, busy = false, returnFocus = null, timer = null, pendingDelete = null;
   const reduced = () => matchMedia('(prefers-reduced-motion:reduce)').matches;
   const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const bodyText = value => value.split('\n').map(line => `<p>${escape(line) || '<br>'}</p>`).join('');
@@ -29,12 +35,12 @@
   function notify(text) { clearTimeout(timer);$('toast').textContent=text;$('toast').classList.add('visible');timer=setTimeout(()=>$('toast').classList.remove('visible'),3200); }
   function replyHTML(reply) { return `<div class="reply"><span class="reply-seal" aria-hidden="true">复</span><span class="reply-name">${escape(reply.name)}${reply.owner ? '<small>博主回信</small>' : '<small>访客回信</small>'}</span><p>${escape(reply.text).replace(/\n/g,'<br>')}</p></div>`; }
   function letterCraft(item, index) {
-    const folio=pad((page-1)*3+index+1), gradient=`fold-${item.id}`;
+    const folio=pad((page-1)*PREVIEW_PAGE_SIZE+index+1), gradient=`fold-${item.id}`;
     return `<span class="letter-backing" aria-hidden="true"></span><span class="letter-surface" aria-hidden="true"></span><span class="letter-folio" aria-hidden="true"><i>笺</i><b>${folio}</b></span><span class="letter-fold" aria-hidden="true"><svg viewBox="0 0 60 60"><defs><linearGradient id="${gradient}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="var(--fold-shadow)"/><stop offset=".55" stop-color="var(--fold-paper)"/><stop offset="1" stop-color="var(--fold-light)"/></linearGradient></defs><path d="M0 60H60V0Z" fill="var(--paper)"/><path d="M0 60L60 0Q51 30 53 52Q25 44 0 60Z" fill="url(#${gradient})"/><path d="M0 60Q25 44 53 52Q51 30 60 0" fill="none" stroke="var(--line)" stroke-width=".8"/></svg></span>`;
   }
   function render() {
     const state = $('demo-state').value, guest = $('identity').value === 'guest', owner = $('identity').value === 'owner';
-    const pages = Math.max(1,Math.ceil(data.length/3));page=Math.min(page,pages);
+    const pages = Math.max(1,Math.ceil(data.length/PREVIEW_PAGE_SIZE));page=Math.min(page,pages);
     const list=$('letter-list');const stateBox=$('list-state');const empty=state==='empty'||data.length===0;
     list.hidden=empty||state==='loading'||state==='error';stateBox.hidden=!list.hidden;
     $('total-count').textContent=pad(empty?0:data.length);
@@ -43,7 +49,7 @@
       stateBox.innerHTML=`<span class="state-symbol" aria-hidden="true">${symbol}</span><h3>${title}</h3><p>${copy}</p>${state==='error'?'<button type="button" id="retry-list">重新收信</button>':''}`;
       stateBox.toggleAttribute('data-loading',state==='loading');
     } else {
-      list.innerHTML=data.slice((page-1)*3,page*3).map((item,index)=>{const date=chineseDate(item.date);return `<article class="letter crafted-letter${item.replies.length?' has-reply':''}" data-paper="${item.paper}" data-id="${item.id}" aria-label="${escape(item.name)}的来信">${letterCraft(item,index)}<header class="letter-head"><span class="avatar" aria-hidden="true">${escape(item.mark)}</span><span class="author">${escape(item.name)}<small class="author-tag">山窗来客 · 留笺</small></span><time class="letter-date" datetime="${item.date.replaceAll('.','-')}" aria-label="${date.full}"><span>${date.year}</span><b>${date.day}</b></time></header><div class="letter-body">${bodyText(item.text)}</div><div class="replies">${item.replies.map(replyHTML).join('')}</div><footer class="letter-foot"><span>来信 / ${pad((page-1)*3+index+1)}${item.replies.length?` · ${pad(item.replies.length)} 回信`:''}</span><div class="letter-actions">${!guest?`<button class="text-action reply-toggle" type="button" aria-expanded="false" aria-controls="reply-${item.id}"><span>回信</span><b aria-hidden="true">↗</b></button>`:''}${owner?'<button class="text-action delete-button" type="button">收起</button>':''}</div></footer><form class="reply-input" id="reply-${item.id}" hidden><label class="sr-only" for="reply-text-${item.id}">回复${escape(item.name)}</label><textarea id="reply-text-${item.id}" maxlength="500" placeholder="写一封简短的回信……" required></textarea><div><small>示意回信 · 最多500字</small><button type="submit">寄出回信</button></div></form></article>`;}).join('');
+      list.innerHTML=data.slice((page-1)*PREVIEW_PAGE_SIZE,page*PREVIEW_PAGE_SIZE).map((item,index)=>{const date=chineseDate(item.date);return `<article class="letter crafted-letter${item.replies.length?' has-reply':''}" data-id="${item.id}" aria-label="${escape(item.name)}的来信">${letterCraft(item,index)}<header class="letter-head"><span class="avatar" aria-hidden="true">${escape(item.mark)}</span><span class="author">${escape(item.name)}<small class="author-tag">山窗来客 · 留笺</small></span><time class="letter-date" datetime="${item.date.replaceAll('.','-')}" aria-label="${date.full}"><span>${date.year}</span><b>${date.day}</b></time></header><div class="letter-body">${bodyText(item.text)}</div><div class="replies">${item.replies.map(replyHTML).join('')}</div><footer class="letter-foot"><span>来信 / ${pad((page-1)*PREVIEW_PAGE_SIZE+index+1)}${item.replies.length?` · ${pad(item.replies.length)} 回信`:''}</span><div class="letter-actions">${!guest?`<button class="text-action reply-toggle" type="button" aria-expanded="false" aria-controls="reply-${item.id}"><span>回信</span><b aria-hidden="true">↗</b></button>`:''}${owner?'<button class="text-action delete-button" type="button">收起</button>':''}</div></footer><form class="reply-input" id="reply-${item.id}" hidden><label class="sr-only" for="reply-text-${item.id}">回复${escape(item.name)}</label><textarea id="reply-text-${item.id}" maxlength="500" placeholder="写一封简短的回信……" required></textarea><div><small>示意回信 · 最多500字</small><button type="submit">寄出回信</button></div></form></article>`;}).join('');
     }
     document.querySelector('.pagination').hidden=list.hidden||pages<2;
     $('page-caption').textContent=`第 ${pad(page)} / ${pad(pages)} 页`;
@@ -80,7 +86,7 @@
     setTimeout(()=>{busy=false;$('message').readOnly=false;$('composer').removeAttribute('aria-busy');$('close-composer').disabled=false;$('send-label').textContent='寄出留言';
       if($('demo-state').value==='send-error') {$('form-error').textContent='示意寄送失败，内容已保留。切换到“来信往来”后可重试。';$('form-error').hidden=false;resizeMessage();$('message').focus();return;}
       const now=new Date();const date=`${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())}`;
-      data.unshift({id:nextId++,name:$('signature-name').textContent,mark:'客',date,text:$('message').value.trim(),replies:[],paper:nextPaper()});$('message').value='';page=1;$('demo-state').value='normal';render();$('composer').close();resizeMessage();notify('信已收好 · 本页演示留言');
+      data.unshift({id:nextId++,name:$('signature-name').textContent,mark:'客',date,text:$('message').value.trim(),replies:[]});$('message').value='';page=1;$('demo-state').value='normal';render();$('composer').close();resizeMessage();notify('信已收好 · 本页演示留言');
     },650);
   });
   $('letter-list').addEventListener('click',event=>{
@@ -90,6 +96,9 @@
   });
   function resetPaper(letter) {letter?.style.removeProperty('--letter-rx');letter?.style.removeProperty('--letter-ry');letter?.style.removeProperty('--letter-mx');letter?.style.removeProperty('--letter-my');}
   const hoverPointer=matchMedia('(hover:hover) and (pointer:fine)');
+  function colorArrival(letter) {if(letter)letter.dataset.hoverTone=nextAccent(letter.dataset.hoverTone);}
+  $('letter-list').addEventListener('pointerover',event=>{if(!hoverPointer.matches||event.pointerType==='touch')return;const letter=event.target.closest('.crafted-letter');if(letter&&!letter.contains(event.relatedTarget)&&!letter.matches(':focus-within'))colorArrival(letter)});
+  $('letter-list').addEventListener('focusin',event=>{const letter=event.target.closest('.crafted-letter');if(letter&&!letter.contains(event.relatedTarget)&&!letter.matches(':hover'))colorArrival(letter)});
   $('letter-list').addEventListener('pointermove',event=>{
     if(reduced()||!hoverPointer.matches||event.pointerType==='touch')return;
     const letter=event.target.closest('.crafted-letter');if(!letter)return;
