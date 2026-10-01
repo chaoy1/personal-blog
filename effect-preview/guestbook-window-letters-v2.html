@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>留言 · 山窗来信设计稿</title>
+  <link rel="stylesheet" href="../public/fonts/hongleixingshu/font.css">
+  <link rel="stylesheet" href="guestbook-window-letters-v2.css">
+  <script src="guestbook-window-letters-v2.js" defer></script>
+</head>
+<body>
+<div class="preview-tools" aria-label="设计稿查看工具">
+  <span><b>留言 · 山窗来信</b> 独立设计稿，留言与操作均为本页示意</span>
+  <div><button id="theme-button" type="button" aria-pressed="false">切换夜色</button><button id="replay-button" type="button">重看展笺</button>
+  <label>身份 <select id="identity"><option value="visitor">已登录访客</option><option value="guest">未登录</option><option value="owner">博主</option></select></label>
+  <label>状态 <select id="demo-state"><option value="normal">来信往来</option><option value="empty">暂无留言</option><option value="loading">正在载入</option><option value="error">载入失败</option><option value="send-error">寄送失败</option></select></label></div>
+</div>
+<header class="site-nav"><a class="brand" href="http://127.0.0.1:3015/">似水流年 <small>JOURNAL</small></a><nav id="site-links" aria-label="站点导航"><a href="http://127.0.0.1:3015/">首页</a><a href="http://127.0.0.1:3015/posts">文章</a><a href="http://127.0.0.1:3015/moments">闲语</a><a href="http://127.0.0.1:3015/album">光影</a><a href="http://127.0.0.1:3015/timeline">时间轴</a><a href="http://127.0.0.1:3015/guestbook" aria-current="page">留言</a><a href="http://127.0.0.1:3015/about">关于</a></nav><button id="nav-menu" class="nav-menu" type="button" aria-label="展开导航" aria-expanded="false" aria-controls="site-links">目 录</button><button class="nav-theme" id="nav-theme" type="button" aria-label="切换到夜色">☼</button></header>
+<div class="back-link"><a href="http://127.0.0.1:3015/">← 返回首页</a><span>卷五 / 留言</span></div>
+<main class="sheet">
+  <header class="masthead">
+    <div class="hero-landscape" aria-hidden="true"></div><div class="hero-copy"><p class="eyebrow"><span>卷 05</span> GUESTBOOK / 来信</p><h1>留言 <i class="seal" aria-hidden="true">留</i></h1><p class="hero-description">来者有言，皆收于此。</p></div>
+    <div class="hero-inscription" aria-hidden="true"><span>山水之外<br>亦有相逢</span><i>见字<br>如面</i></div>
+    <span class="hero-tail">A FEW WORDS, A SMALL ENCOUNTER</span>
+  </header>
+  <div class="correspondence">
+    <section class="letters" aria-labelledby="letters-title">
+      <header class="section-head"><div><span class="eyebrow">LETTERS / 往来</span><h2 id="letters-title" tabindex="-1">山窗来信</h2></div><p>共 <b id="total-count">06</b> 封<small>字短情长，皆有回响。</small></p></header>
+      <div class="book-body"><div class="binding" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div id="letter-list"><article class="letter"><header class="letter-head"><span class="avatar" aria-hidden="true">清</span><span class="author">清和</span><time datetime="2026-09-29">2026.09.29</time></header><div class="letter-body"><p>从文章一路翻到这里，像走进了一间安静的书房。</p><p>愿这方小天地，长久留住你的热爱。</p></div><div class="reply"><span class="reply-name">博主 <small>博主回信</small></span><p>谢谢你停下来读这些文字。山窗常开，欢迎再来。</p></div></article><article class="letter"><header class="letter-head"><span class="avatar" aria-hidden="true">山</span><span class="author">山间过客</span><time datetime="2026-09-24">2026.09.24</time></header><div class="letter-body"><p>今天下了一场雨。读到你的山行手记，忽然也想找个周末，去走一段有风的路。</p></div></article><article class="letter"><header class="letter-head"><span class="avatar" aria-hidden="true">雨</span><span class="author">听雨</span><time datetime="2026-09-18">2026.09.18</time></header><div class="letter-body"><p>见字如面。</p><p>把一句问候留在这里，祝你秋日安好。</p></div></article></div><div id="list-state" class="list-state" role="status" hidden></div></div>
+      <nav class="pagination" aria-label="留言分页"><span id="page-caption">第 01 / 02 页</span><div><button id="prev-page" type="button" aria-label="上一页留言">←</button><span id="page-numbers"><button class="page-number" data-page="1" type="button" aria-label="第1页留言" aria-current="page">01</button><button class="page-number" data-page="2" type="button" aria-label="第2页留言">02</button></span><button id="next-page" type="button" aria-label="下一页留言">→</button></div></nav>
+      <noscript><style>.pagination,#write-button,.preview-tools,.nav-theme,.nav-menu{display:none!important}</style><p class="no-js-note">当前为静态示意。开启 JavaScript 可体验书写与分页；<a href="http://127.0.0.1:3015/guestbook">前往正式留言页 ↗</a></p></noscript>
+    </section>
+    <aside class="writing" aria-labelledby="writing-title"><div class="window-panel">
+      <p class="eyebrow">BY THE WINDOW</p><h2 id="writing-title">山窗寄语</h2><p class="window-copy">窗外有山，纸上有话。</p>
+      <div class="mountain-window" aria-hidden="true"><div class="window-view"></div><div class="window-lattice"></div><span class="window-note">且坐片刻</span></div>
+      <div class="invitation"><span>致 · 途经这里的你</span><p>一声问候，一段近况，<br>或是此刻想说的话。</p></div>
+      <button id="write-button" class="write-action" type="button" aria-haspopup="dialog" aria-controls="composer"><svg viewBox="0 0 44 30" aria-hidden="true"><path class="envelope-back" d="M1 1H43V29H1Z"/><path class="envelope-flap" d="M1 1L22 17L43 1"/><path d="M1 29L16 15M43 29L28 15"/></svg><span>展笺书写</span><b aria-hidden="true">↗</b></button>
+      <a id="login-action" class="login-action" href="http://127.0.0.1:3015/login" hidden>登录后写留言 <span aria-hidden="true">↗</span></a><p class="writing-note" id="writing-note">以你的名字落款 · 最多 500 字</p>
+      <div class="panel-tail" aria-hidden="true"><span>一言一笺</span><i>寄</i><span>收于山窗</span></div>
+    </div></aside>
+  </div>
+  <footer class="sheet-tail"><span>纸上留音，山水知意。</span><span>LETTERS WITH TIME · 卷五</span></footer>
+</main>
+<footer class="site-footer">山水有尽 · 来信无涯<p>本页为待确认设计稿。正式留言将沿用现有登录、回复、分页与权限。</p></footer>
+<dialog id="composer" aria-labelledby="composer-title" aria-describedby="composer-description">
+  <form id="composer-form">
+    <header class="dialog-head"><span class="eyebrow">05 / 山窗书笺</span><button id="close-composer" type="button" aria-label="收笺，关闭书写面板">收笺 ×</button></header>
+    <div class="dialog-title"><h2 id="composer-title">山窗寄语</h2><p id="composer-description">窗外有山，纸上有话。</p></div>
+    <div class="manuscript"><div class="line-numbers" aria-hidden="true">01<br>02<br>03<br>04<br>05<br>06<br>07</div><label class="sr-only" for="message">留言内容</label><textarea id="message" placeholder="写下此刻想说的话……" maxlength="500" required></textarea></div>
+    <div class="signature"><span>落款 · <b id="signature-name">山窗访客</b></span><span id="char-count">0 / 500</span></div>
+    <p id="form-error" role="alert" hidden></p><footer class="dialog-foot"><span class="mini-seal" aria-hidden="true">寄</span><small>示意寄送，仅保留在本页</small><button id="send-button" type="submit" disabled>寄出留言 <span aria-hidden="true">↗</span></button></footer>
+  </form>
+</dialog>
+<dialog id="delete-dialog" aria-labelledby="delete-title"><form method="dialog"><p class="eyebrow">收笺 / 移除演示留言</p><h2 id="delete-title">收起这封来信？</h2><p>仅移除本页示例，重新加载可恢复。</p><div><button value="cancel">保留</button><button id="confirm-delete" value="confirm">收起留言</button></div></form></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body></html>
