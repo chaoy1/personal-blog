@@ -89,6 +89,8 @@
 
 
 /* 统一题头，卷四的朱线占纸宽 4/6。正文保留年卷与左右交错。 */
+:root {--paper:#e5d3a8;--record-paper:#fbf1da;--record-border:#bba67a;--record-shadow:0 3px 7px #4b331617,0 14px 24px -18px #4b331640,inset 0 1px 0 #fff9;--record-hover-shadow:0 4px 9px #4b33161c,0 18px 28px -18px #4b331650,inset 0 1px 0 #fff9;}
+:root[data-theme="dark"] {--paper:#322b23;--record-paper:#524534;--record-border:#81704e;--record-shadow:0 3px 8px #0003,0 14px 24px -18px #0009,inset 0 1px 0 #ecd6a619;--record-hover-shadow:0 4px 10px #0004,0 18px 28px -18px #000b,inset 0 1px 0 #ecd6a624;}
 .site-nav {background:var(--paper-bright);color:var(--ink);border-color:var(--line-soft);box-shadow:0 2px 18px #211b1512;}
 .nav-links a[aria-current="page"] {color:var(--seal-dark);}
 .brand-en,.nav-theme {color:var(--ink-faint);}
@@ -140,8 +142,8 @@ h1 .title-tail {font-size:23px;letter-spacing:.12em;}
 .entry-meta {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px;color:var(--ink-faint);font:9px Georgia,serif;letter-spacing:.12em;}
 .entry-meta time {color:var(--seal-dark);font:16px Georgia,serif;letter-spacing:.05em;}
 .entry-meta time small {margin:0 6px;color:var(--ink-faint);font:10px var(--kai);}
-.record {position:relative;isolation:isolate;min-width:0;padding:16px 17px 12px;border:1px solid var(--line-soft);background:color-mix(in srgb,var(--paper-bright) 36%,var(--paper));box-shadow:0 12px 23px -23px #30271990;transition:border-color .35s,box-shadow .35s;}
-.record::before {position:absolute;inset:0;z-index:-1;content:"";background:radial-gradient(ellipse 170px 150px at var(--mx,75%) var(--my,25%),var(--card-spot),transparent 76%),var(--fiber);background-size:auto,220px auto;opacity:.3;pointer-events:none;transition:opacity .4s;}
+.record {position:relative;isolation:isolate;min-width:0;padding:16px 17px 12px;border:1px solid var(--record-border);background:var(--record-paper);box-shadow:var(--record-shadow);transition:border-color .35s,box-shadow .35s;}
+.record::before {position:absolute;inset:0;z-index:-1;content:"";background:radial-gradient(ellipse 170px 150px at var(--mx,75%) var(--my,25%),var(--card-spot),transparent 76%),var(--fiber);background-size:auto,220px auto;opacity:.14;pointer-events:none;transition:opacity .4s;}
 .record-kicker {display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;color:var(--ink-faint);font:8px Georgia,serif;letter-spacing:.15em;}
 .record-kicker i {display:grid;place-items:center;width:21px;height:23px;border:1px solid var(--seal);color:var(--seal-dark);font:11px var(--kai);font-style:normal;transform:rotate(-4deg);transition:background .3s,color .3s,transform .3s;}
 .record-body {display:flex;align-items:center;gap:14px;min-width:0;}
@@ -162,12 +164,12 @@ h1 .title-tail {font-size:23px;letter-spacing:.12em;}
 .record-foot > span {letter-spacing:.03em;}
 .record-foot a {display:inline-flex;align-items:center;gap:8px;min-height:30px;color:var(--seal-dark);text-decoration:none;white-space:nowrap;font:11px var(--kai);}
 .record-foot a b {font:inherit;transition:transform .35s;}
-.entry:focus-within .record {border-color:var(--seal);box-shadow:0 16px 26px -24px #302719a0;}
+.entry:focus-within .record {border-color:var(--seal);box-shadow:var(--record-hover-shadow);}
 .entry:focus-within::after {background:var(--seal);box-shadow:0 0 0 4px color-mix(in srgb,var(--seal) 10%,transparent);}
 .entry:focus-within .record-kicker i {background:var(--seal);color:var(--paper-bright);transform:rotate(0deg);}
 @media (hover:hover) and (pointer:fine) {
- .entry:hover .record {border-color:var(--seal);box-shadow:0 16px 26px -24px #302719a0;}
- .entry:hover .record::before {opacity:.65;}
+ .entry:hover .record {border-color:var(--seal);box-shadow:var(--record-hover-shadow);}
+ .entry:hover .record::before {opacity:.35;}
  .entry:hover::after {background:var(--seal);box-shadow:0 0 0 4px color-mix(in srgb,var(--seal) 10%,transparent);}
  .entry:hover .record-kicker i {background:var(--seal);color:var(--paper-bright);transform:rotate(0deg);}
  .entry:hover .record-foot a b {transform:translateX(3px);}
