@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const fixtures = vi.hoisted(() => ({
@@ -8,10 +8,6 @@ const fixtures = vi.hoisted(() => ({
 vi.mock('@/lib/albums-context', () => ({ useAlbums: fixtures.useAlbums }))
 vi.mock('@/lib/blog', () => ({ formatDate: (value: string) => value.slice(0, 10) }))
 vi.mock('@/components/ArticleNav', () => ({ default: () => <nav aria-label="光影页导航" /> }))
-vi.mock('@/components/PageIntro', () => ({
-  default: ({ title }: { title: string }) => <header className="page-intro"><h1>{title}</h1></header>,
-}))
-
 import AlbumPage from '@/app/album/page'
 
 const albums = [
@@ -125,5 +121,54 @@ describe('P05 album page', () => {
     expect(container.querySelector('[data-page-state="error"]')).toBeInTheDocument()
     expect(screen.getByRole('alert')).toHaveTextContent('相册暂时未能载入。')
     expect(screen.getByRole('button', { name: '重试' })).toBeInTheDocument()
+  })
+
+  it('shows distinct cover frames without repeating one photo to fill the stack', () => {
+    fixtures.useAlbums.mockReturnValue(context({ albums: [{ ...albums[0], cover_url: photos[0].url }, albums[1]] }))
+    render(<AlbumPage />)
+    const card = screen.getByRole('button', { name: '打开相册：春山册' })
+    expect(Array.from(card.querySelectorAll('img'), image => image.getAttribute('src')))
+      .toEqual(['/spring-bridge.jpg', '/spring-path.jpg'])
+    const orphan = screen.getByRole('button', { name: '打开相册：全部照片' })
+    expect(orphan.querySelectorAll('img')).toHaveLength(1)
+    fireEvent.click(orphan)
+    expect(screen.getByRole('img', { name: '未题之景' })).toBeInTheDocument()
+    expect(screen.queryByRole('img', { name: '桥边晚照' })).not.toBeInTheDocument()
+  })
+
+  it('keeps the remaining cover frames when one image fails', () => {
+    render(<AlbumPage />)
+    const card = screen.getByRole('button', { name: '打开相册：春山册' })
+    fireEvent.error(card.querySelector('img')!)
+    expect(card.querySelectorAll('img')).toHaveLength(2)
+    expect(card.querySelector('[data-cover-placeholder]')).toBeInTheDocument()
+  })
+
+  it('reports collection totals only after a snapshot is available', () => {
+    fixtures.useAlbums.mockReturnValue(context({ hasData: false, isInitialLoading: true, albums: [], photos: [] }))
+    const { rerender } = render(<AlbumPage />)
+    expect(screen.queryByLabelText('共 0 册，0 帧')).not.toBeInTheDocument()
+    fixtures.useAlbums.mockReturnValue(context())
+    rerender(<AlbumPage />)
+    expect(screen.getByLabelText('共 3 册，3 帧')).toBeInTheDocument()
+  })
+
+  it('returns keyboard focus to the opened card after visiting its details', async () => {
+    render(<AlbumPage />)
+    screen.getByRole('button', { name: '打开相册：全部照片' }).focus()
+    fireEvent.click(screen.getByRole('button', { name: '打开相册：全部照片' }))
+    await waitFor(() => expect(screen.getByRole('heading', { level: 2, name: '全部照片' })).toHaveFocus())
+    fireEvent.click(screen.getByRole('button', { name: '返回相册列表' }))
+    await waitFor(() => expect(screen.getByRole('button', { name: '打开相册：全部照片' })).toHaveFocus())
+  })
+
+  it('retains the current album when a cached snapshot refreshes', () => {
+    const { rerender } = render(<AlbumPage />)
+    fireEvent.click(screen.getByRole('button', { name: '打开相册：春山册' }))
+    fixtures.useAlbums.mockReturnValue(context({ albums: [{ ...albums[0], title: '春山新册' }], error: '同步暂不可用' }))
+    rerender(<AlbumPage />)
+    expect(screen.getByRole('heading', { level: 2, name: '春山新册' })).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('同步暂不可用')
+    expect(screen.getByRole('img', { name: '桥边晚照' })).toBeInTheDocument()
   })
 })

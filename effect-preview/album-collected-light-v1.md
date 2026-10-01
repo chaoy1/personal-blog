@@ -1,6 +1,6 @@
 # 光影页 · 沿途影集 HTML 设计稿
 
-日期：2026-10-01。状态：待用户确认，正式 `/album` 页面尚未修改。
+日期：2026-10-01。状态：用户已确认，设计已落实到正式 `/album` 页面。
 
 设计文件：[album-collected-light-v1.html](album-collected-light-v1.html)。
 
@@ -36,7 +36,7 @@
 
 ![桌面设计稿](screenshots/album-design-desktop.jpg)
 
-## 本轮验证
+## 设计稿验证（正式实现前）
 
 - 通过：1440、1024、768、390、375、360px 的明暗主题，无横向溢出；相册列表分别采用三列、两列、单列。
 - 通过：朱线宽度为纸面 50%；桌面内置手机预览真正触发容器断点。
@@ -50,4 +50,19 @@
 
 浏览器检查与闸门日志保留在本地 `.design/album-preview-qa.cjs`、`.design/album-qa-results.json`、`.design/album-review-qa.cjs`、`.design/album-hover-qa-results.json`、`.design/album-typecheck.log`、`.design/album-vitest.log`、`.design/album-build.log`；`.design/` 按仓库规则不提交。
 
-确认本稿后，再将相册的真实内容映射到确认的版式；本轮仅交付预览。
+## 正式实现与验证
+
+用户确认“正式修改吧”后，已将版式落实到 `app/album/page.tsx`、`app/album.css` 和 `components/AlbumCard.tsx`。数据仍由原有 `AlbumsProvider` 提供，复用原有全局灯箱，没有写入示例相册或改动后台。
+
+- 每册有独立纸框、册号、叠片区和虚线页脚；未归档“全部照片”使用同一组件和网格。
+- 封面优先使用相册封面，再取册内照片，去重后最多三张；单张不复制、空册与坏图保持固定相纸位置。三张照片采用展开、斜列、压片三种摆放；两张与单张有对应版式。
+- 纸面亮斑按动画帧更新，离开、取消、失焦和卸载时清理；触屏不追踪亮斑，减弱动画模式保留相纸原角度。
+- 开册将焦点移至册名，返回恢复原卡片焦点与滚动位置；照片沿用真实说明、日期和灯箱键盘交互。
+- 正式页面的 1440、1024、768、390、375、360px 明暗主题均无横向溢出；纸面取站内 `--container-page` 的 960px 标准宽度，顶部朱线占 3/6。桌面卡片约 269×341px，390px 手机约 325×366px。
+- 浏览器实测真实数据的开册、未归档入口、悬停、灯箱滚动锁定、Escape、焦点与滚动恢复；隔离的浏览器测试夹具检查三种叠片轨迹、空册、空页、加载、首次失败、缓存同步失败、刷新、坏图与减弱动画。夹具只在本地 `.design/`，没有数据库写入，也没有生产测试入口。页面脚本异常为 0。
+- `npx tsc --noEmit`、`npx next build` 均退出 0；生产构建的 `/album` 本地 HTTP 页面也完成上述浏览器检查。
+- `npx vitest run`：67 个文件、340 个用例通过，仍有 5 个既有首页 `echo.animate is not a function` 未处理异常，命令退出 1；本次相册页面、样式、灯箱及焦点契约测试均通过，未修改首页动画源文件。
+
+[正式桌面](screenshots/album-formal-desktop.jpg) · [正式手机](screenshots/album-formal-mobile.jpg) · [正式夜色](screenshots/album-formal-dark.jpg)
+
+浏览器原始报告、夹具与闸门日志保留在本地 `.design/album-formal-qa.json`、`.design/album-formal-qa.cjs`、`.design/album-browser-fixture.tsx`、`.design/album-formal-typecheck.log`、`.design/album-formal-vitest-final.log`、`.design/album-formal-build.log`，按仓库规则不提交。

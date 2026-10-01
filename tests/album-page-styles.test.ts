@@ -13,8 +13,9 @@ function renderAlbumShell() {
   `
   document.body.innerHTML = `
     <main class="album-page">
-      <header class="page-intro"><h1>光影</h1></header>
-      <section class="article content-sheet album-sheet" aria-label="相册详情">
+      <section class="album-sheet" aria-label="相册详情">
+        <header class="album-hero"><h1>光影</h1></header>
+        <div class="album-sheet-content">
         <div class="album-head">
           <button class="album-back">← 全部相册</button>
           <div class="album-head-text"><h2>春山册</h2><span>2 张</span></div>
@@ -26,6 +27,7 @@ function renderAlbumShell() {
             <figcaption>桥边晚照</figcaption>
             <span class="album-date">2026-09-02</span>
           </figure>
+        </div>
         </div>
       </section>
     </main>

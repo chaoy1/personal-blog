@@ -1,10 +1,10 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { formatDate } from '@/lib/blog'
 import { useAlbums } from '@/lib/albums-context'
 import type { AlbumItem, PhotoItem } from '@/lib/store-types'
-import PageIntro from '@/components/PageIntro'
+import AlbumCard from '@/components/AlbumCard'
 import ArticleNav from '@/components/ArticleNav'
 import '../album.css'
 
@@ -15,10 +15,14 @@ export default function AlbumPage() {
   const [view, setView] = useState<View>({ mode: 'list' })
   const [failedImages, setFailedImages] = useState<Record<string, true>>({})
   const listScrollTop = useRef<number | null>(null)
+  const openedCard = useRef<string | null>(null)
+  const cardRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+  const detailTitle = useRef<HTMLHeadingElement>(null)
+  const pendingNavigation = useRef(false)
 
   const photosOf = (albumId: string) => photos.filter((p) => p.album_id === albumId)
   const orphanPhotos = photos.filter((p) => !p.album_id)
-  const coverOf = (album: AlbumItem) => album.cover_url || photosOf(album.id)[0]?.url || ''
+  const coversOf = (list: PhotoItem[], cover = '') => Array.from(new Set([cover, ...list.map(photo => photo.url)].filter(Boolean))).slice(0, 3)
   const hasCollectionContent = albums.length > 0 || orphanPhotos.length > 0
   const pageState = !hasData && isInitialLoading
     ? 'loading'
@@ -32,24 +36,35 @@ export default function AlbumPage() {
     setFailedImages((current) => current[key] ? current : { ...current, [key]: true })
   }
 
-  const openView = (next: View) => {
+  const openView = (next: View, cardId: string) => {
     listScrollTop.current = typeof window === 'undefined' ? 0 : window.scrollY
+    openedCard.current = cardId
+    pendingNavigation.current = true
     setView(next)
   }
 
   const backToList = () => {
-    const scrollTop = listScrollTop.current
-    listScrollTop.current = null
+    pendingNavigation.current = true
     setView({ mode: 'list' })
-    if (scrollTop === null || typeof window === 'undefined') return
-    window.requestAnimationFrame(() => {
-      try {
-        window.scrollTo({ top: scrollTop, behavior: 'auto' })
-      } catch {
-        window.scrollTo(0, scrollTop)
+  }
+
+  useEffect(() => {
+    if (!pendingNavigation.current) return
+    const frame = requestAnimationFrame(() => {
+      pendingNavigation.current = false
+      if (view.mode === 'list') {
+        const card = openedCard.current ? cardRefs.current[openedCard.current] : null
+        card?.focus({ preventScroll: true })
+        window.scrollTo({ top: listScrollTop.current ?? 0, behavior: 'instant' })
+        listScrollTop.current = null
+      } else {
+        const title = detailTitle.current
+        title?.focus({ preventScroll: true })
+        if (title) window.scrollTo({ top: Math.max(0, title.getBoundingClientRect().top + window.scrollY - 32), behavior: 'instant' })
       }
     })
-  }
+    return () => cancelAnimationFrame(frame)
+  }, [view])
 
   const photoGrid = (list: PhotoItem[]) => (
     <div className="album-grid" aria-label="照片网格">
@@ -59,7 +74,7 @@ export default function AlbumPage() {
             FRAME {String(index + 1).padStart(2, '0')}
           </span>
           <div className="album-photo-frame">
-            {failedImages[`photo:${photo.id}`] ? (
+            {failedImages[`photo:${photo.id}:${photo.url}`] ? (
               <span className="album-photo-placeholder" data-photo-placeholder={photo.id} role="img" aria-label="照片暂缺">
                 影
               </span>
@@ -71,7 +86,7 @@ export default function AlbumPage() {
                 loading="lazy"
                 data-lightbox-caption={photo.caption}
                 data-lightbox-date={formatDate(photo.created_at)}
-                onError={() => markImageFailed(`photo:${photo.id}`)}
+                onError={() => markImageFailed(`photo:${photo.id}:${photo.url}`)}
               />
             )}
           </div>
@@ -92,141 +107,78 @@ export default function AlbumPage() {
       ? orphanPhotos
       : []
 
+  const collectionCount = albums.length + (orphanPhotos.length ? 1 : 0)
+
   return (
     <div className="wrap">
       <ArticleNav current="光影" />
-
       <main className="album-page">
-        <PageIntro
-          index="03"
-          eyebrow="GALLERY"
-          title="光影"
-          seal="影"
-          description="收存沿途光影与未题之景。"
-        />
-
-        <section
-          className="article content-sheet album-sheet"
-          aria-label={view.mode === 'list' ? '相册索引' : '相册详情'}
-          data-page-state={pageState}
-          data-view={view.mode}
-        >
-
-        {!hasData && isInitialLoading ? <p className="moments-empty">正在加载相册…</p> : null}
-        {!hasData && error ? (
-          <p className="error-text" role="alert">
-            {error}{' '}
-            <button type="button" className="link-btn" onClick={refreshAlbums}>重试</button>
-          </p>
-        ) : null}
-        {hasData && (error || isRefreshing) ? (
-          <p className="error-text" role="status">
-            {error || '正在同步相册…'}
-            {error ? <button type="button" className="link-btn" onClick={refreshAlbums}>重试同步</button> : null}
-          </p>
-        ) : null}
-
-        {view.mode === 'list' ? (
-          <>
-            <div className="albums-grid" aria-label="相册册架">
-              {albums.map((album, index) => {
-                const cover = coverOf(album)
-                const count = photosOf(album.id).length
-                const coverKey = `cover:${album.id}`
-                return (
-                  <button
-                    key={album.id}
-                    type="button"
-                    className="album-card"
-                    aria-label={`打开相册：${album.title}`}
-                    data-album-id={album.id}
-                    onClick={() => openView({ mode: 'album', album })}
-                  >
-                    <span className="album-card-kicker">
-                      ALBUM · {String(index + 1).padStart(2, '0')}
-                    </span>
-                    {cover && !failedImages[coverKey] ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        className="album-cover"
-                        src={cover}
-                        alt={album.title}
-                        loading="lazy"
-                        onError={() => markImageFailed(coverKey)}
-                      />
-                    ) : (
-                      <span className="album-cover placeholder" role="img" aria-label={`${album.title}封面暂缺`}>影</span>
-                    )}
-                    <span className="album-card-title">{album.title}</span>
-                    {album.description ? (
-                      <span className="album-card-desc">{album.description}</span>
-                    ) : null}
-                    <span className="album-card-meta">
-                      {count} 张 · {formatDate(album.created_at)}
-                    </span>
-                    <span className="album-card-action" aria-hidden="true">开卷 ↗</span>
-                  </button>
-                )
-              })}
-              {orphanPhotos.length > 0 ? (
-                <button
-                  type="button"
-                  className="album-card"
-                  aria-label="打开相册：全部照片"
-                  data-album-id="orphan"
-                  onClick={() => openView({ mode: 'all' })}
-                >
-                  <span className="album-card-kicker">
-                    ALBUM · {String(albums.length + 1).padStart(2, '0')}
-                  </span>
-                  {orphanPhotos[0] && !failedImages['cover:orphan'] ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      className="album-cover"
-                      src={orphanPhotos[0].url}
-                      alt="全部照片"
-                      loading="lazy"
-                      onError={() => markImageFailed('cover:orphan')}
-                    />
-                  ) : (
-                    <span className="album-cover placeholder" role="img" aria-label="全部照片封面暂缺">影</span>
-                  )}
-                  <span className="album-card-title">全部照片</span>
-                  <span className="album-card-desc">未归入相册的照片</span>
-                  <span className="album-card-meta">{orphanPhotos.length} 张</span>
-                  <span className="album-card-action" aria-hidden="true">开卷 ↗</span>
-                </button>
-              ) : null}
-            </div>
-            {hasData && albums.length === 0 && orphanPhotos.length === 0 && !error ? (
-              <p className="empty-state album-empty">相册还空着。</p>
-            ) : null}
-          </>
-        ) : (
-          <>
-            <div className="album-head">
-              <button type="button" className="link-btn album-back" aria-label="返回相册列表" onClick={backToList}>
-                ← 全部相册
-              </button>
-              <div className="album-head-text">
-                <h2>{currentAlbum ? currentAlbum.title : '全部照片'}</h2>
-                {currentAlbum?.description ? (
-                  <p className="album-head-desc">{currentAlbum.description}</p>
-                ) : null}
-                <span className="album-date">
-                  {currentPhotos.length} 张
-                  {currentAlbum ? ` · ${formatDate(currentAlbum.created_at)}` : ''}
-                </span>
+        <section className="album-sheet" aria-label={view.mode === 'list' ? '相册索引' : '相册详情'}
+          data-page-state={pageState} data-view={view.mode}>
+          <div className="top-rule" aria-hidden="true" />
+          <header className="album-hero">
+            <div className="hero-copy">
+              <div className="hero-overline">卷 03 <small>THE COLLECTED FRAMES</small></div>
+              <h1><span className="title">光影</span><span className="title-tail">沿途影集</span></h1>
+              <p className="hero-intro">收存沿途光影，<b>与未题之景。</b></p>
+              <div className="hero-index">COLLECTED WITH TIME <i aria-hidden="true" />
+                <span>{hasData ? `${String(collectionCount).padStart(2, '0')} ALBUMS / ${String(photos.length).padStart(2, '0')} FRAMES` : '沿途拾光'}</span>
               </div>
             </div>
-
-            {currentPhotos.length > 0 ? (
-              photoGrid(currentPhotos)
-            ) : hasData ? (
-              <p className="empty-state album-empty">这本相册还没有照片。</p>
+            <div className="hero-art" aria-hidden="true" />
+            <span className="hero-stamp" aria-hidden="true">影</span>
+            <span className="hero-aside" aria-hidden="true">山河入镜 · 岁月留影</span>
+          </header>
+          <div className="album-sheet-content">
+            {hasData && (error || isRefreshing) ? (
+              <p className="sync-notice" role="status">
+                {error || '正在同步相册…'}
+                {error ? <button type="button" onClick={refreshAlbums}>重试同步</button> : null}
+              </p>
             ) : null}
-          </>
-        )}
+            {view.mode === 'list' ? (
+              <>
+                <div className="collection-heading">
+                  <h2>沿途所见 <small>ALBUMS / 收存</small></h2>
+                  {hasData ? <span aria-label={`共 ${collectionCount} 册，${photos.length} 帧`}>共 <b>{String(collectionCount).padStart(2, '0')}</b> 册 · <b>{String(photos.length).padStart(2, '0')}</b> 帧</span> : null}
+                </div>
+                <p className="collection-intro"><span>一册一段路，一帧一时光。</span><span>轻触封面 · 展开影集</span></p>
+                {!hasData && isInitialLoading ? (
+                  <div className="album-state" role="status"><span className="state-symbol" aria-hidden="true">影</span><p>正在加载相册…</p><span className="loading-line" aria-hidden="true" /></div>
+                ) : null}
+                {!hasData && error ? (
+                  <div className="album-state" role="alert"><span className="state-symbol" aria-hidden="true">影</span><p>{error}</p><button type="button" onClick={refreshAlbums}>重试</button></div>
+                ) : null}
+                <div className="albums-grid" aria-label="相册册架">
+                  {albums.map((album, index) => {
+                    const list = photosOf(album.id)
+                    return <AlbumCard key={album.id} id={album.id} index={index} title={album.title}
+                      description={album.description} date={formatDate(album.created_at)} count={list.length}
+                      covers={coversOf(list, album.cover_url)} failedImages={failedImages} onImageError={markImageFailed}
+                      cardRef={node => { cardRefs.current[album.id] = node }} onOpen={() => openView({ mode: 'album', album }, album.id)} />
+                  })}
+                  {orphanPhotos.length ? <AlbumCard id="orphan" index={albums.length} title="全部照片" description="未归入相册的片刻。"
+                    date="" count={orphanPhotos.length} covers={coversOf(orphanPhotos)} failedImages={failedImages} onImageError={markImageFailed}
+                    cardRef={node => { cardRefs.current.orphan = node }} onOpen={() => openView({ mode: 'all' }, 'orphan')} /> : null}
+                </div>
+                {hasData && !hasCollectionContent && !error ? <div className="album-state"><span className="state-symbol" aria-hidden="true">影</span><p>相册还空着。</p></div> : null}
+              </>
+            ) : (
+              <>
+                <div className="album-head">
+                  <button type="button" className="album-back" aria-label="返回相册列表" onClick={backToList}>← 全部相册</button>
+                  <div className="album-head-text">
+                    <small>COLLECTED FRAMES / 册中光影</small>
+                    <h2 ref={detailTitle} tabIndex={-1}>{currentAlbum ? currentAlbum.title : '全部照片'}</h2>
+                    {currentAlbum?.description ? <p className="album-head-desc">{currentAlbum.description}</p> : null}
+                    <span className="album-date">{currentPhotos.length} 张{currentAlbum ? ` · ${formatDate(currentAlbum.created_at)}` : ''}</span>
+                  </div>
+                </div>
+                {currentPhotos.length ? <><p className="view-hint">轻触照片，细看这一帧光影。</p>{photoGrid(currentPhotos)}</> : hasData ? <div className="album-state"><span className="state-symbol" aria-hidden="true">影</span><p>这本相册还没有照片。</p></div> : null}
+              </>
+            )}
+            <div className="colophon"><span>光有来处，影有归处。</span><span>COLLECTED WITH TIME · 卷三</span></div>
+          </div>
         </section>
       </main>
     </div>
