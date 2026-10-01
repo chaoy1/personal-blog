@@ -44,13 +44,11 @@
 <footer class="site-footer">山水有尽 · 来信无涯<p>本页为待确认设计稿。正式留言将沿用现有登录、回复、分页与权限。</p></footer>
 <dialog id="composer" aria-labelledby="composer-title" aria-describedby="composer-description">
   <form id="composer-form">
-    <span class="composer-spine" aria-hidden="true">见字如面 <i>笺</i></span>
-    <header class="dialog-head"><span class="eyebrow">卷五 / 山窗书笺 <small>A LETTER BY THE WINDOW</small></span><button id="close-composer" type="button" aria-label="收笺，关闭书写面板">收笺 ×</button></header>
-    <div class="dialog-title"><div><span class="composer-kicker">把此刻，写给山窗。</span><h2 id="composer-title">山窗寄语</h2></div><p id="composer-description">窗外有山，<br>纸上有话。</p></div>
-    <div class="composer-to"><span>致 · 此间山窗</span><span id="composer-date"></span></div>
-    <div class="manuscript"><div class="line-numbers" aria-hidden="true">一<br>二<br>三<br>四<br>五<br>六<br>七</div><label class="sr-only" for="message">留言内容</label><textarea id="message" placeholder="见字如面，&#10;写下此刻想说的话……" maxlength="500" required></textarea></div>
+    <header class="dialog-head"><div><span class="eyebrow">卷五 / 山窗书笺</span><h2 id="composer-title">山窗寄语</h2></div><button id="close-composer" type="button" aria-label="收笺，关闭书写面板">收笺 ×</button></header>
+    <div class="composer-to"><p id="composer-description">见字如面，写下此刻想说的话。</p><span id="composer-date"></span></div>
+    <div class="manuscript"><label class="sr-only" for="message">留言内容</label><textarea id="message" placeholder="写下此刻想说的话……" maxlength="500" required></textarea></div>
     <div class="signature"><span>落款 · <b id="signature-name">山窗访客</b><i>敬上</i></span><span id="char-count">0 / 500</span></div>
-    <p id="form-error" role="alert" hidden></p><footer class="dialog-foot"><span class="mini-seal" aria-hidden="true">寄</span><small>示意寄送，仅保留在本页</small><button id="send-button" type="submit" disabled><span id="send-label">寄出留言</span><svg viewBox="0 0 38 26" aria-hidden="true"><path d="M1 1H37V25H1Z M1 1L19 15L37 1 M1 25L14 13 M37 25L24 13"/></svg></button></footer>
+    <p id="form-error" role="alert" hidden></p><footer class="dialog-foot"><small>示意寄送，仅保留在本页</small><button id="send-button" type="submit" disabled><span id="send-label">寄出留言</span><svg viewBox="0 0 38 26" aria-hidden="true"><path d="M1 1H37V25H1Z M1 1L19 15L37 1 M1 25L14 13 M37 25L24 13"/></svg></button></footer>
   </form>
 </dialog>
 <dialog id="delete-dialog" aria-labelledby="delete-title"><form method="dialog"><p class="eyebrow">收笺 / 移除演示留言</p><h2 id="delete-title">收起这封来信？</h2><p>仅移除本页示例，重新加载可恢复。</p><div><button value="cancel">保留</button><button id="confirm-delete" value="confirm">收起留言</button></div></form></dialog>
