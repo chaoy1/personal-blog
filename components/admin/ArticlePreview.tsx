@@ -12,7 +12,7 @@ export function ArticlePreview({ post }: { post: Post }) {
           <span className="admin-preview-label">后台预览 · 仅显示已保存版本</span>
         </div>
         <div className="admin-preview-actions">
-          <Link className="btn btn-ghost btn-sm" href="/admin">返回文章管理</Link>
+          <Link className="btn btn-ghost btn-sm" href="/admin/posts">返回文章管理</Link>
           <Link className="btn btn-sm" href={`/admin/editor?id=${post.id}`}>
             返回编辑
           </Link>

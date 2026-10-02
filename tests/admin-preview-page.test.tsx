@@ -39,7 +39,7 @@ describe('M07 admin article preview route', () => {
     expect(screen.getByRole('region', { name: '文章预览' })).toHaveAttribute('data-preview-state', 'ready')
     expect(screen.getByText('后台预览 · 仅显示已保存版本')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '返回编辑' })).toHaveAttribute('href', '/admin/editor?id=post-1')
-    expect(screen.getByRole('link', { name: '返回文章管理' })).toHaveAttribute('href', '/admin')
+    expect(screen.getByRole('link', { name: '返回文章管理' })).toHaveAttribute('href', '/admin/posts')
   })
 
   it('does not reveal content when an article is missing or unavailable', async () => {

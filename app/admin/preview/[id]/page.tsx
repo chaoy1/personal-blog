@@ -20,7 +20,7 @@ function PreviewBoundary({ id, kind }: { id: string; kind: 'not-found' | 'error'
           <span className="draft-tag">后台预览</span>
           <span className="admin-preview-label">未载入文章内容</span>
         </div>
-        <Link className="btn btn-ghost btn-sm" href="/admin">返回文章管理</Link>
+        <Link className="btn btn-ghost btn-sm" href="/admin/posts">返回文章管理</Link>
       </nav>
       <div className="admin-preview-state" role="alert">
         <span className="admin-preview-kicker">PREVIEW UNAVAILABLE</span>
@@ -28,7 +28,7 @@ function PreviewBoundary({ id, kind }: { id: string; kind: 'not-found' | 'error'
         <p>{isNotFound ? '文章不存在，或当前管理员没有查看它的权限。' : '后台读取文章时遇到问题，正文没有被当作公开 404 展示。'}</p>
         <div className="admin-preview-actions">
           {!isNotFound ? <Link className="btn btn-ghost btn-sm" href={`/admin/preview/${id}`}>重新加载</Link> : null}
-          <Link className="btn btn-sm" href="/admin">返回文章管理</Link>
+          <Link className="btn btn-sm" href="/admin/posts">返回文章管理</Link>
         </div>
       </div>
     </section>

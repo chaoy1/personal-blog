@@ -23,7 +23,7 @@ vi.mock('@/components/admin/AdminFeedback', () => ({
   useAdminFeedback: () => ({ notify: mocks.notify }),
 }))
 
-import AdminDashboard from '@/app/admin/page'
+import AdminDashboard from '@/app/admin/posts/page'
 
 type TestPost = {
   id: string
@@ -72,7 +72,7 @@ describe('M02 admin dashboard', () => {
     mocks.router.replace.mockReset()
     mocks.confirm.mockReset().mockResolvedValue(true)
     mocks.notify.mockReset()
-    window.history.replaceState({}, '', '/admin')
+    window.history.replaceState({}, '', '/admin/posts')
   })
 
   afterEach(() => {

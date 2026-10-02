@@ -294,7 +294,7 @@ function Editor() {
         data-page-state={loadState}
       >
         <div className="editor-topbar editor-topbar-state">
-          <Link href="/admin" className="back-link">← 文章列表</Link>
+          <Link href="/admin/posts" className="back-link">← 文章列表</Link>
           <div className="editor-top-title">
             <span>WRITING ROOM</span>
             <h1>{isEdit ? '编辑文章' : '写新文章'}</h1>
@@ -502,7 +502,7 @@ function Editor() {
     >
       {recoveryDialog}
       <div className="editor-topbar">
-        <Link href="/admin" className="back-link">
+        <Link href="/admin/posts" className="back-link">
           ← 文章列表
         </Link>
         <div className="editor-top-title">
@@ -533,7 +533,7 @@ function Editor() {
       </div>
 
       <div className="editor-actions">
-        <Link href="/admin" className="btn btn-ghost">
+        <Link href="/admin/posts" className="btn btn-ghost">
           取消
         </Link>
       </div>
