@@ -133,6 +133,45 @@
     if(event.key === '/' && !editor.open && !moduleDialog.open && !event.target.matches('input,textarea')) {event.preventDefault();$('#search').focus();}
     if(event.key === 'Escape') $$('details[open]').forEach(details=>details.open=false);
   });
-  $$('.post').forEach(row=>row.addEventListener('pointermove',event=>{if(event.pointerType==='touch'||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const box=row.getBoundingClientRect();row.style.setProperty('--mx',`${(event.clientX-box.left)/box.width*100}%`);row.style.setProperty('--my',`${(event.clientY-box.top)/box.height*100}%`);}));
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const fineHover = matchMedia('(hover: hover) and (pointer: fine)');
+  const interactivePaper = '.post,.metric,.draft-note';
+  let paperTarget = null, paperFrame = 0, pointerPosition = null;
+  function clearPaperPointer() {
+    if (paperFrame) cancelAnimationFrame(paperFrame);
+    paperFrame = 0;
+    if (paperTarget) {
+      ['--mx','--my','--rx','--ry'].forEach(property => paperTarget.style.removeProperty(property));
+    }
+    paperTarget = null;
+  }
+  // 委托监听让新建文章与刷新后的手稿也能获得相同反馈。
+  document.addEventListener('pointermove', event => {
+    if (event.pointerType === 'touch' || reducedMotion.matches || !fineHover.matches) return;
+    const card = event.target.closest(interactivePaper);
+    if (!card) {clearPaperPointer();return;}
+    if (card !== paperTarget) {clearPaperPointer();paperTarget = card;}
+    pointerPosition = {x:event.clientX,y:event.clientY};
+    if (paperFrame) return;
+    paperFrame = requestAnimationFrame(() => {
+      paperFrame = 0;
+      if (!paperTarget?.isConnected) {clearPaperPointer();return;}
+      const box = paperTarget.getBoundingClientRect();
+      const x = Math.min(1,Math.max(0,(pointerPosition.x-box.left)/box.width));
+      const y = Math.min(1,Math.max(0,(pointerPosition.y-box.top)/box.height));
+      paperTarget.style.setProperty('--mx',`${x*100}%`);
+      paperTarget.style.setProperty('--my',`${y*100}%`);
+      paperTarget.style.setProperty('--rx',`${(0.5-y)*1.6}deg`);
+      paperTarget.style.setProperty('--ry',`${(x-0.5)*1.6}deg`);
+    });
+  });
+  document.addEventListener('pointerout', event => {
+    if (!paperTarget || !paperTarget.contains(event.target)) return;
+    if (event.relatedTarget instanceof Node && paperTarget.contains(event.relatedTarget)) return;
+    clearPaperPointer();
+  });
+  reducedMotion.addEventListener('change',clearPaperPointer);
+  fineHover.addEventListener('change',clearPaperPointer);
+  window.addEventListener('blur',clearPaperPointer);
   refresh();
 })();
