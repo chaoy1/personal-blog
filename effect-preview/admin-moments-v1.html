@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>闲语管理 · 山窗案头设计图</title>
+  <link rel="stylesheet" href="../public/fonts/hongleixingshu/font.css">
+  <link rel="stylesheet" href="admin-desk-overview-v1.css">
+  <link rel="stylesheet" href="admin-subpages-v1.css">
+  <link rel="stylesheet" href="admin-moments-v1.css">
+  <script src="admin-subpages-v1.js" defer></script>
+  <script src="admin-moments-v1.js" defer></script>
+</head>
+<body data-page="moments" data-title="闲语管理">
+  <div id="admin-preview-bar"></div>
+  <div class="studio">
+    <aside class="sidebar" id="admin-sidebar" aria-label="后台导航"></aside>
+    <main class="sub-main">
+      <section class="page-head moment-page-head" aria-labelledby="page-title">
+        <div><p class="eyebrow">QUICK NOTES / 日常的只言片语</p><h1 id="page-title">不必成篇，也值得留下。</h1><p class="description">一点心绪，一帧光景。把眼前的日子，收进一张短笺。</p></div>
+        <a class="quiet-button" href="#moment-composer">记下一刻 <span aria-hidden="true">↓</span></a>
+      </section>
+
+      <section class="sheet moment-composer" id="moment-composer" aria-labelledby="moment-composer-title">
+        <header class="sheet-head moment-composer-head"><div><p class="eyebrow">A NOTE FOR TODAY / 此刻落笔</p><h2 id="moment-composer-title">写一则闲语</h2></div><span class="moment-composer-tag" id="moment-mode">新笺</span></header>
+        <form id="moment-form">
+          <div class="moment-compose-grid">
+            <div class="moment-writing">
+              <label class="control moment-content-control" for="moment-content"><span>正文 <small>短句不必完整，记下当下就好。</small></span></label>
+              <textarea id="moment-content" name="content" rows="5" placeholder="今天，想留下些什么……" aria-describedby="moment-count moment-error"></textarea>
+              <div class="moment-writing-foot"><span>以 ChoyChou 的身份落笔</span><output id="moment-count" for="moment-content" aria-live="polite">已写 0 字</output></div>
+            </div>
+            <section class="moment-attachments" aria-labelledby="moment-attachments-title">
+              <div class="moment-attachment-head"><h3 id="moment-attachments-title">随笺配图</h3><span id="moment-image-count">0 张</span></div>
+              <label class="moment-picker" for="moment-files"><span class="moment-picker-symbol" aria-hidden="true">＋</span><span>选几帧光影<small>支持多选，只有图片也可以发布</small></span><input id="moment-files" type="file" accept="image/*" multiple></label>
+              <div id="moment-image-tray" class="moment-image-tray" aria-label="已选择配图"></div>
+              <p class="moment-local-note">配图仅在本页预览，不上传文件。</p>
+            </section>
+          </div>
+          <footer class="moment-publish">
+            <div><p id="moment-composer-status" aria-live="polite">尚未开始书写</p><small>正文或配图至少留下一项。</small></div>
+            <div class="moment-publish-actions"><button id="moment-cancel" class="quiet-button" type="button" hidden>取消编辑</button><button class="sub-button primary" id="moment-publish" type="submit">发布闲语 <span aria-hidden="true">↗</span></button></div>
+          </footer>
+          <p class="moment-error" id="moment-error" role="alert" hidden></p>
+        </form>
+      </section>
+
+      <section class="moment-archive" aria-labelledby="moment-archive-title">
+        <header class="moment-archive-head"><div><p class="eyebrow">LOOSE LEAVES / 散页札记</p><h2 id="moment-archive-title">留下的片刻</h2></div><div class="moment-archive-total"><strong id="moment-total">08</strong><span>则闲语</span></div></header>
+        <div class="moment-undo-stack" id="moment-undo-stack" aria-live="polite"></div>
+        <div class="moment-list" id="moment-list" role="list" aria-label="闲语列表"></div>
+        <div class="sub-empty moment-empty" id="moment-empty" hidden><span aria-hidden="true">白</span><h3>纸上还留着余白</h3><p>写一句话，或收一帧光影。</p><a href="#moment-composer" class="quiet-button">开始落笔 ↗</a></div>
+        <footer class="moment-pagination"><span id="moment-page-status" role="status"></span><nav aria-label="闲语列表分页"><button class="quiet-button" id="moment-prev" type="button" aria-label="上一页闲语">← 上一页</button><span id="moment-page-number" aria-hidden="true"></span><button class="quiet-button" id="moment-next" type="button" aria-label="下一页闲语">下一页 →</button></nav></footer>
+      </section>
+      <footer class="sub-footer moment-footer"><span>山窗案头 · 随时落笔，慢慢收藏。</span><span>演示数据 · 刷新页面恢复初始内容</span></footer>
+    </main>
+  </div>
+
+  <dialog class="moment-dialog" id="moment-confirm" aria-labelledby="moment-confirm-title" aria-describedby="moment-confirm-description"><header class="dialog-head"><div><p class="eyebrow">A SMALL PAUSE / 落笔之前</p><h2 id="moment-confirm-title"></h2></div><button class="dialog-close" id="moment-dialog-close" type="button" aria-label="关闭确认">×</button></header><p id="moment-confirm-description"></p><footer class="dialog-foot"><button class="quiet-button" id="moment-confirm-no" type="button">再想一想</button><button class="sub-button primary" id="moment-confirm-yes" type="button">确认</button></footer></dialog>
+  <noscript><p class="noscript">此页为独立设计图；发布、编辑、图片预览和分页演示需要启用 JavaScript。</p></noscript>
+</body>
+</html>

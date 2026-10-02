@@ -1,0 +1,20 @@
+<!doctype html><html lang="zh-CN" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>博主资料 · 山窗案头设计图</title><link rel="stylesheet" href="../public/fonts/hongleixingshu/font.css"><link rel="stylesheet" href="admin-desk-overview-v1.css"><link rel="stylesheet" href="admin-subpages-v1.css"><link rel="stylesheet" href="admin-profile-v1.css"><script src="admin-subpages-v1.js" defer></script><script src="admin-profile-v1.js" defer></script></head>
+<body data-page="profile" data-title="博主资料"><div id="admin-preview-bar"></div><div class="studio"><aside class="sidebar" id="admin-sidebar" aria-label="后台导航"></aside><main class="sub-main">
+<header class="page-head"><div><p class="eyebrow">OWNER PROFILE / 小屋落款</p><h1>字里行间，留一个你。</h1><p class="description">名字、头像与自序，是这间小屋递给来人的第一封信。</p></div><a class="sub-button" href="http://127.0.0.1:3015/about" target="_blank" rel="noopener">看看关于页 ↗</a></header>
+<div class="profile-workspace"><form id="profile-form" class="sheet profile-manuscript"><header class="sheet-head"><div><p class="eyebrow">01 / IDENTITY & PREFACE</p><h2>落款与自序</h2></div><button id="profile-create-toggle" class="quiet-button" type="button" aria-pressed="false">首次建档 ↗</button></header>
+<section id="profile-account" hidden aria-label="首次建档"><p>第一次来到案头，先为小屋主人留一份档案。</p><div class="profile-account-fields"><label class="control"><span>博主邮箱</span><input id="profile-email" type="email" autocomplete="off" placeholder="writer@example.com"></label><label class="control"><span>密码 · 至少六位</span><input id="profile-password" type="password" minlength="6" autocomplete="new-password" placeholder="仅用于演示，不会保存"></label></div></section>
+<section class="profile-identity" aria-label="公开身份"><div class="profile-avatar-frame"><img id="profile-avatar" src="../public/avatar-default.svg" alt="博主示例头像"><span>小屋主人</span></div><div class="profile-identity-fields"><label class="control"><span>你的名字</span><input id="profile-name" value="ChoyChou" required maxlength="40" autocomplete="off"><small>显示在文章落款与关于页。</small></label><div class="profile-avatar-controls"><label class="sub-button">换一张头像<input id="profile-file" class="sub-sr" type="file" accept="image/*" aria-label="选择头像"></label><span>图片 · 不超过 5 MB</span></div></div></section>
+<section class="profile-writing" aria-label="个人介绍正文"><div class="profile-writing-head"><label for="profile-bio">小屋自序</label><span id="profile-count">〇 字</span></div><textarea id="profile-bio" aria-label="个人简介" spellcheck="false">## 寻常日子，认真过。
+
+你好，我是 ChoyChou。
+
+写代码，也写生活。把走过的山路、路边的光影和偶然想明白的事，慢慢收进这间小屋。
+
+## 在这里，收下片刻。
+
+有文章，有闲语，也有光影。文字不必着急，风景不必远行。
+
+山水有相逢，来日皆可期。</textarea><p class="profile-writing-help">一段文字，一段心绪。支持 Markdown；预览会随书写更新。</p></section>
+<footer class="profile-save"><span id="profile-state" role="status">示例资料已就绪</span><div class="toolbar"><button id="profile-reset" class="quiet-button" type="button">还原这一稿</button><button id="profile-save" class="primary" type="submit" disabled>保存资料 ↗</button></div></footer></form>
+<aside class="profile-preview-column"><div class="profile-preview-label"><span>02 / 留给来人的模样</span><i>署</i></div><article class="paper-item profile-card"><p class="eyebrow">THE ONE BEHIND THE WORDS</p><div class="profile-card-avatar"><img id="profile-preview-avatar" src="../public/avatar-default.svg" alt="头像预览"><span>小屋主人</span><i class="seal" aria-hidden="true">署</i></div><h2 id="profile-preview-name">ChoyChou</h2><p class="profile-card-subtitle">博主 · 似水流年</p><div id="profile-preview-bio"></div><footer>文字 / 日常 / 风景 <i>记</i></footer></article><p class="profile-preview-foot">窗前有纸，纸上有你。<span>此处为资料预览</span></p></aside></div>
+<footer class="sub-footer"><span>资料与头像操作只在本页演示，刷新后还原。</span><span>写于似水流年 · 自序</span></footer></main></div></body></html>

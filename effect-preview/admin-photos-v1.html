@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>光影管理 · 山窗案头设计图</title>
+  <link rel="stylesheet" href="../public/fonts/hongleixingshu/font.css">
+  <link rel="stylesheet" href="admin-desk-overview-v1.css">
+  <link rel="stylesheet" href="admin-subpages-v1.css">
+  <link rel="stylesheet" href="admin-photos-v1.css">
+  <script src="admin-subpages-v1.js" defer></script><script src="admin-photos-v1.js" defer></script>
+</head>
+<body data-page="photos" data-title="光影管理">
+  <div id="admin-preview-bar"></div>
+  <div class="studio"><aside class="sidebar" id="admin-sidebar" aria-label="后台导航"></aside>
+  <main class="sub-main">
+    <section class="page-head photo-page-head" aria-labelledby="page-title">
+      <div><p class="eyebrow">PHOTO CABINET / 沿途所见</p><h1 id="page-title">为光影，留一处归所。 <i class="seal" aria-hidden="true">藏</i></h1><p class="description">给每一帧留下名字，把一起走过的日子，慢慢收成册。</p></div>
+      <button type="button" class="sub-button primary" id="photo-open-upload">＋ 收几帧光影</button>
+    </section>
+    <section class="photo-inventory" aria-label="光影概览"><div><span class="photo-film-mark" aria-hidden="true">影</span><p>沿途的风景，已在案头。<small>PHOTO INDEX · 收藏目录</small></p></div><dl><div><dt>已收光影</dt><dd><b id="photo-total">06</b> 帧</dd></div><div><dt>相册</dt><dd><b id="photo-album-total">03</b> 册</dd></div><div><dt>待整理</dt><dd><b id="photo-stage-total">00</b> 帧</dd></div></dl></section>
+    <div class="photo-tabs" role="tablist" aria-label="光影工作区"><button id="photo-tab-library" type="button" role="tab" aria-selected="true" aria-controls="photo-library" data-tab="library">照片库 <span>壹</span></button><button id="photo-tab-albums" type="button" role="tab" aria-selected="false" aria-controls="photo-albums" tabindex="-1" data-tab="albums">相册管理 <span>贰</span></button><button id="photo-tab-upload" type="button" role="tab" aria-selected="false" aria-controls="photo-upload" tabindex="-1" data-tab="upload">上传暂存 <span id="photo-stage-badge">叁</span></button></div>
+    <section id="photo-library" class="sheet photo-library" role="tabpanel" aria-labelledby="photo-tab-library" tabindex="0">
+      <header class="sheet-head"><div><p class="eyebrow">THE CONTACT SHEET / 底片目录</p><h2>留住的片刻</h2></div><p class="photo-head-note">每一张，都是停下来的一瞬。</p></header>
+      <div class="toolbar photo-filter" role="search" aria-label="照片筛选"><label class="control photo-search"><span>寻找光影</span><input id="photo-query" type="search" placeholder="搜索照片说明或文件名"></label><label class="control"><span>相册归属</span><select id="photo-filter"><option value="all">全部相册</option></select></label><label class="control"><span>排列方式</span><select id="photo-sort"><option value="manual">手动顺序</option><option value="newest">最新收录</option><option value="oldest">最早收录</option></select></label></div>
+      <div class="photo-index-line"><span>FRAME / 光影</span><span id="photo-library-count" role="status">六帧 · 按手动顺序排列</span></div>
+      <div class="photo-grid" id="photo-grid" aria-label="照片列表"></div>
+      <div class="sub-empty" id="photo-empty" hidden><span>寻</span><h3>这一页，还没有光影。</h3><p>试试其他相册，或换一个关键词。</p><button class="quiet-button" id="photo-clear-filter" type="button">清除筛选 ↙</button></div>
+      <footer class="photo-library-foot"><p>说明与归属可以随时整理。前后移动仅在手动顺序下可用。</p><button type="button" class="quiet-button" id="photo-go-albums">整理相册 ↗</button></footer>
+    </section>
+    <section id="photo-albums" class="sheet" role="tabpanel" aria-labelledby="photo-tab-albums" tabindex="0" hidden>
+      <header class="sheet-head"><div><p class="eyebrow">COLLECTION SLEEVES / 相册封套</p><h2>一册一段光阴</h2></div><button id="photo-new-album" type="button" class="sub-button">＋ 新建相册</button></header>
+      <p class="photo-section-note">先为一段旅程留出位置，再慢慢装满它。</p><div id="photo-album-grid" class="photo-album-grid"></div>
+      <div class="photo-unfiled"><span aria-hidden="true">散页</span><div><h3>未归类的光影</h3><p id="photo-unfiled-copy">有一帧还在等一个归处。</p></div><button id="photo-view-unfiled" type="button" class="quiet-button">翻看散页 ↗</button></div>
+    </section>
+    <section id="photo-upload" class="sheet" role="tabpanel" aria-labelledby="photo-tab-upload" tabindex="0" hidden>
+      <header class="sheet-head"><div><p class="eyebrow">BEFORE FILING / 暂存桌</p><h2>先放在这里，慢慢整理。</h2></div><span class="chip">本次预览</span></header>
+      <div class="photo-upload-intro"><p>选好照片，为它留一句说明，再决定收进哪一册。</p><label class="control"><span>新选照片的默认相册</span><select id="photo-upload-album"><option value="">不归入相册</option></select></label></div>
+      <div class="photo-drop" id="photo-drop"><span class="photo-drop-mark" aria-hidden="true">影</span><h3>把沿途所见，带回案头。</h3><p>可拖入图片，或从电脑中选择。</p><label class="sub-button primary photo-file-label">选择本地照片<input id="photo-files" type="file" accept="image/*" multiple aria-label="选择本地照片"></label><button class="quiet-button" id="photo-demo-add" type="button">先用一帧山水试试 ↗</button></div>
+      <p class="photo-preview-note">独立设计图：照片只在此页预览，确认后加入示例照片库；不会传到网络，刷新后还原。</p>
+      <div class="photo-stage-head"><h3>待收录的照片 <span id="photo-queue-count">零帧</span></h3><button type="button" class="quiet-button" id="photo-stage-clear" disabled>清空暂存</button></div><div id="photo-stage-grid" class="photo-stage-grid"></div>
+      <div id="photo-stage-empty" class="photo-stage-empty">桌面还空着，选几张照片再开始。</div>
+      <footer class="photo-stage-foot"><span id="photo-stage-status" role="status" aria-live="polite">尚未选择照片</span><button id="photo-confirm-upload" type="button" class="sub-button primary" disabled>确认收录 · 仅本次预览 ↗</button></footer>
+    </section>
+    <footer class="sub-footer"><span>山窗案头 · 光影有归处。</span><span>FRAMES, KEPT WITH TIME <i class="small-seal" aria-hidden="true">影</i></span></footer>
+  </main></div>
+  <dialog id="photo-album-dialog" class="photo-dialog" aria-labelledby="photo-album-dialog-title"><form id="photo-album-form"><header class="photo-dialog-head"><div><p class="eyebrow">COLLECTION / 一册光阴</p><h2 id="photo-album-dialog-title">新建相册</h2></div><button class="quiet-button" type="button" data-close aria-label="关闭相册编辑">×</button></header><label class="control"><span>相册标题</span><input id="photo-album-title" required maxlength="80" placeholder="给这一册取个名字"></label><label class="control"><span>一句说明</span><textarea id="photo-album-description" rows="3" maxlength="200" placeholder="关于这段时光，想留下什么？"></textarea></label><footer class="photo-dialog-foot"><button class="quiet-button" type="button" data-close>取消</button><button class="sub-button primary" type="submit">收好这一册 ↗</button></footer></form></dialog>
+  <dialog id="photo-edit-dialog" class="photo-dialog" aria-labelledby="photo-edit-title"><form id="photo-edit-form"><header class="photo-dialog-head"><div><p class="eyebrow">FRAME NOTE / 一帧小记</p><h2 id="photo-edit-title">为它留一句话</h2></div><button class="quiet-button" type="button" data-close aria-label="关闭照片编辑">×</button></header><img id="photo-edit-image" alt="待编辑的照片" class="photo-edit-image"><label class="control"><span>照片说明</span><input id="photo-caption" maxlength="200" placeholder="地点、光线，或那一刻的心情"></label><label class="control"><span>存入相册</span><select id="photo-edit-album"></select></label><footer class="photo-dialog-foot"><button class="quiet-button" type="button" data-close>取消</button><button class="sub-button primary" type="submit">保存小记 ↗</button></footer></form></dialog>
+  <dialog id="photo-delete-dialog" class="photo-dialog" aria-labelledby="photo-delete-title"><form method="dialog"><header class="photo-dialog-head"><div><p class="eyebrow">BEFORE REMOVAL / 整理之前</p><h2 id="photo-delete-title">删除这一册？</h2></div></header><p id="photo-delete-copy"></p><footer class="photo-dialog-foot"><button class="quiet-button" value="cancel">保留</button><button class="sub-button photo-danger" id="photo-delete-confirm" value="confirm">确认删除</button></footer></form></dialog>
+  <noscript><p>照片筛选、相册整理与暂存演示需要启用 JavaScript。</p></noscript>
+</body></html>
