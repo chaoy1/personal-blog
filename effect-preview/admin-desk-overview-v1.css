@@ -61,7 +61,7 @@ main {min-width:0;padding:0 36px;}
 .metric::before {content:'';position:absolute;z-index:-1;left:30%;right:0;bottom:0;height:62px;background:url('../public/bg/about-ink-banner.png') 65% 57%/auto 98px;opacity:.19;mask-image:linear-gradient(0deg,#000,transparent);transition:opacity .5s,background-position .7s var(--ease);}
 .metric:nth-child(3)::before {background-image:url('../public/bg/qianli-bridge.jpg');opacity:.15;}
 .metric:nth-child(4)::before {display:none;}
-.metric-tab {position:absolute;left:12px;top:-1px;width:24px;height:50px;display:grid;place-items:center;padding-bottom:8px;background:var(--accent);color:#fff1d7;font:21px var(--brush);clip-path:polygon(0 0,100% 0,100% 100%,50% 85%,0 100%);transition:height .45s var(--ease);}
+.metric-tab {position:absolute;left:12px;top:-6px;width:24px;height:50px;display:grid;place-items:center;padding-bottom:8px;background:var(--accent) url('admin-paper-fibers.svg');color:#fff1d7;font:21px var(--brush);clip-path:polygon(0 0,100% 0,100% 100%,50% 85%,0 100%);transition:transform .3s cubic-bezier(.2,.65,.3,1);}
 .metric-name {font:14px var(--song);letter-spacing:.05em;}
 .metric-number {display:block;font:34px/1.1 Georgia,serif;letter-spacing:-.035em;margin:7px 0 8px;white-space:nowrap;}
 .metric-number small {font:10px var(--song);margin-left:8px;color:var(--soft);}
@@ -69,7 +69,8 @@ main {min-width:0;padding:0 36px;}
 .profile-status {display:block;font:27px/1.3 var(--brush);letter-spacing:.03em;margin:9px 0 10px;}
 .metric-mark,.metric-fold {display:none;}
 .metric:hover,.metric:focus-visible {border-color:var(--accent);box-shadow:2px 4px 0 -1px var(--paper),2px 4px 0 var(--accent),0 10px 16px -13px var(--shadow);}
-.metric:hover .metric-tab,.metric:focus-visible .metric-tab {height:59px;}
+.metric:focus-visible .metric-tab {transform:translateY(5px);}
+@media(hover:hover) and (pointer:fine) {.metric:hover .metric-tab {transform:translateY(5px);}}
 .metric:hover::before {opacity:.3;background-position:60% 57%;}
 /* 装订边与双层页口是稿册识别点；行内内容只占两行。 */
 .work-area {display:grid;grid-template-columns:minmax(0,1fr) 278px;align-items:start;gap:29px;}
@@ -106,7 +107,7 @@ main {min-width:0;padding:0 36px;}
 @media(hover:hover) and (pointer:fine) {.post:hover {transform:perspective(1100px) translateY(-4px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));}}
 .post:hover .post-index,.post:focus-within .post-index {color:var(--seal);}
 .post:hover::before,.post:focus-within::before {opacity:1;}
-.post:hover::after,.post:focus-within::after {transform:scaleY(1);animation:page-tab-unfurl .55s var(--ease);}
+.post:hover::after,.post:focus-within::after {transform:scaleY(1);}
 .post-index {align-self:start;font:9px Georgia,serif;color:var(--faint);padding-top:5px;transition:color .35s;}
 .post-copy {min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:7px;}
 .post-title {width:100%;border:0;padding:0;background:none;text-align:left;font:22px/1.35 var(--brush);letter-spacing:.025em;text-wrap:balance;transition:color .3s;}
@@ -165,8 +166,6 @@ main {min-width:0;padding:0 36px;}
 .metric,.draft-note,dialog {background-image:linear-gradient(100deg,#a3855014,transparent 22% 77%,#9d7e4618),url('admin-paper-fibers.svg');}
 .archive {background-image:url('admin-paper-fibers.svg');}
 .metric {transition:transform .4s var(--ease),border-color .4s,box-shadow .4s;box-shadow:2px 3px 0 -1px var(--paper),2px 3px 0 var(--fine),0 4px 8px -7px var(--shadow);}
-.metric-tab {transform-origin:50% 0;transition:height .45s var(--ease),transform .45s;}
-.metric:hover .metric-tab,.metric:focus-visible .metric-tab {height:70px;animation:bookmark-sway .7s var(--ease);}
 .metric-number {transition:transform .4s var(--ease);}
 .metric:hover .metric-number {transform:translateY(-2px);}
 .draft-note {border-color:var(--fine);}
@@ -177,8 +176,6 @@ main {min-width:0;padding:0 36px;}
 .draft-note:hover .note-fold,.draft-note:focus-visible .note-fold {width:calc(34px + var(--curl,0) * 10px);height:calc(34px + var(--curl,0) * 10px);}
 .paper-corner::after {content:'';position:absolute;inset:0;border-right:1px solid #90774a40;border-bottom:1px solid #90774a40;}
 .metric:active,.draft-note:active {transform:translateY(0);}
-@keyframes page-tab-unfurl {0% {transform:scaleY(.15) rotate(-10deg);}60% {transform:scaleY(1.12) rotate(5deg);}100% {transform:scaleY(1) rotate(0deg);}}
-@keyframes bookmark-sway {0% {transform:rotate(0deg);}35% {transform:rotate(8deg);}65% {transform:rotate(-3deg);}100% {transform:rotate(0deg);}}
 .quick-notes {margin-top:24px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:0 3px;}
 .quick-notes button {display:flex;align-items:center;width:100%;gap:11px;padding:18px 0;text-align:left;background:none;border:0;border-bottom:1px solid var(--fine);transition:color .3s;}
 .quick-notes button:last-child {border-bottom:0;}
@@ -232,4 +229,4 @@ dialog::backdrop {background:#292313a3;backdrop-filter:blur(4px);}
 @media(max-width:375px) {.welcome h1 {font-size:31px;}.welcome h1 .seal {margin-left:4px;}.metric-number {font-size:27px;}.profile-status {font-size:21px;}.metric p {font-size:8px;}.post {grid-template-columns:10px minmax(0,1fr) 50px;gap:5px;}.post-title {font-size:20px;}.draft-note h3 {font-size:21px;}.draft-note::after {font-size:7px;right:6px;}}
 @media(max-width:620px) {.post {padding-inline:8px;}.post::after {left:-4px;}.post-list {gap:13px;}.edit-post::before {display:none;}}
 @media(hover:none) {.paper-corner,.note-fold {width:15px!important;height:15px!important;}}
-@media(prefers-reduced-motion:reduce) {html {scroll-behavior:auto;}*,*::before,*::after {transition:none!important;animation:none!important;}.primary:hover,.post:hover,.metric:hover,.metric:focus-visible,.draft-note:hover,.draft-note:focus-visible {transform:none;}.metric:hover .metric-number,.draft-note:hover .note-action b {transform:none;}.paper-corner,.note-fold {width:15px!important;height:15px!important;}}
+@media(prefers-reduced-motion:reduce) {html {scroll-behavior:auto;}*,*::before,*::after {transition:none!important;animation:none!important;}.primary:hover,.post:hover,.metric:hover,.metric:focus-visible,.draft-note:hover,.draft-note:focus-visible {transform:none;}.metric:hover .metric-tab,.metric:focus-visible .metric-tab,.metric:hover .metric-number,.draft-note:hover .note-action b {transform:none;}.paper-corner,.note-fold {width:15px!important;height:15px!important;}}
