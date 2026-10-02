@@ -24,3 +24,131 @@ dialog {width:calc(100% - 36px);max-width:650px;max-height:calc(100dvh - 40px);o
 @media(max-width:375px) {.welcome h1 {font-size:31px;}.welcome h1 .seal {margin-left:4px;}.metric-name {font-size:14px;}.metric-number {font-size:27px;}.profile-status {font-size:21px;}.metric p {font-size:6px;}.post {grid-template-columns:14px minmax(0,1fr) 56px;gap:7px;}.post-title {font-size:20px;}.post-slug {max-width:105px;}.post time {font-size:10px;}.draft-note h3,.second-note h3 {font-size:22px;}.quick-notes span {font-size:15px;}}
 @media(prefers-reduced-motion:reduce) {html {scroll-behavior:auto;}*,*::before,*::after {transition:none!important;animation:none!important;}.metric:hover,.metric:focus-visible,.primary:hover,.draft-note:hover,.draft-note:focus-visible {transform:none;}.metric:hover .metric-number,.draft-note:hover .note-action b {transform:none;}}
 @media(max-width:620px) {.welcome-title-tail {display:block;}}
+
+/* 第二轮：以纸面、留白和统一对齐建立区域层级。 */
+:root {--paper:#dfd1b2;--side:#d5c6a5;--card:#fff5e2;--soft:#665740;--faint:#817054;--fine:#dfcfaf;--line:#ad9470;--panel:#fff6e6;--well:#cfc3a8;--row-fill:#f6ecd9;}
+:root[data-theme=dark] {--paper:#302b22;--side:#25251e;--card:#554a37;--soft:#d2c2a5;--faint:#baa585;--fine:#66583f;--line:#897453;--panel:#433b2e;--well:#24291f;--row-fill:#3d3529;}
+.studio {background:var(--paper);}
+.sidebar {background:var(--side);border-right:1px solid var(--line);}
+.sidebar nav {gap:10px;}
+.sidebar nav span {font:15px/1.5 var(--song);letter-spacing:.04em;}
+.sidebar nav small {display:none;}
+.sidebar-caption span,.sidebar-landscape,.metric-mark,.metric::before,.post-slug,.desk-quote {display:none;}
+.sidebar nav a,.sidebar nav button {min-height:65px;}
+.welcome {min-height:160px;}
+.welcome-wash {opacity:.1;}
+.eyebrow {font-size:9px;letter-spacing:.12em;}
+.metrics {gap:18px;margin-bottom:30px;}
+.metric {min-height:125px;padding:17px 16px 15px 46px;border-color:var(--line);border-top:3px solid var(--accent);box-shadow:0 4px 9px -7px var(--shadow);}
+.metric-tab {left:13px;top:16px;background:var(--accent);color:var(--card);}
+.metric-name {font:14px/1.5 var(--song);letter-spacing:.04em;}
+.metric-number {margin:7px 0 8px;}
+.metric p {font-size:10px;color:var(--soft);}
+.metric-fold {width:9px;height:9px;}
+.work-area {grid-template-columns:minmax(0,1fr) 270px;gap:24px;align-items:start;}
+.archive {background:var(--panel);border:1px solid var(--line);padding:0 22px 17px;box-shadow:0 8px 15px -12px var(--shadow);}
+.archive>.section-head {margin:0 -22px;padding:19px 22px 17px;background:var(--row-fill);border-bottom:1px solid var(--line);}
+.section-head h2 {font-size:28px;}
+.filter-line {gap:12px;padding:16px 0;flex-wrap:wrap;}
+.filters {gap:4px;padding:3px;border:1px solid var(--fine);background:var(--row-fill);}
+.filters button {padding:7px 10px;font:12px/1.4 var(--song);min-height:32px;}
+.filters button::after {display:none;}
+.filters [aria-pressed=true] {color:var(--card);background:var(--seal);}
+.filters span {font-size:10px;opacity:.8;}
+.search {width:185px;padding:9px 10px;border-color:var(--line);background:var(--panel);}
+.search input {font-size:12px;}
+.list-caption {padding:12px 0;background:var(--row-fill);font-size:10px;color:var(--soft);}
+.post {padding:16px 0;}
+.post:nth-child(even) {background:color-mix(in srgb,var(--row-fill) 55%,transparent);}
+.post::before {inset:0;}
+.post-title {font-size:22px;}
+.post-copy>p {font-size:11px;color:var(--soft);margin:6px 0 8px;}
+.status {font-size:10px;padding:4px 6px;}
+.draft {background:color-mix(in srgb,#ae8a54 12%,transparent);}
+.published {background:color-mix(in srgb,var(--pine) 12%,transparent);}
+.post time {font:12px/1.5 var(--song);}
+.post time small {font-size:9px;letter-spacing:.02em;}
+.edit-post {font:12px var(--song);padding:7px 5px;border:1px solid var(--fine);background:var(--panel);}
+.edit-post:hover {border-color:var(--seal);}
+.edit-post span {display:none;}
+.list-foot {padding-top:14px;font-size:10px;}
+.desk-margin {padding:0;border:0;}
+.drafts {border:1px solid var(--line);background:var(--well);padding:0 17px 5px;}
+.drafts .section-head {border-bottom:1px solid var(--line);margin:0 -17px 18px;padding:19px 17px 17px;}
+.drafts h2 {font-size:25px;}
+.draft-note,.second-note {transform:none;margin:0 0 17px;min-height:165px;padding:18px 18px 15px;box-shadow:2px 3px 0 -1px var(--well),2px 3px 0 var(--line);}
+.draft-note h3,.second-note h3 {font-size:26px;line-height:1.35;}
+.draft-note p {font-size:11px;color:var(--soft);}
+.draft-note small {font-size:10px;}
+.draft-note::before,.note-tape {display:none;}
+.note-action {font-size:15px;}
+.quick-notes {margin-top:20px;padding:4px 17px;border:1px solid var(--line);background:var(--row-fill);}
+.quick-notes button {padding:15px 0;}
+.quick-notes button:last-child {border-bottom:0;}
+.quick-notes small {font-size:10px;line-height:1.7;}
+.desk-footer {margin-top:23px;}
+.desk-footer>span:last-child {display:none;}
+@media(max-width:1200px) {
+  main {padding-inline:24px;}
+  .work-area {grid-template-columns:minmax(0,1fr) 238px;gap:19px;}
+  .archive {padding-inline:17px;}
+  .archive>.section-head {margin-inline:-17px;padding-inline:17px;}
+  .search {width:100%;}
+  .post-title {font-size:21px;}
+  .metric {padding-left:40px;}
+  .metric-tab {left:10px;}
+  .metric p {font-size:9px;}
+}
+@media(max-width:1000px) {.sidebar nav a,.sidebar nav button {min-height:57px;}}
+@media(max-width:820px) {
+  .work-area {grid-template-columns:minmax(0,1fr);gap:24px;}
+  .desk-margin {display:block;}
+  .drafts {padding-bottom:5px;}
+  #draft-cards {gap:19px;}
+  .quick-notes {display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+  .quick-notes button {border-bottom:0;}
+  .search {width:185px;}
+}
+@media(max-width:620px) {
+  main {padding-inline:16px;}
+  .sidebar {background:var(--side);}
+  .sidebar nav {gap:4px;}
+  .sidebar nav a,.sidebar nav button {min-height:52px;}
+  .sidebar nav span {font:12px var(--song);letter-spacing:0;}
+  .welcome {min-height:0;}
+  .metrics {gap:12px;margin-bottom:24px;}
+  .metric {min-height:125px;padding:13px 9px 12px 36px;}
+  .metric-tab {left:8px;top:13px;}
+  .metric-name {font-size:12px;}
+  .metric p {font-size:9px;line-height:1.7;}
+  .profile-status {font-size:22px;}
+  .archive {padding:0 13px 14px;}
+  .archive>.section-head {margin:0 -13px;padding:16px 13px;}
+  .eyebrow {font-size:8px;}
+  .section-head h2 {font-size:26px;}
+  .filter-line {gap:12px;}
+  .filters {width:100%;justify-content:space-between;}
+  .filters button {flex:1;padding-inline:7px;font-size:12px;}
+  .search {width:100%;}
+  .post {grid-template-columns:13px minmax(0,1fr) 55px;gap:6px;padding:17px 0;}
+  .post-title {font-size:21px;}
+  .post-copy>p {font-size:10px;}
+  .post time {font-size:10px;}
+  .post time small {font-size:8px;}
+  .post-ops {gap:1px;}
+  .edit-post {font-size:10px;padding:5px 3px;}
+  .post summary {width:18px;}
+  .status {font-size:9px;}
+  .list-foot {font-size:9px;gap:5px;}
+  .list-foot .text-button {font-size:11px;}
+  .drafts {padding-inline:13px;}
+  .drafts .section-head {margin-inline:-13px;padding:16px 13px;}
+  #draft-cards {gap:12px;}
+  .draft-note,.second-note {padding:13px 10px;min-height:200px;}
+  .draft-note h3,.second-note h3 {font-size:22px;}
+  .draft-note p {font-size:10px;}
+  .draft-note small {font-size:9px;}
+  .quick-notes {padding-inline:13px;gap:12px;}
+  .quick-notes span {font-size:15px;}
+  .quick-notes small {font-size:9px;}
+}
