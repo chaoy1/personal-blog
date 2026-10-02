@@ -25,6 +25,7 @@
     $('#draft-title').focus();
   }
   function refresh() {
+    cancelListMotion();
     const query = $('#search').value.trim().toLocaleLowerCase('zh-CN');
     const active = rows.filter(row => !row.dataset.trashed);
     const published = active.filter(row => row.dataset.status === 'published').length;
@@ -101,13 +102,13 @@
     row.querySelector('summary').setAttribute('aria-label', title + '：更多操作');
     row.querySelector('time').dateTime = '2026-10-02';row.querySelector('time').innerHTML = '十月二日<small>二〇二六</small>';row.dataset.date = '2026-10-02';
     bodies.set(row.dataset.id, $('#draft-body').value);
-    list.prepend(row);inTrash = false;filter = 'all';$('#search').value = '';refresh();editor.close();toast('已收好这份手稿（本次演示）。');
+    list.prepend(row);inTrash = false;filter = 'all';$('#search').value = '';refresh();revealRows();editor.close();toast('已收好这份手稿（本次演示）。');
   });
-  function chooseFilter(value) {filter = value;inTrash = false;refresh();}
+  function chooseFilter(value) {filter = value;inTrash = false;refresh();revealRows();}
   $$('.filters button').forEach(button => button.addEventListener('click', () => chooseFilter(button.dataset.filter)));
   $('#show-drafts').addEventListener('click', () => chooseFilter('draft'));
   $('[data-metric=all]').addEventListener('click', () => {$('#search').value = '';chooseFilter('all');$('#archive').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});});
-  $('#trash-toggle').addEventListener('click', () => {inTrash = !inTrash;$('#search').value = '';filter = 'all';refresh();});
+  $('#trash-toggle').addEventListener('click', () => {inTrash = !inTrash;$('#search').value = '';filter = 'all';refresh();revealRows();});
   $('#clear-filter').addEventListener('click', () => {$('#search').value = '';chooseFilter('all');});
   $('#search').addEventListener('input', refresh);
   const modules = {
@@ -135,13 +136,30 @@
   });
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const fineHover = matchMedia('(hover: hover) and (pointer: fine)');
+  const listAnimations = new Map();
+  function cancelListMotion() {
+    listAnimations.forEach(animation => animation.cancel());
+    listAnimations.clear();
+  }
+  function revealRows() {
+    cancelListMotion();
+    if (reducedMotion.matches) return;
+    rows.filter(row => !row.hidden).forEach((row,index) => {
+      const animation = row.animate(
+        [{opacity:.35,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],
+        {duration:340,delay:Math.min(index*38,152),easing:'cubic-bezier(.2,.7,.2,1)'}
+      );
+      listAnimations.set(row,animation);
+      animation.onfinish = () => {if (listAnimations.get(row) === animation) listAnimations.delete(row);};
+    });
+  }
   const interactivePaper = '.post,.metric,.draft-note';
   let paperTarget = null, paperFrame = 0, pointerPosition = null;
   function clearPaperPointer() {
     if (paperFrame) cancelAnimationFrame(paperFrame);
     paperFrame = 0;
     if (paperTarget) {
-      ['--mx','--my','--rx','--ry'].forEach(property => paperTarget.style.removeProperty(property));
+      ['--mx','--my','--rx','--ry','--shade-x','--curl'].forEach(property => paperTarget.style.removeProperty(property));
     }
     paperTarget = null;
   }
@@ -161,8 +179,10 @@
       const y = Math.min(1,Math.max(0,(pointerPosition.y-box.top)/box.height));
       paperTarget.style.setProperty('--mx',`${x*100}%`);
       paperTarget.style.setProperty('--my',`${y*100}%`);
-      paperTarget.style.setProperty('--rx',`${(0.5-y)*1.6}deg`);
-      paperTarget.style.setProperty('--ry',`${(x-0.5)*1.6}deg`);
+      paperTarget.style.setProperty('--rx',`${(0.5-y)*2.4}deg`);
+      paperTarget.style.setProperty('--ry',`${(x-0.5)*3}deg`);
+      paperTarget.style.setProperty('--shade-x',`${(x-0.5)*8}px`);
+      paperTarget.style.setProperty('--curl',`${(x+y)/2}`);
     });
   });
   document.addEventListener('pointerout', event => {
@@ -170,7 +190,7 @@
     if (event.relatedTarget instanceof Node && paperTarget.contains(event.relatedTarget)) return;
     clearPaperPointer();
   });
-  reducedMotion.addEventListener('change',clearPaperPointer);
+  reducedMotion.addEventListener('change',() => {clearPaperPointer();cancelListMotion();});
   fineHover.addEventListener('change',clearPaperPointer);
   window.addEventListener('blur',clearPaperPointer);
   refresh();
