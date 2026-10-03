@@ -10,6 +10,8 @@ import CommentThread from '@/components/CommentThread'
 import ArticleNav from '@/components/ArticleNav'
 import { useConfirmDialog } from '@/components/ConfirmDialog'
 import type { MomentItem } from '@/lib/store-types'
+import MarkdownView from '@/components/MarkdownView'
+import { getAboutSections } from '@/lib/about-content'
 import '../moments.css'
 
 const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
@@ -36,14 +38,6 @@ function dateParts(iso: string) {
     label: `${date.getFullYear()}年${month + 1}月${date.getDate()}日`,
     tail: `${FULL_MONTHS[month]} · ${pad(date.getDate())}`,
   }
-}
-
-/** 保留作者写在正文里的换行，空行不占位 */
-function contentParagraphs(content: string): string[] {
-  return content
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
 }
 
 export default function MomentsPage() {
@@ -213,7 +207,6 @@ export default function MomentsPage() {
                   : false
                 const mComments = momentComments.filter((c) => c.moment_id === m.id)
                 const date = dateParts(m.created_at)
-                const paragraphs = m.content ? contentParagraphs(m.content) : []
                 const images = m.images ?? []
                 const panelOpen = openPanels[m.id] ?? false
                 const canDelete = Boolean(user?.id === m.user_id && isOwner)
@@ -251,11 +244,9 @@ export default function MomentsPage() {
                           images.length === 0 ? ' moment-layout--text' : ''
                         }${images.length > 2 ? ' moment-layout--wide' : ''}`}
                       >
-                        {paragraphs.length > 0 ? (
+                        {m.content?.trim() ? (
                           <div className="moment-body">
-                            {paragraphs.map((line, i) => (
-                              <p key={i} className="moment-content">{line}</p>
-                            ))}
+                            <MarkdownView content={m.content} preserveParagraphs={getAboutSections(m.content).preserveParagraphs} />
                           </div>
                         ) : null}
 

@@ -140,4 +140,21 @@ describe('M03 writing workspace', () => {
     await waitFor(() => expect(mocks.draftSync.flush).toHaveBeenCalledWith(false))
     expect(event.defaultPrevented).toBe(true)
   })
+
+  it('keeps Markdown source and settings intact through inline preview and immersive mode', () => {
+    render(<EditorPage />)
+    fireEvent.change(screen.getByRole('textbox', { name: 'Markdown 正文' }), { target: { value: '## 手稿\n\n**正文**' } })
+    fireEvent.change(screen.getByRole('textbox', { name: '摘要' }), { target: { value: '**一行小序**' } })
+    expect(screen.getByRole('textbox', { name: '摘要' }).tagName).toBe('TEXTAREA')
+
+    fireEvent.click(screen.getByRole('button', { name: /^预览$/ }))
+    expect(screen.getByLabelText('Markdown 正文预览')).toHaveTextContent('## 手稿')
+    expect(screen.queryByRole('textbox', { name: 'Markdown 正文' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '全屏写作' }))
+    expect(screen.getByRole('button', { name: '← 返回工作台' })).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.keyDown(window, { key: 'Escape' })
+    fireEvent.click(screen.getByRole('button', { name: /^编辑$/ }))
+    expect(screen.getByRole('textbox', { name: 'Markdown 正文' })).toHaveValue('## 手稿\n\n**正文**')
+    expect(screen.getByRole('textbox', { name: '摘要' })).toHaveValue('**一行小序**')
+  })
 })

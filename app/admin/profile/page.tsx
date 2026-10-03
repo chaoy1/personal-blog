@@ -1,9 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import AdminPageHead from '@/components/AdminPageHead'
+import MarkdownView from '@/components/MarkdownView'
+import { getAboutSections } from '@/lib/about-content'
+import './profile-paper.css'
 import { useAdminFeedback } from '@/components/admin/AdminFeedback'
 import { runAdminAction } from '@/lib/admin-action'
 
@@ -43,6 +45,15 @@ export default function AdminProfile() {
   const [saveState, setSaveState] = useState<ProfileSaveState>('saved')
   const [avatarState, setAvatarState] = useState<AvatarState>('idle')
   const [loadAttempt, setLoadAttempt] = useState(0)
+  const revision = useRef(0)
+  const busyRef = useRef(false)
+  const bioInput = useRef<HTMLTextAreaElement>(null)
+
+  function changed() {
+    revision.current += 1
+    setSaveState('dirty')
+    setError('')
+  }
 
   const current = { nickname, bio, avatar_url: avatarUrl }
   const dirty = profile
@@ -91,22 +102,22 @@ export default function AdminProfile() {
     }
   }, [loadAttempt, router])
 
-  function indentBio(event: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (event.key !== 'Tab') return
-    event.preventDefault()
-    const input = event.currentTarget
+  function formatBio(prefix: string, suffix = '', fallback = '文字') {
+    const input = bioInput.current
+    if (!input) return
     const start = input.selectionStart
     const end = input.selectionEnd
-    const indent = '　　'
-    setBio((value) => `${value.slice(0, start)}${indent}${value.slice(end)}`)
-    setSaveState('dirty')
-    setError('')
+    const selected = bio.slice(start, end) || fallback
+    setBio(`${bio.slice(0, start)}${prefix}${selected}${suffix}${bio.slice(end)}`)
+    changed()
     requestAnimationFrame(() => {
-      input.selectionStart = input.selectionEnd = start + indent.length
+      input.focus()
+      input.setSelectionRange(start + prefix.length, start + prefix.length + selected.length)
     })
   }
 
   async function uploadAvatar(file: File) {
+    if (busyRef.current) return
     if (!file.type.startsWith('image/')) {
       setAvatarState('error')
       setError('头像必须是图片文件')
@@ -117,6 +128,7 @@ export default function AdminProfile() {
       setError('头像不能超过 5MB')
       return
     }
+    busyRef.current = true
     setBusy(true)
     setAvatarState('uploading')
     setError('')
@@ -129,6 +141,7 @@ export default function AdminProfile() {
         { onUnauthorized: () => router.replace('/admin/login?next=%2Fadmin%2Fprofile') },
       )
       setAvatarUrl(result.url)
+      revision.current += 1
       setAvatarState('uploaded')
       setSaveState('dirty')
       notify({ kind: 'success', message: '头像已上传，保存资料后生效' })
@@ -136,12 +149,15 @@ export default function AdminProfile() {
       setAvatarState('error')
       setError(cause instanceof Error ? cause.message : '上传失败')
     } finally {
+      busyRef.current = false
       setBusy(false)
     }
   }
 
   async function save() {
-    if (!dirty || busy) return
+    if (!dirty || busyRef.current) return
+    busyRef.current = true
+    const savingRevision = revision.current
     setBusy(true)
     setSaveState('saving')
     setError('')
@@ -163,15 +179,22 @@ export default function AdminProfile() {
       const saved = await runAdminAction<OwnerProfile | null>(fetch('/api/admin/profile'), {
         onUnauthorized: () => router.replace('/admin/login?next=%2Fadmin%2Fprofile'),
       })
-      applyProfile(saved)
+      if (revision.current === savingRevision) {
+        applyProfile(saved)
+        setSaveState('saved')
+      } else {
+        setProfile(saved)
+        setBaseline(saved ? { nickname: saved.nickname ?? '', bio: saved.bio ?? '', avatar_url: saved.avatar_url ?? '' } : EMPTY_PROFILE)
+        setSaveState('dirty')
+      }
       setEmail('')
       setPassword('')
-      setSaveState('saved')
       notify({ kind: 'success', message: '博主资料已保存' })
     } catch (cause) {
       setSaveState('error')
       setError(cause instanceof Error ? cause.message : '保存失败')
     } finally {
+      busyRef.current = false
       setBusy(false)
     }
   }
@@ -194,157 +217,39 @@ export default function AdminProfile() {
     }
     document.addEventListener('keydown', handleShortcut)
     return () => document.removeEventListener('keydown', handleShortcut)
-  }, [busy, dirty])
+  })
 
-  const aboutLink = <Link href="/about" target="_blank" rel="noreferrer" className="btn btn-ghost">查看关于页 ↗</Link>
-
-  if (!loaded) {
-    return (
-      <section className="admin-profile-page" role="region" aria-label="博主资料管理" data-page-state="loading">
-        <AdminPageHead index="04" eyebrow="OWNER PROFILE" title="博主资料" description="这里的名字、头像和简介，会成为小屋主人的落款。" action={aboutLink} />
-        <p className="hint" role="status">正在加载博主资料…</p>
-        <div className="admin-profile-skeleton" aria-hidden="true"><div /><div /><div /></div>
-      </section>
-    )
-  }
-
-  if (loadState === 'error' && !profile) {
-    return (
-      <section className="admin-profile-page" role="region" aria-label="博主资料管理" data-page-state="error">
-        <AdminPageHead index="04" eyebrow="OWNER PROFILE" title="博主资料" description="这里的名字、头像和简介，会成为小屋主人的落款。" action={aboutLink} />
-        <div className="admin-profile-load-error" role="alert">
-          <p>{error || '博主资料暂时无法加载。'}</p>
-          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setLoadAttempt((value) => value + 1)}>重新加载</button>
-        </div>
-      </section>
-    )
-  }
-
-  return (
-    <section className="admin-profile-page" role="region" aria-label="博主资料管理" data-page-state={loadState}>
-      <AdminPageHead
-        index="04"
-        eyebrow="OWNER PROFILE"
-        title="博主资料"
-        description="这里的名字、头像和简介，会成为小屋主人的落款。"
-        action={aboutLink}
-      />
-
-      {!profile ? (
-        <section className="admin-profile-identity" aria-label="公开身份">
-          <div className="field">
-          <p className="hint">
-            还没有博主账号。创建后它会成为「关于我」页的主角，也能用于网站登录。
-          </p>
-          <div className="field">
-            <label htmlFor="a-email">博主邮箱</label>
-            <input
-              id="a-email"
-              type="email"
-              value={email}
-              onChange={(event) => {
-                setEmail(event.target.value)
-                setSaveState('dirty')
-                setError('')
-              }}
-              placeholder="you@example.com"
-              autoComplete="email"
-            />
-          </div>
-          <div className="field">
-            <label htmlFor="a-pass">密码（至少 6 位）</label>
-            <input
-              id="a-pass"
-              type="password"
-              value={password}
-              onChange={(event) => {
-                setPassword(event.target.value)
-                setSaveState('dirty')
-                setError('')
-              }}
-              autoComplete="new-password"
-            />
-          </div>
-        </div>
+  const aboutLink = <Link href="/about" target="_blank" rel="noreferrer" className="ap-button">查看关于页 ↗</Link>
+  const head = <header className="ap-page-head"><div><p className="ap-eyebrow">OWNER PROFILE / 小屋落款</p><h1>字里行间，留一个你。</h1><p className="ap-description">名字、头像与自序，是这间小屋递给来人的第一封信。</p></div>{aboutLink}</header>
+  if (!loaded) return <section className="ap-profile-page" role="region" aria-label="博主资料管理" data-page-state="loading">{head}<p className="ap-feedback" role="status">正在加载博主资料…</p></section>
+  if (loadState === 'error' && !profile) return <section className="ap-profile-page" role="region" aria-label="博主资料管理" data-page-state="error">{head}<div className="ap-feedback" role="alert"><p>{error || '博主资料暂时无法加载。'}</p><button type="button" className="ap-button" onClick={() => setLoadAttempt(value => value + 1)}>重新加载</button></div></section>
+  const avatar = avatarUrl ? <img src={avatarUrl} alt="当前头像" /> : <span className="ap-profile-monogram" role="img" aria-label="尚未设置头像">{Array.from(nickname)[0] || '影'}</span>
+  const preview = getAboutSections(bio)
+  return <section className="ap-profile-page" role="region" aria-label="博主资料管理" data-page-state={loadState}>
+    {head}
+    <div className="ap-profile-workspace">
+      <form className="ap-sheet ap-profile-manuscript" onSubmit={event => { event.preventDefault(); void save() }} aria-label="博主资料表单">
+        <header className="ap-sheet-head"><div><p className="ap-eyebrow">01 / IDENTITY & PREFACE</p><h2>落款与自序</h2></div><span className="ap-chip">{profile ? '已建档' : '首次建档'}</span></header>
+        {!profile && <section className="ap-profile-create" aria-label="首次建档"><p className="ap-status">还没有博主账号。创建后可用于网站登录，也会成为关于页的主角。</p><div className="ap-profile-account-fields"><label className="ap-control"><span>博主邮箱</span><input type="email" value={email} required disabled={busy} onChange={event => { setEmail(event.target.value); changed() }} autoComplete="email" placeholder="you@example.com" /></label><label className="ap-control"><span>密码（至少 6 位）</span><input type="password" value={password} required minLength={6} disabled={busy} onChange={event => { setPassword(event.target.value); changed() }} autoComplete="new-password" /></label></div></section>}
+        <section className="ap-profile-identity" aria-label="公开身份">
+          <div className="ap-profile-avatar-frame">{avatar}<span>小屋主人</span></div>
+          <div className="ap-profile-identity-fields"><label className="ap-control"><span>昵称</span><input aria-label="昵称" value={nickname} onChange={event => { setNickname(event.target.value); changed() }} placeholder="怎么称呼你？" required maxLength={40} /><small>显示在文章落款与关于页。</small></label><div className="ap-profile-avatar-controls"><label className="ap-button">上传头像<input className="ap-sr" type="file" accept="image/*" aria-label="上传头像" disabled={busy} onChange={event => { const file = event.target.files?.[0]; if (file) void uploadAvatar(file); event.target.value = '' }} /></label><span>图片 · 不超过 5 MB</span></div>{avatarState === 'uploading' && <p className="ap-status" role="status">头像上传中…</p>}</div>
         </section>
-      ) : null}
-
-      <section className="admin-profile-identity" aria-label="公开身份">
-      <div className="account-avatar">
-        {avatarUrl ? (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img src={avatarUrl} alt="当前头像" />
-        ) : (
-          <span className="placeholder" aria-label="尚未设置头像">影</span>
-        )}
-        <label className="btn btn-ghost btn-sm">
-          上传头像
-          <input
-            type="file"
-            accept="image/*"
-            hidden
-            disabled={busy}
-            onChange={(event) => {
-              const file = event.target.files?.[0]
-              if (file) void uploadAvatar(file)
-              event.target.value = ''
-            }}
-          />
-        </label>
-      </div>
-
-      <div className="field">
-        <label htmlFor="a-name">昵称</label>
-        <input
-          id="a-name"
-          type="text"
-          value={nickname}
-          onChange={(event) => {
-            setNickname(event.target.value)
-            setSaveState('dirty')
-            setError('')
-          }}
-          placeholder="怎么称呼你？"
-        />
-      </div>
-      </section>
-
-      <section className="admin-profile-bio" aria-label="个人介绍正文">
-      <div className="field">
-        <label htmlFor="a-bio">个人简介（显示在「关于我」）</label>
-        <textarea
-          id="a-bio"
-          aria-label="个人简介"
-          value={bio}
-          onChange={(event) => {
-            setBio(event.target.value)
-            setSaveState('dirty')
-            setError('')
-          }}
-          onKeyDown={indentBio}
-          placeholder="一行写一段；按 Tab 可插入中文段首缩进"
-          style={{ minHeight: 120 }}
-        />
-        <p className="field-help">换行会按独立段落展示；Tab 会插入两个中文全角空格。</p>
-      </div>
-      </section>
-
-      <div className="admin-profile-save-bar">
-        <p className="profile-dirty-state" aria-live="polite">
-          {dirty ? '有未保存更改' : '所有更改均已保存'}
-        </p>
-        <span className="profile-save-state" data-testid="profile-save-state" data-save-state={saveState} aria-live="polite">
-          {saveState === 'saving' ? '正在保存' : saveState === 'error' ? '保存失败' : saveState === 'dirty' ? '待保存' : '已保存'}
-        </span>
-      </div>
-      {error ? <p className="error-text" role="alert">{error}</p> : null}
-
-      <div className="editor-actions">
-        <button className="btn" type="button" onClick={() => void save()} disabled={busy || !dirty}>
-          {busy ? '保存中…' : profile ? '保存资料' : '创建博主账号'}
-        </button>
-      </div>
-      {avatarState === 'uploading' ? <p className="profile-upload-state" role="status">头像上传中…</p> : null}
-    </section>
-  )
+        <section className="ap-profile-writing" aria-label="个人介绍正文">
+          <div className="ap-profile-writing-head"><label htmlFor="profile-bio">小屋自序 · Markdown</label><span>{Array.from(bio).length} 字</span></div>
+          <div className="ap-profile-md-toolbar" role="toolbar" aria-label="Markdown 格式工具">
+            <button type="button" onClick={() => formatBio('\n## ', '\n', '标题')}>二级标题</button><button type="button" onClick={() => formatBio('**', '**')}>加粗</button><button type="button" onClick={() => formatBio('*', '*')}>斜体</button><button type="button" onClick={() => formatBio('\n- ', '\n', '列表项')}>列表</button><button type="button" onClick={() => formatBio('\n> ', '\n', '引用')}>引用</button><button type="button" onClick={() => formatBio('[', '](https://example.com)', '链接文字')}>链接</button><button type="button" onClick={() => formatBio('\n```\n', '\n```\n', '代码')}>代码块</button>
+          </div>
+          <textarea ref={bioInput} id="profile-bio" aria-label="个人简介" aria-describedby="profile-markdown-help" spellCheck={false} value={bio} onChange={event => { setBio(event.target.value); changed() }} placeholder={'## 寻常日子，认真过。\n\n在这里，写下你的自序。'} />
+          <p id="profile-markdown-help" className="ap-profile-writing-help">支持 Markdown 标题、列表、引用、链接、表格与代码块；右侧预览随书写更新。Ctrl / ⌘ + S 保存。</p>
+        </section>
+        {error && <p className="ap-error" role="alert">{error}</p>}
+        <footer className="ap-profile-save"><div className="ap-status"><p aria-live="polite">{dirty ? '有未保存更改' : '所有更改均已保存'}</p><span className="ap-profile-save-state" data-testid="profile-save-state" data-save-state={saveState} aria-live="polite">{saveState === 'saving' ? '正在保存' : saveState === 'error' ? '保存失败' : saveState === 'dirty' ? '待保存' : '已保存'}</span></div><div className="ap-toolbar"><button type="button" className="ap-quiet" disabled={busy || !dirty} onClick={() => { revision.current += 1; setNickname(baseline.nickname); setBio(baseline.bio); setAvatarUrl(baseline.avatar_url); setSaveState('saved'); setError('') }}>还原这一稿</button><button className="ap-primary" type="submit" disabled={busy || !dirty}>{busy ? '保存中…' : profile ? '保存资料' : '创建博主账号'}</button></div></footer>
+      </form>
+      <aside className="ap-profile-preview-column"><div className="ap-profile-preview-label"><span>02 / 留给来人的模样</span><i aria-hidden="true">署</i></div>
+        <article className="ap-item ap-profile-card" role="region" aria-label="资料预览"><p className="ap-eyebrow">THE ONE BEHIND THE WORDS</p><div className="ap-profile-card-avatar">{avatarUrl ? <img src={avatarUrl} alt="头像预览" /> : <span className="ap-profile-monogram" aria-hidden="true">{Array.from(nickname)[0] || '影'}</span>}<span>小屋主人</span><i className="desk-seal" aria-hidden="true">署</i></div><h2 id="profile-preview-name">{nickname || '小屋主人'}</h2><p className="ap-profile-card-subtitle">博主 · 似水流年</p><div id="profile-preview-bio" tabIndex={0}>{bio.trim() ? <MarkdownView content={bio} preserveParagraphs={preview.preserveParagraphs} /> : <p className="ap-status">写下自序，让来人认识你。</p>}</div><footer>文字 / 日常 / 风景 <i aria-hidden="true">记</i></footer></article>
+        <p className="ap-profile-preview-foot">窗前有纸，纸上有你。<span>此处为实时资料预览，保存后在前台生效。</span></p>
+      </aside>
+    </div><footer className="ap-footer"><span>落款与自序 · 慢慢写成篇</span><span>写于似水流年</span></footer>
+  </section>
 }

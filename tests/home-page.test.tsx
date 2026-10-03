@@ -42,6 +42,12 @@ const guestbookEntry = {
 
 describe('P01 home page composition', () => {
   beforeEach(() => {
+    // jsdom has no Web Animations API. Quote orbit timing is verified through
+    // the controlled rAF queue below; these two decorative echoes need handles.
+    vi.stubGlobal('Animation', class {})
+    Object.defineProperty(Element.prototype, 'animate', { configurable: true, writable: true,
+      value: vi.fn(() => ({ cancel: vi.fn() })),
+    })
     // 换句钮要读 prefers-reduced-motion；jsdom 默认没有 matchMedia。
     // 注意：不能写成 stubGlobal('matchMedia', …) 再把它赋给 window.matchMedia，
     // 那样等于让 window.matchMedia 指向自己，调用时会无限递归直到耗尽内存。
@@ -64,6 +70,7 @@ describe('P01 home page composition', () => {
     cleanup()
     vi.restoreAllMocks()
     vi.unstubAllGlobals()
+    Reflect.deleteProperty(Element.prototype, 'animate')
   })
 
   /** 受控帧队列：由测试决定什么时候前进一帧，避免 rAF 递归把栈打满。 */

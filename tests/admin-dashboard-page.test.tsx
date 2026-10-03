@@ -127,4 +127,17 @@ describe('M02 admin dashboard', () => {
     expect(screen.queryByRole('link', { name: '山中一日' })).not.toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
+
+  it('sorts saved articles locally while keeping each row tied to the correct editor', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response(posts))
+    vi.stubGlobal('fetch', fetchMock)
+    render(<AdminDashboard />)
+    const list = await screen.findByRole('list', { name: '文章列表' })
+
+    expect(within(list).getAllByRole('listitem').map((row) => row.getAttribute('data-post-id'))).toEqual(['post-2', 'post-1'])
+    fireEvent.change(screen.getByRole('combobox', { name: '排列' }), { target: { value: 'oldest' } })
+    expect(within(list).getAllByRole('listitem').map((row) => row.getAttribute('data-post-id'))).toEqual(['post-1', 'post-2'])
+    expect(within(list).getByRole('link', { name: '山中一日' })).toHaveAttribute('href', '/admin/editor?id=post-1')
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
 })

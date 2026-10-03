@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import type { Post } from '@/lib/blog'
 import CnNum from '@/components/CnNum'
+import MarkdownExcerpt from '@/components/MarkdownExcerpt'
 import Pagination from '@/components/Pagination'
 import ResourcePrefetchLink from '@/components/ResourcePrefetchLink'
 
@@ -114,7 +115,7 @@ function Entry({
             {post.title}
           </ResourcePrefetchLink>
         </h3>
-        {post.excerpt ? <p className="entry-excerpt">{post.excerpt}</p> : null}
+        {post.excerpt ? <p className="entry-excerpt"><MarkdownExcerpt content={post.excerpt} /></p> : null}
       </div>
 
       <div className="entry-info">

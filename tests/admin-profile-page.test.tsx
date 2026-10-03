@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
@@ -105,5 +105,37 @@ describe('M06 admin profile workspace', () => {
     document.dispatchEvent(event)
     await waitFor(() => expect(screen.getByTestId('profile-save-state')).toHaveAttribute('data-save-state', 'saved'))
     expect(event.defaultPrevented).toBe(true)
+  })
+
+  it('renders Markdown with the site renderer and saves the exact source', async () => {
+    const source = '## 自序\n\n**认真写字**\n\n- 山路\n- 光影\n\n```js\nconst x = 1\n```'
+    const fetcher = vi.fn().mockResolvedValueOnce(response(profile)).mockResolvedValueOnce(response({ ok: true })).mockResolvedValue(response({ ...profile, bio: source }))
+    vi.stubGlobal('fetch', fetcher)
+    render(<AdminProfile />)
+    const input = await screen.findByRole('textbox', { name: '个人简介' })
+    fireEvent.change(input, { target: { value: source } })
+    const preview = screen.getByRole('region', { name: '资料预览' })
+    expect(within(preview).getByRole('heading', { name: '自序' })).toBeInTheDocument()
+    expect(within(preview).getByText('认真写字').tagName).toBe('STRONG')
+    expect(within(preview).getAllByRole('listitem')).toHaveLength(2)
+    expect(within(preview).getByText('const x = 1').tagName).toBe('CODE')
+    fireEvent.click(screen.getByRole('button', { name: '保存资料' }))
+    await waitFor(() => expect(screen.getByTestId('profile-save-state')).toHaveAttribute('data-save-state', 'saved'))
+    expect(JSON.parse(fetcher.mock.calls[1][1].body).bio).toBe(source)
+  })
+
+  it('keeps newer Markdown edits when an earlier save returns late', async () => {
+    let complete!: (value: Response) => void
+    const saved = { ...profile, bio: '## 已送出的自序' }
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(response(profile)).mockImplementationOnce(() => new Promise<Response>(resolve => { complete = resolve })).mockResolvedValue(response(saved)))
+    render(<AdminProfile />)
+    const input = await screen.findByRole('textbox', { name: '个人简介' })
+    fireEvent.change(input, { target: { value: saved.bio } })
+    fireEvent.click(screen.getByRole('button', { name: '保存资料' }))
+    fireEvent.change(input, { target: { value: '## 仍在写的新自序' } })
+    complete(response({ ok: true }))
+    await waitFor(() => expect(screen.getByRole('button', { name: '保存资料' })).toBeEnabled())
+    expect(input).toHaveValue('## 仍在写的新自序')
+    expect(screen.getByTestId('profile-save-state')).toHaveAttribute('data-save-state', 'dirty')
   })
 })

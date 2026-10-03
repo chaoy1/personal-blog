@@ -2,6 +2,7 @@ import ResourcePrefetchLink from '@/components/ResourcePrefetchLink'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import MarkdownView from '@/components/MarkdownView'
+import MarkdownExcerpt from '@/components/MarkdownExcerpt'
 import Comments from '@/components/Comments'
 import ScrollFX from '@/components/ScrollFX'
 import ArticleNav from '@/components/ArticleNav'
@@ -170,7 +171,7 @@ export default async function PostPage({ params }: Props) {
                 <span className="art-title-line">{post.title}</span>
               )}
             </h1>
-            {post.excerpt ? <p className="art-lede">{post.excerpt}</p> : null}
+            {post.excerpt ? <p className="art-lede"><MarkdownExcerpt content={post.excerpt} /></p> : null}
             <div className="art-meta">
               <time dateTime={post.created_at}>{formatDate(post.created_at)}</time>
               <b aria-hidden="true" />

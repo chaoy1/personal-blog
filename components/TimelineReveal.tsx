@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
+import MarkdownExcerpt from '@/components/MarkdownExcerpt'
 import { formatDate } from '@/lib/blog'
 import {
   PULL,
@@ -358,7 +359,7 @@ export default function TimelineReveal({ entries }: { entries: TimelineEntry[] }
                         <h3 className="tl-title">
                           <Link href={e.href}>{e.title}</Link>
                         </h3>
-                        {e.excerpt ? <p className="tl-excerpt">{e.excerpt}</p> : null}
+                        {e.excerpt ? <p className="tl-excerpt"><MarkdownExcerpt content={e.excerpt} /></p> : null}
                         <Link className="tl-more" href={e.href}>
                           {e.type === 'post' ? '阅读全文 →' : '查看全部 →'}
                         </Link>

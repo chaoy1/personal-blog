@@ -12,6 +12,7 @@ vi.mock('next/link', () => ({
 }))
 
 vi.mock('next/navigation', () => ({ useRouter: () => mocks.router }))
+vi.mock('@/components/ThemeToggle', () => ({ default: () => <button type="button">昼夜</button> }))
 
 import AdminLoginPage from '@/app/admin/login/page'
 
@@ -59,5 +60,16 @@ describe('admin login page', () => {
     fireEvent.submit(screen.getByRole('form', { name: '后台登录表单' }))
 
     await waitFor(() => expect(mocks.router.replace).toHaveBeenCalledWith('/admin/photos?album=1'))
+  })
+
+  it('toggles password visibility without changing the login value', () => {
+    render(<AdminLoginPage />)
+    const input = screen.getByLabelText('管理密码')
+    fireEvent.change(input, { target: { value: 'unchanged-password' } })
+    fireEvent.click(screen.getByRole('button', { name: '显示密码' }))
+    expect(input).toHaveAttribute('type', 'text')
+    expect(input).toHaveValue('unchanged-password')
+    fireEvent.click(screen.getByRole('button', { name: '隐藏密码' }))
+    expect(input).toHaveAttribute('type', 'password')
   })
 })

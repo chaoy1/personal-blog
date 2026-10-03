@@ -1,0 +1,62 @@
+/* Approved source: effect-preview/admin-profile-v1.html. */
+.desk-scene .ap-profile-workspace {display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:30px;align-items:start;}
+.desk-scene .ap-profile-manuscript {padding:25px 28px;}
+.desk-scene .ap-profile-identity {display:flex;align-items:center;gap:26px;padding:3px 0 24px;border-bottom:1px solid var(--fine);}
+.desk-scene .ap-profile-avatar-frame {flex:none;width:124px;padding:7px 7px 9px;background:var(--card);border:1px solid var(--line);box-shadow:3px 4px 0 var(--fine);transform:rotate(-2deg);}
+.desk-scene .ap-profile-avatar-frame img {display:block;width:108px;height:110px;object-fit:cover;background:var(--well);}
+.desk-scene .ap-profile-avatar-frame>span {display:block;text-align:center;margin-top:8px;font:13px var(--brush);color:var(--soft);letter-spacing:.1em;}
+.desk-scene .ap-profile-identity-fields {flex:1;min-width:0;}
+.desk-scene .ap-profile-avatar-controls {display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin-top:14px;}
+.desk-scene .ap-profile-avatar-controls>span {font:9px var(--song);color:var(--faint);}
+.desk-scene .ap-profile-writing {padding-top:23px;}
+.desk-scene .ap-profile-writing-head {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;}
+.desk-scene .ap-profile-writing-head label {font:25px var(--brush);}
+.desk-scene .ap-profile-writing-head span {font:10px var(--song);color:var(--faint);}
+.desk-scene #profile-bio {width:100%;min-height:392px;padding:14px 16px;border:1px solid var(--fine);border-left:3px solid color-mix(in srgb,var(--seal) 30%,var(--fine));background:repeating-linear-gradient(transparent 0 31px,color-mix(in srgb,var(--fine) 45%,transparent) 31px 32px),var(--card);font:14px/32px var(--song);color:var(--ink);resize:vertical;}
+.desk-scene .ap-profile-writing-help {font:10px/1.8 var(--song);color:var(--faint);margin-top:10px;}
+.desk-scene .ap-profile-save {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:22px;padding-top:17px;border-top:1px solid var(--line);}
+.desk-scene #profile-state {font:11px var(--song);color:var(--soft);}
+.desk-scene .ap-profile-save .ap-primary {font-size:17px;padding:10px 15px;}
+.desk-scene .ap-profile-preview-column {position:sticky;top:25px;}
+.desk-scene .ap-profile-preview-label {display:flex;justify-content:space-between;align-items:center;margin:4px 0 18px;font:10px var(--song);color:var(--soft);}
+.desk-scene .ap-profile-preview-label i {font:20px var(--brush);font-style:normal;color:var(--seal);}
+.desk-scene .ap-profile-card {padding:24px 23px 18px;text-align:center;border:1px solid var(--line);box-shadow:4px 5px 0 -1px var(--paper),4px 5px 0 var(--line);}
+.desk-scene .ap-profile-card>.ap-eyebrow {font-size:8px;letter-spacing:.09em;}
+.desk-scene .ap-profile-card-avatar {position:relative;width:152px;margin:23px auto 21px;padding:8px 8px 10px;background:var(--paper);border:1px solid var(--line);transform:rotate(-3deg);}
+.desk-scene .ap-profile-card-avatar img {width:134px;height:140px;display:block;object-fit:cover;background:var(--well);}
+.desk-scene .ap-profile-card-avatar>span {display:block;font:13px var(--brush);margin-top:8px;letter-spacing:.08em;}
+.desk-scene .ap-profile-card-avatar .desk-seal {position:absolute;right:-12px;bottom:16px;width:27px;height:30px;font-size:18px;transform:rotate(7deg);}
+.desk-scene #profile-preview-name {font:34px/1.4 var(--brush);font-weight:400;overflow-wrap:anywhere;}
+.desk-scene .ap-profile-card-subtitle {font:10px var(--song);color:var(--faint);margin:6px 0 22px;}
+.desk-scene #profile-preview-bio {text-align:left;border-block:1px solid var(--fine);padding:17px 0 10px;font:12px/2 var(--song);overflow-wrap:anywhere;}
+.desk-scene #profile-preview-bio h3 {font:20px/1.5 var(--brush);font-weight:400;margin:2px 0 11px;}
+.desk-scene #profile-preview-bio p {margin-bottom:13px;}
+.desk-scene #profile-preview-bio blockquote {margin:12px 0;padding-left:11px;border-left:2px solid var(--pine);color:var(--soft);}
+.desk-scene .ap-profile-card>footer {display:flex;align-items:center;justify-content:space-between;font:9px var(--song);color:var(--faint);padding-top:14px;}
+.desk-scene .ap-profile-card>footer i {font:19px var(--brush);font-style:normal;border:1px solid var(--seal);color:var(--seal);padding:1px 3px;transform:rotate(6deg);}
+.desk-scene .ap-profile-preview-foot {font:16px var(--brush);text-align:center;color:var(--soft);margin-top:24px;}
+.desk-scene .ap-profile-preview-foot span {display:block;font:9px var(--song);color:var(--faint);margin-top:8px;}
+.desk-scene #profile-account {padding:0 0 24px;margin-bottom:24px;border-bottom:1px solid var(--fine);}
+.desk-scene #profile-account>p {color:var(--soft);font:12px/1.8 var(--song);margin-bottom:16px;}
+.desk-scene .ap-profile-account-fields {display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media(max-width:1150px) {.desk-scene .ap-profile-workspace {grid-template-columns:minmax(0,1fr) 265px;gap:23px;}.desk-scene .ap-profile-manuscript {padding:23px 20px;}.desk-scene .ap-profile-identity {gap:18px;}.desk-scene .ap-profile-avatar-frame {width:98px;}.desk-scene .ap-profile-avatar-frame img {width:82px;height:88px;}}
+@media(max-width:900px) {.desk-scene .ap-profile-workspace {grid-template-columns:1fr;}.desk-scene .ap-profile-preview-column {position:static;max-width:480px;width:100%;margin:0 auto;}.desk-scene .ap-profile-card {padding-inline:30px;}}
+@media(max-width:620px) {.desk-scene .ap-profile-manuscript {padding:20px 13px;}.desk-scene .ap-profile-identity {gap:15px;align-items:flex-start;}.desk-scene .ap-profile-avatar-controls {gap:9px;}.desk-scene .ap-profile-avatar-frame {width:83px;padding:5px;}.desk-scene .ap-profile-avatar-frame img {width:71px;height:79px;}.desk-scene .ap-profile-avatar-frame>span {font-size:11px;}.desk-scene .ap-profile-save {align-items:flex-start;}.desk-scene .ap-profile-save>.ap-toolbar {justify-content:space-between;width:100%;}.desk-scene #profile-bio {font-size:16px;min-height:410px;padding-inline:10px;}.desk-scene .ap-profile-account-fields {grid-template-columns:1fr;}.desk-scene .ap-profile-card {padding-inline:23px;}.desk-scene .ap-profile-preview-column {max-width:none;}}
+
+.desk-scene .ap-profile-preview-column .md-body{max-width:none;margin:0;padding:0;font:13px/1.9 var(--song);color:var(--ink);overflow-wrap:anywhere;}
+.desk-scene .ap-profile-preview-column .md-body :is(h1,h2,h3,h4,h5,h6){font:22px/1.5 var(--brush);margin:16px 0 10px;letter-spacing:.04em;}
+.desk-scene .ap-profile-preview-column .md-body p{margin:0 0 13px;line-height:1.9;}
+.desk-scene .ap-profile-preview-column .md-body :is(ul,ol){padding-left:20px;margin:12px 0;}
+.desk-scene .ap-profile-preview-column .md-body blockquote{margin:12px 0;padding:2px 0 2px 12px;border-left:2px solid var(--pine);}
+.desk-scene .ap-profile-preview-column .md-body pre{padding:12px;background:var(--paper);color:var(--ink);font:11px/1.7 monospace;white-space:pre;}
+.desk-scene #profile-preview-bio{max-height:650px;overflow:auto;scrollbar-width:thin;}
+.desk-scene .ap-profile-md-toolbar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:9px 0 12px;}
+.desk-scene .ap-profile-md-toolbar button{padding:5px 8px;border:1px solid var(--fine);background:var(--card);font:12px var(--song);}
+.desk-scene .ap-profile-md-toolbar button:hover{color:var(--seal);border-color:var(--seal);}
+.desk-scene .ap-profile-avatar-frame .ap-profile-monogram{display:grid;place-items:center;height:110px;font:40px var(--brush);background:var(--well);}
+.desk-scene .ap-profile-card-avatar .ap-profile-monogram{display:grid;place-items:center;height:140px;font:48px var(--brush);background:var(--well);}
+.desk-scene .ap-profile-page .ap-primary:disabled{opacity:.5;cursor:default;}
+.desk-scene .ap-profile-create{padding-block:0 24px;margin-bottom:24px;border-bottom:1px solid var(--fine);}
+.desk-scene .ap-profile-save-state{display:block;margin-top:3px;font:10px var(--song);}
+@media(max-width:1150px){.desk-scene .ap-profile-avatar-frame .ap-profile-monogram{height:88px;}}
+@media(max-width:620px){.desk-scene .ap-profile-avatar-frame .ap-profile-monogram{height:79px;}.desk-scene #profile-preview-bio{max-height:500px;}}

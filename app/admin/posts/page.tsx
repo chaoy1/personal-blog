@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import MarkdownView from '@/components/MarkdownView'
 import { formatDate, type Post } from '@/lib/blog'
-import AdminPageHead from '@/components/AdminPageHead'
+import '../articles-paper.css'
 import { useAdminConfirm } from '@/components/admin/AdminConfirmDialog'
 import { useAdminFeedback } from '@/components/admin/AdminFeedback'
 import { runAdminAction } from '@/lib/admin-action'
@@ -40,6 +41,7 @@ export default function AdminDashboard() {
   const [query, setQuery] = useState(initialQuery)
   const [appliedQuery, setAppliedQuery] = useState(initialQuery)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(initialStatus)
+  const [sortOrder, setSortOrder] = useState<'recent' | 'oldest' | 'title'>('recent')
   const postsRef = useRef<Post[] | null>(null)
   const snapshotViewRef = useRef<View | null>(null)
 
@@ -106,8 +108,12 @@ export default function AdminDashboard() {
       const matchesStatus = statusFilter === 'all'
         || (statusFilter === 'published' ? post.published : !post.published)
       return matchesQuery && matchesStatus
-    })
-  }, [appliedQuery, posts, statusFilter])
+    }).sort((a, b) => sortOrder === 'title'
+      ? a.title.localeCompare(b.title, 'zh-CN')
+      : sortOrder === 'oldest'
+        ? a.updated_at.localeCompare(b.updated_at)
+        : b.updated_at.localeCompare(a.updated_at))
+  }, [appliedQuery, posts, statusFilter, sortOrder])
 
   async function moveToTrash(post: Post) {
     const accepted = await confirm({
@@ -164,170 +170,88 @@ export default function AdminDashboard() {
         ? 'error'
         : 'ready'
 
+  const draft = view === 'posts' ? posts?.find((post) => !post.published) : null
+  const publishedCount = posts?.filter((post) => post.published).length ?? 0
+
   return (
-    <section
-      className="admin-dashboard-page"
-      role="region"
-      aria-label="文章管理"
-      data-page-state={pageState}
-    >
+    <section className="ap-posts-page" role="region" aria-label="文章管理" data-page-state={pageState}>
       {dialog}
-      <AdminPageHead
-        index="01"
-        eyebrow="ARTICLE ARCHIVE"
-        title={view === 'trash' ? '回收站' : '文章'}
-        description={view === 'trash' ? '误删的文字可以从这里恢复。' : '整理旧稿，也为下一篇文字留出位置。'}
-        action={(
-          <div className="admin-page-actions">
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={() => {
-                setView((value) => value === 'posts' ? 'trash' : 'posts')
-                setQuery('')
-                setAppliedQuery('')
-                setStatusFilter('all')
-              }}
-            >
-              {view === 'trash' ? '返回文章' : '回收站'}
-            </button>
-            {view === 'posts' ? <Link href="/admin/editor" className="btn">写新文章</Link> : null}
-          </div>
-        )}
-      />
-
-      <div className="admin-filter-bar" role="search" aria-label="文章筛选">
-        <label>
-          <span className="sr-only">搜索文章</span>
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="搜索标题、摘要或 slug"
-          />
-        </label>
-        {view === 'posts' ? (
-          <label>
-            <span className="sr-only">发布状态</span>
-            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}>
-              <option value="all">全部状态</option>
-              <option value="published">已发布</option>
-              <option value="draft">草稿</option>
-            </select>
-          </label>
-        ) : null}
-        {posts ? <span className="hint">显示 {filteredPosts.length} / {posts.length}</span> : null}
-        <button
-          type="button"
-          className="btn btn-ghost btn-sm admin-refresh-button"
-          onClick={() => void load()}
-          disabled={loading || refreshing}
-        >
-          {refreshing ? '刷新中…' : '重新加载'}
-        </button>
-      </div>
-
-      {error ? (
-        <div className="admin-error-state" role="alert">
-          <p>{error}</p>
-          <button type="button" className="btn btn-ghost btn-sm" onClick={() => void load()}>重新加载</button>
+      <header className="ap-page-head">
+        <div>
+          <p className="ap-eyebrow">01 / MANUSCRIPT ARCHIVE</p>
+          <h1>{view === 'trash' ? '旧稿，仍可拾回。' : '文章，收在这里。'}</h1>
+          <p>{view === 'trash' ? '误删的文字可以从这里恢复。' : '整理旧稿，也为下一篇文字留出位置。'}</p>
         </div>
-      ) : null}
-
-      {refreshing ? <p className="hint admin-refresh-status" role="status">正在刷新文章…</p> : null}
-
-      {posts === null ? (
-        <>
-          <p className="hint" role="status">正在加载文章…</p>
-          <div className="admin-list admin-list-skeleton" aria-hidden="true">
-            <div className="admin-row-skeleton" data-testid="admin-row-skeleton" />
-            <div className="admin-row-skeleton" />
-            <div className="admin-row-skeleton" />
+        {view === 'posts' ? <Link href="/admin/editor" className="ap-button ap-primary">＋ 写新文章</Link> : null}
+      </header>
+      <div className="ap-posts-layout">
+        <section className="ap-sheet ap-posts-archive" aria-labelledby="posts-list-title">
+          <header className="ap-sheet-head">
+            <div><p className="ap-eyebrow">篇目册 / ARTICLE INDEX</p><h2 id="posts-list-title">{view === 'trash' ? '回收站' : '成篇与待续'}</h2></div>
+            <button type="button" className="ap-quiet" onClick={() => {
+              setView((value) => value === 'posts' ? 'trash' : 'posts')
+              setQuery(''); setAppliedQuery(''); setStatusFilter('all')
+            }}>{view === 'trash' ? '返回文章' : '回收站'}</button>
+          </header>
+          <div className="ap-posts-filters" role="search" aria-label="文章筛选">
+            <label className="ap-control ap-posts-search"><span>找一篇旧稿</span>
+              <input type="search" aria-label="搜索文章" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索标题、摘要或 slug" />
+            </label>
+            {view === 'posts' ? <label className="ap-control"><span>发布状态</span>
+              <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}>
+                <option value="all">全部状态</option><option value="published">已发布</option><option value="draft">草稿</option>
+              </select>
+            </label> : null}
+            <label className="ap-control"><span>排列</span><select value={sortOrder} onChange={(event) => setSortOrder(event.target.value as typeof sortOrder)}>
+              <option value="recent">最近整理</option><option value="oldest">最早整理</option><option value="title">篇名顺序</option>
+            </select></label>
           </div>
-        </>
-      ) : filteredPosts.length === 0 ? (
-        <div className="empty-state admin-empty-state">
-          <div className="big">空</div>
-          <p>
-            {posts.length > 0
-              ? '没有符合当前筛选条件的文章。'
-              : view === 'trash' ? '回收站是空的。' : '还没有文章，点「写新文章」开始吧。'}
-          </p>
-          {posts.length > 0 && (query || statusFilter !== 'all') ? (
-            <button
-              type="button"
-              className="btn btn-ghost btn-sm"
-              onClick={() => {
-                setQuery('')
-                setAppliedQuery('')
-                setStatusFilter('all')
-              }}
-            >
-              清除筛选
-            </button>
-          ) : null}
-        </div>
-      ) : (
-        <div className="admin-list" role="list" aria-label="文章列表" aria-busy={refreshing}>
-          {filteredPosts.map((post, index) => (
-            <article key={post.id} className="admin-item" role="listitem" data-post-id={post.id}>
-              <span className="admin-item-index" aria-hidden="true">
-                {String(index + 1).padStart(2, '0')}
-              </span>
-              <div>
-                <h3>
-                  <Link href={`/admin/editor?id=${post.id}`} className="admin-item-title">
-                    {post.title}
-                  </Link>
-                  <span
-                    className={`status-tag status-tag-${view === 'trash' ? 'trashed' : post.published ? 'published' : 'draft'}`}
-                    data-status={view === 'trash' ? 'trashed' : post.published ? 'published' : 'draft'}
-                  >
-                    {view === 'trash' ? '已删除' : post.published ? '已发布' : '草稿'}
-                  </span>
-                </h3>
-                <div className="meta">
-                  更新于 {formatDate(post.updated_at)} · /posts/{post.slug.replace(/^trashbin-\d{13}-/, '')}
+          {error ? <div className="ap-article-error" role="alert"><p>{error}</p><button type="button" className="ap-quiet" onClick={() => void load()}>重新加载</button></div> : null}
+          {refreshing ? <p className="ap-article-hint" role="status">正在刷新文章…</p> : null}
+          <div className="ap-posts-table-head" aria-hidden="true"><span>篇目 / 小序</span><span>整理日期</span><span>手边操作</span></div>
+          {posts === null ? <>
+            <p className="ap-article-hint" role="status">正在加载文章…</p>
+            <div className="ap-posts-list" aria-hidden="true"><div className="ap-article-skeleton" data-testid="admin-row-skeleton" /><div className="ap-article-skeleton" /><div className="ap-article-skeleton" /></div>
+          </> : filteredPosts.length === 0 ? <div className="ap-empty">
+            <p>{posts.length > 0 ? '没有符合当前筛选条件的文章。' : view === 'trash' ? '回收站是空的。' : '还没有文章，点「写新文章」开始吧。'}</p>
+            {posts.length > 0 && (query || statusFilter !== 'all') ? <button type="button" className="ap-button" onClick={() => { setQuery(''); setAppliedQuery(''); setStatusFilter('all') }}>清除筛选</button> : null}
+          </div> : <div className="ap-posts-list" role="list" aria-label="文章列表" aria-busy={refreshing}>
+            {filteredPosts.map((post, index) => <article key={post.id} className="ap-item ap-posts-row" role="listitem" data-post-id={post.id}>
+              <span className="ap-posts-row-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+              <div className="ap-posts-row-copy">
+                <h3><Link href={`/admin/editor?id=${post.id}`}>{post.title}</Link></h3>
+                {post.excerpt ? <div className="ap-posts-row-excerpt"><MarkdownView content={post.excerpt} /></div> : null}
+                <div className="ap-posts-row-meta">
+                  <span className="ap-chip" data-status={view === 'trash' ? 'trashed' : post.published ? 'published' : 'draft'}>{view === 'trash' ? '已删除' : post.published ? '已发布' : '草稿'}</span>
+                  <span>/posts/{post.slug.replace(/^trashbin-\d{13}-/, '')}</span>
                 </div>
               </div>
-              <div className="ops">
-                {view === 'trash' ? (
-                  <>
-                    <button type="button" className="btn btn-ghost btn-sm admin-primary-action" onClick={() => void restore(post)}>
-                      恢复
-                    </button>
-                    <details className="admin-more-menu">
-                      <summary>更多操作</summary>
-                      <div className="admin-more-menu-panel">
-                        <button type="button" className="btn btn-danger btn-sm" onClick={() => void removePermanently(post)}>
-                          彻底删除
-                        </button>
-                      </div>
-                    </details>
-                  </>
-                ) : (
-                  <>
-                    {post.published ? (
-                      <Link href={`/posts/${post.slug}`} className="btn btn-ghost btn-sm admin-primary-action">查看前台</Link>
-                    ) : (
-                      <Link href={`/admin/preview/${post.id}`} className="btn btn-ghost btn-sm admin-primary-action">预览草稿</Link>
-                    )}
-                    <Link href={`/admin/editor?id=${post.id}`} className="btn btn-ghost btn-sm admin-primary-action">编辑</Link>
-                    <details className="admin-more-menu">
-                      <summary>更多操作</summary>
-                      <div className="admin-more-menu-panel">
-                        <button type="button" className="btn btn-danger btn-sm" onClick={() => void moveToTrash(post)}>
-                          移入回收站
-                        </button>
-                      </div>
-                    </details>
-                  </>
-                )}
+              <time dateTime={post.updated_at}>{formatDate(post.updated_at)}<small>更新于</small></time>
+              <div className="ap-posts-row-ops">
+                {view === 'trash' ? <button type="button" onClick={() => void restore(post)}>恢复</button> : <>
+                  {post.published ? <Link href={`/posts/${post.slug}`}>查看前台</Link> : <Link href={`/admin/preview/${post.id}`}>预览草稿</Link>}
+                  <Link href={`/admin/editor?id=${post.id}`}>编辑</Link>
+                </>}
+                <details><summary aria-label={`${post.title}：更多操作`}>···</summary><div>
+                  <button type="button" onClick={() => void (view === 'trash' ? removePermanently(post) : moveToTrash(post))}>{view === 'trash' ? '彻底删除' : '移入回收站'}</button>
+                </div></details>
               </div>
-            </article>
-          ))}
-        </div>
-      )}
+            </article>)}
+          </div>}
+          <footer className="ap-posts-list-foot"><span>{posts ? `显示 ${filteredPosts.length} / ${posts.length} 篇` : '篇目正在整理'}</span>
+            <button type="button" className="ap-quiet" onClick={() => void load()} disabled={loading || refreshing}>{refreshing ? '刷新中…' : '重新加载'}</button>
+          </footer>
+        </section>
+        <aside className="ap-posts-margin" aria-label="篇目概览">
+          <section className="ap-sheet ap-posts-directory"><p className="ap-eyebrow">一册文字 / IN THIS NOTEBOOK</p><h2>{view === 'trash' ? <>旧时的，<br />仍可拾回。</> : <>写过的，<br />还想写的。</>}</h2>
+            <dl><div><dt>{view === 'trash' ? '回收站篇目' : '全部篇目'}</dt><dd>{posts === null ? '—' : String(posts.length).padStart(2, '0')}<span>篇</span></dd></div>
+              {view === 'posts' ? <><div><dt>已经成篇</dt><dd>{posts === null ? '—' : String(publishedCount).padStart(2, '0')}<span>篇</span></dd></div><div><dt>留待续写</dt><dd>{posts === null ? '—' : String(posts.length - publishedCount).padStart(2, '0')}<span>篇</span></dd></div></> : null}
+            </dl><p className="ap-posts-directory-note">文字不急着成篇。<br />旧稿有归处，新意有来时。</p><i className="ap-article-small-seal" aria-hidden="true">藏</i>
+          </section>
+          {draft ? <Link href={`/admin/editor?id=${draft.id}`} className="ap-item ap-posts-resume"><small>手稿 / 待续</small><h3>留一页，<br />接着写。</h3><p>上次整理于 {formatDate(draft.updated_at)}</p><span>接着写 <b>↗</b></span></Link> : null}
+        </aside>
+      </div>
+      <footer className="ap-article-footer">篇目有次，文字有时。<span>山窗案头 · 篇目册</span></footer>
     </section>
   )
 }

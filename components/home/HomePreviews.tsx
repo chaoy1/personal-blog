@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import MarkdownExcerpt from '@/components/MarkdownExcerpt'
 
 import Avatar from '@/components/Avatar'
 import CnNum from '@/components/CnNum'
@@ -46,7 +47,7 @@ export default function HomePreviews({ posts, moments, albums, guestbook, errors
               <div className="hpc-copy">
                 <span className="hpc-meta"><span>长文 · ARTICLE</span><time dateTime={post.created_at}>{formatDate(post.created_at)}</time></span>
                 <h3 className="post-title">{post.title}</h3>
-                {post.excerpt ? <span className="ex">{post.excerpt}</span> : null}
+                {post.excerpt ? <span className="ex"><MarkdownExcerpt content={post.excerpt} /></span> : null}
                 <span className="item-foot"><span className="hpc-note">收录于此间手记</span><span className="read">阅读全文</span></span>
               </div>
             </ResourcePrefetchLink>
@@ -63,7 +64,7 @@ export default function HomePreviews({ posts, moments, albums, guestbook, errors
               <span className="hm-index" aria-hidden="true"><b>{String(index + 1).padStart(2, '0')}</b><i>闲</i></span>
               <span className="hm-copy">
                 <span className="hm-meta"><span>片刻 · MOMENT</span><time dateTime={moment.created_at}>{formatDate(moment.created_at)}</time></span>
-                <span className="hm-text">{moment.content || '一张图，胜过千言。'}</span>
+                <span className="hm-text"><MarkdownExcerpt content={moment.content || '一张图，胜过千言。'} /></span>
                 <span className="hm-action">读这一则 <i aria-hidden="true">→</i></span>
               </span>
               {moment.images.length > 0 ? <span className={`hm-thumbs count-${Math.min(moment.images.length, 3)}`} aria-hidden="true">{moment.images.slice(0, 3).map((url) => (

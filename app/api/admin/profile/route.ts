@@ -6,12 +6,13 @@ export async function GET(req: NextRequest) {
   if (!isAdminRequest(req)) {
     return NextResponse.json({ error: '未登录' }, { status: 401 })
   }
-  const { data } = await supabaseAdmin()
+  const { data, error } = await supabaseAdmin()
     .from('profiles')
     .select('id, nickname, bio, avatar_url, role')
     .eq('role', 'owner')
     .maybeSingle()
-  return NextResponse.json(data ?? null)
+  if (error) return NextResponse.json({ error: '博主资料暂时无法读取，请稍后重试。' }, { status: 500 })
+  return NextResponse.json(data ?? null, { headers: { 'Cache-Control': 'private, no-store' } })
 }
 
 export async function POST(req: NextRequest) {
@@ -20,11 +21,13 @@ export async function POST(req: NextRequest) {
   }
   const body = await req.json().catch(() => ({}))
 
-  const { data: existing } = await supabaseAdmin()
+  const { data: existing, error: lookupError } = await supabaseAdmin()
     .from('profiles')
     .select('id, nickname, bio, avatar_url')
     .eq('role', 'owner')
     .maybeSingle()
+
+  if (lookupError) return NextResponse.json({ error: '博主资料暂时无法读取，请稍后重试。' }, { status: 500 })
 
   let ownerId = existing?.id ?? null
   if (!ownerId) {

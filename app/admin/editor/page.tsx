@@ -9,6 +9,7 @@ import { useAdminFeedback } from '@/components/admin/AdminFeedback'
 import { useArticleDraftSync } from '@/components/admin/useArticleDraftSync'
 import type { ArticleDraftSnapshot } from '@/lib/article-draft'
 import { makeSlug } from '@/lib/slug'
+import '../articles-paper.css'
 
 export default function EditorPage() {
   return (
@@ -288,31 +289,31 @@ function Editor() {
   if (loadState !== 'ready') {
     return (
       <section
-        className="admin-editor-page editor-shell-state"
+        className="ap-editor-page ap-editor-shell-state"
         role="region"
         aria-label="文章编辑器"
         data-page-state={loadState}
       >
-        <div className="editor-topbar editor-topbar-state">
-          <Link href="/admin/posts" className="back-link">← 文章列表</Link>
-          <div className="editor-top-title">
+        <div className="ap-page-head">
+          <Link href="/admin/posts" className="ap-quiet">← 文章列表</Link>
+          <div className="ap-editor-top-title">
             <span>WRITING ROOM</span>
             <h1>{isEdit ? '编辑文章' : '写新文章'}</h1>
           </div>
-          <p className="editor-load-status" role="status">
+          <p className="ap-article-hint" role="status">
             {loadState === 'loading' ? '正在加载文章…' : '文章加载失败'}
           </p>
         </div>
         {loadState === 'loading' ? (
-          <div className="editor-loading-stage" aria-busy="true" aria-hidden="true">
+          <div className="ap-sheet ap-article-skeleton" aria-busy="true" aria-hidden="true">
             <div className="editor-loading-line editor-loading-line-title" />
             <div className="editor-loading-line" />
             <div className="editor-loading-line editor-loading-line-body" />
           </div>
         ) : (
-          <div className="editor-load-error" role="alert">
+          <div className="ap-sheet ap-article-error" role="alert">
             <p>{loadError || '加载文章失败'}</p>
-            <button type="button" className="btn btn-ghost" onClick={() => setLoadAttempt((value) => value + 1)}>
+            <button type="button" className="ap-button" onClick={() => setLoadAttempt((value) => value + 1)}>
               重新加载
             </button>
           </div>
@@ -322,130 +323,70 @@ function Editor() {
   }
 
   const writer = (
-    <>
-      <input
-        id="title"
-        className="editor-title"
-        type="text"
-        aria-label="文章标题"
-        value={title}
-        onChange={(e) => handleTitleChange(e.target.value)}
-        placeholder="这篇文章叫什么？"
-      />
-      <div className="md-toolbar" role="toolbar" aria-label="Markdown 快捷插入">
-        <span className="md-toolbar-label" aria-hidden="true">MARKDOWN</span>
-        {toolbar.map((t) => (
-          <button key={t.label} type="button" onClick={t.run} title={`插入：${t.label}`}>
-            {t.label}
-          </button>
-        ))}
-        <button
-          type="button"
-          className={mode === 'preview' ? 'on' : ''}
-          onClick={() => setMode(mode === 'edit' ? 'preview' : 'edit')}
-          title="切换编辑 / 预览"
-        >
-          {mode === 'edit' ? '预览' : '编辑'}
-        </button>
-        <span className="editor-tone-label">底色</span>
-        <span className="editor-tone-picker" aria-label="写作背景">
-          {(['paper', 'plain', 'warm', 'night'] as const).map((tone) => (
-            <button
-              key={tone}
-              type="button"
-              className={`editor-tone-swatch tone-${tone}${editorTone === tone ? ' active' : ''}`}
-              onClick={() => changeEditorTone(tone)}
-              aria-label={{ paper: '宣纸', plain: '素白', warm: '暖杏', night: '夜墨' }[tone]}
-              aria-pressed={editorTone === tone}
-              title={{ paper: '宣纸', plain: '素白', warm: '暖杏', night: '夜墨' }[tone]}
-            />
-          ))}
-        </span>
-      </div>
-      {mode === 'edit' ? (
-        <textarea
-          ref={contentRef}
-          className="editor-body"
-          aria-label="Markdown 正文"
-          value={content}
-          onChange={(e) => {
-            setContent(e.target.value)
-            touchDraft()
-          }}
-          onKeyDown={handleEditorKeyDown}
-          placeholder={'用 Markdown 写作，支持 **加粗**、[链接](https://…)、代码块、表格等。'}
-          spellCheck={false}
-        />
-      ) : (
-        <div className="preview-pane">
-          {content.trim() ? (
-            <MarkdownView content={content} />
-          ) : (
-            <p style={{ color: 'var(--ink-faint)' }}>还没有内容，切回「编辑」开始写。</p>
-          )}
+    <section className="ap-sheet ap-editor-manuscript" aria-label="手稿正文">
+      <header className="ap-editor-paper-head"><span>MANUSCRIPT / 手稿</span><span>{published ? '已刊 · 成篇' : '未刊 · 待续'}</span></header>
+      <label className="ap-editor-title-label" htmlFor="title">篇名</label>
+      <input id="title" className="ap-editor-title-input" type="text" aria-label="文章标题" value={title}
+        onChange={(event) => handleTitleChange(event.target.value)} placeholder="这篇文章叫什么？" />
+      <div className="ap-editor-tool-row">
+        <div className="ap-editor-markdown-tools" role="toolbar" aria-label="Markdown 快捷插入">
+          {toolbar.map((tool) => <button key={tool.label} type="button" onClick={tool.run} title={`插入：${tool.label}`} disabled={mode === 'preview'}>{tool.label}</button>)}
         </div>
-      )}
-      <div className="editor-status" aria-live="polite">
-        <span>{characterCount} 字</span>
-        <span>{paragraphCount} 段</span>
-        <span>{saveStatusText}</span>
+        <div className="ap-editor-modes" role="group" aria-label="正文模式">
+          <button type="button" aria-pressed={mode === 'edit'} onClick={() => setMode('edit')}>编辑</button>
+          <button type="button" aria-pressed={mode === 'preview'} onClick={() => setMode('preview')}>预览</button>
+        </div>
       </div>
-    </>
+      <div className="ap-editor-writing-stage" data-tone={editorTone}>
+        {mode === 'edit' ? <>
+          <label className="ap-editor-body-label" htmlFor="article-content">Markdown 正文</label>
+          <textarea id="article-content" ref={contentRef} aria-label="Markdown 正文" value={content}
+            onChange={(event) => { setContent(event.target.value); touchDraft() }} onKeyDown={handleEditorKeyDown}
+            placeholder={'用 Markdown 写作，支持 **加粗**、[链接](https://…)、代码块、表格等。'} spellCheck={false} />
+        </> : <div className="ap-editor-inline-preview" aria-label="Markdown 正文预览">
+          {content.trim() ? <MarkdownView content={content} /> : <p className="ap-article-hint">还没有内容，切回「编辑」开始写。</p>}
+        </div>}
+      </div>
+      <footer className="ap-editor-paper-foot"><span>{characterCount} 字 · {paragraphCount} 段</span><span>Markdown <i>·</i> Ctrl / ⌘ S 保存</span></footer>
+    </section>
   )
 
   const settings = (
-    <details className="editor-settings">
-      <summary>文章设置</summary>
-      <div className="field">
-        <label htmlFor="slug">链接（slug）</label>
-        <input
-          id="slug"
-          type="text"
-          value={slug}
-          onChange={(e) => {
-            setSlugTouched(true)
-            setSlug(e.target.value)
-            touchDraft()
-          }}
-          placeholder="my-first-post"
-        />
-        <div className="hint">文章地址将是 /posts/{slug || '…'}，只含字母、数字和连字符。</div>
-      </div>
-      <div className="field">
-        <label htmlFor="excerpt">摘要</label>
-        <input
-          id="excerpt"
-          type="text"
-          value={excerpt}
-          onChange={(e) => {
-            setExcerpt(e.target.value)
-            touchDraft()
-          }}
-          placeholder="首页列表里显示的一句话简介（可留空）"
-        />
-      </div>
-      <div
-        className="editor-publish-state"
-        data-testid="editor-publish-state"
-        data-publish-state={published ? 'published' : 'draft'}
-      >
-        <span className={published ? 'published' : undefined}>{published ? '当前状态 · 已发布' : '当前状态 · 草稿'}</span>
-        <p>保存草稿不会出现在前台；点击发布后才会公开。</p>
-      </div>
-    </details>
+    <aside className="ap-editor-margin" aria-label="文章设置">
+      <section className="ap-sheet ap-editor-settings">
+        <header className="ap-sheet-head"><div><p className="ap-eyebrow">THE MARGIN / 页边小记</p><h2>文章设置</h2></div><span className="ap-article-small-seal" aria-hidden="true">录</span></header>
+        <label className="ap-control"><span>链接（slug）</span>
+          <input id="slug" type="text" value={slug} onChange={(event) => { setSlugTouched(true); setSlug(event.target.value); touchDraft() }} placeholder="my-first-post" />
+          <small>文章地址将是 /posts/{slug || '…'}，只含字母、数字和连字符。</small>
+        </label>
+        <label className="ap-control" htmlFor="excerpt"><span>摘要 · Markdown</span>
+          <textarea id="excerpt" aria-label="摘要" value={excerpt} rows={4} onChange={(event) => { setExcerpt(event.target.value); touchDraft() }} placeholder="首页列表里显示的一句话简介（可留空）" />
+        </label>
+        {excerpt.trim() ? <div className="ap-editor-excerpt-preview" aria-label="摘要预览"><MarkdownView content={excerpt} /></div> : null}
+        <div className="ap-editor-publish-state" data-testid="editor-publish-state" data-publish-state={published ? 'published' : 'draft'}>
+          <span className="ap-chip">{published ? '当前状态 · 已发布' : '当前状态 · 草稿'}</span>
+          <p>保存草稿不会出现在前台；点击发布后才会公开。</p>
+        </div>
+      </section>
+      <section className="ap-sheet ap-editor-tone-sheet" aria-labelledby="editor-tone-title">
+        <p className="ap-eyebrow">WRITING SURFACE</p><h2 id="editor-tone-title">挑一张合意的纸。</h2>
+        <div className="ap-editor-tones" role="group" aria-label="写作背景">
+          {(['paper', 'plain', 'warm', 'night'] as const).map((tone) => <button key={tone} type="button" data-tone={tone} onClick={() => changeEditorTone(tone)}
+            aria-label={{ paper: '宣纸', plain: '素白', warm: '暖杏', night: '夜墨' }[tone]} aria-pressed={editorTone === tone}>
+            <i aria-hidden="true" /><span>{{ paper: '宣纸', plain: '素白', warm: '暖杏', night: '夜墨' }[tone]}</span>
+          </button>)}
+        </div>
+      </section>
+      <div className="ap-editor-quiet-note"><span aria-hidden="true" /><p>文字有自己的步调。<br />慢慢写，也很好。</p></div>
+    </aside>
   )
 
   const saveActions = (
-    <div className="editor-save-actions">
-      <button className="btn btn-ghost btn-sm" type="button" onClick={() => void openDraftPreview()} disabled={saving !== null}>
-        预览草稿
-      </button>
-      <button className="btn btn-ghost btn-sm" type="button" onClick={() => void save(false)} disabled={saving !== null}>
-        {saving === 'draft' ? '保存中…' : '保存草稿'}
-      </button>
-      <button className="btn btn-sm" type="button" onClick={() => void save(true)} disabled={saving !== null}>
-        {saving === 'publish' ? '发布中…' : published ? '更新发布' : '发布文章'}
-      </button>
+    <div className="ap-editor-actions">
+      <button type="button" className="ap-quiet" aria-pressed={immersive} onClick={() => setImmersive((value) => !value)}>{immersive ? '← 返回工作台' : '全屏写作'}</button>
+      <button className="ap-button" type="button" onClick={() => void openDraftPreview()} disabled={saving !== null}>预览草稿</button>
+      <button className="ap-button" type="button" onClick={() => void save(false)} disabled={saving !== null}>{saving === 'draft' ? '保存中…' : '保存草稿'}</button>
+      <button className="ap-button ap-primary" type="button" onClick={() => void save(true)} disabled={saving !== null}>{saving === 'publish' ? '发布中…' : published ? '更新发布' : '发布文章'}</button>
     </div>
   )
 
@@ -472,71 +413,22 @@ function Editor() {
     />
   )
 
-  if (immersive) {
-    return (
-      <div className="editor-immersive">
-        {recoveryDialog}
-        <div className="editor-immersive-top">
-          <button type="button" className="editor-quiet-action" onClick={() => setImmersive(false)}>
-            ← 返回工作台
-          </button>
-          <span className="editor-immersive-title">{title || '未命名文章'}</span>
-          {saveActions}
-        </div>
-        <div className={`editor-stage editor-stage-immersive editor-tone-${editorTone}`}>
-          {writer}
-          {settings}
-          {error ? <p className="error-text">{error}</p> : null}
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <section
-      className="admin-editor-page"
-      role="region"
-      aria-label="文章编辑器"
-      data-page-state="ready"
-      data-publish-state={published ? 'published' : 'draft'}
-    >
+    <section className={`ap-editor-page${immersive ? ' ap-editor-is-immersive' : ''}`} role="region" aria-label="文章编辑器"
+      data-page-state="ready" data-publish-state={published ? 'published' : 'draft'}>
       {recoveryDialog}
-      <div className="editor-topbar">
-        <Link href="/admin/posts" className="back-link">
-          ← 文章列表
-        </Link>
-        <div className="editor-top-title">
-          <span>WRITING ROOM</span>
-          <h1>{isEdit ? '编辑文章' : '写新文章'}</h1>
-          <span
-            className="editor-save-indicator"
-            data-testid="editor-save-state"
-            data-save-state={editorSaveState}
-            role="status"
-            aria-live="polite"
-          >
-            {editorSaveText}
-          </span>
-        </div>
-        <div className="editor-top-actions">
-          <button type="button" className="editor-quiet-action" onClick={() => setImmersive(true)}>
-            全屏写作
-          </button>
-          {saveActions}
-        </div>
+      <header className="ap-page-head ap-editor-page-head">
+        <div><p className="ap-eyebrow">01 / WRITING ROOM</p><h1>{isEdit ? '编辑文章' : '写新文章'}</h1><p>接着写，慢慢成篇。把心里的句子，落在这一页纸上。</p></div>
+        <Link href="/admin/posts" className="ap-quiet">← 文章列表</Link>
+      </header>
+      <div className="ap-editor-actionbar">
+        <div className="ap-editor-save-identity"><span className="ap-article-small-seal" aria-hidden="true">稿</span>
+          <span data-testid="editor-save-state" data-save-state={editorSaveState} role="status" aria-live="polite">{editorSaveText}</span>
+        </div>{saveActions}
       </div>
-
-      <div className={`editor-stage editor-tone-${editorTone}`}>
-        {writer}
-        {settings}
-        {error ? <p className="error-text">{error}</p> : null}
-      </div>
-
-      <div className="editor-actions">
-        <Link href="/admin/posts" className="btn btn-ghost">
-          取消
-        </Link>
-      </div>
+      <div className="ap-editor-workspace">{writer}{settings}</div>
+      {error ? <p className="ap-editor-error" role="alert">{error}</p> : null}
+      <footer className="ap-article-footer">山窗常开，文字常新。<Link href="/admin/posts" className="ap-quiet">取消</Link></footer>
     </section>
   )
 }

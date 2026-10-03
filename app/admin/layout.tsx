@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import AdminRouteFrame from '@/components/admin/AdminRouteFrame'
 import { AdminFeedbackProvider } from '@/components/admin/AdminFeedback'
 import './overview.css'
+import './paper-subpages.css'
 
 export const metadata: Metadata = {
   title: '后台管理',

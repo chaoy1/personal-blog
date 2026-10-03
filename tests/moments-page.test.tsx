@@ -51,6 +51,17 @@ function context(overrides: Record<string, unknown> = {}) {
 }
 
 describe('P04 moments page', () => {
+  it('renders published Markdown while preserving ordinary prose line breaks', () => {
+    fixtures.useAuth.mockReturnValue({ user: null })
+    fixtures.useMoments.mockReturnValue(context({ moments: [{ ...moments[0], content: '## 晚风\n\n**茶香**\n\n- 一盏茶\n- 一页书\n\n```js\nconst day = 1\n```' }] }))
+    const view = render(<MomentsPage />)
+    expect(screen.getByRole('heading', { name: '晚风' })).toBeInTheDocument()
+    expect(screen.getByText('茶香').tagName).toBe('STRONG')
+    expect(screen.getByText('const day = 1').tagName).toBe('CODE')
+    fixtures.useMoments.mockReturnValue(context({ moments: [{ ...moments[0], content: '一盏茶\n一页书' }] }))
+    view.rerender(<MomentsPage />)
+    expect(document.querySelectorAll('.moment-body p')).toHaveLength(2)
+  })
   beforeEach(() => {
     fixtures.useAuth.mockReturnValue({ user: null })
     fixtures.useMoments.mockReturnValue(context())
