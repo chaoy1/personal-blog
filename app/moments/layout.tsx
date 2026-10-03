@@ -2,8 +2,7 @@ import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { publicMetadata } from '@/lib/seo'
 import { MomentsProvider } from '@/lib/moments-context'
-import { loadMomentsSnapshot } from '@/lib/public-resource-loaders.server'
-import type { MomentsSnapshot, ServerSnapshot } from '@/lib/public-resource-types'
+import { loadMomentsSnapshot, readInitialSnapshot } from '@/lib/public-resource-loaders.server'
 
 export const metadata: Metadata = publicMetadata({
   path: '/moments',
@@ -12,13 +11,10 @@ export const metadata: Metadata = publicMetadata({
 })
 
 export default async function MomentsLayout({ children }: Readonly<{ children: ReactNode }>) {
-  let initialSnapshot: ServerSnapshot<MomentsSnapshot> | null = null
-  let initialError = ''
-  try {
-    initialSnapshot = await loadMomentsSnapshot()
-  } catch (error) {
-    initialError = error instanceof Error ? error.message : '读取闲语失败'
-  }
+  const { initialSnapshot, initialError } = await readInitialSnapshot(
+    loadMomentsSnapshot,
+    '读取闲语失败',
+  )
 
   return (
     <MomentsProvider initialSnapshot={initialSnapshot} initialError={initialError}>

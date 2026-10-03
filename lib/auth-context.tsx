@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react'
 import { supabaseBrowser } from '@/lib/supabase-browser'
+import { resourceError } from '@/lib/resource-error'
 import type { StoreProfile, StoreUser } from '@/lib/store-types'
 
 export type AuthContextValue = {
@@ -23,11 +24,6 @@ export type AuthContextValue = {
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)
-
-function errMsg(prefix: string, e: unknown): string {
-  const m = e && typeof e === 'object' && 'message' in e ? String((e as { message: unknown }).message) : ''
-  return `${prefix}：${m}`
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false)
@@ -62,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!cancelled) setReady(true)
       } catch (e) {
         if (!cancelled) {
-          setError(errMsg('初始化认证失败', e))
+          setError(resourceError('初始化认证失败', e))
           setReady(true)
         }
       }
@@ -108,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await loadProfile(user.id)
         return null
       } catch (e) {
-        return errMsg('保存失败', e)
+        return resourceError('保存失败', e)
       }
     },
     [user, loadProfile],

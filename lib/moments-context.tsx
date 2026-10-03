@@ -4,24 +4,18 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useRef,
   type ReactNode,
 } from 'react'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 import { useAuth } from '@/lib/auth-context'
 import { loadMoments } from '@/lib/public-resource-loaders.browser'
-import { usePublicResourceCache, useResourceEntry } from '@/lib/public-resource-cache'
-import type { MomentsSnapshot, ServerSnapshot } from '@/lib/public-resource-types'
+import { usePublicResource } from '@/lib/use-public-resource'
+import { resourceError } from '@/lib/resource-error'
+import type { MomentsSnapshot, ServerSnapshot, PublicResourceState } from '@/lib/public-resource-types'
 import type { MomentCommentItem, MomentItem, MomentLikeItem } from '@/lib/store-types'
 
-export type MomentsContextValue = {
-  ready: boolean
-  hasData: boolean
-  isInitialLoading: boolean
-  isRefreshing: boolean
-  error: string
+export type MomentsContextValue = PublicResourceState & {
   isOwner: boolean
   moments: MomentItem[]
   momentComments: MomentCommentItem[]
@@ -38,11 +32,6 @@ export const MomentsContext = createContext<MomentsContextValue | null>(null)
 const EMPTY_SNAPSHOT: MomentsSnapshot = { moments: [], momentComments: [], momentLikes: [] }
 const MOMENTS_KEY = 'moments' as const
 
-function errMsg(prefix: string, e: unknown): string {
-  const m = e && typeof e === 'object' && 'message' in e ? String((e as { message: unknown }).message) : ''
-  return `${prefix}：${m}`
-}
-
 export function MomentsProvider({
   children,
   initialSnapshot,
@@ -53,32 +42,13 @@ export function MomentsProvider({
   initialError?: string
 }) {
   const { user, isOwner } = useAuth()
-  const cache = usePublicResourceCache()
-  const seededRef = useRef<ServerSnapshot<MomentsSnapshot> | null>(null)
-
-  if (initialSnapshot && seededRef.current !== initialSnapshot) {
-    cache.seed(MOMENTS_KEY, initialSnapshot)
-    seededRef.current = initialSnapshot
-  }
-
-  const entry = useResourceEntry<MomentsSnapshot>(MOMENTS_KEY)
-
-  const refreshMoments = useCallback(async () => {
-    await cache.revalidate(MOMENTS_KEY, loadMoments).catch(() => undefined)
-  }, [cache])
-
-  useEffect(() => {
-    const preloadWhenVisible = () => {
-      if (document.visibilityState === 'hidden') return
-      void cache.preload(MOMENTS_KEY, loadMoments).catch(() => undefined)
-    }
-    preloadWhenVisible()
-    const onVisibilityChange = () => {
-      if (document.visibilityState === 'visible') preloadWhenVisible()
-    }
-    document.addEventListener('visibilitychange', onVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
-  }, [cache])
+  const { cache, data, refresh: refreshMoments, ready, hasData, isInitialLoading, isRefreshing, error } = usePublicResource({
+    key: MOMENTS_KEY,
+    loader: loadMoments,
+    emptySnapshot: EMPTY_SNAPSHOT,
+    initialSnapshot,
+    initialError,
+  })
 
   const postMoment = useCallback(
     async (content: string, images: string[]) => {
@@ -91,7 +61,7 @@ export function MomentsProvider({
         await refreshMoments()
         return null
       } catch (e) {
-        return errMsg('发布失败', e)
+        return resourceError('发布失败', e)
       }
     },
     [user, refreshMoments],
@@ -110,7 +80,7 @@ export function MomentsProvider({
         }))
         return null
       } catch (e) {
-        return errMsg('删除失败', e)
+        return resourceError('删除失败', e)
       }
     },
     [user, cache],
@@ -149,7 +119,7 @@ export function MomentsProvider({
         else await refreshMoments()
         return null
       } catch (e) {
-        return errMsg('评论失败', e)
+        return resourceError('评论失败', e)
       }
     },
     [user, cache, refreshMoments],
@@ -180,18 +150,11 @@ export function MomentsProvider({
         return null
       } catch (e) {
         cache.setData(MOMENTS_KEY, before)
-        return errMsg('点赞失败', e)
+        return resourceError('点赞失败', e)
       }
     },
     [user, cache],
   )
-
-  const data = entry.data ?? EMPTY_SNAPSHOT
-  const hasData = entry.data !== null
-  const isInitialLoading = !hasData && (entry.status === 'idle' || entry.status === 'loading')
-  const isRefreshing = hasData && entry.status === 'loading'
-  const error = entry.error || (!hasData ? initialError : '')
-  const ready = hasData || (!isInitialLoading && !error)
 
   const value = useMemo<MomentsContextValue>(
     () => ({

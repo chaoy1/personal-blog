@@ -8,6 +8,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname),
+      // Next.js resolves this marker itself; Vitest uses its empty entry so
+      // server loaders can be exercised with mocked cache/database clients.
+      'server-only': resolve(__dirname, 'node_modules/next/dist/compiled/server-only/empty.js'),
     },
   },
   test: {

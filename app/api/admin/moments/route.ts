@@ -1,26 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isAdminRequest } from '@/lib/admin'
+import { withAdmin, databaseResponse } from '@/lib/admin-route'
 import { supabaseAdmin } from '@/lib/supabase'
 
-export async function GET(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
+export const GET = withAdmin(async (req: NextRequest) => {
   const { data, error } = await supabaseAdmin()
     .from('moments')
     .select('*, profiles!moments_user_id_fkey(nickname, avatar_url)')
     .order('created_at', { ascending: false })
     .limit(100)
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-  return NextResponse.json(data ?? [])
-}
+  return databaseResponse(data ?? [], error)
+})
 
-export async function POST(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
+export const POST = withAdmin(async (req: NextRequest) => {
   const body = await req.json().catch(() => ({}))
   const content = typeof body.content === 'string' ? body.content.trim() : ''
   const images = Array.isArray(body.images)
@@ -47,8 +38,5 @@ export async function POST(req: NextRequest) {
     .insert({ user_id: owner.id, content, images })
     .select('*')
     .single()
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-  return NextResponse.json(data, { status: 201 })
-}
+  return databaseResponse(data, error, 201)
+})

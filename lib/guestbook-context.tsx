@@ -4,24 +4,18 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useRef,
   type ReactNode,
 } from 'react'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 import { useAuth } from '@/lib/auth-context'
 import { loadGuestbook } from '@/lib/public-resource-loaders.browser'
-import { usePublicResourceCache, useResourceEntry } from '@/lib/public-resource-cache'
-import type { GuestbookSnapshot, ServerSnapshot } from '@/lib/public-resource-types'
+import { usePublicResource } from '@/lib/use-public-resource'
+import { resourceError } from '@/lib/resource-error'
+import type { GuestbookSnapshot, ServerSnapshot, PublicResourceState } from '@/lib/public-resource-types'
 import type { GuestbookItem } from '@/lib/store-types'
 
-export type GuestbookContextValue = {
-  ready: boolean
-  hasData: boolean
-  isInitialLoading: boolean
-  isRefreshing: boolean
-  error: string
+export type GuestbookContextValue = PublicResourceState & {
   guestbook: GuestbookItem[]
   refreshGuestbook: () => Promise<void>
   addGuestbook: (content: string, parentId?: string | null) => Promise<string | null>
@@ -33,11 +27,6 @@ export const GuestbookContext = createContext<GuestbookContextValue | null>(null
 const EMPTY_SNAPSHOT: GuestbookSnapshot = { guestbook: [] }
 const GUESTBOOK_KEY = 'guestbook' as const
 
-function errMsg(prefix: string, e: unknown): string {
-  const m = e && typeof e === 'object' && 'message' in e ? String((e as { message: unknown }).message) : ''
-  return `${prefix}：${m}`
-}
-
 export function GuestbookProvider({
   children,
   initialSnapshot,
@@ -48,32 +37,13 @@ export function GuestbookProvider({
   initialError?: string
 }) {
   const { user } = useAuth()
-  const cache = usePublicResourceCache()
-  const seededRef = useRef<ServerSnapshot<GuestbookSnapshot> | null>(null)
-
-  if (initialSnapshot && seededRef.current !== initialSnapshot) {
-    cache.seed(GUESTBOOK_KEY, initialSnapshot)
-    seededRef.current = initialSnapshot
-  }
-
-  const entry = useResourceEntry<GuestbookSnapshot>(GUESTBOOK_KEY)
-
-  const refreshGuestbook = useCallback(async () => {
-    await cache.revalidate(GUESTBOOK_KEY, loadGuestbook).catch(() => undefined)
-  }, [cache])
-
-  useEffect(() => {
-    const preloadWhenVisible = () => {
-      if (document.visibilityState === 'hidden') return
-      void cache.preload(GUESTBOOK_KEY, loadGuestbook).catch(() => undefined)
-    }
-    preloadWhenVisible()
-    const onVisibilityChange = () => {
-      if (document.visibilityState === 'visible') preloadWhenVisible()
-    }
-    document.addEventListener('visibilitychange', onVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
-  }, [cache])
+  const { cache, data, refresh: refreshGuestbook, ready, hasData, isInitialLoading, isRefreshing, error } = usePublicResource({
+    key: GUESTBOOK_KEY,
+    loader: loadGuestbook,
+    emptySnapshot: EMPTY_SNAPSHOT,
+    initialSnapshot,
+    initialError,
+  })
 
   const addGuestbook = useCallback(
     async (content: string, parentId?: string | null) => {
@@ -88,7 +58,7 @@ export function GuestbookProvider({
         await refreshGuestbook()
         return null
       } catch (e) {
-        return errMsg('发表失败', e)
+        return resourceError('发表失败', e)
       }
     },
     [user, refreshGuestbook],
@@ -105,18 +75,11 @@ export function GuestbookProvider({
         }))
         return null
       } catch (e) {
-        return errMsg('删除失败', e)
+        return resourceError('删除失败', e)
       }
     },
     [user, cache],
   )
-
-  const data = entry.data ?? EMPTY_SNAPSHOT
-  const hasData = entry.data !== null
-  const isInitialLoading = !hasData && (entry.status === 'idle' || entry.status === 'loading')
-  const isRefreshing = hasData && entry.status === 'loading'
-  const error = entry.error || (!hasData ? initialError : '')
-  const ready = hasData || (!isInitialLoading && !error)
 
   const value = useMemo<GuestbookContextValue>(
     () => ({

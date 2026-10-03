@@ -4,24 +4,18 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useRef,
   type ReactNode,
 } from 'react'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 import { useAuth } from '@/lib/auth-context'
 import { loadAlbums } from '@/lib/public-resource-loaders.browser'
-import { usePublicResourceCache, useResourceEntry } from '@/lib/public-resource-cache'
-import type { AlbumsSnapshot, ServerSnapshot } from '@/lib/public-resource-types'
+import { usePublicResource } from '@/lib/use-public-resource'
+import { resourceError } from '@/lib/resource-error'
+import type { AlbumsSnapshot, ServerSnapshot, PublicResourceState } from '@/lib/public-resource-types'
 import type { AlbumItem, PhotoItem } from '@/lib/store-types'
 
-export type AlbumsContextValue = {
-  ready: boolean
-  hasData: boolean
-  isInitialLoading: boolean
-  isRefreshing: boolean
-  error: string
+export type AlbumsContextValue = PublicResourceState & {
   albums: AlbumItem[]
   photos: PhotoItem[]
   refreshAlbums: () => Promise<void>
@@ -36,11 +30,6 @@ export const AlbumsContext = createContext<AlbumsContextValue | null>(null)
 const EMPTY_SNAPSHOT: AlbumsSnapshot = { albums: [], photos: [] }
 const ALBUMS_KEY = 'albums' as const
 
-function errMsg(prefix: string, e: unknown): string {
-  const m = e && typeof e === 'object' && 'message' in e ? String((e as { message: unknown }).message) : ''
-  return `${prefix}：${m}`
-}
-
 export function AlbumsProvider({
   children,
   initialSnapshot,
@@ -51,32 +40,13 @@ export function AlbumsProvider({
   initialError?: string
 }) {
   const { user } = useAuth()
-  const cache = usePublicResourceCache()
-  const seededRef = useRef<ServerSnapshot<AlbumsSnapshot> | null>(null)
-
-  if (initialSnapshot && seededRef.current !== initialSnapshot) {
-    cache.seed(ALBUMS_KEY, initialSnapshot)
-    seededRef.current = initialSnapshot
-  }
-
-  const entry = useResourceEntry<AlbumsSnapshot>(ALBUMS_KEY)
-
-  const refreshAlbums = useCallback(async () => {
-    await cache.revalidate(ALBUMS_KEY, loadAlbums).catch(() => undefined)
-  }, [cache])
-
-  useEffect(() => {
-    const preloadWhenVisible = () => {
-      if (document.visibilityState === 'hidden') return
-      void cache.preload(ALBUMS_KEY, loadAlbums).catch(() => undefined)
-    }
-    preloadWhenVisible()
-    const onVisibilityChange = () => {
-      if (document.visibilityState === 'visible') preloadWhenVisible()
-    }
-    document.addEventListener('visibilitychange', onVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
-  }, [cache])
+  const { cache, data, refresh: refreshAlbums, ready, hasData, isInitialLoading, isRefreshing, error } = usePublicResource({
+    key: ALBUMS_KEY,
+    loader: loadAlbums,
+    emptySnapshot: EMPTY_SNAPSHOT,
+    initialSnapshot,
+    initialError,
+  })
 
   const createAlbum = useCallback(
     async (title: string, description: string) => {
@@ -114,7 +84,7 @@ export function AlbumsProvider({
         }))
         return null
       } catch (e) {
-        return errMsg('保存失败', e)
+        return resourceError('保存失败', e)
       }
     },
     [cache],
@@ -131,7 +101,7 @@ export function AlbumsProvider({
         }))
         return null
       } catch (e) {
-        return errMsg('删除失败', e)
+        return resourceError('删除失败', e)
       }
     },
     [cache],
@@ -155,18 +125,11 @@ export function AlbumsProvider({
         })
         return null
       } catch (e) {
-        return errMsg('删除失败', e)
+        return resourceError('删除失败', e)
       }
     },
     [cache],
   )
-
-  const data = entry.data ?? EMPTY_SNAPSHOT
-  const hasData = entry.data !== null
-  const isInitialLoading = !hasData && (entry.status === 'idle' || entry.status === 'loading')
-  const isRefreshing = hasData && entry.status === 'loading'
-  const error = entry.error || (!hasData ? initialError : '')
-  const ready = hasData || (!isInitialLoading && !error)
 
   const value = useMemo<AlbumsContextValue>(
     () => ({

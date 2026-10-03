@@ -22,6 +22,22 @@
 
 其中 `NEXT_PUBLIC_SITE_URL` 要填写实际部署域名（例如 `https://blog.example.com`），用于生成 canonical、sitemap、robots 和社交分享链接；本地开发可以省略，默认使用 `http://localhost:3000`。
 
+## 代码组织
+
+| 位置 | 职责 |
+|---|---|
+| `app/`、`components/` | 页面、交互组件和现有样式 |
+| `lib/public-resource-queries.ts` | 公共内容的共享查询；接收客户端参数，不读取环境变量 |
+| `lib/public-resource-loaders.browser.ts` / `.server.ts` | 分别提供浏览器加载与服务端缓存快照；服务端入口保留 `server-only` 边界 |
+| `lib/use-public-resource.ts` | 资源初始数据、可见性加载、刷新和加载状态 |
+| `lib/*-context.tsx` | 各资源的写入、乐观更新、回滚和上下文接口 |
+| `lib/admin-route.ts`、`app/api/admin/` | 共用后台鉴权与数据库响应；具体校验、业务和特殊错误由接口保留 |
+| `tests/` | 页面、交互、资源缓存和接口行为回归测试 |
+
+新增公共资源时，在共享查询层实现读取逻辑，分别接入浏览器与服务端入口，再由对应 Provider 使用共享生命周期。共享查询模块不要导入服务端或浏览器客户端，避免跨越运行环境边界。
+
+提交前运行 `npm run typecheck`、`npm test`、`npm run build`。本次保持显示效果的重构记录见 [核验记录](docs/qa/2026-10-03-code-refactor.md)。
+
 ## 部署到 Vercel（免费）
 
 1. 把项目推送到 GitHub：

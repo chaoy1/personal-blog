@@ -27,6 +27,14 @@ export type ResourceEntry<T> = {
   promise: Promise<T> | null
 }
 
+export type PublicResourceState = {
+  ready: boolean
+  hasData: boolean
+  isInitialLoading: boolean
+  isRefreshing: boolean
+  error: string
+}
+
 export type {
   AlbumsSnapshot,
   CommentsSnapshot,

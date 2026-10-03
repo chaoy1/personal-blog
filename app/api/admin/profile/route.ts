@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isAdminRequest } from '@/lib/admin'
+import { withAdmin, databaseResponse } from '@/lib/admin-route'
 import { supabaseAdmin } from '@/lib/supabase'
 
-export async function GET(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
+export const GET = withAdmin(async (req: NextRequest) => {
   const { data, error } = await supabaseAdmin()
     .from('profiles')
     .select('id, nickname, bio, avatar_url, role')
@@ -13,12 +10,9 @@ export async function GET(req: NextRequest) {
     .maybeSingle()
   if (error) return NextResponse.json({ error: '博主资料暂时无法读取，请稍后重试。' }, { status: 500 })
   return NextResponse.json(data ?? null, { headers: { 'Cache-Control': 'private, no-store' } })
-}
+})
 
-export async function POST(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
+export const POST = withAdmin(async (req: NextRequest) => {
   const body = await req.json().catch(() => ({}))
 
   const { data: existing, error: lookupError } = await supabaseAdmin()
@@ -74,8 +68,5 @@ export async function POST(req: NextRequest) {
     avatar_url,
     role: 'owner',
   })
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-  return NextResponse.json({ ok: true })
-}
+  return databaseResponse({ ok: true }, error)
+})

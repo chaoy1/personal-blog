@@ -1,14 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isAdminRequest } from '@/lib/admin'
+import { withAdmin } from '@/lib/admin-route'
 import { supabaseAdmin } from '@/lib/supabase'
 
 const BUCKETS = ['avatars', 'photos', 'moments']
 
-export async function POST(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
-
+export const POST = withAdmin(async (req: NextRequest) => {
   const form = await req.formData()
   const bucket = String(form.get('bucket') || '')
   const file = form.get('file')
@@ -28,4 +24,4 @@ export async function POST(req: NextRequest) {
 
   const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}`
   return NextResponse.json({ url })
-}
+})

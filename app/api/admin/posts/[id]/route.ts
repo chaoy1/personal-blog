@@ -1,25 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isAdminRequest } from '@/lib/admin'
+import { withAdmin } from '@/lib/admin-route'
+import type { AdminRouteContext } from '@/lib/admin-route'
 import { getPostById, updatePost, deletePost, movePostToTrash, restorePost } from '@/lib/posts'
 
-type Ctx = {
-  params: Promise<{ id: string }>
-}
-
-export async function GET(req: NextRequest, { params }: Ctx) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
+export const GET = withAdmin(async (req: NextRequest, { params }: AdminRouteContext) => {
   const { id } = await params
   const post = await getPostById(id)
   if (!post) return NextResponse.json({ error: '文章不存在' }, { status: 404 })
   return NextResponse.json(post)
-}
+})
 
-export async function PUT(req: NextRequest, { params }: Ctx) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
+export const PUT = withAdmin(async (req: NextRequest, { params }: AdminRouteContext) => {
   try {
     const { id } = await params
     const body = await req.json()
@@ -32,12 +23,9 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
       { status: message.includes('其他位置更新') ? 409 : 400 },
     )
   }
-}
+})
 
-export async function DELETE(req: NextRequest, { params }: Ctx) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
+export const DELETE = withAdmin(async (req: NextRequest, { params }: AdminRouteContext) => {
   try {
     const { id } = await params
     if (req.nextUrl.searchParams.get('permanent') === '1') await deletePost(id)
@@ -49,12 +37,9 @@ export async function DELETE(req: NextRequest, { params }: Ctx) {
       { status: 400 }
     )
   }
-}
+})
 
-export async function PATCH(req: NextRequest, { params }: Ctx) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
+export const PATCH = withAdmin(async (req: NextRequest, { params }: AdminRouteContext) => {
   try {
     const { id } = await params
     const post = await restorePost(id)
@@ -65,4 +50,4 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
       { status: 400 }
     )
   }
-}
+})

@@ -4,24 +4,18 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useRef,
   type ReactNode,
 } from 'react'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 import { useAuth } from '@/lib/auth-context'
 import { loadComments } from '@/lib/public-resource-loaders.browser'
-import { usePublicResourceCache, useResourceEntry } from '@/lib/public-resource-cache'
-import type { CommentsSnapshot, ServerSnapshot } from '@/lib/public-resource-types'
+import { usePublicResource } from '@/lib/use-public-resource'
+import { resourceError } from '@/lib/resource-error'
+import type { CommentsSnapshot, ServerSnapshot, PublicResourceState } from '@/lib/public-resource-types'
 import type { CommentItem } from '@/lib/store-types'
 
-export type CommentsContextValue = {
-  ready: boolean
-  hasData: boolean
-  isInitialLoading: boolean
-  isRefreshing: boolean
-  error: string
+export type CommentsContextValue = PublicResourceState & {
   comments: CommentItem[]
   refreshComments: () => Promise<void>
   addComment: (postSlug: string, content: string, parentId?: string | null) => Promise<string | null>
@@ -30,11 +24,6 @@ export type CommentsContextValue = {
 export const CommentsContext = createContext<CommentsContextValue | null>(null)
 
 const EMPTY_SNAPSHOT: CommentsSnapshot = { comments: [] }
-
-function errMsg(prefix: string, e: unknown): string {
-  const m = e && typeof e === 'object' && 'message' in e ? String((e as { message: unknown }).message) : ''
-  return `${prefix}：${m}`
-}
 
 export function CommentsProvider({
   children,
@@ -48,33 +37,14 @@ export function CommentsProvider({
   initialError?: string
 }) {
   const { user } = useAuth()
-  const cache = usePublicResourceCache()
-  const key = `comments:${slug ?? '*'}` as `comments:${string}`
-  const seededRef = useRef<ServerSnapshot<CommentsSnapshot> | null>(null)
-
-  if (initialSnapshot && seededRef.current !== initialSnapshot) {
-    cache.seed(key, initialSnapshot)
-    seededRef.current = initialSnapshot
-  }
-
-  const entry = useResourceEntry<CommentsSnapshot>(key)
-
-  const refreshComments = useCallback(async () => {
-    await cache.revalidate(key, () => loadComments(slug)).catch(() => undefined)
-  }, [cache, key, slug])
-
-  useEffect(() => {
-    const preloadWhenVisible = () => {
-      if (document.visibilityState === 'hidden') return
-      void cache.preload(key, () => loadComments(slug)).catch(() => undefined)
-    }
-    preloadWhenVisible()
-    const onVisibilityChange = () => {
-      if (document.visibilityState === 'visible') preloadWhenVisible()
-    }
-    document.addEventListener('visibilitychange', onVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
-  }, [cache, key, slug])
+  const loader = useCallback(() => loadComments(slug), [slug])
+  const { data, refresh: refreshComments, ready, hasData, isInitialLoading, isRefreshing, error } = usePublicResource({
+    key: `comments:${slug ?? '*'}` as `comments:${string}`,
+    loader,
+    emptySnapshot: EMPTY_SNAPSHOT,
+    initialSnapshot,
+    initialError,
+  })
 
   const addComment = useCallback(
     async (postSlug: string, content: string, parentId?: string | null) => {
@@ -89,18 +59,11 @@ export function CommentsProvider({
         await refreshComments()
         return null
       } catch (e) {
-        return errMsg('发表失败', e)
+        return resourceError('发表失败', e)
       }
     },
     [user, refreshComments],
   )
-
-  const data = entry.data ?? EMPTY_SNAPSHOT
-  const hasData = entry.data !== null
-  const isInitialLoading = !hasData && (entry.status === 'idle' || entry.status === 'loading')
-  const isRefreshing = hasData && entry.status === 'loading'
-  const error = entry.error || (!hasData ? initialError : '')
-  const ready = hasData || (!isInitialLoading && !error)
 
   const value = useMemo<CommentsContextValue>(
     () => ({ ready, hasData, isInitialLoading, isRefreshing, error, comments: data.comments, refreshComments, addComment }),

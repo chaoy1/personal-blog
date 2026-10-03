@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isAdminRequest } from '@/lib/admin'
+import { withAdmin } from '@/lib/admin-route'
 import { listAllPosts, createPost } from '@/lib/posts'
 
-export async function GET(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
+export const GET = withAdmin(async (req: NextRequest) => {
   try {
     const posts = await listAllPosts({ trashed: req.nextUrl.searchParams.get('trash') === '1' })
     return NextResponse.json(posts)
@@ -15,12 +12,9 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     )
   }
-}
+})
 
-export async function POST(req: NextRequest) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 })
-  }
+export const POST = withAdmin(async (req: NextRequest) => {
   try {
     const body = await req.json()
     const post = await createPost(body)
@@ -31,4 +25,4 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     )
   }
-}
+})
